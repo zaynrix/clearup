@@ -1,0 +1,68 @@
+import { BaseService } from './BaseService'
+
+/**
+ * WhatsApp Service - Business Logic Layer (Model in MVC)
+ * Contains business logic for WhatsApp operations
+ */
+export class WhatsAppService extends BaseService {
+  /**
+   * Send magic message to WhatsApp number
+   */
+  async sendMagic(phoneNumber: string): Promise<{ success: boolean; message?: string; error?: string }> {
+    if (!this.validate(phoneNumber)) {
+      throw new Error('Phone number is required')
+    }
+
+    // Validate phone number format
+    const cleanedNumber = this.cleanPhoneNumber(phoneNumber)
+    if (!this.isValidPhoneNumber(cleanedNumber)) {
+      throw new Error('Invalid phone number format')
+    }
+
+    try {
+      // TODO: Integrate with actual WhatsApp API or backend service
+      // For now, this is a placeholder
+      // In production, this would call Firebase Functions or your backend API
+      
+      // Example: await firebaseFunctions.httpsCallable('sendWhatsAppMessage')({ phoneNumber: cleanedNumber })
+      
+      // Simulate API call
+      await new Promise(resolve => setTimeout(resolve, 1000))
+      
+      return {
+        success: true,
+        message: 'Magic message sent successfully!'
+      }
+    } catch (error) {
+      throw this.handleError(error)
+    }
+  }
+
+  /**
+   * Clean phone number (remove spaces, dashes, etc.)
+   */
+  private cleanPhoneNumber(phoneNumber: string): string {
+    return phoneNumber.replace(/[\s\-\(\)]/g, '')
+  }
+
+  /**
+   * Validate phone number format
+   */
+  private isValidPhoneNumber(phoneNumber: string): boolean {
+    // Basic validation - accepts numbers with optional + prefix
+    const phoneRegex = /^\+?[\d]{10,15}$/
+    return phoneRegex.test(phoneNumber)
+  }
+
+  /**
+   * Format phone number for display
+   */
+  formatPhoneNumber(phoneNumber: string): string {
+    const cleaned = this.cleanPhoneNumber(phoneNumber)
+    // Add formatting logic if needed
+    return cleaned
+  }
+}
+
+export const whatsAppService = new WhatsAppService()
+
