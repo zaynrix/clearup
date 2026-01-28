@@ -1,3 +1,6 @@
+
+
+
 <template>
   <div class="home-view">
     <!-- Background image -->
