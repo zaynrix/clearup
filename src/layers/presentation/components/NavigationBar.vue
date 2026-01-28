@@ -17,24 +17,32 @@
       <div class="nav-actions">
         <button 
           class="menu-button"
+          :class="{ 'menu-open': isMenuOpen }"
           @click="handleMenuClick"
           :aria-label="isMenuOpen ? 'Close menu' : 'Open menu'"
         >
           <span class="menu-text">Menu</span>
+        </button>
+        <button 
+          class="plus-button"
+          @click="handleMenuClick"
+          :aria-label="isMenuOpen ? 'Close menu' : 'Open menu'"
+        >
           <svg 
             class="plus-icon"
             :class="{ 'rotated': isMenuOpen }"
-            width="32" 
-            height="32" 
-            viewBox="0 0 32 32" 
+            width="20" 
+            height="20" 
+            viewBox="0 0 20 20" 
             fill="none" 
             xmlns="http://www.w3.org/2000/svg"
           >
             <path 
-              fill-rule="evenodd" 
-              clip-rule="evenodd" 
-              d="M16 3.5C16.3978 3.5 16.7794 3.65804 17.0607 3.93934C17.342 4.22064 17.5 4.60218 17.5 5V14.5H27C27.3978 14.5 27.7794 14.658 28.0607 14.9393C28.342 15.2206 28.5 15.6022 28.5 16C28.5 16.3978 28.342 16.7794 28.0607 17.0607C27.7794 17.342 27.3978 17.5 27 17.5H17.5V27C17.5 27.3978 17.342 27.7794 17.0607 28.0607C16.7794 28.342 16.3978 28.5 16 28.5C15.6022 28.5 15.2206 28.342 14.9393 28.0607C14.658 27.7794 14.5 27.3978 14.5 27V17.5H5C4.60218 17.5 4.22064 17.342 3.93934 17.0607C3.65804 16.7794 3.5 16.3978 3.5 16C3.5 15.6022 3.65804 15.2206 3.93934 14.9393C4.22064 14.658 4.60218 14.5 5 14.5H14.5V5C14.5 4.60218 14.658 4.22064 14.9393 3.93934C15.2206 3.65804 15.6022 3.5 16 3.5Z" 
-              fill="#F5F7FA"
+              d="M10 3V17M3 10H17" 
+              stroke="#F5F7FA" 
+              stroke-width="2" 
+              stroke-linecap="round" 
+              stroke-linejoin="round"
             />
           </svg>
         </button>
@@ -124,45 +132,79 @@ const handleLogoClick = () => {
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 14px;
+  gap: 6px;
 }
 
 .menu-button {
   display: flex;
   align-items: center;
-  gap: 14px;
+  justify-content: center;
   padding: 10px 20px;
-  border-radius: 6px;
-  background: linear-gradient(103deg, var(--purple-dark) 0.52%, var(--purple-light) 125.79%);
+  border-radius: 4px;
+  background: linear-gradient(90deg, #5B2096 0%, #C19DE6 100%);
   border: none;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  height: 39px;
+  min-width: 81px;
+  box-shadow: none;
+  position: relative;
 }
 
 .menu-button:hover {
-  opacity: 0.9;
-  transform: translateY(-1px);
+  background: linear-gradient(90deg, #6B2FA6 0%, #D1ADF6 100%);
+  transform: scale(1.02);
 }
 
 .menu-button:active {
-  transform: translateY(0);
+  transform: scale(0.98);
+  background: linear-gradient(90deg, #4B1086 0%, #B18DD6 100%);
+}
+
+.menu-button:focus {
+  outline: none;
+  box-shadow: 0 0 0 2px rgba(193, 157, 230, 0.4);
+}
+
+.menu-button.menu-open {
+  background: linear-gradient(90deg, #C19DE6 0%, #5B2096 100%);
 }
 
 .menu-text {
-  color: var(--naturel-silver);
+  color: #F5F7FA;
   text-align: center;
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-size: 16px;
+  font-size: 14px;
   font-style: normal;
   font-weight: 500;
-  line-height: normal;
+  line-height: 1.2;
+  letter-spacing: 0.01em;
+}
+
+.plus-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.2s ease;
+  width: auto;
+  height: auto;
+}
+
+.plus-button:hover {
+  opacity: 0.8;
 }
 
 .plus-icon {
-  width: 32px;
-  height: 32px;
+  width: 20px;
+  height: 20px;
   flex-shrink: 0;
   transition: transform 0.3s ease;
+  display: block;
 }
 
 .plus-icon.rotated {
@@ -197,13 +239,18 @@ const handleLogoClick = () => {
   }
   
   .plus-icon {
-    width: 24px;
-    height: 24px;
+    width: 18px;
+    height: 18px;
   }
   
   .menu-button {
-    padding: 8px 16px;
-    gap: 10px;
+    padding: 10px 18px;
+    height: 39px;
+    min-width: 75px;
+  }
+  
+  .nav-actions {
+    gap: 5px;
   }
 }
 
@@ -222,8 +269,44 @@ const handleLogoClick = () => {
   }
   
   .menu-button {
-    padding: 10px;
-    gap: 0;
+    padding: 10px 16px;
+    height: 39px;
+    min-width: 60px;
+  }
+  
+  .nav-actions {
+    gap: 4px;
+  }
+  
+  .plus-icon {
+    width: 16px;
+    height: 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .nav-container {
+    padding: 10px 12px 12px 16px;
+    min-height: 60px;
+  }
+  
+  .logo-image {
+    width: 100px;
+  }
+  
+  .menu-button {
+    padding: 8px 12px;
+    height: 36px;
+    min-width: 50px;
+  }
+  
+  .nav-actions {
+    gap: 4px;
+  }
+  
+  .plus-icon {
+    width: 14px;
+    height: 14px;
   }
 }
 </style>
