@@ -15,6 +15,40 @@ const firebaseConfig = {
   measurementId: import.meta.env.VITE_FIREBASE_MEASUREMENT_ID || undefined
 }
 
+// Validate Firebase configuration in development
+if (import.meta.env.DEV) {
+  const hasPlaceholderValues = 
+    firebaseConfig.apiKey === 'your-api-key' ||
+    firebaseConfig.authDomain === 'your-project.firebaseapp.com' ||
+    firebaseConfig.projectId === 'your-project-id' ||
+    firebaseConfig.storageBucket === 'your-project.appspot.com' ||
+    firebaseConfig.messagingSenderId === 'your-sender-id' ||
+    firebaseConfig.appId === 'your-app-id'
+  
+  if (hasPlaceholderValues) {
+    console.warn('⚠️ Firebase configuration appears to be using placeholder values.')
+    console.warn('Please set up your Firebase environment variables in a .env file.')
+    console.warn('See FIREBASE_SETUP.md for instructions.')
+  }
+}
+
+// Validate Firebase configuration in production
+if (import.meta.env.PROD) {
+  const hasPlaceholderValues = 
+    firebaseConfig.apiKey === 'your-api-key' ||
+    firebaseConfig.authDomain === 'your-project.firebaseapp.com' ||
+    firebaseConfig.projectId === 'your-project-id' ||
+    firebaseConfig.storageBucket === 'your-project.appspot.com' ||
+    firebaseConfig.messagingSenderId === 'your-sender-id' ||
+    firebaseConfig.appId === 'your-app-id'
+  
+  if (hasPlaceholderValues) {
+    console.error('❌ Firebase configuration is missing!')
+    console.error('Please set up GitHub Secrets for Firebase environment variables.')
+    console.error('See DEPLOYMENT.md section 5 for instructions.')
+  }
+}
+
 // Initialize Firebase
 let app: FirebaseApp
 let auth: Auth
