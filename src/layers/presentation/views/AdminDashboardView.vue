@@ -864,7 +864,7 @@
 
                           <div v-if="(testimonial.videoUrl || testimonial.videoFileUrl) && testimonial.videoType !== 'none'" class="video-preview">
                             <div v-if="testimonial.videoType === 'link'" class="video-preview-container">
-                              <iframe :src="getVideoEmbedUrl(testimonial.videoUrl)" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+                              <iframe :src="getVideoEmbedUrl(testimonial.videoUrl || '')" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                             </div>
                             <video v-else-if="testimonial.videoType === 'upload'" :src="testimonial.videoFileUrl" controls class="video-preview-player"></video>
                           </div>
@@ -1422,7 +1422,7 @@
                   <div class="log-header">
                     <div class="log-user-info">
                       <div class="log-user-avatar">
-                        {{ (log.userName || log.userEmail || 'U')[0].toUpperCase() }}
+                        {{ ((log.userName || log.userEmail || 'U') as string)[0].toUpperCase() }}
                       </div>
                       <div>
                         <strong class="log-user-name">{{ log.userName || log.userEmail || 'Unknown User' }}</strong>
@@ -1661,7 +1661,7 @@ const userInitials = computed(() => {
     return user.value.displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
   }
   if (user.value?.email) {
-    return user.value.email[0].toUpperCase()
+    return (user.value.email as string)[0].toUpperCase()
   }
   return 'A'
 })
@@ -2043,10 +2043,12 @@ const handleCaseLogoUpload = async (event: Event, caseIndex: number) => {
 }
 
 const addCaseCompanyImage = (caseIndex: number) => {
-  if (!formData.value.realResultsCases[caseIndex].companyImages) {
-    formData.value.realResultsCases[caseIndex].companyImages = []
+  const caseItem = formData.value.realResultsCases[caseIndex]
+  if (!caseItem) return
+  if (!caseItem.companyImages) {
+    caseItem.companyImages = []
   }
-  formData.value.realResultsCases[caseIndex].companyImages.push({
+  caseItem.companyImages.push({
     id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
     imageUrl: '',
     imageFileUrl: '',
@@ -2056,8 +2058,9 @@ const addCaseCompanyImage = (caseIndex: number) => {
 
 const removeCaseCompanyImage = (caseIndex: number, imageIndex: number) => {
   if (confirm('Are you sure you want to remove this image?')) {
-    if (formData.value.realResultsCases[caseIndex].companyImages) {
-      formData.value.realResultsCases[caseIndex].companyImages.splice(imageIndex, 1)
+    const caseItem = formData.value.realResultsCases[caseIndex]
+    if (caseItem?.companyImages) {
+      caseItem.companyImages.splice(imageIndex, 1)
     }
   }
 }
@@ -2117,10 +2120,12 @@ const handleCaseCompanyImageUpload = async (event: Event, caseIndex: number, ima
 }
 
 const addCaseCard = (caseIndex: number) => {
-  if (!formData.value.realResultsCases[caseIndex].cards) {
-    formData.value.realResultsCases[caseIndex].cards = []
+  const caseItem = formData.value.realResultsCases[caseIndex]
+  if (!caseItem) return
+  if (!caseItem.cards) {
+    caseItem.cards = []
   }
-  formData.value.realResultsCases[caseIndex].cards.push({
+  caseItem.cards.push({
     id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
     title: '',
     metric: '',
