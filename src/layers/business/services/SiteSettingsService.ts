@@ -31,7 +31,13 @@ export class SiteSettingsService extends BaseService {
         DOCUMENT_ID
       )
       return settings || DEFAULT_SETTINGS
-    } catch (error) {
+    } catch (error: any) {
+      // If it's a permissions error, log it but return defaults
+      // This allows the app to continue working even if settings can't be fetched
+      if (error?.code === 'permission-denied' || error?.message?.includes('permission')) {
+        console.warn('Site settings permission denied. Using default settings. Make sure Firestore rules allow public reads for site_settings collection.')
+        return DEFAULT_SETTINGS
+      }
       console.error('Error fetching site settings:', error)
       return DEFAULT_SETTINGS
     }

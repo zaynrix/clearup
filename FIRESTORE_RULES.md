@@ -47,10 +47,18 @@
    - Solution: Only access your own user document
 
 3. **Rules not published**: Rules were edited but not published
-   - Solution: Click "Publish" after editing rules
+   - Solution: Click "Publish" after editing rules in Firebase Console
 
 4. **Rules syntax error**: Invalid rule syntax
    - Solution: Check the rules editor for syntax errors (highlighted in red)
+
+5. **Site Settings Permission Error**: If you see "Missing or insufficient permissions" when fetching site settings
+   - **Solution**: 
+     - Go to Firebase Console > Firestore Database > Rules
+     - Make sure the `site_settings` rule is: `allow read: if true;`
+     - Click "Publish" to deploy the rules
+     - Wait a few minutes for rules to propagate
+     - The app will use default settings if it can't fetch from Firestore
 
 ### Testing Rules
 

@@ -8,6 +8,40 @@
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <title>Clear Up</title>
+    <script>
+      // Suppress YouTube embed player violation warnings
+      (function() {
+        const originalWarn = console.warn;
+        const originalError = console.error;
+        
+        // Filter patterns for YouTube embed player violations
+        const filterPatterns = [
+          /\[Violation\].*non-passive event listener/i,
+          /\[Violation\].*scroll-blocking/i,
+          /www-embed-player.*Violation/i,
+          /touchstart.*scroll-blocking/i,
+          /touchmove.*scroll-blocking/i
+        ];
+        
+        const shouldFilter = (message) => {
+          return filterPatterns.some(pattern => pattern.test(message));
+        };
+        
+        console.warn = function(...args) {
+          const message = args.join(' ');
+          if (!shouldFilter(message)) {
+            originalWarn.apply(console, args);
+          }
+        };
+        
+        console.error = function(...args) {
+          const message = args.join(' ');
+          if (!shouldFilter(message)) {
+            originalError.apply(console, args);
+          }
+        };
+      })();
+    </script>
   </head>
   <body>
     <div id="app"></div>
