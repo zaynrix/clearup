@@ -13,6 +13,7 @@
             required
             placeholder="Enter your email"
             :disabled="isLoading"
+            @input="clearErrorOnInput"
           />
         </div>
 
@@ -25,10 +26,16 @@
             required
             placeholder="Enter your password"
             :disabled="isLoading"
+            @input="clearErrorOnInput"
           />
         </div>
 
         <div v-if="errorMessage" class="error-message">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 0.5rem;">
+            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+            <path d="M12 8V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+            <path d="M12 16H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
           {{ errorMessage }}
         </div>
 
@@ -52,10 +59,12 @@
 
 <script setup lang="ts">
 import { ref, computed } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { AuthViewController } from '../controllers/AuthViewController'
+import { userService } from '../services/UserService'
 
 const router = useRouter()
+const route = useRoute()
 const viewController = new AuthViewController()
 
 const email = ref('')
@@ -64,10 +73,46 @@ const password = ref('')
 const isLoading = computed(() => viewController.isLoading)
 const errorMessage = computed(() => viewController.errorMessage)
 
+// Clear error when user starts typing
+const clearErrorOnInput = () => {
+  if (viewController.errorMessage) {
+    viewController.clearError()
+  }
+}
+
 const handleLogin = async () => {
   const success = await viewController.login(email.value, password.value)
   if (success) {
-    router.push('/dashboard')
+    // Wait a bit for user profile to be loaded
+    await new Promise(resolve => setTimeout(resolve, 100))
+    
+    // Get the redirect path from query params, or determine based on user role
+    const redirectPath = route.query.redirect as string | undefined
+    
+    if (redirectPath) {
+      // If there's a redirect query param, use it
+      router.push(redirectPath)
+    } else {
+      // Otherwise, check if user is admin and redirect accordingly
+      const currentUser = viewController.user
+      if (currentUser?.id) {
+        try {
+          const isAdmin = await userService.isAdmin(currentUser.id)
+          if (isAdmin) {
+            router.push('/admin-dashboard')
+          } else {
+            router.push('/dashboard')
+          }
+        } catch (error) {
+          // If admin check fails, default to regular dashboard
+          console.error('Error checking admin status:', error)
+          router.push('/dashboard')
+        }
+      } else {
+        // Fallback to dashboard if user info not available
+        router.push('/dashboard')
+      }
+    }
   }
 }
 </script>
@@ -143,10 +188,14 @@ const handleLogin = async () => {
 
 .error-message {
   padding: 0.75rem;
-  background-color: #fee;
-  color: #c33;
+  background-color: rgba(204, 51, 51, 0.15);
+  color: #ff6b6b;
   border-radius: 4px;
   font-size: 0.9rem;
+  border: 1px solid rgba(204, 51, 51, 0.3);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .submit-button {

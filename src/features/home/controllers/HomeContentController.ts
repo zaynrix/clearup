@@ -49,3 +49,4 @@ export class HomeContentController extends BaseController {
 
 export const homeContentController = new HomeContentController()
 
+

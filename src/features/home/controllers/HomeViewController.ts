@@ -1,36 +1,36 @@
 import { ref, type Ref } from 'vue'
 import { BaseViewController } from '@/shared/BaseViewController'
-import { whatsAppController } from './WhatsAppController'
+import { emailController } from './EmailController'
 
 /**
  * Home View Controller - Presentation Layer (Controller in MVC)
- * Handles landing page interactions and WhatsApp form submission
+ * Handles landing page interactions and email form submission
  */
 export class HomeViewController extends BaseViewController {
-  private whatsappNumber: Ref<string> = ref('')
+  private emailAddress: Ref<string> = ref('')
 
   /**
-   * Set WhatsApp number
+   * Set email address
    */
-  setWhatsAppNumber(number: string): void {
-    this.whatsappNumber.value = number
+  setEmailAddress(email: string): void {
+    this.emailAddress.value = email
   }
 
   /**
-   * Get WhatsApp number
+   * Get email address
    */
-  get phoneNumber(): string {
-    return this.whatsappNumber.value
+  get email(): string {
+    return this.emailAddress.value
   }
 
   /**
-   * Handle WhatsApp form submission
+   * Handle email form submission
    */
-  async handleWhatsAppSubmit(): Promise<boolean> {
-    const number = this.whatsappNumber.value.trim()
+  async handleEmailSubmit(): Promise<boolean> {
+    const email = this.emailAddress.value.trim()
     
-    if (!number) {
-      this.setError('Please enter your WhatsApp number')
+    if (!email) {
+      this.setError('Please enter your email address')
       return false
     }
 
@@ -38,7 +38,7 @@ export class HomeViewController extends BaseViewController {
     this.clearError()
 
     try {
-      const result = await whatsAppController.sendMagic(number)
+      const result = await emailController.submitEmail(email)
       
       if (result.success) {
         this.setLoading(false)
@@ -59,7 +59,7 @@ export class HomeViewController extends BaseViewController {
    * Clear form
    */
   clearForm(): void {
-    this.whatsappNumber.value = ''
+    this.emailAddress.value = ''
     this.clearError()
   }
 }

@@ -55,6 +55,21 @@ service cloud.firestore {
       allow update, delete: if isAuthenticated();
     }
     
+    // Email submissions collection
+    // - Anyone can create submissions (for form submissions from website)
+    // - Authenticated users can read all submissions (for admin dashboard)
+    // - Authenticated users can update/delete submissions
+    match /email_submissions/{submissionId} {
+      // Allow anyone to create email submissions (for public form submissions)
+      allow create: if true;
+      
+      // Allow authenticated users to read submissions
+      allow read: if isAuthenticated();
+      
+      // Allow authenticated users to update/delete submissions
+      allow update, delete: if isAuthenticated();
+    }
+    
     // Home content collection
     // - Anyone can read (for displaying homepage)
     // - Only authenticated users can write (for admin dashboard)

@@ -17,6 +17,14 @@ service firebase.storage {
       allow read: if true;
     }
     
+    // Client Logos folder - authenticated users can upload, anyone can read
+    match /client-logos/{userId}/{allPaths=**} {
+      // Allow authenticated users to upload client logos
+      allow write: if request.auth != null && request.auth.uid == userId;
+      // Allow anyone to read client logos (for displaying on website)
+      allow read: if true;
+    }
+    
     // Real Results Logo folder - authenticated users can upload, anyone can read
     // Handles: real-results/logo/{userId}/... (MUST come before general real-results rule)
     match /real-results/logo/{userId}/{allPaths=**} {

@@ -84,6 +84,7 @@ const DEFAULT_HOME_CONTENT: HomeContent = {
   ],
   clientsTitle: 'Our Clients',
   clientsSubtitle: 'We work with leading brands and businesses.',
+  clientLogos: [],
   realResultsTitle: 'Real Results, Real Impact.',
   realResultsSubtitle: 'We focus on measurable outcomes that help brands grow, scale, and stand out.',
   realResultsCases: [],

@@ -16,7 +16,7 @@
                 <path d="M2 12L12 17L22 12" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <h2>Admin Panel</h2>
+            <h2>{{ isAdmin ? 'Admin Panel' : 'Content Manager' }}</h2>
           </div>
           
           <div class="user-card">
@@ -261,29 +261,75 @@
                     <input 
                       type="radio" 
                       name="videoType" 
+                      value="upload" 
+                      v-model="formData.videoType"
+                      @change="formData.videoUrl = ''"
+                    />
+                    <span>Upload Video File (Recommended)</span>
+                  </label>
+                  <label class="video-option-label">
+                    <input 
+                      type="radio" 
+                      name="videoType" 
                       value="link" 
                       v-model="formData.videoType"
                       @change="formData.videoFileUrl = ''"
                     />
                     <span>Use Video Link</span>
                   </label>
-                  <label class="video-option-label">
-                    <input 
-                      type="radio" 
-                      name="videoType" 
-                      value="upload" 
-                      v-model="formData.videoType"
-                      @change="formData.videoUrl = ''"
-                    />
-                    <span>Upload Video File</span>
+                </div>
+
+                <!-- Video Upload (Prioritized) -->
+                <div v-if="formData.videoType === 'upload'" class="form-group full-width">
+                  <label>
+                    <span class="label-text">Video File</span>
+                    <span class="label-hint">Upload your own video file (MP4, WebM, MOV, or AVI) - Recommended to avoid YouTube suggestions. Max size: 100MB</span>
                   </label>
+                  <div class="video-upload-area">
+                    <input 
+                      type="file" 
+                      accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi" 
+                      @change="handleVideoUpload"
+                      ref="videoFileInput"
+                      id="video-upload-input"
+                      class="video-file-input"
+                      :disabled="uploadingVideo"
+                    />
+                    <label for="video-upload-input" class="video-upload-label" :class="{ 'uploading': uploadingVideo }">
+                      <svg v-if="!uploadingVideo" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <div v-else class="upload-spinner"></div>
+                      <span>{{ uploadingVideo ? `Uploading... ${Math.round(uploadProgress)}%` : (formData.videoFileUrl ? 'Change Video' : (selectedVideoFile ? selectedVideoFile.name : 'Choose video file (MP4, WebM, MOV, AVI)')) }}</span>
+                    </label>
+                    <div v-if="uploadingVideo" class="upload-progress-bar">
+                      <div class="upload-progress-fill" :style="{ width: `${uploadProgress}%` }"></div>
+                    </div>
+                  </div>
+                  <div v-if="formData.videoFileUrl" class="video-preview">
+                    <div class="video-preview-header">
+                      <p class="preview-label">Video Preview:</p>
+                      <button @click="deleteVideo" class="btn-danger btn-small" type="button">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M10 11V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M14 11V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Delete Video
+                      </button>
+                    </div>
+                    <video :src="formData.videoFileUrl" controls class="video-preview-player"></video>
+                  </div>
                 </div>
 
                 <!-- Video Link Input -->
-                <div v-if="formData.videoType === 'link'" class="form-group full-width">
+                <div v-else-if="formData.videoType === 'link'" class="form-group full-width">
                   <label>
                     <span class="label-text">Video URL</span>
-                    <span class="label-hint">YouTube, Vimeo, or direct video link</span>
+                    <span class="label-hint">YouTube or Vimeo link (Note: YouTube may show suggested videos. Upload your own video to avoid this.)</span>
                   </label>
                   <input 
                     v-model="formData.videoUrl" 
@@ -300,41 +346,6 @@
                         allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
                         allowfullscreen
                       ></iframe>
-                    </div>
-                  </div>
-                </div>
-
-                <!-- Video Upload -->
-                <div v-if="formData.videoType === 'upload'" class="form-group full-width">
-                  <label>
-                    <span class="label-text">Video File</span>
-                    <span class="label-hint">Upload MP4, WebM, or other video formats (max 100MB)</span>
-                  </label>
-                  <div class="video-upload-area">
-                    <input 
-                      type="file" 
-                      accept="video/*" 
-                      @change="handleVideoUpload"
-                      ref="videoFileInput"
-                      id="video-upload-input"
-                      class="video-file-input"
-                    />
-                    <label for="video-upload-input" class="video-upload-label">
-                      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M12 18V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M9 15L12 12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                      <span v-if="!uploadingVideo">{{ selectedVideoFile ? selectedVideoFile.name : 'Choose video file or drag and drop' }}</span>
-                      <span v-else>Uploading... {{ uploadProgress }}%</span>
-                    </label>
-                    <div v-if="formData.videoFileUrl" class="video-preview">
-                      <p class="preview-label">Current Video:</p>
-                      <video controls :src="formData.videoFileUrl" class="video-preview-player"></video>
-                      <button @click="removeVideo" class="btn-danger" style="margin-top: 0.5rem; padding: 0.5rem 1rem;">
-                        Remove Video
-                      </button>
                     </div>
                   </div>
                 </div>
@@ -529,17 +540,90 @@
             </div>
             
             <div class="subsection">
-              <h4 class="subsection-title">
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M9 11L12 14L22 4" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Process Steps
-              </h4>
+              <div class="subsection-header">
+                <h4 class="subsection-title">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 11L12 14L22 4" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Process Steps
+                </h4>
+                <button @click="addStep" type="button" class="btn-primary btn-small">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Add Step
+                </button>
+              </div>
               <div class="steps-list">
-                <div v-for="(step, index) in formData.steps" :key="index" class="step-card">
-                  <div class="step-number">{{ step.number }}</div>
-                  <textarea v-model="step.content" rows="2" :placeholder="`Step ${step.number} content`" class="form-textarea"></textarea>
+                <div 
+                  v-for="(step, index) in formData.steps" 
+                  :key="`step-${index}`" 
+                  class="step-card"
+                  :draggable="true"
+                  @dragstart="handleStepDragStart($event, index)"
+                  @dragover.prevent="handleStepDragOver($event, index)"
+                  @drop="handleStepDrop($event, index)"
+                  @dragend="handleStepDragEnd"
+                >
+                  <div class="step-card-header">
+                    <div class="step-drag-handle">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 5H11V7H9V5Z" fill="currentColor"/>
+                        <path d="M9 11H11V13H9V11Z" fill="currentColor"/>
+                        <path d="M9 17H11V19H9V17Z" fill="currentColor"/>
+                        <path d="M13 5H15V7H13V5Z" fill="currentColor"/>
+                        <path d="M13 11H15V13H13V11Z" fill="currentColor"/>
+                        <path d="M13 17H15V19H13V17Z" fill="currentColor"/>
+                      </svg>
+                    </div>
+                    <div class="step-number">{{ step.number }}</div>
+                    <div class="step-actions">
+                      <button 
+                        @click="moveStepUp(index)" 
+                        type="button" 
+                        class="btn-icon"
+                        :disabled="index === 0"
+                        title="Move Up"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                      <button 
+                        @click="moveStepDown(index)" 
+                        type="button" 
+                        class="btn-icon"
+                        :disabled="index === formData.steps.length - 1"
+                        title="Move Down"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                      <button 
+                        @click="removeStep(index)" 
+                        type="button" 
+                        class="btn-icon btn-danger-icon"
+                        title="Delete Step"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <textarea 
+                    v-model="step.content" 
+                    rows="3" 
+                    :placeholder="`Step ${step.number} content`" 
+                    class="form-textarea step-content-input"
+                  ></textarea>
+                </div>
+                <div v-if="formData.steps.length === 0" class="empty-state">
+                  <p>No steps added yet. Click "Add Step" to create your first step.</p>
                 </div>
               </div>
             </div>
@@ -564,15 +648,96 @@
                 </label>
                 <input v-model="formData.whatYouGetTitle" type="text" placeholder="What You Get" class="form-input" />
               </div>
-              
-              <div class="form-group full-width">
-                <label>
-                  <span class="label-text">Benefits</span>
-                  <span class="label-hint">One benefit per line</span>
-                </label>
-                <textarea v-model="benefitsTextarea" rows="6" placeholder="Predictable leads&#10;Scalable system&#10;Higher customer lifetime value&#10;Increased conversions, sales" class="form-textarea"></textarea>
-                <div class="input-footer">
-                  <span class="char-count">{{ benefitsTextarea.split('\n').filter(l => l.trim()).length }} benefits</span>
+            </div>
+            
+            <div class="subsection">
+              <div class="subsection-header">
+                <h4 class="subsection-title">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M9 12L11 14L15 10" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#5B2096" stroke-width="2"/>
+                  </svg>
+                  Benefits
+                </h4>
+                <button @click="addBenefit" type="button" class="btn-primary btn-small">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Add Benefit
+                </button>
+              </div>
+              <div class="benefits-list">
+                <div 
+                  v-for="(benefit, index) in formData.benefits" 
+                  :key="`benefit-${index}`" 
+                  class="benefit-card"
+                  :draggable="true"
+                  @dragstart="handleBenefitDragStart($event, index)"
+                  @dragover.prevent="handleBenefitDragOver($event, index)"
+                  @drop="handleBenefitDrop($event, index)"
+                  @dragend="handleBenefitDragEnd"
+                >
+                  <div class="benefit-drag-handle">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 5H11V7H9V5Z" fill="currentColor"/>
+                      <path d="M9 11H11V13H9V11Z" fill="currentColor"/>
+                      <path d="M9 17H11V19H9V17Z" fill="currentColor"/>
+                      <path d="M13 5H15V7H13V5Z" fill="currentColor"/>
+                      <path d="M13 11H15V13H13V11Z" fill="currentColor"/>
+                      <path d="M13 17H15V19H13V17Z" fill="currentColor"/>
+                    </svg>
+                  </div>
+                  <div class="benefit-check-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 12L11 14L15 10" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#5B2096" stroke-width="2"/>
+                    </svg>
+                  </div>
+                  <input 
+                    v-model="formData.benefits[index]" 
+                    type="text" 
+                    :placeholder="`Benefit ${index + 1}`" 
+                    class="form-input benefit-input"
+                  />
+                  <div class="benefit-actions">
+                    <button 
+                      @click="moveBenefitUp(index)" 
+                      type="button" 
+                      class="btn-icon"
+                      :disabled="index === 0"
+                      title="Move Up"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                    <button 
+                      @click="moveBenefitDown(index)" 
+                      type="button" 
+                      class="btn-icon"
+                      :disabled="index === formData.benefits.length - 1"
+                      title="Move Down"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                    <button 
+                      @click="removeBenefit(index)" 
+                      type="button" 
+                      class="btn-icon btn-danger-icon"
+                      title="Delete Benefit"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div v-if="formData.benefits.length === 0" class="empty-state">
+                  <p>No benefits added yet. Click "Add Benefit" to create your first benefit.</p>
                 </div>
               </div>
             </div>
@@ -597,15 +762,94 @@
                 </label>
                 <input v-model="formData.bonusesTitle" type="text" placeholder="Bonuses Included" class="form-input" />
               </div>
-              
-              <div class="form-group full-width">
-                <label>
-                  <span class="label-text">Bonuses</span>
-                  <span class="label-hint">One bonus per line</span>
-                </label>
-                <textarea v-model="bonusesTextarea" rows="4" placeholder="Full access to personal brand course&#10;Full access to social media course&#10;Full access to business coaching" class="form-textarea"></textarea>
-                <div class="input-footer">
-                  <span class="char-count">{{ bonusesTextarea.split('\n').filter(l => l.trim()).length }} bonuses</span>
+            </div>
+            
+            <div class="subsection">
+              <div class="subsection-header">
+                <h4 class="subsection-title">
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Bonuses
+                </h4>
+                <button @click="addBonus" type="button" class="btn-primary btn-small">
+                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Add Bonus
+                </button>
+              </div>
+              <div class="benefits-list">
+                <div 
+                  v-for="(bonus, index) in formData.bonuses" 
+                  :key="`bonus-${index}`" 
+                  class="benefit-card"
+                  :draggable="true"
+                  @dragstart="handleBonusDragStart($event, index)"
+                  @dragover.prevent="handleBonusDragOver($event, index)"
+                  @drop="handleBonusDrop($event, index)"
+                  @dragend="handleBonusDragEnd"
+                >
+                  <div class="benefit-drag-handle">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 5H11V7H9V5Z" fill="currentColor"/>
+                      <path d="M9 11H11V13H9V11Z" fill="currentColor"/>
+                      <path d="M9 17H11V19H9V17Z" fill="currentColor"/>
+                      <path d="M13 5H15V7H13V5Z" fill="currentColor"/>
+                      <path d="M13 11H15V13H13V11Z" fill="currentColor"/>
+                      <path d="M13 17H15V19H13V17Z" fill="currentColor"/>
+                    </svg>
+                  </div>
+                  <div class="benefit-check-icon">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </div>
+                  <input 
+                    v-model="formData.bonuses[index]" 
+                    type="text" 
+                    :placeholder="`Bonus ${index + 1}`" 
+                    class="form-input benefit-input"
+                  />
+                  <div class="benefit-actions">
+                    <button 
+                      @click="moveBonusUp(index)" 
+                      type="button" 
+                      class="btn-icon"
+                      :disabled="index === 0"
+                      title="Move Up"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                    <button 
+                      @click="moveBonusDown(index)" 
+                      type="button" 
+                      class="btn-icon"
+                      :disabled="index === formData.bonuses.length - 1"
+                      title="Move Down"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                    <button 
+                      @click="removeBonus(index)" 
+                      type="button" 
+                      class="btn-icon btn-danger-icon"
+                      title="Delete Bonus"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div v-if="formData.bonuses.length === 0" class="empty-state">
+                  <p>No bonuses added yet. Click "Add Bonus" to create your first bonus.</p>
                 </div>
               </div>
             </div>
@@ -650,6 +894,102 @@
                   <span class="label-text">Testimonials Subtitle</span>
                 </label>
                 <input v-model="formData.testimonialsSubtitle" type="text" placeholder="Read testimonials from clients who worked with us." class="form-input" />
+              </div>
+            </div>
+
+            <!-- Client Logos Management -->
+            <div class="subsection">
+              <h4 class="subsection-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M4 16L8.586 11.414C8.961 11.039 9.47 10.828 10 10.828C10.53 10.828 11.039 11.039 11.414 11.414L16 16M14 14L15.586 12.414C15.961 12.039 16.47 11.828 17 11.828C17.53 11.828 18.039 12.039 18.414 12.414L20 14M14 8H14.01M6 20H18C18.5304 20 19.0391 19.7893 19.4142 19.4142C19.7893 19.0391 20 18.5304 20 18V6C20 5.46957 19.7893 4.96086 19.4142 4.58579C19.0391 4.21071 18.5304 4 18 4H6C5.46957 4 4.96086 4.21071 4.58579 4.58579C4.21071 4.96086 4 5.46957 4 6V18C4 18.5304 4.21071 19.0391 4.58579 19.4142C4.96086 19.7893 5.46957 20 6 20Z" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Manage Client Logos
+              </h4>
+
+              <div class="client-logos-manager">
+                <button @click="addNewClientLogo" class="btn-primary" style="margin-bottom: 1.5rem;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  Add New Client Logo
+                </button>
+
+                <div v-if="!formData.clientLogos || formData.clientLogos.length === 0" class="empty-state">
+                  <p>No client logos yet. Click "Add New Client Logo" to get started.</p>
+                </div>
+
+                <div v-else class="client-logos-list">
+                  <div v-for="(logo, index) in formData.clientLogos" :key="logo.id || index" class="testimonial-editor-card">
+                    <div class="testimonial-editor-header">
+                      <h5>Client Logo #{{ index + 1 }}</h5>
+                      <button @click="removeClientLogo(index)" class="btn-danger" style="padding: 0.25rem 0.75rem; font-size: 0.875rem;">
+                        Delete
+                      </button>
+                    </div>
+
+                    <div class="form-grid">
+                      <div class="form-group">
+                        <label>
+                          <span class="label-text">Client Name (Optional)</span>
+                          <span class="label-hint">For alt text and identification</span>
+                        </label>
+                        <input v-model="logo.name" type="text" placeholder="Company Name" class="form-input" />
+                      </div>
+
+                      <div class="form-group full-width">
+                        <label>
+                          <span class="label-text">Logo Image</span>
+                          <span class="label-hint">Upload image or paste image URL</span>
+                        </label>
+                        <div class="photo-upload-section">
+                          <div class="photo-options">
+                            <label class="photo-option-label">
+                              <input type="radio" :name="`logo-type-${index}`" value="url" v-model="logo.logoType" @change="logo.logoFileUrl = ''" />
+                              <span>Image URL</span>
+                            </label>
+                            <label class="photo-option-label">
+                              <input type="radio" :name="`logo-type-${index}`" value="upload" v-model="logo.logoType" @change="logo.logoUrl = ''" />
+                              <span>Upload Image</span>
+                            </label>
+                          </div>
+
+                          <input 
+                            v-if="logo.logoType === 'url'"
+                            v-model="logo.logoUrl" 
+                            type="url" 
+                            placeholder="https://example.com/logo.png" 
+                            class="form-input"
+                            style="margin-top: 0.5rem;"
+                          />
+
+                          <div v-if="logo.logoType === 'upload'" class="photo-upload-area">
+                            <input 
+                              type="file" 
+                              accept="image/png,image/jpeg,image/jpg,image/svg+xml,.png,.jpg,.jpeg,.svg" 
+                              @change="handleClientLogoUpload($event, index)"
+                              :id="`logo-upload-${index}`"
+                              class="photo-file-input"
+                            />
+                            <label :for="`logo-upload-${index}`" class="photo-upload-label" :class="{ 'uploading': uploadingLogos[index] }">
+                              <svg v-if="!uploadingLogos[index]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                              </svg>
+                              <div v-else class="upload-spinner"></div>
+                              <span>{{ uploadingLogos[index] ? 'Uploading...' : (logo.logoFileUrl ? 'Change Logo' : 'Choose logo file') }}</span>
+                            </label>
+                          </div>
+
+                          <div v-if="logo.logoUrl || logo.logoFileUrl" class="photo-preview">
+                            <p class="preview-label">Logo Preview:</p>
+                            <img :src="logo.logoFileUrl || logo.logoUrl" alt="Preview" class="photo-preview-img" style="max-width: 200px; max-height: 100px; object-fit: contain; background: #f5f5f5; padding: 10px;" />
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 
@@ -744,19 +1084,24 @@
                           <div v-if="testimonial.photoType === 'upload'" class="photo-upload-area">
                             <input 
                               type="file" 
-                              accept="image/*" 
+                              accept="image/png,image/jpeg,image/jpg,image/webp,.png,.jpg,.jpeg,.webp" 
                               @change="handlePhotoUpload($event, index)"
                               :id="`photo-upload-${index}`"
                               class="photo-file-input"
+                              :disabled="uploadingPhotos[index]"
                             />
-                            <label :for="`photo-upload-${index}`" class="photo-upload-label">
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <label :for="`photo-upload-${index}`" class="photo-upload-label" :class="{ 'uploading': uploadingPhotos[index] }">
+                              <svg v-if="!uploadingPhotos[index]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                               </svg>
-                              <span>{{ testimonial.photoFileUrl ? 'Change Photo' : 'Choose photo file' }}</span>
+                              <div v-else class="upload-spinner"></div>
+                              <span>{{ uploadingPhotos[index] ? `Uploading... ${Math.round(uploadProgressPhotos[index] || 0)}%` : (testimonial.photoFileUrl ? 'Change Photo' : 'Choose photo file (PNG, JPG, WebP)') }}</span>
                             </label>
+                            <div v-if="uploadingPhotos[index]" class="upload-progress-bar">
+                              <div class="upload-progress-fill" :style="{ width: `${uploadProgressPhotos[index] || 0}%` }"></div>
+                            </div>
                           </div>
 
                           <div v-if="testimonial.photoUrl || testimonial.photoFileUrl" class="photo-preview">
@@ -796,19 +1141,24 @@
                           <div v-if="testimonial.videoThumbnailType === 'upload'" class="photo-upload-area">
                             <input 
                               type="file" 
-                              accept="image/*" 
+                              accept="image/png,image/jpeg,image/jpg,image/webp,.png,.jpg,.jpeg,.webp" 
                               @change="handleVideoThumbnailUpload($event, index)"
                               :id="`video-thumbnail-upload-${index}`"
                               class="photo-file-input"
+                              :disabled="uploadingThumbnails[index]"
                             />
-                            <label :for="`video-thumbnail-upload-${index}`" class="photo-upload-label">
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <label :for="`video-thumbnail-upload-${index}`" class="photo-upload-label" :class="{ 'uploading': uploadingThumbnails[index] }">
+                              <svg v-if="!uploadingThumbnails[index]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                               </svg>
-                              <span>{{ testimonial.videoThumbnailFileUrl ? 'Change Thumbnail' : 'Choose thumbnail image' }}</span>
+                              <div v-else class="upload-spinner"></div>
+                              <span>{{ uploadingThumbnails[index] ? `Uploading... ${Math.round(uploadProgressThumbnails[index] || 0)}%` : (testimonial.videoThumbnailFileUrl ? 'Change Thumbnail' : 'Choose thumbnail image (PNG, JPG, WebP)') }}</span>
                             </label>
+                            <div v-if="uploadingThumbnails[index]" class="upload-progress-bar">
+                              <div class="upload-progress-fill" :style="{ width: `${uploadProgressThumbnails[index] || 0}%` }"></div>
+                            </div>
                           </div>
 
                           <div v-if="testimonial.videoThumbnailUrl || testimonial.videoThumbnailFileUrl" class="photo-preview">
@@ -852,25 +1202,44 @@
                           <div v-if="testimonial.videoType === 'upload'" class="video-upload-area">
                             <input 
                               type="file" 
-                              accept="video/*" 
+                              accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi" 
                               @change="handleTestimonialVideoUpload($event, index)"
                               :id="`testimonial-video-upload-${index}`"
                               class="video-file-input"
+                              :disabled="uploadingTestimonialVideos[index]"
                             />
-                            <label :for="`testimonial-video-upload-${index}`" class="video-upload-label">
-                              <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <label :for="`testimonial-video-upload-${index}`" class="video-upload-label" :class="{ 'uploading': uploadingTestimonialVideos[index] }">
+                              <svg v-if="!uploadingTestimonialVideos[index]" width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                                 <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                                 <path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                               </svg>
-                              <span>{{ testimonial.videoFileUrl ? 'Change Video' : 'Choose video file' }}</span>
+                              <div v-else class="upload-spinner"></div>
+                              <span>{{ uploadingTestimonialVideos[index] ? `Uploading... ${Math.round(uploadProgressTestimonialVideos[index] || 0)}%` : (testimonial.videoFileUrl ? 'Change Video' : 'Choose video file (MP4, WebM, MOV, AVI)') }}</span>
                             </label>
+                            <div v-if="uploadingTestimonialVideos[index]" class="upload-progress-bar">
+                              <div class="upload-progress-fill" :style="{ width: `${uploadProgressTestimonialVideos[index] || 0}%` }"></div>
+                            </div>
                           </div>
 
                           <div v-if="(testimonial.videoUrl || testimonial.videoFileUrl) && testimonial.videoType !== 'none'" class="video-preview">
                             <div v-if="testimonial.videoType === 'link'" class="video-preview-container">
                               <iframe :src="getVideoEmbedUrl(testimonial.videoUrl || '')" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
                             </div>
-                            <video v-else-if="testimonial.videoType === 'upload'" :src="testimonial.videoFileUrl" controls class="video-preview-player"></video>
+                            <div v-else-if="testimonial.videoType === 'upload'">
+                              <div class="video-preview-header">
+                                <p class="preview-label">Video Preview:</p>
+                                <button @click="deleteTestimonialVideo(index)" class="btn-danger btn-small" type="button">
+                                  <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                    <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M10 11V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    <path d="M14 11V17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                  </svg>
+                                  Delete Video
+                                </button>
+                              </div>
+                              <video :src="testimonial.videoFileUrl" controls class="video-preview-player"></video>
+                            </div>
                           </div>
                         </div>
                       </div>
@@ -1219,6 +1588,126 @@
             </div>
           </div>
 
+          <!-- Email Submissions -->
+          <div v-if="activeTab === 'email-submissions'" class="editor-section">
+            <div class="section-header">
+              <div class="section-title-group">
+                <div class="section-icon">📧</div>
+                <div>
+                  <h3>Email Submissions</h3>
+                  <p class="section-description">View and manage emails submitted from the home screen</p>
+                </div>
+              </div>
+              <button @click="loadEmailSubmissions" class="btn-secondary btn-small" :disabled="loadingEmails">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M23 20V14H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M20.49 9C19.95 5.95 17.42 3.42 14.37 2.88M3.51 15C4.05 18.05 6.58 20.58 9.63 21.12M14.37 2.88C13.69 2.95 13.02 3.11 12.37 3.37M9.63 21.12C10.31 21.05 10.98 20.89 11.63 20.63M14.37 2.88L17.37 5.88M9.63 21.12L6.63 18.12M17.37 5.88L20.37 2.88M6.63 18.12L3.63 21.12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Refresh
+              </button>
+            </div>
+            
+            <div v-if="loadingEmails" class="loading-state">
+              <div class="upload-spinner"></div>
+              <p>Loading email submissions...</p>
+            </div>
+            
+            <div v-else-if="emailSubmissions.length === 0" class="empty-state">
+              <p>No email submissions yet.</p>
+            </div>
+            
+            <div v-else class="email-submissions-list">
+              <div class="submissions-header">
+                <div class="submission-count">
+                  <span>Total: {{ emailSubmissions.length }} submission{{ emailSubmissions.length !== 1 ? 's' : '' }}</span>
+                </div>
+                <div class="submission-filters">
+                  <button 
+                    @click="emailFilter = 'all'" 
+                    class="filter-btn"
+                    :class="{ 'active': emailFilter === 'all' }"
+                  >
+                    All
+                  </button>
+                  <button 
+                    @click="emailFilter = 'confirmed'" 
+                    class="filter-btn"
+                    :class="{ 'active': emailFilter === 'confirmed' }"
+                  >
+                    Confirmed
+                  </button>
+                  <button 
+                    @click="emailFilter = 'pending'" 
+                    class="filter-btn"
+                    :class="{ 'active': emailFilter === 'pending' }"
+                  >
+                    Pending
+                  </button>
+                </div>
+              </div>
+              
+              <div class="submissions-table">
+                <div class="table-header">
+                  <div class="table-cell">Email</div>
+                  <div class="table-cell">Status</div>
+                  <div class="table-cell">Confirmation Sent</div>
+                  <div class="table-cell">Submitted At</div>
+                  <div class="table-cell">Actions</div>
+                </div>
+                
+                <div 
+                  v-for="submission in filteredEmailSubmissions" 
+                  :key="submission.id" 
+                  class="table-row"
+                >
+                  <div class="table-cell">
+                    <div class="email-cell">
+                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      <span>{{ submission.email }}</span>
+                    </div>
+                  </div>
+                  <div class="table-cell">
+                    <span 
+                      class="status-badge" 
+                      :class="{
+                        'status-pending': submission.status === 'pending',
+                        'status-confirmed': submission.status === 'confirmed',
+                        'status-sent': submission.status === 'sent'
+                      }"
+                    >
+                      {{ submission.status }}
+                    </span>
+                  </div>
+                  <div class="table-cell">
+                    <span v-if="submission.confirmationEmailSent" class="check-icon">✓</span>
+                    <span v-else class="cross-icon">✗</span>
+                  </div>
+                  <div class="table-cell">
+                    {{ formatDate(submission.createdAt) }}
+                  </div>
+                  <div class="table-cell">
+                    <button 
+                      @click="resendConfirmationEmail(submission)" 
+                      class="btn-icon btn-small"
+                      :disabled="submission.confirmationEmailSent"
+                      title="Resend Confirmation Email"
+                    >
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M23 20V14H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M20.49 9C19.95 5.95 17.42 3.42 14.37 2.88M3.51 15C4.05 18.05 6.58 20.58 9.63 21.12M14.37 2.88C13.69 2.95 13.02 3.11 12.37 3.37M9.63 21.12C10.31 21.05 10.98 20.89 11.63 20.63M14.37 2.88L17.37 5.88M9.63 21.12L6.63 18.12M17.37 5.88L20.37 2.88M6.63 18.12L3.63 21.12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- User Management (Admin Only) -->
           <div v-if="activeTab === 'users' && isAdmin" class="editor-section">
             <div class="section-header">
@@ -1499,7 +1988,7 @@
               </div>
               
               <div class="action-buttons">
-                <button @click="resetContent" :disabled="isSaving" class="btn-secondary">
+                <button v-if="isAdmin" @click="resetContent" :disabled="isSaving" class="btn-secondary">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     <path d="M23 20V14H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1537,6 +2026,8 @@ import { adminUserService } from '../services/UserService'
 import { roleController } from '../controllers/RoleController'
 import { activityLogController } from '../controllers/ActivityLogController'
 import { siteSettingsController } from '../controllers/SiteSettingsController'
+import { emailController } from '@/features/home/controllers/EmailController'
+import type { EmailSubmission } from '@/features/home/services/EmailService'
 import type { SiteSettings } from '../models/SiteSettings'
 import type { HomeContent } from '@/features/home/models/HomeContent'
 import type { User } from '@/features/auth/models/User'
@@ -1555,6 +2046,13 @@ const saveMessageType = ref<'success' | 'error'>('success')
 
 const activeTab = ref('hero')
 const isAdmin = ref(false)
+const uploadingLogos = ref<Record<number, boolean>>({})
+const uploadingPhotos = ref<Record<number, boolean>>({})
+const uploadingTestimonialVideos = ref<Record<number, boolean>>({})
+const uploadingThumbnails = ref<Record<number, boolean>>({})
+const uploadProgressPhotos = ref<Record<number, number>>({})
+const uploadProgressTestimonialVideos = ref<Record<number, number>>({})
+const uploadProgressThumbnails = ref<Record<number, number>>({})
 const baseTabs = [
   { id: 'hero', label: 'Hero Section' },
   { id: 'cta', label: 'CTA Section' },
@@ -1566,7 +2064,8 @@ const baseTabs = [
   { id: 'bonuses', label: 'Bonuses' },
   { id: 'clients', label: 'Clients & Testimonials' },
   { id: 'real-results', label: 'Real Results' },
-  { id: 'footer', label: 'Footer' }
+  { id: 'footer', label: 'Footer' },
+  { id: 'email-submissions', label: 'Email Submissions' }
 ]
 const adminTabs = [
   { id: 'users', label: 'User Management' },
@@ -1587,6 +2086,9 @@ const siteSettings = ref<SiteSettings>({
   disabledSections: [],
   maintenanceMode: false
 })
+const emailSubmissions = ref<EmailSubmission[]>([])
+const loadingEmails = ref(false)
+const emailFilter = ref<'all' | 'pending' | 'confirmed'>('all')
 const selectedVideoFile = ref<File | null>(null)
 const uploadingVideo = ref(false)
 const uploadProgress = ref(0)
@@ -1652,13 +2154,15 @@ const formData = ref<HomeContent>({
   bonuses: [],
   clientsTitle: '',
   clientsSubtitle: '',
+  clientLogos: [],
   realResultsTitle: '',
   realResultsSubtitle: '',
   realResultsCases: [],
   testimonialsTitle: '',
   testimonialsSubtitle: '',
   testimonials: [],
-  footerTagline: ''
+  footerTagline: '',
+  footerAddress: ''
 })
 
 // Computed properties
@@ -1686,19 +2190,9 @@ const systemCardTextTextarea = computed({
   }
 })
 
-const benefitsTextarea = computed({
-  get: () => formData.value.benefits.join('\n'),
-  set: (value: string) => {
-    formData.value.benefits = value.split('\n').filter(line => line.trim())
-  }
-})
+// Benefits are now managed individually, no need for textarea computed property
 
-const bonusesTextarea = computed({
-  get: () => formData.value.bonuses.join('\n'),
-  set: (value: string) => {
-    formData.value.bonuses = value.split('\n').filter(line => line.trim())
-  }
-})
+// Bonuses are now managed individually, no need for textarea computed property
 
 // Helper functions
 const getTabIcon = (tabId: string): string => {
@@ -1714,6 +2208,7 @@ const getTabIcon = (tabId: string): string => {
     'clients': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'real-results': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 16L12 11L16 15L21 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 10V3H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'footer': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    'email-submissions': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'users': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'roles': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/><path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     'site-settings': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.4 15C19.2669 15.3016 19.2272 15.6362 19.286 15.9606C19.3448 16.285 19.4995 16.5843 19.73 16.82L19.79 16.88C19.976 17.0657 20.1235 17.2863 20.2241 17.5291C20.3248 17.7719 20.3766 18.0322 20.3766 18.295C20.3766 18.5578 20.3248 18.8181 20.2241 19.0609C20.1235 19.3037 19.976 19.5243 19.79 19.71C19.6043 19.896 19.3837 20.0435 19.1409 20.1441C18.8981 20.2448 18.6378 20.2966 18.375 20.2966C18.1122 20.2966 17.8519 20.2448 17.6091 20.1441C17.3663 20.0435 17.1457 19.896 16.96 19.71L16.9 19.65C16.6643 19.4195 16.365 19.2648 16.0406 19.206C15.7162 19.1472 15.3816 19.1869 15.08 19.32C14.7842 19.4468 14.532 19.6572 14.3543 19.9255C14.1766 20.1938 14.0813 20.5082 14.08 20.83V21C14.08 21.5304 13.8693 22.0391 13.4942 22.4142C13.1191 22.7893 12.6104 23 12.08 23C11.5496 23 11.0409 22.7893 10.6658 22.4142C10.2907 22.0391 10.08 21.5304 10.08 21V20.91C10.0723 20.579 9.96512 20.258 9.77251 19.9887C9.5799 19.7194 9.31074 19.5143 9 19.4C8.69838 19.2669 8.36381 19.2272 8.03941 19.286C7.71502 19.3448 7.41568 19.4995 7.18 19.73L7.12 19.79C6.93425 19.976 6.71368 20.1235 6.47088 20.2241C6.22808 20.3248 5.96783 20.3766 5.705 20.3766C5.44217 20.3766 5.18192 20.3248 4.93912 20.2241C4.69632 20.1235 4.47575 19.976 4.29 19.79C4.10405 19.6043 3.95653 19.3837 3.85588 19.1409C3.75523 18.8981 3.70343 18.6378 3.70343 18.375C3.70343 18.1122 3.75523 17.8519 3.85588 17.6091C3.95653 17.3663 4.10405 17.1457 4.29 16.96L4.35 16.9C4.58054 16.6643 4.73519 16.365 4.794 16.0406C4.85282 15.7162 4.81312 15.3816 4.68 15.08C4.55324 14.7842 4.34276 14.532 4.07447 14.3543C3.80618 14.1766 3.49179 14.0813 3.17 14.08H3C2.46957 14.08 1.96086 13.8693 1.58579 13.4942C1.21071 13.1191 1 12.6104 1 12.08C1 11.5496 1.21071 11.0409 1.58579 10.6658C1.96086 10.2907 2.46957 10.08 3 10.08H3.09C3.42099 10.0723 3.742 9.96512 4.01131 9.77251C4.28062 9.5799 4.48571 9.31074 4.6 9C4.73312 8.69838 4.77282 8.36381 4.714 8.03941C4.65519 7.71502 4.50054 7.41568 4.27 7.18L4.21 7.12C4.02405 6.93425 3.87653 6.71368 3.77588 6.47088C3.67523 6.22808 3.62343 5.96783 3.62343 5.705C3.62343 5.44217 3.67523 5.18192 3.77588 4.93912C3.87653 4.69632 4.02405 4.47575 4.21 4.29C4.39575 4.10405 4.61632 3.95653 4.85912 3.85588C5.10192 3.75523 5.36217 3.70343 5.625 3.70343C5.88783 3.70343 6.14808 3.75523 6.39088 3.85588C6.63368 3.95653 6.85425 4.10405 7.04 4.29L7.1 4.35C7.33568 4.58054 7.63502 4.73519 7.95941 4.794C8.28381 4.85282 8.61838 4.81312 8.92 4.68H9C9.29577 4.55324 9.54802 4.34276 9.72569 4.07447C9.90337 3.80618 9.99872 3.49179 10 3.17V3C10 2.46957 10.2107 1.96086 10.5858 1.58579C10.9609 1.21071 11.4696 1 12 1C12.5304 1 13.0391 1.21071 13.4142 1.58579C13.7893 1.96086 14 2.46957 14 3V3.09C14.0013 3.41179 14.0966 3.72618 14.2743 3.99447C14.452 4.26276 14.7042 4.47324 15 4.6C15.3016 4.73312 15.6362 4.77282 15.9606 4.714C16.285 4.65519 16.5843 4.50054 16.82 4.27L16.88 4.21C17.0657 4.02405 17.2863 3.87653 17.5291 3.77588C17.7719 3.67523 18.0322 3.62343 18.295 3.62343C18.5578 3.62343 18.8181 3.67523 19.0609 3.77588C19.3037 3.87653 19.5243 4.02405 19.71 4.21C19.896 4.39575 20.0435 4.61632 20.1441 4.85912C20.2448 5.10192 20.2966 5.36217 20.2966 5.625C20.2966 5.88783 20.2448 6.14808 20.1441 6.39088C20.0435 6.63368 19.896 6.85425 19.71 7.04L19.65 7.1C19.4195 7.33568 19.2648 7.63502 19.206 7.95941C19.1472 8.28381 19.1869 8.61838 19.32 8.92V9C19.4468 9.29577 19.6572 9.54802 19.9255 9.72569C20.1938 9.90337 20.5082 9.99872 20.83 10H21C21.5304 10 22.0391 10.2107 22.4142 10.5858C22.7893 10.9609 23 11.4696 23 12C23 12.5304 22.7893 13.0391 22.4142 13.4142C22.0391 13.7893 21.5304 14 21 14H20.91C20.5882 14.0013 20.2738 14.0966 20.0055 14.2743C19.7372 14.452 19.5268 14.7042 19.4 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -1871,11 +2366,17 @@ const getChangedFieldsCount = (changes: Record<string, any>): number => {
 const getVideoEmbedUrl = (url: string): string => {
   if (!url) return ''
   
-  // YouTube
+  // YouTube - Add parameters to disable suggestions and related videos
   const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
   const youtubeMatch = url.match(youtubeRegex)
   if (youtubeMatch) {
-    return `https://www.youtube.com/embed/${youtubeMatch[1]}`
+    // Parameters to disable YouTube suggestions:
+    // rel=0 - Don't show related videos from other channels
+    // modestbranding=1 - Reduce YouTube branding
+    // iv_load_policy=3 - Don't show video annotations
+    // cc_load_policy=0 - Don't show captions by default
+    // fs=1 - Allow fullscreen
+    return `https://www.youtube.com/embed/${youtubeMatch[1]}?rel=0&modestbranding=1&iv_load_policy=3&cc_load_policy=0&fs=1`
   }
   
   // Vimeo
@@ -1899,11 +2400,19 @@ const handleVideoUpload = async (event: Event) => {
   
   if (!file) return
   
-  // Validate file type
-  if (!file.type.startsWith('video/')) {
-    saveMessage.value = 'Please select a valid video file'
+  // Validate file type - only allow specific video formats
+  const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo']
+  const allowedExtensions = ['.mp4', '.webm', '.mov', '.avi']
+  const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
+  
+  if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+    saveMessage.value = 'Please select a valid video file (MP4, WebM, MOV, or AVI)'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 4000)
+    // Reset file input
+    if (videoFileInput.value) {
+      videoFileInput.value.value = ''
+    }
     return
   }
   
@@ -1913,6 +2422,10 @@ const handleVideoUpload = async (event: Event) => {
     saveMessage.value = 'Video file is too large. Maximum size is 100MB'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 4000)
+    // Reset file input
+    if (videoFileInput.value) {
+      videoFileInput.value.value = ''
+    }
     return
   }
   
@@ -1925,10 +2438,13 @@ const handleVideoUpload = async (event: Event) => {
     const timestamp = Date.now()
     const fileName = `videos/${userId}/${timestamp}-${file.name}`
     
-    // Upload video to Firebase Storage
-    const videoUrl = await storageService.uploadAndGetUrl(
+    // Upload video to Firebase Storage with progress tracking
+    const videoUrl = await storageService.uploadAndGetUrlWithProgress(
       fileName,
       file,
+      (progress) => {
+        uploadProgress.value = progress
+      },
       {
         contentType: file.type,
         customMetadata: {
@@ -1961,6 +2477,85 @@ const handleVideoUpload = async (event: Event) => {
   }
 }
 
+/**
+ * Extract file path from Firebase Storage URL
+ */
+const extractFilePathFromUrl = (url: string): string | null => {
+  try {
+    // Firebase Storage URL format: https://firebasestorage.googleapis.com/v0/b/{bucket}/o/{encodedPath}?alt=media&token={token}
+    const urlObj = new URL(url)
+    const pathMatch = urlObj.pathname.match(/\/o\/(.+)/)
+    if (pathMatch) {
+      // Decode the path (it's URL encoded)
+      return decodeURIComponent(pathMatch[1])
+    }
+    return null
+  } catch (error) {
+    console.error('Error extracting file path from URL:', error)
+    return null
+  }
+}
+
+/**
+ * Delete video from Firebase Storage and clear form data
+ */
+const deleteVideo = async () => {
+  if (!formData.value.videoFileUrl) return
+  
+  const videoUrl = formData.value.videoFileUrl
+  const filePath = extractFilePathFromUrl(videoUrl)
+  
+  // Clear form data first
+  formData.value.videoFileUrl = ''
+  formData.value.videoType = 'link'
+  selectedVideoFile.value = null
+  if (videoFileInput.value) {
+    videoFileInput.value.value = ''
+  }
+  
+  // Delete from Firebase Storage if we have the path
+  if (filePath) {
+    try {
+      await storageService.deleteFile(filePath)
+      saveMessage.value = 'Video deleted successfully!'
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+    } catch (error) {
+      console.error('Error deleting video from storage:', error)
+      // Don't show error to user since we already cleared the form
+      // The file might have already been deleted or the URL might be invalid
+    }
+  }
+}
+
+/**
+ * Delete testimonial video from Firebase Storage and clear form data
+ */
+const deleteTestimonialVideo = async (index: number) => {
+  const testimonial = formData.value.testimonials[index]
+  if (!testimonial?.videoFileUrl) return
+  
+  const videoUrl = testimonial.videoFileUrl
+  const filePath = extractFilePathFromUrl(videoUrl)
+  
+  // Clear form data first
+  testimonial.videoFileUrl = ''
+  testimonial.videoType = 'none'
+  
+  // Delete from Firebase Storage if we have the path
+  if (filePath) {
+    try {
+      await storageService.deleteFile(filePath)
+      saveMessage.value = 'Testimonial video deleted successfully!'
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+    } catch (error) {
+      console.error('Error deleting testimonial video from storage:', error)
+      // Don't show error to user since we already cleared the form
+    }
+  }
+}
+
 const removeVideo = () => {
   formData.value.videoFileUrl = ''
   formData.value.videoUrl = ''
@@ -1968,6 +2563,390 @@ const removeVideo = () => {
   selectedVideoFile.value = null
   if (videoFileInput.value) {
     videoFileInput.value.value = ''
+  }
+}
+
+// Steps Management
+const draggedStepIndex = ref<number | null>(null)
+
+/**
+ * Add a new step
+ */
+const addStep = () => {
+  const newStepNumber = formData.value.steps.length + 1
+  formData.value.steps.push({
+    number: newStepNumber,
+    content: ''
+  })
+}
+
+/**
+ * Remove a step
+ */
+const removeStep = (index: number) => {
+  if (formData.value.steps.length > 0) {
+    formData.value.steps.splice(index, 1)
+    // Update step numbers after removal
+    updateStepNumbers()
+  }
+}
+
+/**
+ * Update step numbers sequentially
+ */
+const updateStepNumbers = () => {
+  formData.value.steps.forEach((step, index) => {
+    step.number = index + 1
+  })
+}
+
+/**
+ * Move step up
+ */
+const moveStepUp = (index: number) => {
+  if (index > 0) {
+    const steps = formData.value.steps
+    const temp = steps[index]
+    steps[index] = steps[index - 1]
+    steps[index - 1] = temp
+    updateStepNumbers()
+  }
+}
+
+/**
+ * Move step down
+ */
+const moveStepDown = (index: number) => {
+  if (index < formData.value.steps.length - 1) {
+    const steps = formData.value.steps
+    const temp = steps[index]
+    steps[index] = steps[index + 1]
+    steps[index + 1] = temp
+    updateStepNumbers()
+  }
+}
+
+/**
+ * Handle drag start for step reordering
+ */
+const handleStepDragStart = (event: DragEvent, index: number) => {
+  draggedStepIndex.value = index
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/html', '')
+  }
+  if (event.target instanceof HTMLElement) {
+    event.target.style.opacity = '0.5'
+  }
+}
+
+/**
+ * Handle drag over for step reordering
+ */
+const handleStepDragOver = (event: DragEvent, index: number) => {
+  event.preventDefault()
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move'
+  }
+  if (draggedStepIndex.value !== null && draggedStepIndex.value !== index) {
+    const stepCard = event.currentTarget as HTMLElement
+    stepCard.classList.add('drag-over')
+  }
+}
+
+/**
+ * Handle drop for step reordering
+ */
+const handleStepDrop = (event: DragEvent, index: number) => {
+  event.preventDefault()
+  const stepCard = event.currentTarget as HTMLElement
+  stepCard.classList.remove('drag-over')
+  
+  if (draggedStepIndex.value !== null && draggedStepIndex.value !== index) {
+    const steps = formData.value.steps
+    const draggedStep = steps[draggedStepIndex.value]
+    steps.splice(draggedStepIndex.value, 1)
+    steps.splice(index, 0, draggedStep)
+    updateStepNumbers()
+  }
+}
+
+/**
+ * Handle drag end for step reordering
+ */
+const handleStepDragEnd = (event: DragEvent) => {
+  if (event.target instanceof HTMLElement) {
+    event.target.style.opacity = '1'
+  }
+  // Remove drag-over class from all step cards
+  document.querySelectorAll('.step-card').forEach(card => {
+    card.classList.remove('drag-over')
+  })
+  draggedStepIndex.value = null
+}
+
+// Benefits Management
+const draggedBenefitIndex = ref<number | null>(null)
+
+/**
+ * Add a new benefit
+ */
+const addBenefit = () => {
+  if (!formData.value.benefits) {
+    formData.value.benefits = []
+  }
+  formData.value.benefits.push('')
+}
+
+/**
+ * Remove a benefit
+ */
+const removeBenefit = (index: number) => {
+  if (formData.value.benefits && formData.value.benefits.length > 0) {
+    formData.value.benefits.splice(index, 1)
+  }
+}
+
+/**
+ * Move benefit up
+ */
+const moveBenefitUp = (index: number) => {
+  if (index > 0 && formData.value.benefits) {
+    const benefits = formData.value.benefits
+    const temp = benefits[index]
+    benefits[index] = benefits[index - 1]
+    benefits[index - 1] = temp
+  }
+}
+
+/**
+ * Move benefit down
+ */
+const moveBenefitDown = (index: number) => {
+  if (formData.value.benefits && index < formData.value.benefits.length - 1) {
+    const benefits = formData.value.benefits
+    const temp = benefits[index]
+    benefits[index] = benefits[index + 1]
+    benefits[index + 1] = temp
+  }
+}
+
+/**
+ * Handle drag start for benefit reordering
+ */
+const handleBenefitDragStart = (event: DragEvent, index: number) => {
+  draggedBenefitIndex.value = index
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/html', '')
+  }
+  if (event.target instanceof HTMLElement) {
+    event.target.style.opacity = '0.5'
+  }
+}
+
+/**
+ * Handle drag over for benefit reordering
+ */
+const handleBenefitDragOver = (event: DragEvent, index: number) => {
+  event.preventDefault()
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move'
+  }
+  if (draggedBenefitIndex.value !== null && draggedBenefitIndex.value !== index) {
+    const benefitCard = event.currentTarget as HTMLElement
+    benefitCard.classList.add('drag-over')
+  }
+}
+
+/**
+ * Handle drop for benefit reordering
+ */
+const handleBenefitDrop = (event: DragEvent, index: number) => {
+  event.preventDefault()
+  const benefitCard = event.currentTarget as HTMLElement
+  benefitCard.classList.remove('drag-over')
+  
+  if (draggedBenefitIndex.value !== null && draggedBenefitIndex.value !== index && formData.value.benefits) {
+    const benefits = formData.value.benefits
+    const draggedBenefit = benefits[draggedBenefitIndex.value]
+    benefits.splice(draggedBenefitIndex.value, 1)
+    benefits.splice(index, 0, draggedBenefit)
+  }
+}
+
+/**
+ * Handle drag end for benefit reordering
+ */
+const handleBenefitDragEnd = (event: DragEvent) => {
+  if (event.target instanceof HTMLElement) {
+    event.target.style.opacity = '1'
+  }
+  // Remove drag-over class from all benefit cards
+  document.querySelectorAll('.benefit-card').forEach(card => {
+    card.classList.remove('drag-over')
+  })
+  draggedBenefitIndex.value = null
+}
+
+// Bonuses Management
+const draggedBonusIndex = ref<number | null>(null)
+
+/**
+ * Add a new bonus
+ */
+const addBonus = () => {
+  if (!formData.value.bonuses) {
+    formData.value.bonuses = []
+  }
+  formData.value.bonuses.push('')
+}
+
+/**
+ * Remove a bonus
+ */
+const removeBonus = (index: number) => {
+  if (formData.value.bonuses && formData.value.bonuses.length > 0) {
+    formData.value.bonuses.splice(index, 1)
+  }
+}
+
+/**
+ * Move bonus up
+ */
+const moveBonusUp = (index: number) => {
+  if (index > 0 && formData.value.bonuses) {
+    const bonuses = formData.value.bonuses
+    const temp = bonuses[index]
+    bonuses[index] = bonuses[index - 1]
+    bonuses[index - 1] = temp
+  }
+}
+
+/**
+ * Move bonus down
+ */
+const moveBonusDown = (index: number) => {
+  if (formData.value.bonuses && index < formData.value.bonuses.length - 1) {
+    const bonuses = formData.value.bonuses
+    const temp = bonuses[index]
+    bonuses[index] = bonuses[index + 1]
+    bonuses[index + 1] = temp
+  }
+}
+
+/**
+ * Handle drag start for bonus reordering
+ */
+const handleBonusDragStart = (event: DragEvent, index: number) => {
+  draggedBonusIndex.value = index
+  if (event.dataTransfer) {
+    event.dataTransfer.effectAllowed = 'move'
+    event.dataTransfer.setData('text/html', '')
+  }
+  if (event.target instanceof HTMLElement) {
+    event.target.style.opacity = '0.5'
+  }
+}
+
+/**
+ * Handle drag over for bonus reordering
+ */
+const handleBonusDragOver = (event: DragEvent, index: number) => {
+  event.preventDefault()
+  if (event.dataTransfer) {
+    event.dataTransfer.dropEffect = 'move'
+  }
+  if (draggedBonusIndex.value !== null && draggedBonusIndex.value !== index) {
+    const bonusCard = event.currentTarget as HTMLElement
+    bonusCard.classList.add('drag-over')
+  }
+}
+
+/**
+ * Handle drop for bonus reordering
+ */
+const handleBonusDrop = (event: DragEvent, index: number) => {
+  event.preventDefault()
+  const bonusCard = event.currentTarget as HTMLElement
+  bonusCard.classList.remove('drag-over')
+  
+  if (draggedBonusIndex.value !== null && draggedBonusIndex.value !== index && formData.value.bonuses) {
+    const bonuses = formData.value.bonuses
+    const draggedBonus = bonuses[draggedBonusIndex.value]
+    bonuses.splice(draggedBonusIndex.value, 1)
+    bonuses.splice(index, 0, draggedBonus)
+  }
+}
+
+/**
+ * Handle drag end for bonus reordering
+ */
+const handleBonusDragEnd = (event: DragEvent) => {
+  if (event.target instanceof HTMLElement) {
+    event.target.style.opacity = '1'
+  }
+  // Remove drag-over class from all bonus cards
+  document.querySelectorAll('.benefit-card').forEach(card => {
+    card.classList.remove('drag-over')
+  })
+  draggedBonusIndex.value = null
+}
+
+// Email Submissions Management
+const filteredEmailSubmissions = computed(() => {
+  if (emailFilter.value === 'all') {
+    return emailSubmissions.value
+  }
+  return emailSubmissions.value.filter(sub => sub.status === emailFilter.value)
+})
+
+/**
+ * Load email submissions
+ */
+const loadEmailSubmissions = async () => {
+  loadingEmails.value = true
+  try {
+    const result = await emailController.getSubmissions()
+    if (result.success && result.data) {
+      emailSubmissions.value = result.data
+    } else {
+      saveMessage.value = result.error || 'Failed to load email submissions'
+      saveMessageType.value = 'error'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+    }
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to load email submissions'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } finally {
+    loadingEmails.value = false
+  }
+}
+
+/**
+ * Resend confirmation email
+ */
+const resendConfirmationEmail = async (submission: EmailSubmission) => {
+  if (!submission.id) return
+  
+  try {
+    const result = await emailController.submitEmail(submission.email)
+    if (result.success) {
+      saveMessage.value = 'Confirmation email sent successfully!'
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+      // Reload submissions to update status
+      await loadEmailSubmissions()
+    } else {
+      saveMessage.value = result.error || 'Failed to send confirmation email'
+      saveMessageType.value = 'error'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+    }
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to send confirmation email'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
   }
 }
 
@@ -2175,17 +3154,117 @@ const removeTestimonial = (index: number) => {
   }
 }
 
+const addNewClientLogo = () => {
+  if (!formData.value.clientLogos) {
+    formData.value.clientLogos = []
+  }
+  formData.value.clientLogos.push({
+    id: Date.now().toString(),
+    logoUrl: '',
+    logoFileUrl: '',
+    logoType: 'url',
+    name: ''
+  })
+}
+
+const removeClientLogo = (index: number) => {
+  if (confirm('Are you sure you want to delete this client logo?')) {
+    formData.value.clientLogos.splice(index, 1)
+  }
+}
+
+const handleClientLogoUpload = async (event: Event, index: number) => {
+  const target = event.target as HTMLInputElement
+  const file = target.files?.[0]
+  
+  if (!file) return
+  
+  // Validate file type - only allow PNG, JPG, or SVG
+  const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml']
+  const allowedExtensions = ['.png', '.jpg', '.jpeg', '.svg']
+  const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
+  
+  if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+    saveMessage.value = 'Please select a PNG, JPG, or SVG image file'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+    return
+  }
+  
+  // Validate file size (max 5MB)
+  if (file.size > 5 * 1024 * 1024) {
+    saveMessage.value = 'Image file size must be less than 5MB'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+    return
+  }
+  
+  // Set uploading state
+  uploadingLogos.value[index] = true
+  
+  try {
+    const logo = formData.value.clientLogos[index]
+    if (!logo) {
+      uploadingLogos.value[index] = false
+      return
+    }
+    
+    const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
+    const timestamp = Date.now()
+    const fileName = `client-logos/${userId}/${timestamp}-${file.name}`
+    
+    // Upload image to Firebase Storage
+    const imageUrl = await storageService.uploadAndGetUrl(
+      fileName,
+      file,
+      {
+        contentType: file.type,
+        customMetadata: {
+          uploadedBy: userId,
+          uploadedAt: new Date().toISOString(),
+          originalName: file.name
+        }
+      }
+    )
+    
+    if (imageUrl) {
+      logo.logoFileUrl = imageUrl
+      logo.logoType = 'upload'
+    }
+    
+    saveMessage.value = 'Logo uploaded successfully!'
+    saveMessageType.value = 'success'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } catch (error) {
+    console.error('Error uploading logo:', error)
+    saveMessage.value = 'Failed to upload logo. Please try again.'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } finally {
+    // Clear uploading state
+    uploadingLogos.value[index] = false
+  }
+}
+
 const handlePhotoUpload = async (event: Event, index: number) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
   
   if (!file) return
   
-  // Validate file type
-  if (!file.type.startsWith('image/')) {
-    saveMessage.value = 'Please select a valid image file'
+  // Validate file type - only allow PNG, JPG, or WebP
+  const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
+  const allowedExtensions = ['.png', '.jpg', '.jpeg', '.webp']
+  const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
+  
+  if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+    saveMessage.value = 'Please select a valid image file (PNG, JPG, or WebP)'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 4000)
+    // Reset file input
+    if (target) {
+      target.value = ''
+    }
     return
   }
   
@@ -2195,18 +3274,28 @@ const handlePhotoUpload = async (event: Event, index: number) => {
     saveMessage.value = 'Image file is too large. Maximum size is 5MB'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 4000)
+    // Reset file input
+    if (target) {
+      target.value = ''
+    }
     return
   }
+  
+  uploadingPhotos.value[index] = true
+  uploadProgressPhotos.value[index] = 0
   
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `testimonials/${userId}/${timestamp}-${file.name}`
     
-    // Upload image to Firebase Storage
-    const imageUrl = await storageService.uploadAndGetUrl(
+    // Upload image to Firebase Storage with progress tracking
+    const imageUrl = await storageService.uploadAndGetUrlWithProgress(
       fileName,
       file,
+      (progress) => {
+        uploadProgressPhotos.value[index] = progress
+      },
       {
         contentType: file.type,
         customMetadata: {
@@ -2230,6 +3319,9 @@ const handlePhotoUpload = async (event: Event, index: number) => {
     saveMessage.value = error instanceof Error ? error.message : 'Failed to upload photo'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 5000)
+  } finally {
+    uploadingPhotos.value[index] = false
+    uploadProgressPhotos.value[index] = 0
   }
 }
 
@@ -2239,11 +3331,19 @@ const handleTestimonialVideoUpload = async (event: Event, index: number) => {
   
   if (!file) return
   
-  // Validate file type
-  if (!file.type.startsWith('video/')) {
-    saveMessage.value = 'Please select a valid video file'
+  // Validate file type - only allow specific video formats
+  const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo']
+  const allowedExtensions = ['.mp4', '.webm', '.mov', '.avi']
+  const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
+  
+  if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+    saveMessage.value = 'Please select a valid video file (MP4, WebM, MOV, or AVI)'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 4000)
+    // Reset file input
+    if (target) {
+      target.value = ''
+    }
     return
   }
   
@@ -2253,18 +3353,28 @@ const handleTestimonialVideoUpload = async (event: Event, index: number) => {
     saveMessage.value = 'Video file is too large. Maximum size is 100MB'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 4000)
+    // Reset file input
+    if (target) {
+      target.value = ''
+    }
     return
   }
+  
+  uploadingTestimonialVideos.value[index] = true
+  uploadProgressTestimonialVideos.value[index] = 0
   
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `testimonials/${userId}/${timestamp}-${file.name}`
     
-    // Upload video to Firebase Storage
-    const videoUrl = await storageService.uploadAndGetUrl(
+    // Upload video to Firebase Storage with progress tracking
+    const videoUrl = await storageService.uploadAndGetUrlWithProgress(
       fileName,
       file,
+      (progress) => {
+        uploadProgressTestimonialVideos.value[index] = progress
+      },
       {
         contentType: file.type,
         customMetadata: {
@@ -2288,6 +3398,9 @@ const handleTestimonialVideoUpload = async (event: Event, index: number) => {
     saveMessage.value = error instanceof Error ? error.message : 'Failed to upload video'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 5000)
+  } finally {
+    uploadingTestimonialVideos.value[index] = false
+    uploadProgressTestimonialVideos.value[index] = 0
   }
 }
 
@@ -2297,11 +3410,19 @@ const handleVideoThumbnailUpload = async (event: Event, index: number) => {
   
   if (!file) return
   
-  // Validate file type
-  if (!file.type.startsWith('image/')) {
-    saveMessage.value = 'Please select a valid image file'
+  // Validate file type - only allow PNG, JPG, or WebP
+  const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
+  const allowedExtensions = ['.png', '.jpg', '.jpeg', '.webp']
+  const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
+  
+  if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
+    saveMessage.value = 'Please select a valid image file (PNG, JPG, or WebP)'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 4000)
+    // Reset file input
+    if (target) {
+      target.value = ''
+    }
     return
   }
   
@@ -2311,18 +3432,28 @@ const handleVideoThumbnailUpload = async (event: Event, index: number) => {
     saveMessage.value = 'Image file is too large. Maximum size is 5MB'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 4000)
+    // Reset file input
+    if (target) {
+      target.value = ''
+    }
     return
   }
+  
+  uploadingThumbnails.value[index] = true
+  uploadProgressThumbnails.value[index] = 0
   
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `testimonials/${userId}/thumbnails/${timestamp}-${file.name}`
     
-    // Upload image to Firebase Storage
-    const imageUrl = await storageService.uploadAndGetUrl(
+    // Upload image to Firebase Storage with progress tracking
+    const imageUrl = await storageService.uploadAndGetUrlWithProgress(
       fileName,
       file,
+      (progress) => {
+        uploadProgressThumbnails.value[index] = progress
+      },
       {
         contentType: file.type,
         customMetadata: {
@@ -2346,6 +3477,9 @@ const handleVideoThumbnailUpload = async (event: Event, index: number) => {
     saveMessage.value = error instanceof Error ? error.message : 'Failed to upload video thumbnail'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 5000)
+  } finally {
+    uploadingThumbnails.value[index] = false
+    uploadProgressThumbnails.value[index] = 0
   }
 }
 
@@ -2365,6 +3499,10 @@ const loadContent = async () => {
     
     if (result.success && result.data) {
       formData.value = result.data
+      // Ensure step numbers are properly initialized
+      if (formData.value.steps && formData.value.steps.length > 0) {
+        updateStepNumbers()
+      }
     } else {
       errorMessage.value = result.error || 'Failed to load content'
     }
@@ -2607,6 +3745,9 @@ const refreshActivityLogs = async () => {
 watch(activeTab, (newTab) => {
   if (newTab === 'activity-logs' && isAdmin.value) {
     refreshActivityLogs()
+  }
+  if (newTab === 'email-submissions') {
+    loadEmailSubmissions()
   }
 })
 
@@ -3389,9 +4530,16 @@ onMounted(() => {
 }
 
 /* Steps List */
+.subsection-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
 .steps-list {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  display: flex;
+  flex-direction: column;
   gap: 1rem;
 }
 
@@ -3400,15 +4548,43 @@ onMounted(() => {
   border: 1px solid rgba(91, 32, 150, 0.2);
   border-radius: 12px;
   padding: 1.25rem;
-  display: flex;
-  align-items: flex-start;
-  gap: 1rem;
   transition: all 0.2s;
+  cursor: move;
 }
 
 .step-card:hover {
   border-color: rgba(91, 32, 150, 0.4);
   transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(91, 32, 150, 0.15);
+}
+
+.step-card.drag-over {
+  border-color: #5B2096;
+  background: rgba(91, 32, 150, 0.15);
+  transform: scale(1.02);
+}
+
+.step-card-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.step-drag-handle {
+  color: rgba(245, 247, 250, 0.5);
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+}
+
+.step-drag-handle:active {
+  cursor: grabbing;
+}
+
+.step-card:hover .step-drag-handle {
+  color: rgba(245, 247, 250, 0.8);
 }
 
 .step-number {
@@ -3425,9 +4601,138 @@ onMounted(() => {
   flex-shrink: 0;
 }
 
-.step-card .form-textarea {
+.step-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-left: auto;
+}
+
+.btn-icon {
+  width: 32px;
+  height: 32px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(245, 247, 250, 0.1);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 6px;
+  color: rgba(245, 247, 250, 0.7);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-icon:hover:not(:disabled) {
+  background: rgba(245, 247, 250, 0.15);
+  border-color: rgba(91, 32, 150, 0.4);
+  color: #F5F7FA;
+}
+
+.btn-icon:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.btn-danger-icon {
+  background: rgba(204, 51, 51, 0.1);
+  border-color: rgba(204, 51, 51, 0.2);
+  color: #ff6b6b;
+}
+
+.btn-danger-icon:hover:not(:disabled) {
+  background: rgba(204, 51, 51, 0.2);
+  border-color: rgba(204, 51, 51, 0.4);
+}
+
+.step-content-input {
+  width: 100%;
+  margin: 0;
+}
+
+.empty-state {
+  padding: 2rem;
+  text-align: center;
+  color: rgba(245, 247, 250, 0.5);
+  background: rgba(91, 32, 150, 0.05);
+  border: 1px dashed rgba(91, 32, 150, 0.2);
+  border-radius: 12px;
+}
+
+.empty-state p {
+  margin: 0;
+}
+
+/* Benefits List Styles */
+.benefits-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.benefit-card {
+  background: rgba(91, 32, 150, 0.08);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 12px;
+  padding: 1rem 1.25rem;
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  transition: all 0.2s;
+  cursor: move;
+}
+
+.benefit-card:hover {
+  border-color: rgba(91, 32, 150, 0.4);
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(91, 32, 150, 0.15);
+}
+
+.benefit-card.drag-over {
+  border-color: #5B2096;
+  background: rgba(91, 32, 150, 0.15);
+  transform: scale(1.02);
+}
+
+.benefit-drag-handle {
+  color: rgba(245, 247, 250, 0.5);
+  cursor: grab;
+  display: flex;
+  align-items: center;
+  transition: color 0.2s;
+  flex-shrink: 0;
+}
+
+.benefit-drag-handle:active {
+  cursor: grabbing;
+}
+
+.benefit-card:hover .benefit-drag-handle {
+  color: rgba(245, 247, 250, 0.8);
+}
+
+.benefit-check-icon {
+  color: #5B2096;
+  display: flex;
+  align-items: center;
+  flex-shrink: 0;
+}
+
+.benefit-input {
   flex: 1;
   margin: 0;
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.benefit-input:focus {
+  background: rgba(245, 247, 250, 0.08);
+  border-color: rgba(91, 32, 150, 0.4);
+}
+
+.benefit-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
 }
 
 /* Action Bar */
@@ -3768,11 +5073,26 @@ onMounted(() => {
   border-radius: 6px;
   cursor: pointer;
   transition: all 0.2s;
+  padding: 0.5rem 1rem;
+  font-size: 0.9rem;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .btn-danger:hover {
   background: rgba(204, 51, 51, 0.3);
   border-color: rgba(204, 51, 51, 0.5);
+}
+
+.btn-small {
+  padding: 0.4rem 0.8rem;
+  font-size: 0.85rem;
+}
+
+.btn-small svg {
+  width: 14px;
+  height: 14px;
 }
 
 .roles-list {
@@ -4151,8 +5471,15 @@ onMounted(() => {
   border-radius: 8px;
 }
 
+.video-preview-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 0.75rem;
+}
+
 .preview-label {
-  margin: 0 0 0.75rem 0;
+  margin: 0;
   color: rgba(245, 247, 250, 0.7);
   font-size: 0.875rem;
   font-weight: 500;
@@ -4176,6 +5503,170 @@ onMounted(() => {
   width: 100%;
   max-height: 400px;
   border-radius: 8px;
+}
+
+/* Email Submissions Styles */
+.email-submissions-list {
+  margin-top: 1.5rem;
+}
+
+.submissions-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 8px;
+}
+
+.submission-count {
+  color: #F5F7FA;
+  font-weight: 500;
+}
+
+.submission-filters {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.filter-btn {
+  padding: 0.5rem 1rem;
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 6px;
+  color: rgba(245, 247, 250, 0.7);
+  font-size: 0.875rem;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.filter-btn:hover {
+  background: rgba(91, 32, 150, 0.1);
+  border-color: rgba(91, 32, 150, 0.4);
+}
+
+.filter-btn.active {
+  background: rgba(91, 32, 150, 0.2);
+  border-color: #5B2096;
+  color: #F5F7FA;
+}
+
+.submissions-table {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.table-header,
+.table-row {
+  display: grid;
+  grid-template-columns: 2fr 1fr 1.2fr 1.5fr 0.8fr;
+  gap: 1rem;
+  padding: 1rem;
+  align-items: center;
+}
+
+.table-header {
+  background: rgba(91, 32, 150, 0.1);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 8px;
+  font-weight: 600;
+  color: #F5F7FA;
+  font-size: 0.875rem;
+}
+
+.table-row {
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.table-row:hover {
+  background: rgba(245, 247, 250, 0.08);
+  border-color: rgba(91, 32, 150, 0.3);
+}
+
+.table-cell {
+  color: rgba(245, 247, 250, 0.9);
+  font-size: 0.875rem;
+}
+
+.email-cell {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.email-cell svg {
+  color: #5B2096;
+  flex-shrink: 0;
+}
+
+.status-badge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: 12px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+}
+
+.status-pending {
+  background: rgba(255, 193, 7, 0.2);
+  color: #FFC107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.status-confirmed {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.status-sent {
+  background: rgba(33, 150, 243, 0.2);
+  color: #2196F3;
+  border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.check-icon {
+  color: #4CAF50;
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.cross-icon {
+  color: rgba(245, 247, 250, 0.4);
+  font-weight: bold;
+  font-size: 1.1rem;
+}
+
+.loading-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 3rem;
+  gap: 1rem;
+  color: rgba(245, 247, 250, 0.7);
+}
+
+.upload-spinner {
+  width: 40px;
+  height: 40px;
+  border: 3px solid rgba(91, 32, 150, 0.2);
+  border-top-color: #5B2096;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Testimonials Manager Styles */
@@ -4263,13 +5754,51 @@ onMounted(() => {
   min-height: 100px;
 }
 
-.photo-upload-label:hover {
+.photo-upload-label:hover:not(.uploading) {
   border-color: rgba(91, 32, 150, 0.5);
   background: rgba(91, 32, 150, 0.1);
 }
 
+.photo-upload-label.uploading {
+  border-color: rgba(91, 32, 150, 0.6);
+  background: rgba(91, 32, 150, 0.15);
+  cursor: wait;
+  opacity: 0.8;
+}
+
 .photo-upload-label svg {
   color: #5B2096;
+}
+
+.upload-spinner {
+  width: 24px;
+  height: 24px;
+  border: 3px solid rgba(91, 32, 150, 0.2);
+  border-top-color: #5B2096;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.upload-progress-bar {
+  width: 100%;
+  height: 6px;
+  background: rgba(91, 32, 150, 0.2);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-top: 0.5rem;
+}
+
+.upload-progress-fill {
+  height: 100%;
+  background: linear-gradient(103deg, #5B2096 0.52%, #C19DE6 125.79%);
+  border-radius: 3px;
+  transition: width 0.3s ease;
 }
 
 .photo-preview {

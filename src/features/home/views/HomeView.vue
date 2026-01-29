@@ -30,10 +30,10 @@
       <div v-if="!isSectionDisabled('cta')" class="cta-section" :class="{ 'animate-in': isLoaded }" style="animation-delay: 0.8s;">
         <form @submit.prevent="handleSubmit" class="whatsapp-form">
           <input
-            v-model="phoneNumber"
-            type="tel"
+            v-model="email"
+            type="email"
             class="whatsapp-input"
-            :placeholder="homeContent?.ctaPlaceholder || 'Enter whatsapp Number and we will send you some magic'"
+            :placeholder="homeContent?.ctaPlaceholder || 'Enter your email and we will send you some magic'"
             :disabled="isLoading"
             required
           />
@@ -42,15 +42,19 @@
             class="cta-button"
             :disabled="isLoading"
           >
-            <span>{{ homeContent?.ctaButtonText || 'Do it' }}</span>
-            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <span>{{ isLoading ? 'Submitting...' : (homeContent?.ctaButtonText || 'Submit') }}</span>
+            <svg v-if="!isLoading" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
+            <div v-else class="submit-spinner"></div>
           </button>
         </form>
         
         <div v-if="errorMessage" class="error-message">
           {{ errorMessage }}
+        </div>
+        <div v-if="successMessage" class="success-message">
+          {{ successMessage }}
         </div>
       </div>
 
@@ -97,19 +101,9 @@
         <!-- Video Section -->
         <div v-if="homeContent?.videoUrl || homeContent?.videoFileUrl" class="video-section" data-section-id="video-section">
           <div class="video-container">
-            <!-- Video from Link (YouTube, Vimeo, etc.) -->
-            <iframe 
-              v-if="homeContent.videoType === 'link' && homeContent.videoUrl"
-              :src="getVideoEmbedUrl(homeContent.videoUrl)"
-              frameborder="0"
-              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-              allowfullscreen
-              class="video-iframe"
-            ></iframe>
-            
-            <!-- Uploaded Video File -->
+            <!-- Prioritize Uploaded Video File (no YouTube suggestions) -->
             <video 
-              v-else-if="homeContent.videoType === 'upload' && homeContent.videoFileUrl"
+              v-if="homeContent.videoFileUrl"
               :src="homeContent.videoFileUrl"
               controls
               class="video-player"
@@ -117,24 +111,15 @@
               Your browser does not support the video tag.
             </video>
             
-            <!-- Fallback if videoType is not set but URL exists -->
+            <!-- Video from Link (YouTube, Vimeo, etc.) - only if no uploaded video -->
             <iframe 
-              v-else-if="homeContent.videoUrl && !homeContent.videoFileUrl"
+              v-else-if="homeContent.videoUrl"
               :src="getVideoEmbedUrl(homeContent.videoUrl)"
               frameborder="0"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
               allowfullscreen
               class="video-iframe"
             ></iframe>
-            
-            <video 
-              v-else-if="homeContent.videoFileUrl && !homeContent.videoUrl"
-              :src="homeContent.videoFileUrl"
-              controls
-              class="video-player"
-            >
-              Your browser does not support the video tag.
-            </video>
           </div>
         </div>
         <div v-else class="video-section">
@@ -268,95 +253,39 @@
         </div>
 
         <!-- What We Do -->
-        <div v-if="!isSectionDisabled('what-we-do')" class="what-we-do-section">
-          <h3 class="what-we-do-title">What We Do</h3>
+        <div v-if="!isSectionDisabled('what-we-do') && homeContent?.steps && homeContent.steps.length > 0" class="what-we-do-section">
+          <h3 class="what-we-do-title">{{ homeContent?.whatWeDoTitle || 'What We Do' }}</h3>
           <div class="steps-grid">
-            <div class="step-card">
+            <div 
+              v-for="(step, index) in homeContent.steps" 
+              :key="`step-${index}-${step.number}`" 
+              class="step-card"
+            >
               <div class="step-card-header">
-                <div class="step-header">Step 1</div>
+                <div class="step-header">Step {{ step.number }}</div>
               </div>
               <div class="step-card-body">
-                <div class="step-content">Identify and lock in your most profitable market</div>
-              </div>
-            </div>
-            <div class="step-card">
-              <div class="step-card-header">
-                <div class="step-header">Step 2</div>
-              </div>
-              <div class="step-card-body">
-                <div class="step-content">Craft a message that makes buyers say :"This is exactly for me"</div>
-              </div>
-            </div>
-            <div class="step-card">
-              <div class="step-card-header">
-                <div class="step-header">Step 3</div>
-              </div>
-              <div class="step-card-body">
-                <div class="step-content">Choose only ROI-driven channels (no wasted platforms)</div>
-              </div>
-            </div>
-            <div class="step-card">
-              <div class="step-card-header">
-                <div class="step-header">Step 4</div>
-              </div>
-              <div class="step-card-body">
-                <div class="step-content">Build an always-on lead pipeline</div>
-              </div>
-            </div>
-            <div class="step-card">
-              <div class="step-card-header">
-                <div class="step-header">Step 5</div>
-              </div>
-              <div class="step-card-body">
-                <div class="step-content">Engineer the journey from visitor > buyer > loyal fan</div>
-              </div>
-            </div>
-            <div class="step-card">
-              <div class="step-card-header">
-                <div class="step-header">Step 6</div>
-              </div>
-              <div class="step-card-body">
-                <div class="step-content">Ausales, follow-ups, retention, and referrals</div>
-              </div>
-            </div>
-            <div class="step-card">
-              <div class="step-card-header">
-                <div class="step-header">Step 7</div>
-              </div>
-              <div class="step-card-body">
-                <div class="step-content">Analysis and reporting</div>
+                <div class="step-content">{{ step.content }}</div>
               </div>
             </div>
           </div>
         </div>
 
         <!-- What You Get -->
-        <div v-if="!isSectionDisabled('what-you-get')" class="what-you-get-section">
-          <h3 class="what-you-get-title">What You Get</h3>
+        <div v-if="!isSectionDisabled('what-you-get') && homeContent?.benefits && homeContent.benefits.length > 0" class="what-you-get-section">
+          <h3 class="what-you-get-title">{{ homeContent?.whatYouGetTitle || 'What You Get' }}</h3>
           <div class="benefits-grid">
-            <div class="benefit-item">
+            <div 
+              v-for="(benefit, index) in homeContent.benefits" 
+              :key="`benefit-${index}`" 
+              class="benefit-item"
+            >
               <div class="benefit-check">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path fill-rule="evenodd" clip-rule="evenodd" d="M21.546 5.11101C21.8272 5.3923 21.9852 5.77376 21.9852 6.17151C21.9852 6.56925 21.8272 6.95071 21.546 7.23201L10.303 18.475C10.1544 18.6236 9.97805 18.7415 9.7839 18.8219C9.58976 18.9024 9.38167 18.9438 9.17153 18.9438C8.96138 18.9438 8.75329 18.9024 8.55915 18.8219C8.365 18.7415 8.1886 18.6236 8.04003 18.475L2.45403 12.89C2.31076 12.7516 2.19649 12.5861 2.11787 12.4031C2.03926 12.2201 1.99788 12.0233 1.99615 11.8241C1.99442 11.6249 2.03237 11.4274 2.10779 11.2431C2.18322 11.0587 2.29459 10.8913 2.43543 10.7504C2.57627 10.6096 2.74375 10.4982 2.92809 10.4228C3.11244 10.3474 3.30996 10.3094 3.50913 10.3111C3.7083 10.3129 3.90513 10.3542 4.08813 10.4329C4.27114 10.5115 4.43666 10.6257 4.57503 10.769L9.17103 15.365L19.424 5.11101C19.5633 4.97162 19.7287 4.86104 19.9108 4.7856C20.0928 4.71016 20.288 4.67133 20.485 4.67133C20.6821 4.67133 20.8772 4.71016 21.0593 4.7856C21.2413 4.86104 21.4067 4.97162 21.546 5.11101Z" fill="white"/>
                 </svg>
               </div>
-              <span class="benefit-text">Predictable leads</span>
-            </div>
-            <div class="benefit-item">
-              <div class="benefit-check">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M21.546 5.11101C21.8272 5.3923 21.9852 5.77376 21.9852 6.17151C21.9852 6.56925 21.8272 6.95071 21.546 7.23201L10.303 18.475C10.1544 18.6236 9.97805 18.7415 9.7839 18.8219C9.58976 18.9024 9.38167 18.9438 9.17153 18.9438C8.96138 18.9438 8.75329 18.9024 8.55915 18.8219C8.365 18.7415 8.1886 18.6236 8.04003 18.475L2.45403 12.89C2.31076 12.7516 2.19649 12.5861 2.11787 12.4031C2.03926 12.2201 1.99788 12.0233 1.99615 11.8241C1.99442 11.6249 2.03237 11.4274 2.10779 11.2431C2.18322 11.0587 2.29459 10.8913 2.43543 10.7504C2.57627 10.6096 2.74375 10.4982 2.92809 10.4228C3.11244 10.3474 3.30996 10.3094 3.50913 10.3111C3.7083 10.3129 3.90513 10.3542 4.08813 10.4329C4.27114 10.5115 4.43666 10.6257 4.57503 10.769L9.17103 15.365L19.424 5.11101C19.5633 4.97162 19.7287 4.86104 19.9108 4.7856C20.0928 4.71016 20.288 4.67133 20.485 4.67133C20.6821 4.67133 20.8772 4.71016 21.0593 4.7856C21.2413 4.86104 21.4067 4.97162 21.546 5.11101Z" fill="white"/>
-                </svg>
-              </div>
-              <span class="benefit-text">Shorter sales cycles</span>
-            </div>
-            <div class="benefit-item">
-              <div class="benefit-check">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M21.546 5.11101C21.8272 5.3923 21.9852 5.77376 21.9852 6.17151C21.9852 6.56925 21.8272 6.95071 21.546 7.23201L10.303 18.475C10.1544 18.6236 9.97805 18.7415 9.7839 18.8219C9.58976 18.9024 9.38167 18.9438 9.17153 18.9438C8.96138 18.9438 8.75329 18.9024 8.55915 18.8219C8.365 18.7415 8.1886 18.6236 8.04003 18.475L2.45403 12.89C2.31076 12.7516 2.19649 12.5861 2.11787 12.4031C2.03926 12.2201 1.99788 12.0233 1.99615 11.8241C1.99442 11.6249 2.03237 11.4274 2.10779 11.2431C2.18322 11.0587 2.29459 10.8913 2.43543 10.7504C2.57627 10.6096 2.74375 10.4982 2.92809 10.4228C3.11244 10.3474 3.30996 10.3094 3.50913 10.3111C3.7083 10.3129 3.90513 10.3542 4.08813 10.4329C4.27114 10.5115 4.43666 10.6257 4.57503 10.769L9.17103 15.365L19.424 5.11101C19.5633 4.97162 19.7287 4.86104 19.9108 4.7856C20.0928 4.71016 20.288 4.67133 20.485 4.67133C20.6821 4.67133 20.8772 4.71016 21.0593 4.7856C21.2413 4.86104 21.4067 4.97162 21.546 5.11101Z" fill="white"/>
-                </svg>
-              </div>
-              <span class="benefit-text">Higher customer lifetime value</span>
+              <span class="benefit-text">{{ benefit }}</span>
             </div>
           </div>
         </div>
@@ -414,68 +343,28 @@
     <!-- Our Clients Section -->
     <div v-if="!isSectionDisabled('clients')" class="clients-section">
       <div class="clients-container">
-        <h2 class="clients-title">Our Clients</h2>
-        <p class="clients-subtitle">We have been working with some Fortune +30 clients</p>
-        <div class="clients-slider-wrapper">
+        <h2 class="clients-title">{{ homeContent?.clientsTitle || 'Our Clients' }}</h2>
+        <p class="clients-subtitle">{{ homeContent?.clientsSubtitle || 'We have been working with some Fortune +30 clients' }}</p>
+        <div v-if="homeContent?.clientLogos && homeContent.clientLogos.length > 0" class="clients-slider-wrapper">
           <div class="clients-slider-track">
-            <!-- First set of logos -->
-            <div class="client-logo">
-              <img src="/images/logos/clients1.png" alt="Client 1" />
-            </div>
-            <div class="client-logo">
-              <img src="/images/logos/clients2.png" alt="Client 2" />
-            </div>
-            <div class="client-logo">
-              <img src="/images/logos/clients3.png" alt="Client 3" />
-            </div>
-            <div class="client-logo">
-              <img src="/images/logos/clients4.png" alt="Client 4" />
-            </div>
-            <div class="client-logo">
-              <img src="/images/logos/clients5.png" alt="Client 5" />
-            </div>
-            <div class="client-logo">
-              <img src="/images/logos/clients6.png" alt="Client 6" />
-            </div>
-            <!-- Duplicate set for seamless loop -->
-            <div class="client-logo">
-              <img src="/images/logos/clients1.png" alt="Client 1" />
-            </div>
-            <div class="client-logo">
-              <img src="/images/logos/clients2.png" alt="Client 2" />
-            </div>
-            <div class="client-logo">
-              <img src="/images/logos/clients3.png" alt="Client 3" />
-            </div>
-            <div class="client-logo">
-              <img src="/images/logos/clients4.png" alt="Client 4" />
-            </div>
-            <div class="client-logo">
-              <img src="/images/logos/clients5.png" alt="Client 5" />
-            </div>
-            <div class="client-logo">
-              <img src="/images/logos/clients6.png" alt="Client 6" />
-            </div>
-            <!-- Third set for ultra-smooth infinite scroll -->
-            <div class="client-logo">
-              <img src="/images/logos/clients1.png" alt="Client 1" />
-            </div>
-            <div class="client-logo">
-              <img src="/images/logos/clients2.png" alt="Client 2" />
-            </div>
-            <div class="client-logo">
-              <img src="/images/logos/clients3.png" alt="Client 3" />
-            </div>
-            <div class="client-logo">
-              <img src="/images/logos/clients4.png" alt="Client 4" />
-            </div>
-            <div class="client-logo">
-              <img src="/images/logos/clients5.png" alt="Client 5" />
-            </div>
-            <div class="client-logo">
-              <img src="/images/logos/clients6.png" alt="Client 6" />
-            </div>
+            <!-- Render logos multiple times for seamless infinite scroll -->
+            <template v-for="set in 3" :key="`set-${set}`">
+              <div 
+                v-for="logo in homeContent.clientLogos" 
+                :key="`${logo.id}-${set}`"
+                class="client-logo"
+              >
+                <img 
+                  :src="logo.logoFileUrl || logo.logoUrl" 
+                  :alt="logo.name || `Client ${logo.id}`"
+                  @error="handleImageError"
+                />
+              </div>
+            </template>
           </div>
+        </div>
+        <div v-else class="clients-empty">
+          <p>No client logos available</p>
         </div>
       </div>
     </div>
@@ -692,7 +581,7 @@
                 <path d="M100 8L112 16L100 24" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
               </svg>
             </div>
-            <p class="footer-tagline">Your creative digital partner for high-impact video ads and marketing content.</p>
+            <p class="footer-tagline">{{ homeContent?.footerTagline || 'Your creative digital partner for high-impact video ads and marketing content.' }}</p>
             <div class="footer-social">
               <a href="#" class="social-icon" aria-label="Instagram">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -729,7 +618,7 @@
         </div>
         
         <div class="footer-bottom">
-          <p class="footer-copyright">Copyright © 2025 Trusted Valley LLC. All rights reserved</p>
+          <p class="footer-copyright">{{ homeContent?.footerAddress || 'Copyright © 2025 Trusted Valley LLC. All rights reserved' }}</p>
           <div class="footer-policies">
             <a href="#privacy">Privacy Policy</a>
             <span class="footer-divider">|</span>
@@ -744,7 +633,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick } from 'vue'
+import { ref, computed, onMounted, nextTick, watch } from 'vue'
 import { HomeViewController } from '../controllers/HomeViewController'
 import { HomeContentViewController } from '../controllers/HomeContentViewController'
 import { siteSettingsController } from '@/features/admin/controllers/SiteSettingsController'
@@ -762,22 +651,31 @@ const isSectionDisabled = (sectionId: string): boolean => {
   return siteSettings.value.disabledSections?.includes(sectionId) || false
 }
 
-const phoneNumber = computed({
-  get: () => viewController.phoneNumber,
-  set: (value: string) => viewController.setWhatsAppNumber(value)
+// Email input - use a local ref that syncs with viewController
+const email = ref('')
+
+// Watch for changes and sync with viewController
+watch(email, (newValue) => {
+  viewController.setEmailAddress(newValue)
 })
 
 const isLoading = computed(() => viewController.isLoading)
 const errorMessage = computed(() => viewController.errorMessage)
 const homeContent = computed(() => contentController.content)
-
+const successMessage = ref('')
 
 const handleSubmit = async () => {
-  const success = await viewController.handleWhatsAppSubmit()
+  // Sync email to viewController before submission
+  viewController.setEmailAddress(email.value)
+  const success = await viewController.handleEmailSubmit()
   if (success) {
-    // Show success message or redirect
-    alert('Thank you! We will send you magic soon!')
+    successMessage.value = 'Thank you! We have received your email. Please check your inbox for a confirmation email.'
+    email.value = '' // Clear the form
     viewController.clearForm()
+    // Clear success message after 5 seconds
+    setTimeout(() => {
+      successMessage.value = ''
+    }, 5000)
   }
 }
 
@@ -790,11 +688,17 @@ const handleBookMeeting = () => {
 const getVideoEmbedUrl = (url: string): string => {
   if (!url) return ''
   
-  // YouTube
+  // YouTube - Add parameters to disable suggestions and related videos
   const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
   const youtubeMatch = url.match(youtubeRegex)
   if (youtubeMatch) {
-    return `https://www.youtube.com/embed/${youtubeMatch[1]}`
+    // Parameters to disable YouTube suggestions:
+    // rel=0 - Don't show related videos from other channels
+    // modestbranding=1 - Reduce YouTube branding
+    // iv_load_policy=3 - Don't show video annotations
+    // cc_load_policy=0 - Don't show captions by default
+    // fs=1 - Allow fullscreen
+    return `https://www.youtube.com/embed/${youtubeMatch[1]}?rel=0&modestbranding=1&iv_load_policy=3&cc_load_policy=0&fs=1`
   }
   
   // Vimeo
@@ -1427,6 +1331,32 @@ const setupScrollAnimations = () => {
   font-size: 0.9rem;
   max-width: 700px;
   margin: 0 auto;
+}
+
+.success-message {
+  padding: 0.75rem 1rem;
+  background-color: rgba(76, 175, 80, 0.2);
+  color: #4caf50;
+  border-radius: 6px;
+  font-size: 0.9rem;
+  max-width: 700px;
+  margin: 0 auto;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.submit-spinner {
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(245, 247, 250, 0.3);
+  border-top-color: #F5F7FA;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+@keyframes spin {
+  to {
+    transform: rotate(360deg);
+  }
 }
 
 /* Social Proof */
@@ -2534,6 +2464,13 @@ const setupScrollAnimations = () => {
   font-weight: 400;
   line-height: normal;
   margin: 0;
+}
+
+.clients-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: rgba(245, 247, 250, 0.5);
+  font-size: 1.1rem;
 }
 
 .clients-slider-wrapper {

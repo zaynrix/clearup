@@ -1,9 +1,11 @@
 import {
   ref,
   uploadBytes,
+  uploadBytesResumable,
   getDownloadURL,
   deleteObject,
-  type UploadResult
+  type UploadResult,
+  type UploadTask
 } from 'firebase/storage'
 import { storage } from './config'
 
@@ -18,6 +20,36 @@ export class StorageService {
   ): Promise<UploadResult> {
     const storageRef = ref(storage, path)
     return await uploadBytes(storageRef, file, metadata)
+  }
+
+  /**
+   * Upload file with progress tracking
+   */
+  uploadFileWithProgress(
+    path: string,
+    file: File | Blob,
+    onProgress?: (progress: number) => void,
+    metadata?: { contentType?: string; customMetadata?: Record<string, string> }
+  ): UploadTask {
+    const storageRef = ref(storage, path)
+    const uploadTask = uploadBytesResumable(storageRef, file, metadata)
+    
+    if (onProgress) {
+      uploadTask.on('state_changed',
+        (snapshot) => {
+          const progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100
+          onProgress(progress)
+        },
+        (error) => {
+          console.error('Upload error:', error)
+        },
+        () => {
+          // Upload completed
+        }
+      )
+    }
+    
+    return uploadTask
   }
 
   /**
@@ -45,6 +77,20 @@ export class StorageService {
     metadata?: { contentType?: string; customMetadata?: Record<string, string> }
   ): Promise<string> {
     await this.uploadFile(path, file, metadata)
+    return await this.getDownloadUrl(path)
+  }
+
+  /**
+   * Upload file with progress and get download URL
+   */
+  async uploadAndGetUrlWithProgress(
+    path: string,
+    file: File | Blob,
+    onProgress?: (progress: number) => void,
+    metadata?: { contentType?: string; customMetadata?: Record<string, string> }
+  ): Promise<string> {
+    const uploadTask = this.uploadFileWithProgress(path, file, onProgress, metadata)
+    await uploadTask
     return await this.getDownloadUrl(path)
   }
 }

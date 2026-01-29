@@ -54,6 +54,13 @@ export interface HomeContent {
   // Clients Section
   clientsTitle: string
   clientsSubtitle: string
+  clientLogos: Array<{
+    id: string
+    logoUrl?: string // Logo URL (external link)
+    logoFileUrl?: string // Uploaded logo file URL
+    logoType?: 'url' | 'upload' // Type of logo source
+    name?: string // Optional client name for alt text
+  }>
   
   // Real Results Section
   realResultsTitle: string
@@ -87,6 +94,9 @@ export interface HomeContent {
     name: string
     stars: number // 1-5 rating
     review: string
+    title?: string // Job title or position
+    position?: string // Alternative to title
+    company?: string // Company name
     photoUrl?: string // Profile photo URL (uploaded or external link)
     photoFileUrl?: string // Uploaded profile photo file URL
     photoType?: 'url' | 'upload' // Type of profile photo source

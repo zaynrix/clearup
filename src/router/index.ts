@@ -70,8 +70,13 @@ router.beforeEach(async (to, from, next) => {
   }
 
   if (requiresGuest && currentUser) {
-    // Redirect to dashboard if route requires guest but user is logged in
-    next({ name: 'dashboard' })
+    // Redirect logged-in users to appropriate dashboard based on role
+    const isAdmin = await userService.isAdmin(currentUser.uid)
+    if (isAdmin) {
+      next({ name: 'admin-dashboard' })
+    } else {
+      next({ name: 'dashboard' })
+    }
     return
   }
 
