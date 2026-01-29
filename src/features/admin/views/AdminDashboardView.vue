@@ -541,13 +541,13 @@
             
             <div class="subsection">
               <div class="subsection-header">
-                <h4 class="subsection-title">
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M9 11L12 14L22 4" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                    <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                  Process Steps
-                </h4>
+              <h4 class="subsection-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M9 11L12 14L22 4" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M21 12V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Process Steps
+              </h4>
                 <button @click="addStep" type="button" class="btn-primary btn-small">
                   <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 5V19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -578,7 +578,7 @@
                         <path d="M13 17H15V19H13V17Z" fill="currentColor"/>
                       </svg>
                     </div>
-                    <div class="step-number">{{ step.number }}</div>
+                  <div class="step-number">{{ step.number }}</div>
                     <div class="step-actions">
                       <button 
                         @click="moveStepUp(index)" 
@@ -613,8 +613,8 @@
                           <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </button>
-                    </div>
-                  </div>
+                </div>
+              </div>
                   <textarea 
                     v-model="step.content" 
                     rows="3" 
@@ -648,8 +648,8 @@
                 </label>
                 <input v-model="formData.whatYouGetTitle" type="text" placeholder="What You Get" class="form-input" />
               </div>
-            </div>
-            
+              </div>
+              
             <div class="subsection">
               <div class="subsection-header">
                 <h4 class="subsection-title">
@@ -666,7 +666,7 @@
                   </svg>
                   Add Benefit
                 </button>
-              </div>
+                </div>
               <div class="benefits-list">
                 <div 
                   v-for="(benefit, index) in formData.benefits" 
@@ -687,7 +687,7 @@
                       <path d="M13 11H15V13H13V11Z" fill="currentColor"/>
                       <path d="M13 17H15V19H13V17Z" fill="currentColor"/>
                     </svg>
-                  </div>
+              </div>
                   <div class="benefit-check-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M9 12L11 14L15 10" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -762,8 +762,8 @@
                 </label>
                 <input v-model="formData.bonusesTitle" type="text" placeholder="Bonuses Included" class="form-input" />
               </div>
-            </div>
-            
+              </div>
+              
             <div class="subsection">
               <div class="subsection-header">
                 <h4 class="subsection-title">
@@ -779,7 +779,7 @@
                   </svg>
                   Add Bonus
                 </button>
-              </div>
+                </div>
               <div class="benefits-list">
                 <div 
                   v-for="(bonus, index) in formData.bonuses" 
@@ -800,7 +800,7 @@
                       <path d="M13 11H15V13H13V11Z" fill="currentColor"/>
                       <path d="M13 17H15V19H13V17Z" fill="currentColor"/>
                     </svg>
-                  </div>
+              </div>
                   <div class="benefit-check-icon">
                     <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -1032,6 +1032,14 @@
                           <span class="label-text">Name *</span>
                         </label>
                         <input v-model="testimonial.name" type="text" placeholder="John Doe" class="form-input" required />
+                      </div>
+
+                      <div class="form-group">
+                        <label>
+                          <span class="label-text">Subtitle/Role</span>
+                          <span class="label-hint">e.g., "Founder & CEO - Afrodita"</span>
+                        </label>
+                        <input v-model="testimonial.subtitle" type="text" placeholder="Founder & CEO - Company Name" class="form-input" />
                       </div>
 
                       <div class="form-group">
@@ -2485,7 +2493,7 @@ const extractFilePathFromUrl = (url: string): string | null => {
     // Firebase Storage URL format: https://firebasestorage.googleapis.com/v0/b/{bucket}/o/{encodedPath}?alt=media&token={token}
     const urlObj = new URL(url)
     const pathMatch = urlObj.pathname.match(/\/o\/(.+)/)
-    if (pathMatch) {
+    if (pathMatch && pathMatch[1]) {
       // Decode the path (it's URL encoded)
       return decodeURIComponent(pathMatch[1])
     }
@@ -2604,12 +2612,16 @@ const updateStepNumbers = () => {
  * Move step up
  */
 const moveStepUp = (index: number) => {
-  if (index > 0) {
+  if (index > 0 && formData.value.steps) {
     const steps = formData.value.steps
-    const temp = steps[index]
-    steps[index] = steps[index - 1]
-    steps[index - 1] = temp
-    updateStepNumbers()
+    const current = steps[index]
+    const previous = steps[index - 1]
+    if (current && previous) {
+      const temp = current
+      steps[index] = previous
+      steps[index - 1] = temp
+      updateStepNumbers()
+    }
   }
 }
 
@@ -2617,12 +2629,16 @@ const moveStepUp = (index: number) => {
  * Move step down
  */
 const moveStepDown = (index: number) => {
-  if (index < formData.value.steps.length - 1) {
+  if (formData.value.steps && index < formData.value.steps.length - 1) {
     const steps = formData.value.steps
-    const temp = steps[index]
-    steps[index] = steps[index + 1]
-    steps[index + 1] = temp
-    updateStepNumbers()
+    const current = steps[index]
+    const next = steps[index + 1]
+    if (current && next) {
+      const temp = current
+      steps[index] = next
+      steps[index + 1] = temp
+      updateStepNumbers()
+    }
   }
 }
 
@@ -2662,12 +2678,14 @@ const handleStepDrop = (event: DragEvent, index: number) => {
   const stepCard = event.currentTarget as HTMLElement
   stepCard.classList.remove('drag-over')
   
-  if (draggedStepIndex.value !== null && draggedStepIndex.value !== index) {
+  if (draggedStepIndex.value !== null && draggedStepIndex.value !== index && formData.value.steps) {
     const steps = formData.value.steps
     const draggedStep = steps[draggedStepIndex.value]
-    steps.splice(draggedStepIndex.value, 1)
-    steps.splice(index, 0, draggedStep)
-    updateStepNumbers()
+    if (draggedStep) {
+      steps.splice(draggedStepIndex.value, 1)
+      steps.splice(index, 0, draggedStep)
+      updateStepNumbers()
+    }
   }
 }
 
@@ -2713,9 +2731,13 @@ const removeBenefit = (index: number) => {
 const moveBenefitUp = (index: number) => {
   if (index > 0 && formData.value.benefits) {
     const benefits = formData.value.benefits
-    const temp = benefits[index]
-    benefits[index] = benefits[index - 1]
-    benefits[index - 1] = temp
+    const current = benefits[index]
+    const previous = benefits[index - 1]
+    if (current !== undefined && previous !== undefined) {
+      const temp = current
+      benefits[index] = previous
+      benefits[index - 1] = temp
+    }
   }
 }
 
@@ -2725,9 +2747,13 @@ const moveBenefitUp = (index: number) => {
 const moveBenefitDown = (index: number) => {
   if (formData.value.benefits && index < formData.value.benefits.length - 1) {
     const benefits = formData.value.benefits
-    const temp = benefits[index]
-    benefits[index] = benefits[index + 1]
-    benefits[index + 1] = temp
+    const current = benefits[index]
+    const next = benefits[index + 1]
+    if (current !== undefined && next !== undefined) {
+      const temp = current
+      benefits[index] = next
+      benefits[index + 1] = temp
+    }
   }
 }
 
@@ -2770,8 +2796,10 @@ const handleBenefitDrop = (event: DragEvent, index: number) => {
   if (draggedBenefitIndex.value !== null && draggedBenefitIndex.value !== index && formData.value.benefits) {
     const benefits = formData.value.benefits
     const draggedBenefit = benefits[draggedBenefitIndex.value]
-    benefits.splice(draggedBenefitIndex.value, 1)
-    benefits.splice(index, 0, draggedBenefit)
+    if (draggedBenefit !== undefined) {
+      benefits.splice(draggedBenefitIndex.value, 1)
+      benefits.splice(index, 0, draggedBenefit)
+    }
   }
 }
 
@@ -2817,9 +2845,13 @@ const removeBonus = (index: number) => {
 const moveBonusUp = (index: number) => {
   if (index > 0 && formData.value.bonuses) {
     const bonuses = formData.value.bonuses
-    const temp = bonuses[index]
-    bonuses[index] = bonuses[index - 1]
-    bonuses[index - 1] = temp
+    const current = bonuses[index]
+    const previous = bonuses[index - 1]
+    if (current !== undefined && previous !== undefined) {
+      const temp = current
+      bonuses[index] = previous
+      bonuses[index - 1] = temp
+    }
   }
 }
 
@@ -2829,9 +2861,13 @@ const moveBonusUp = (index: number) => {
 const moveBonusDown = (index: number) => {
   if (formData.value.bonuses && index < formData.value.bonuses.length - 1) {
     const bonuses = formData.value.bonuses
-    const temp = bonuses[index]
-    bonuses[index] = bonuses[index + 1]
-    bonuses[index + 1] = temp
+    const current = bonuses[index]
+    const next = bonuses[index + 1]
+    if (current !== undefined && next !== undefined) {
+      const temp = current
+      bonuses[index] = next
+      bonuses[index + 1] = temp
+    }
   }
 }
 
@@ -2874,8 +2910,10 @@ const handleBonusDrop = (event: DragEvent, index: number) => {
   if (draggedBonusIndex.value !== null && draggedBonusIndex.value !== index && formData.value.bonuses) {
     const bonuses = formData.value.bonuses
     const draggedBonus = bonuses[draggedBonusIndex.value]
-    bonuses.splice(draggedBonusIndex.value, 1)
-    bonuses.splice(index, 0, draggedBonus)
+    if (draggedBonus !== undefined) {
+      bonuses.splice(draggedBonusIndex.value, 1)
+      bonuses.splice(index, 0, draggedBonus)
+    }
   }
 }
 
@@ -3134,6 +3172,7 @@ const addNewTestimonial = () => {
   formData.value.testimonials.push({
     id: Date.now().toString(),
     name: '',
+    subtitle: '',
     stars: 5,
     review: '',
     photoUrl: '',

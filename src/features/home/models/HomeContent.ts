@@ -94,6 +94,7 @@ export interface HomeContent {
     name: string
     stars: number // 1-5 rating
     review: string
+    subtitle?: string // Subtitle from Firebase
     title?: string // Job title or position
     position?: string // Alternative to title
     company?: string // Company name

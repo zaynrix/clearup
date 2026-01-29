@@ -476,7 +476,7 @@
         
         <div v-if="homeContent?.testimonials && homeContent.testimonials.length > 0" class="testimonials-grid">
           <div v-for="(testimonial, index) in homeContent.testimonials" :key="testimonial.id" class="testimonial-card" :data-card-id="`testimonial-${index}`">
-            <div class="testimonial-header">
+            <div class="testimonial-profile">
               <div class="testimonial-avatar">
                 <img 
                   v-if="testimonial.photoFileUrl || testimonial.photoUrl" 
@@ -489,12 +489,12 @@
               <div class="testimonial-info">
                 <h4 class="testimonial-name">{{ testimonial.name }}</h4>
                 <div class="testimonial-stars">
-                  <svg v-for="i in 5" :key="i" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <svg v-for="i in 5" :key="i" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" :fill="i <= (testimonial.stars || 5) ? '#FFD700' : 'rgba(255, 255, 255, 0.2)'"/>
                   </svg>
                 </div>
-                <p v-if="testimonial.title || testimonial.position || testimonial.company" class="testimonial-title">
-                  {{ testimonial.title || testimonial.position }}{{ testimonial.title || testimonial.position && testimonial.company ? ' - ' : '' }}{{ testimonial.company }}
+                <p v-if="testimonial.subtitle || testimonial.title || testimonial.position || testimonial.company" class="testimonial-job-title">
+                  {{ getTestimonialRole(testimonial) }}
                 </p>
               </div>
             </div>
@@ -511,10 +511,10 @@
                     <path d="M8 5V19L19 12L8 5Z" fill="white"/>
                   </svg>
                 </div>
-                <div class="play-button">
-                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="12" fill="rgba(0, 0, 0, 0.6)"/>
-                    <path d="M10 8L16 12L10 16V8Z" fill="white"/>
+                <div class="play-button-overlay">
+                  <svg width="70" height="70" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="35" cy="35" r="35" fill="rgba(0, 0, 0, 0.6)"/>
+                    <path d="M28 22L48 35L28 48V22Z" fill="white"/>
                   </svg>
                 </div>
               </div>
@@ -726,6 +726,26 @@ const openVideoModal = (testimonial: any) => {
 const closeVideoModal = () => {
   selectedVideo.value = null
   document.body.style.overflow = '' // Restore scrolling
+}
+
+const getTestimonialRole = (testimonial: { subtitle?: string; title?: string; position?: string; company?: string }): string => {
+  // Prioritize subtitle from Firebase
+  if (testimonial.subtitle) {
+    return testimonial.subtitle
+  }
+  
+  // Fallback to title/position/company
+  const role = testimonial.title || testimonial.position || ''
+  const company = testimonial.company || ''
+  
+  if (role && company) {
+    return `${role} - ${company}`
+  } else if (role) {
+    return role
+  } else if (company) {
+    return company
+  }
+  return ''
 }
 
 const getInitials = (name: string): string => {
@@ -2597,29 +2617,33 @@ const setupScrollAnimations = () => {
 }
 
 .testimonial-card {
-  background: #1F1F28;
-  border-radius: 16px;
+  background: #2a2a2a;
+  border-radius: 20px;
   padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: 24px;
   transition: all 0.3s ease;
+  max-width: 450px;
+  width: 100%;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
 }
 
 .testimonial-card:hover {
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.5);
 }
 
-.testimonial-header {
+.testimonial-profile {
   display: flex;
+  flex-direction: row;
   align-items: flex-start;
   gap: 16px;
 }
 
 .testimonial-avatar {
-  width: 64px;
-  height: 64px;
+  width: 80px;
+  height: 80px;
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
@@ -2663,8 +2687,8 @@ const setupScrollAnimations = () => {
 .testimonial-name {
   color: #FFFFFF;
   font-family: 'Roboto', sans-serif;
-  font-size: 20px;
-  font-weight: 600;
+  font-size: 24px;
+  font-weight: 700;
   line-height: normal;
   margin: 0;
 }
@@ -2673,16 +2697,21 @@ const setupScrollAnimations = () => {
   display: flex;
   gap: 4px;
   align-items: center;
+  margin: 6px 0 4px 0;
 }
 
-.testimonial-title {
-  color: #FFFFFF;
+.testimonial-job-title {
+  color: #ABBED1;
   font-family: 'Roboto', sans-serif;
-  font-size: 14px;
+  font-size: 16px;
   font-weight: 400;
   line-height: normal;
   margin: 0;
-  opacity: 0.9;
+  margin-top: 4px;
+  opacity: 1 !important;
+  visibility: visible !important;
+  display: block !important;
+  min-height: 20px;
 }
 
 .testimonials-empty {
@@ -3209,15 +3238,12 @@ const setupScrollAnimations = () => {
 
 .testimonial-video {
   width: 100%;
-  margin-top: 0;
-  flex: 1;
-  min-height: 300px;
+  margin-top: 24px;
 }
 
 .video-thumbnail {
   width: 100%;
-  height: 100%;
-  min-height: 300px;
+  aspect-ratio: 16 / 9;
   border-radius: 12px;
   background: #000000;
   position: relative;
@@ -3227,7 +3253,11 @@ const setupScrollAnimations = () => {
 }
 
 .video-thumbnail:hover {
-  transform: scale(1.01);
+  transform: scale(1.02);
+}
+
+.video-thumbnail:hover .play-button-overlay {
+  transform: translate(-50%, -50%) scale(1.1);
 }
 
 .video-thumbnail-img {
@@ -3251,32 +3281,29 @@ const setupScrollAnimations = () => {
   z-index: 1;
 }
 
-.play-button {
+.play-button-overlay {
   position: absolute;
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 72px;
-  height: 72px;
-  background: rgba(0, 0, 0, 0.6);
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  width: 70px;
+  height: 70px;
   z-index: 2;
   transition: all 0.3s ease;
-  backdrop-filter: blur(4px);
+  cursor: pointer;
 }
 
-.play-button:hover {
-  background: rgba(0, 0, 0, 0.8);
-  transform: translate(-50%, -50%) scale(1.05);
+.play-button-overlay svg {
+  width: 70px;
+  height: 70px;
 }
 
-.play-button svg {
-  margin-left: 2px;
-  width: 32px;
-  height: 32px;
+.play-button-overlay circle {
+  transition: fill 0.3s ease;
+}
+
+.video-thumbnail:hover .play-button-overlay circle {
+  fill: rgba(0, 0, 0, 0.8);
 }
 
 /* Footer/Bottom Section */
@@ -5028,21 +5055,21 @@ const setupScrollAnimations = () => {
   }
   
   .testimonial-video {
-    min-height: 250px;
+    margin-top: 20px;
   }
   
   .video-thumbnail {
-    min-height: 250px;
+    aspect-ratio: 16 / 9;
   }
   
-  .play-button {
-    width: 64px;
-    height: 64px;
+  .play-button-overlay {
+    width: 60px;
+    height: 60px;
   }
   
-  .play-button svg {
-    width: 28px;
-    height: 28px;
+  .play-button-overlay svg {
+    width: 60px;
+    height: 60px;
   }
   
   .footer-section {
@@ -5336,21 +5363,21 @@ const setupScrollAnimations = () => {
   }
   
   .testimonial-video {
-    min-height: 200px;
+    margin-top: 16px;
   }
   
   .video-thumbnail {
-    min-height: 200px;
+    aspect-ratio: 16 / 9;
   }
   
-  .play-button {
-    width: 56px;
-    height: 56px;
+  .play-button-overlay {
+    width: 50px;
+    height: 50px;
   }
   
-  .play-button svg {
-    width: 24px;
-    height: 24px;
+  .play-button-overlay svg {
+    width: 50px;
+    height: 50px;
   }
   
   .footer-section {

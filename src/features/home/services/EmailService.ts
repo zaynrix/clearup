@@ -49,13 +49,15 @@ export class EmailService extends BaseService {
       if (existingEmails.length > 0) {
         // Email already exists, update the existing record
         const existing = existingEmails[0]
-        await firestoreService.updateDocument(this.COLLECTION_NAME, existing.id!, {
-          createdAt: new Date().toISOString(),
-          status: 'pending'
-        })
-        return {
-          success: true,
-          submissionId: existing.id
+        if (existing && existing.id) {
+          await firestoreService.updateDocument(this.COLLECTION_NAME, existing.id, {
+            createdAt: new Date().toISOString(),
+            status: 'pending'
+          })
+          return {
+            success: true,
+            submissionId: existing.id
+          }
         }
       }
 
