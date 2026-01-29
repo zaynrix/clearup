@@ -1,101 +1,61 @@
-# ClearUp - Layered MVC Architecture with Firebase
+# ClearUp
 
-A Vue 3 application built with a **Layered MVC Architecture** where each layer implements the MVC pattern. The application uses Firebase as the backend service.
+Web application built with Vue 3 and Firebase for content management and lead generation.
 
-## Architecture
+## Stack
 
-This project follows a **Layered MVC Architecture**:
+- Vue 3 + TypeScript + Vite
+- Firebase (Auth, Firestore, Storage)
+- Pinia
+- Vue Router
 
-- **Presentation Layer (MVC)**: Vue components (Views) and View Controllers
-- **Business Logic Layer (MVC)**: Business Controllers and Services
-- **Data Access Layer (MVC)**: Repositories and Domain Models
-- **Firebase Services**: Authentication, Firestore, and Storage integration
+## Setup
 
-See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed documentation.
+**Requirements:** Node.js v20.19.0+ and a Firebase project.
 
-## Features
-
-- ✅ Layered MVC architecture with separation of concerns
-- ✅ Firebase Authentication (Email/Password)
-- ✅ Firestore database integration
-- ✅ Firebase Storage support
-- ✅ TypeScript support
-- ✅ Vue Router for navigation
-- ✅ Pinia for state management
-
-## Recommended IDE Setup
-
-[VS Code](https://code.visualstudio.com/) + [Vue (Official)](https://marketplace.visualstudio.com/items?itemName=Vue.volar) (and disable Vetur).
-
-## Recommended Browser Setup
-
-- Chromium-based browsers (Chrome, Edge, Brave, etc.):
-  - [Vue.js devtools](https://chromewebstore.google.com/detail/vuejs-devtools/nhdogjmejiglipccpnnnanhbledajbpd)
-  - [Turn on Custom Object Formatter in Chrome DevTools](http://bit.ly/object-formatters)
-- Firefox:
-  - [Vue.js devtools](https://addons.mozilla.org/en-US/firefox/addon/vue-js-devtools/)
-  - [Turn on Custom Object Formatter in Firefox DevTools](https://fxdx.dev/firefox-devtools-custom-object-formatters/)
-
-## Type Support for `.vue` Imports in TS
-
-TypeScript cannot handle type information for `.vue` imports by default, so we replace the `tsc` CLI with `vue-tsc` for type checking. In editors, we need [Volar](https://marketplace.visualstudio.com/items?itemName=Vue.volar) to make the TypeScript language service aware of `.vue` types.
-
-## Customize configuration
-
-See [Vite Configuration Reference](https://vite.dev/config/).
-
-## Project Setup
-
-### 1. Install Dependencies
-
-```sh
+```bash
 npm install
-```
-
-### 2. Firebase Configuration
-
-**📖 For detailed Firebase setup instructions, see [FIREBASE_SETUP.md](./FIREBASE_SETUP.md)**
-
-Quick setup:
-
-1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com)
-2. Enable **Authentication** with Email/Password provider
-3. Create a **Firestore Database**
-4. Create a `.env` file in the root directory:
-
-```env
-VITE_FIREBASE_API_KEY=your-api-key-here
-VITE_FIREBASE_AUTH_DOMAIN=your-project.firebaseapp.com
-VITE_FIREBASE_PROJECT_ID=your-project-id
-VITE_FIREBASE_STORAGE_BUCKET=your-project.appspot.com
-VITE_FIREBASE_MESSAGING_SENDER_ID=your-sender-id
-VITE_FIREBASE_APP_ID=your-app-id
-```
-
-5. Replace the placeholder values with your Firebase project credentials (found in Project Settings > General > Your apps)
-
-**Note:** WhatsApp form submissions are automatically saved to Firestore in the `whatsapp_leads` collection.
-
-### Compile and Hot-Reload for Development
-
-```sh
 npm run dev
 ```
 
-### Type-Check, Compile and Minify for Production
+**Firebase Setup:**
 
-```sh
-npm run build
+1. Create Firebase project and enable Email/Password authentication
+2. Create Firestore database
+3. Add environment variables to `.env`:
+
+```env
+VITE_FIREBASE_API_KEY=...
+VITE_FIREBASE_AUTH_DOMAIN=...
+VITE_FIREBASE_PROJECT_ID=...
+VITE_FIREBASE_STORAGE_BUCKET=...
+VITE_FIREBASE_MESSAGING_SENDER_ID=...
+VITE_FIREBASE_APP_ID=...
 ```
 
-### Run Unit Tests with [Vitest](https://vitest.dev/)
+4. Deploy `firestore.rules` and `storage.rules` to Firebase
 
-```sh
-npm run test:unit
-```
+## Deployment
 
-### Lint with [ESLint](https://eslint.org/)
+Deploys to GitHub Pages via GitHub Actions. Configure these secrets in repository settings:
 
-```sh
-npm run lint
-```
+- `VITE_FIREBASE_API_KEY`
+- `VITE_FIREBASE_AUTH_DOMAIN`
+- `VITE_FIREBASE_PROJECT_ID`
+- `VITE_FIREBASE_STORAGE_BUCKET`
+- `VITE_FIREBASE_MESSAGING_SENDER_ID`
+- `VITE_FIREBASE_APP_ID`
+- `VITE_FIREBASE_MEASUREMENT_ID` (optional)
+
+Add `zaynrix.github.io` to Firebase Authentication authorized domains.
+
+## Scripts
+
+- `npm run dev` - Development server
+- `npm run build` - Production build
+- `npm run type-check` - TypeScript validation
+- `npm run lint` - Code linting
+
+## Architecture
+
+Layered MVC architecture. See `ARCHITECTURE.md` for details.
