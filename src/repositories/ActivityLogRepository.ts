@@ -18,7 +18,7 @@ export class ActivityLogRepository extends BaseRepository<ActivityLog> {
     return await this.query(
       firestoreService.where('userId', '==', userId),
       firestoreService.orderBy('createdAt', 'desc'),
-      firestoreService.limit(limit)
+      firestoreService.limitTo(limit)
     )
   }
 
@@ -29,7 +29,7 @@ export class ActivityLogRepository extends BaseRepository<ActivityLog> {
     return await this.query(
       firestoreService.where('resource', '==', resource),
       firestoreService.orderBy('createdAt', 'desc'),
-      firestoreService.limit(limit)
+      firestoreService.limitTo(limit)
     )
   }
 
@@ -42,7 +42,7 @@ export class ActivityLogRepository extends BaseRepository<ActivityLog> {
       // We'll order by createdAt field which should be stored as ISO string or Timestamp
       return await this.query(
         firestoreService.orderBy('createdAt', 'desc'),
-        firestoreService.limit(limit)
+        firestoreService.limitTo(limit)
       )
     } catch (error) {
       // If ordering fails (e.g., no index), try without ordering

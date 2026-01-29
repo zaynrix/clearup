@@ -1422,7 +1422,7 @@
                   <div class="log-header">
                     <div class="log-user-info">
                       <div class="log-user-avatar">
-                        {{ ((log.userName || log.userEmail || 'U') as string)[0].toUpperCase() }}
+                        {{ ((log.userName || log.userEmail || 'U') as string)?.[0]?.toUpperCase() || 'U' }}
                       </div>
                       <div>
                         <strong class="log-user-name">{{ log.userName || log.userEmail || 'Unknown User' }}</strong>
@@ -1661,7 +1661,7 @@ const userInitials = computed(() => {
     return user.value.displayName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2)
   }
   if (user.value?.email) {
-    return (user.value.email as string)[0].toUpperCase()
+    return (user.value.email as string)?.[0]?.toUpperCase() || 'A'
   }
   return 'A'
 })
@@ -2135,7 +2135,10 @@ const addCaseCard = (caseIndex: number) => {
 
 const removeCaseCard = (caseIndex: number, cardIndex: number) => {
   if (confirm('Are you sure you want to delete this card?')) {
-    formData.value.realResultsCases[caseIndex].cards.splice(cardIndex, 1)
+    const caseItem = formData.value.realResultsCases[caseIndex]
+    if (caseItem) {
+      caseItem.cards.splice(cardIndex, 1)
+    }
   }
 }
 
@@ -2208,8 +2211,11 @@ const handlePhotoUpload = async (event: Event, index: number) => {
       }
     )
     
-    formData.value.testimonials[index].photoFileUrl = imageUrl
-    formData.value.testimonials[index].photoType = 'upload'
+    const testimonial = formData.value.testimonials[index]
+    if (testimonial) {
+      testimonial.photoFileUrl = imageUrl
+      testimonial.photoType = 'upload'
+    }
     
     saveMessage.value = 'Photo uploaded successfully!'
     saveMessageType.value = 'success'
@@ -2263,8 +2269,11 @@ const handleTestimonialVideoUpload = async (event: Event, index: number) => {
       }
     )
     
-    formData.value.testimonials[index].videoFileUrl = videoUrl
-    formData.value.testimonials[index].videoType = 'upload'
+    const testimonial = formData.value.testimonials[index]
+    if (testimonial) {
+      testimonial.videoFileUrl = videoUrl
+      testimonial.videoType = 'upload'
+    }
     
     saveMessage.value = 'Video uploaded successfully!'
     saveMessageType.value = 'success'
@@ -2318,8 +2327,11 @@ const handleVideoThumbnailUpload = async (event: Event, index: number) => {
       }
     )
     
-    formData.value.testimonials[index].videoThumbnailFileUrl = imageUrl
-    formData.value.testimonials[index].videoThumbnailType = 'upload'
+    const testimonial = formData.value.testimonials[index]
+    if (testimonial) {
+      testimonial.videoThumbnailFileUrl = imageUrl
+      testimonial.videoThumbnailType = 'upload'
+    }
     
     saveMessage.value = 'Video thumbnail uploaded successfully!'
     saveMessageType.value = 'success'
