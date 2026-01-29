@@ -13,21 +13,21 @@
     <!-- Main content -->
     <div class="home-container">
       <!-- Hero Section -->
-      <div v-if="!isSectionDisabled('hero')" class="hero-section">
+      <div v-if="!isSectionDisabled('hero')" class="hero-section" :class="{ 'animate-in': isLoaded }">
         <h1 class="hero-headline">
-          <span class="headline-white">{{ homeContent?.heroHeadlineWhite || 'Like Oxygen For' }}</span>
-          <span class="headline-purple">{{ homeContent?.heroHeadlinePurple || 'Your Business' }}</span>
+          <span class="headline-white" :class="{ 'animate-in': isLoaded }">{{ homeContent?.heroHeadlineWhite || 'Like Oxygen For' }}</span>
+          <span class="headline-purple" :class="{ 'animate-in': isLoaded }" style="animation-delay: 0.2s;">{{ homeContent?.heroHeadlinePurple || 'Your Business' }}</span>
         </h1>
         
-        <div class="supporting-text">
-          <p v-for="(text, index) in (homeContent?.supportingText || ['Growing a business is hard and chaos', 'We make whole a lot easer', 'More systemized, more predictable, less stressful, more fun'])" :key="index">
+        <div class="supporting-text" :class="{ 'animate-in': isLoaded }" style="animation-delay: 0.4s;">
+          <p v-for="(text, index) in (homeContent?.supportingText || ['Growing a business is hard and chaos', 'We make whole a lot easer', 'More systemized, more predictable, less stressful, more fun'])" :key="index" :style="{ animationDelay: `${0.5 + index * 0.1}s` }">
             {{ text }}
           </p>
         </div>
       </div>
 
       <!-- CTA Section -->
-      <div v-if="!isSectionDisabled('cta')" class="cta-section">
+      <div v-if="!isSectionDisabled('cta')" class="cta-section" :class="{ 'animate-in': isLoaded }" style="animation-delay: 0.8s;">
         <form @submit.prevent="handleSubmit" class="whatsapp-form">
           <input
             v-model="phoneNumber"
@@ -55,36 +55,36 @@
       </div>
 
       <!-- Social Proof -->
-      <div v-if="!isSectionDisabled('social-proof')" class="social-proof">
+      <div v-if="!isSectionDisabled('social-proof')" class="social-proof" :class="{ 'animate-in': isLoaded }" style="animation-delay: 1s;">
         <span class="star">⭐</span>
         <span>{{ homeContent?.socialProofText || '4.8 client satisfaction from +20 founders' }}</span>
       </div>
     </div>
 
     <!-- Second Section -->
-    <div v-if="!isSectionDisabled('who-we-are')" class="second-section">
+    <div v-if="!isSectionDisabled('who-we-are')" class="second-section" data-section-id="second-section">
       <div class="section-container">
         <!-- Header -->
-        <div class="section-header">
+        <div class="section-header" data-section-id="section-header">
           <h2 class="section-title">{{ homeContent?.whoWeAreTitle || 'Who We Are' }}</h2>
           <p class="section-description">{{ homeContent?.whoWeAreDescription || 'We redesign your marketing system to run it self' }}</p>
         </div>
 
         <!-- Statistics Cards -->
         <div v-if="!isSectionDisabled('stats')" class="stats-grid">
-          <div class="stat-card">
+          <div class="stat-card" data-card-id="stat-1">
             <h3 class="stat-title">{{ homeContent?.stats?.revenue?.title || 'Revenue generated' }}</h3>
             <div class="stat-value">{{ homeContent?.stats?.revenue?.value || '$4.7M' }}</div>
             <p class="stat-description">{{ homeContent?.stats?.revenue?.description || 'we let our number do talking , $4.7M in reported client revenue and counting' }}</p>
           </div>
 
-          <div class="stat-card">
+          <div class="stat-card" data-card-id="stat-2">
             <h3 class="stat-title">{{ homeContent?.stats?.leads?.title || 'Leads generated' }}</h3>
             <div class="stat-value">{{ homeContent?.stats?.leads?.value || '1.2M' }}</div>
             <p class="stat-description">{{ homeContent?.stats?.leads?.description || 'More 1.2M leads inquires about our client\'s services' }}</p>
           </div>
 
-          <div class="stat-card">
+          <div class="stat-card" data-card-id="stat-3">
             <h3 class="stat-title">{{ homeContent?.stats?.reach?.title || 'Our reach' }}</h3>
             <div class="stat-value">{{ homeContent?.stats?.reach?.value || '28' }}</div>
             <p class="stat-description">{{ homeContent?.stats?.reach?.description || 'Serving client over 28 different country' }}</p>
@@ -92,7 +92,7 @@
         </div>
 
         <!-- Video Section -->
-        <div v-if="homeContent?.videoUrl || homeContent?.videoFileUrl" class="video-section">
+        <div v-if="homeContent?.videoUrl || homeContent?.videoFileUrl" class="video-section" data-section-id="video-section">
           <div class="video-container">
             <!-- Video from Link (YouTube, Vimeo, etc.) -->
             <iframe 
@@ -155,19 +155,19 @@
     </div>
 
     <!-- Third Section -->
-    <div v-if="!isSectionDisabled('system')" class="third-section">
+    <div v-if="!isSectionDisabled('system')" class="third-section" data-section-id="third-section">
       <!-- Vector shapes for this section -->
       <div class="third-section-vector third-section-vector-left"></div>
       
       <div class="third-section-container">
         <!-- Header -->
-        <div class="third-section-header">
+        <div class="third-section-header" data-section-id="third-header">
           <h2 class="third-section-title">The Clear up System™</h2>
           <p class="third-section-description">An exclusive done-for-you marketing infrastructure built for predictable growth.</p>
         </div>
 
         <!-- System Card -->
-        <div class="system-card">
+        <div class="system-card" data-section-id="system-card">
           <h3 class="system-card-title">Done-for-you Clear Up System</h3>
           <p class="system-card-text">We don't sell random services.</p>
           <p class="system-card-text">We install a complete marketing system that works as one engine scalable , predictable , and built</p>
@@ -182,7 +182,7 @@
             <p class="services-description">Who is Nextcent suitable for?</p>
           </div>
           <div class="services-grid">
-            <div class="service-card">
+            <div class="service-card" data-card-id="service-1">
               <div class="service-icon">
                 <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M11.192 21.258L6.808 18.754C6.56533 18.6207 6.37 18.4273 6.222 18.174C6.074 17.918 6 17.6427 6 17.348V12.342C6 12.0487 6.074 11.7747 6.222 11.52C6.37 11.2653 6.56533 11.072 6.808 10.94L11.192 8.43401C11.432 8.29401 11.6993 8.22401 11.994 8.22401C12.2873 8.22401 12.5587 8.29401 12.808 8.43401L17.192 10.94C17.4347 11.0733 17.63 11.2673 17.778 11.522C17.926 11.7767 18 12.05 18 12.342V17.35C18 17.6433 17.926 17.9173 17.778 18.172C17.63 18.4267 17.4347 18.6207 17.192 18.754L12.808 21.258C12.568 21.3993 12.3007 21.47 12.006 21.47C11.7127 21.47 11.4413 21.3993 11.192 21.258ZM32.54 27V19.554L36.386 21.812C36.898 22.1053 37.2953 22.492 37.578 22.972C37.8607 23.452 38.002 23.9847 38.002 24.57V33.738C38.002 34.3247 37.8607 34.858 37.578 35.338C37.2953 35.818 36.898 36.204 36.386 36.496L28.618 41.032C28.1047 41.3213 27.564 41.466 26.996 41.466C26.428 41.466 25.8913 41.3213 25.386 41.032L17.618 36.496C17.106 36.2027 16.7087 35.816 16.426 35.336C16.1433 34.856 16.0013 34.324 16 33.74V24.572C16 23.9853 16.1413 23.452 16.424 22.972C16.7067 22.492 17.104 22.1053 17.616 21.812L21.462 19.556V27C21.462 28.5507 21.9973 29.8613 23.068 30.932C24.14 32.0027 25.452 32.538 27.004 32.538C28.556 32.538 29.866 32.0027 30.934 30.932C32.002 29.8613 32.5367 28.5507 32.538 27M28 16V27C28 27.284 27.904 27.5213 27.712 27.712C27.52 27.9027 27.282 27.9987 26.998 28C26.714 28.0013 26.4767 27.9053 26.286 27.712C26.0953 27.5187 26 27.2813 26 27V7.61601C26 7.15868 26.1547 6.77468 26.464 6.46401C26.7733 6.15334 27.1573 5.99868 27.616 6.00001H38.982C39.6153 6.00001 40.09 6.28601 40.406 6.85801C40.7233 7.43001 40.6993 7.98534 40.334 8.52401L39.288 10.092C39.1067 10.3653 39.016 10.6653 39.016 10.992C39.016 11.3187 39.1067 11.624 39.288 11.908L40.334 13.478C40.698 14.0153 40.722 14.57 40.406 15.142C40.09 15.714 39.6153 16 38.982 16H28Z" fill="#43186F"/>
@@ -473,10 +473,10 @@
     </div>
 
     <!-- Real Results, Real Impact Section -->
-    <div v-if="!isSectionDisabled('real-results')" class="real-results-section">
+    <div v-if="!isSectionDisabled('real-results')" class="real-results-section" data-section-id="real-results-section">
       <div class="real-results-container">
         <!-- Section Header (Title and Subtitle) -->
-        <div class="real-results-header">
+        <div class="real-results-header" data-section-id="real-results-header">
           <h2 class="real-results-title">{{ homeContent?.realResultsTitle || 'Real Results, Real Impact.' }}</h2>
           <p class="real-results-subtitle">{{ homeContent?.realResultsSubtitle || 'We focus on measurable outcomes that help brands grow, scale, and stand out.' }}</p>
         </div>
@@ -487,6 +487,7 @@
             v-for="(resultCase, caseIndex) in homeContent.realResultsCases" 
             :key="resultCase.id || caseIndex"
             class="real-results-case-container"
+            :data-card-id="`result-case-${caseIndex}`"
             @mouseenter="handleHeadlineHover(resultCase.id)"
             @mouseleave="handleHeadlineLeave"
           >
@@ -569,15 +570,15 @@
     </div>
 
     <!-- What Our Clients Say Section -->
-    <div v-if="!isSectionDisabled('testimonials')" class="testimonials-section">
+    <div v-if="!isSectionDisabled('testimonials')" class="testimonials-section" data-section-id="testimonials-section">
       <div class="testimonials-container">
-        <div class="testimonials-header">
+        <div class="testimonials-header" data-section-id="testimonials-header">
           <h2 class="testimonials-title">What Our Clients Say</h2>
           <p class="testimonials-subtitle">Real feedback from brands we've worked with.</p>
         </div>
         
         <div v-if="homeContent?.testimonials && homeContent.testimonials.length > 0" class="testimonials-grid">
-          <div v-for="testimonial in homeContent.testimonials" :key="testimonial.id" class="testimonial-card">
+          <div v-for="(testimonial, index) in homeContent.testimonials" :key="testimonial.id" class="testimonial-card" :data-card-id="`testimonial-${index}`">
             <div class="testimonial-header">
               <div class="testimonial-avatar">
                 <img 
@@ -731,7 +732,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { HomeViewController } from '../controllers/HomeViewController'
 import { HomeContentViewController } from '../controllers/HomeContentViewController'
 import { siteSettingsController } from '@/layers/business/controllers/SiteSettingsController'
@@ -758,14 +759,6 @@ const isLoading = computed(() => viewController.isLoading)
 const errorMessage = computed(() => viewController.errorMessage)
 const homeContent = computed(() => contentController.content)
 
-onMounted(async () => {
-  await contentController.loadHomeContent()
-  // Load site settings to check for disabled sections
-  const settingsResult = await siteSettingsController.getSiteSettings()
-  if (settingsResult.success && settingsResult.data) {
-    siteSettings.value = settingsResult.data
-  }
-})
 
 const handleSubmit = async () => {
   const success = await viewController.handleWhatsAppSubmit()
@@ -848,6 +841,78 @@ const handleHeadlineHover = (caseId: string) => {
 const handleHeadlineLeave = () => {
   hoveredCaseId.value = null
 }
+
+const isLoaded = ref(false)
+const visibleSections = ref<Set<string>>(new Set())
+
+onMounted(async () => {
+  await contentController.loadHomeContent()
+  // Load site settings to check for disabled sections
+  const settingsResult = await siteSettingsController.getSiteSettings()
+  if (settingsResult.success && settingsResult.data) {
+    siteSettings.value = settingsResult.data
+  }
+  // Trigger entrance animations after a brief delay
+  setTimeout(() => {
+    isLoaded.value = true
+  }, 100)
+  
+  // Setup scroll animations
+  setupScrollAnimations()
+})
+
+const setupScrollAnimations = () => {
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px 0px -50px 0px',
+    threshold: 0.05
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const target = entry.target as HTMLElement
+        target.classList.add('animate-in')
+        // Stop observing once animated
+        observer.unobserve(target)
+      }
+    })
+  }, observerOptions)
+
+  // Observe all sections with data-section-id attribute
+  nextTick(() => {
+    setTimeout(() => {
+      const sections = document.querySelectorAll('[data-section-id]')
+      sections.forEach(section => {
+        // Check if already in view
+        const rect = section.getBoundingClientRect()
+        const isVisible = rect.top < window.innerHeight + 100 && rect.bottom > -100
+        if (isVisible) {
+          section.classList.add('animate-in')
+        } else {
+          // Mark as below viewport and hide
+          section.classList.add('below-viewport')
+          observer.observe(section)
+        }
+      })
+      
+      // Also observe individual cards
+      const cards = document.querySelectorAll('[data-card-id]')
+      cards.forEach(card => {
+        // Check if already in view
+        const rect = card.getBoundingClientRect()
+        const isVisible = rect.top < window.innerHeight + 100 && rect.bottom > -100
+        if (isVisible) {
+          card.classList.add('animate-in')
+        } else {
+          // Mark as below viewport and hide
+          card.classList.add('below-viewport')
+          observer.observe(card)
+        }
+      })
+    }, 300)
+  })
+}
 </script>
 
 <style scoped>
@@ -877,10 +942,12 @@ const handleHeadlineLeave = () => {
   background-position: center;
   background-repeat: no-repeat;
   z-index: 0;
-  opacity: 0.3;
+  opacity: 0.2;
+  filter: blur(0.5px);
+  animation: backgroundFadeIn 1.2s ease-out;
 }
 
-/* Background Overlay - Simple and Performance-Friendly */
+/* Background Overlay - Professional and Clean */
 .background-overlay {
   position: fixed;
   top: 0;
@@ -889,15 +956,25 @@ const handleHeadlineLeave = () => {
   width: 100%;
   height: 100%;
   background: 
-    radial-gradient(circle at 20% 30%, rgba(91, 32, 150, 0.15) 0%, transparent 50%),
-    radial-gradient(circle at 80% 70%, rgba(193, 157, 230, 0.1) 0%, transparent 50%),
-    radial-gradient(circle at 50% 50%, rgba(67, 24, 111, 0.08) 0%, transparent 70%),
-    linear-gradient(180deg, #0B0B0F 0%, #14141B 100%);
+    radial-gradient(ellipse at 20% 30%, rgba(91, 32, 150, 0.12) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 70%, rgba(193, 157, 230, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 50% 50%, rgba(67, 24, 111, 0.06) 0%, transparent 80%),
+    linear-gradient(180deg, #0A0A0E 0%, #121218 50%, #0F0F14 100%);
   z-index: 1;
   pointer-events: none;
+  animation: backgroundFadeIn 1.2s ease-out;
 }
 
-/* Stars Animation - Subtle Floating Animation */
+@keyframes backgroundFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+/* Stars Animation - Enhanced Beautiful Background */
 .stars {
   position: fixed;
   top: 0;
@@ -907,6 +984,16 @@ const handleHeadlineLeave = () => {
   z-index: 2;
   pointer-events: none;
   overflow: hidden;
+  animation: starsFadeIn 1.5s ease-out;
+}
+
+@keyframes starsFadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
 }
 
 .stars::before,
@@ -918,126 +1005,201 @@ const handleHeadlineLeave = () => {
   width: 100%;
   height: 100%;
   background-image: 
-    radial-gradient(2px 2px at 8% 12%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(1.5px 1.5px at 15% 28%, rgba(255, 255, 255, 0.95), transparent),
-    radial-gradient(2.5px 2.5px at 22% 45%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(2px 2px at 28% 62%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(1.5px 1.5px at 35% 18%, rgba(255, 255, 255, 0.95), transparent),
-    radial-gradient(2.5px 2.5px at 42% 35%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(2px 2px at 48% 52%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(1.5px 1.5px at 55% 78%, rgba(255, 255, 255, 0.95), transparent),
-    radial-gradient(2.5px 2.5px at 62% 25%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(2px 2px at 68% 42%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(1.5px 1.5px at 75% 58%, rgba(255, 255, 255, 0.95), transparent),
-    radial-gradient(2.5px 2.5px at 82% 15%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(2px 2px at 88% 32%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(1.5px 1.5px at 12% 68%, rgba(255, 255, 255, 0.95), transparent),
-    radial-gradient(2.5px 2.5px at 18% 85%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(2px 2px at 25% 22%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(1.5px 1.5px at 32% 38%, rgba(255, 255, 255, 0.95), transparent),
-    radial-gradient(2.5px 2.5px at 38% 55%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(2px 2px at 45% 72%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(1.5px 1.5px at 52% 8%, rgba(255, 255, 255, 0.95), transparent),
-    radial-gradient(2.5px 2.5px at 58% 48%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(2px 2px at 65% 65%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(1.5px 1.5px at 72% 82%, rgba(255, 255, 255, 0.95), transparent),
-    radial-gradient(2.5px 2.5px at 78% 28%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(2px 2px at 85% 45%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(1.5px 1.5px at 92% 62%, rgba(255, 255, 255, 0.95), transparent),
-    radial-gradient(2.5px 2.5px at 5% 38%, rgba(255, 255, 255, 1), transparent),
-    radial-gradient(2px 2px at 95% 78%, rgba(255, 255, 255, 1), transparent);
+    radial-gradient(3px 3px at 5% 8%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2px 2px at 12% 18%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(4px 4px at 19% 28%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2.5px 2.5px at 26% 38%, rgba(255, 255, 255, 0.98), transparent),
+    radial-gradient(3px 3px at 33% 48%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2px 2px at 40% 58%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(3.5px 3.5px at 47% 68%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2px 2px at 54% 78%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(4px 4px at 61% 15%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2.5px 2.5px at 68% 25%, rgba(255, 255, 255, 0.98), transparent),
+    radial-gradient(3px 3px at 75% 35%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2px 2px at 82% 45%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(3.5px 3.5px at 89% 55%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2px 2px at 96% 65%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(4px 4px at 8% 75%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2.5px 2.5px at 15% 85%, rgba(255, 255, 255, 0.98), transparent),
+    radial-gradient(3px 3px at 22% 12%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2px 2px at 29% 22%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(3.5px 3.5px at 36% 32%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2px 2px at 43% 42%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(4px 4px at 50% 52%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2.5px 2.5px at 57% 62%, rgba(255, 255, 255, 0.98), transparent),
+    radial-gradient(3px 3px at 64% 72%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2px 2px at 71% 82%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(3.5px 3.5px at 78% 18%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2px 2px at 85% 28%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(4px 4px at 92% 38%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2.5px 2.5px at 3% 48%, rgba(255, 255, 255, 0.98), transparent),
+    radial-gradient(3px 3px at 10% 58%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2px 2px at 17% 68%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(3.5px 3.5px at 24% 78%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2px 2px at 31% 5%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(4px 4px at 38% 15%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2.5px 2.5px at 45% 25%, rgba(255, 255, 255, 0.98), transparent),
+    radial-gradient(3px 3px at 52% 35%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2px 2px at 59% 45%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(3.5px 3.5px at 66% 55%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2px 2px at 73% 65%, rgba(255, 255, 255, 0.95), transparent),
+    radial-gradient(4px 4px at 80% 75%, rgba(255, 255, 255, 1), transparent),
+    radial-gradient(2.5px 2.5px at 87% 85%, rgba(255, 255, 255, 0.98), transparent),
+    radial-gradient(3px 3px at 94% 95%, rgba(255, 255, 255, 1), transparent);
   background-size: 100% 100%;
   background-repeat: no-repeat;
   animation: 
-    floatStars 50s cubic-bezier(0.4, 0, 0.2, 1) infinite,
-    twinkleStars 8s ease-in-out infinite;
-  will-change: transform, opacity;
-  opacity: 0.9;
+    floatStars 40s cubic-bezier(0.4, 0, 0.6, 1) infinite,
+    twinkleStars 6s ease-in-out infinite,
+    sparkleStars 4s ease-in-out infinite;
+  will-change: transform, opacity, filter;
+  opacity: 0.95;
+  filter: blur(0.3px);
 }
 
 .stars::after {
   background-image: 
-    radial-gradient(2px 2px at 11% 24%, rgba(193, 157, 230, 0.85), transparent),
-    radial-gradient(1.5px 1.5px at 17% 41%, rgba(193, 157, 230, 0.75), transparent),
-    radial-gradient(2.5px 2.5px at 23% 58%, rgba(193, 157, 230, 0.9), transparent),
-    radial-gradient(2px 2px at 29% 75%, rgba(193, 157, 230, 0.85), transparent),
-    radial-gradient(1.5px 1.5px at 36% 14%, rgba(193, 157, 230, 0.75), transparent),
-    radial-gradient(2.5px 2.5px at 42% 31%, rgba(193, 157, 230, 0.9), transparent),
-    radial-gradient(2px 2px at 48% 48%, rgba(193, 157, 230, 0.85), transparent),
-    radial-gradient(1.5px 1.5px at 54% 65%, rgba(193, 157, 230, 0.75), transparent),
-    radial-gradient(2.5px 2.5px at 61% 82%, rgba(193, 157, 230, 0.9), transparent),
-    radial-gradient(2px 2px at 67% 19%, rgba(193, 157, 230, 0.85), transparent),
-    radial-gradient(1.5px 1.5px at 73% 36%, rgba(193, 157, 230, 0.75), transparent),
-    radial-gradient(2.5px 2.5px at 79% 53%, rgba(193, 157, 230, 0.9), transparent),
-    radial-gradient(2px 2px at 85% 70%, rgba(193, 157, 230, 0.85), transparent),
-    radial-gradient(1.5px 1.5px at 91% 87%, rgba(193, 157, 230, 0.75), transparent),
-    radial-gradient(2.5px 2.5px at 14% 51%, rgba(193, 157, 230, 0.9), transparent),
-    radial-gradient(2px 2px at 20% 68%, rgba(193, 157, 230, 0.85), transparent),
-    radial-gradient(1.5px 1.5px at 26% 85%, rgba(193, 157, 230, 0.75), transparent),
-    radial-gradient(2.5px 2.5px at 33% 22%, rgba(193, 157, 230, 0.9), transparent),
-    radial-gradient(2px 2px at 39% 39%, rgba(193, 157, 230, 0.85), transparent),
-    radial-gradient(1.5px 1.5px at 46% 56%, rgba(193, 157, 230, 0.75), transparent),
-    radial-gradient(2.5px 2.5px at 52% 73%, rgba(193, 157, 230, 0.9), transparent),
-    radial-gradient(2px 2px at 59% 9%, rgba(193, 157, 230, 0.85), transparent),
-    radial-gradient(1.5px 1.5px at 65% 26%, rgba(193, 157, 230, 0.75), transparent),
-    radial-gradient(2.5px 2.5px at 71% 43%, rgba(193, 157, 230, 0.9), transparent),
-    radial-gradient(2px 2px at 77% 60%, rgba(193, 157, 230, 0.85), transparent),
-    radial-gradient(1.5px 1.5px at 83% 77%, rgba(193, 157, 230, 0.75), transparent),
-    radial-gradient(2.5px 2.5px at 89% 94%, rgba(193, 157, 230, 0.9), transparent),
-    radial-gradient(2px 2px at 7% 33%, rgba(193, 157, 230, 0.85), transparent),
-    radial-gradient(1.5px 1.5px at 96% 61%, rgba(193, 157, 230, 0.75), transparent);
+    radial-gradient(3px 3px at 7% 14%, rgba(193, 157, 230, 0.9), transparent),
+    radial-gradient(2px 2px at 14% 24%, rgba(193, 157, 230, 0.8), transparent),
+    radial-gradient(4px 4px at 21% 34%, rgba(193, 157, 230, 0.95), transparent),
+    radial-gradient(2.5px 2.5px at 28% 44%, rgba(193, 157, 230, 0.85), transparent),
+    radial-gradient(3px 3px at 35% 54%, rgba(193, 157, 230, 0.9), transparent),
+    radial-gradient(2px 2px at 42% 64%, rgba(193, 157, 230, 0.8), transparent),
+    radial-gradient(3.5px 3.5px at 49% 74%, rgba(193, 157, 230, 0.95), transparent),
+    radial-gradient(2px 2px at 56% 84%, rgba(193, 157, 230, 0.8), transparent),
+    radial-gradient(4px 4px at 63% 11%, rgba(193, 157, 230, 0.9), transparent),
+    radial-gradient(2.5px 2.5px at 70% 21%, rgba(193, 157, 230, 0.85), transparent),
+    radial-gradient(3px 3px at 77% 31%, rgba(193, 157, 230, 0.9), transparent),
+    radial-gradient(2px 2px at 84% 41%, rgba(193, 157, 230, 0.8), transparent),
+    radial-gradient(3.5px 3.5px at 91% 51%, rgba(193, 157, 230, 0.95), transparent),
+    radial-gradient(2px 2px at 98% 61%, rgba(193, 157, 230, 0.8), transparent),
+    radial-gradient(4px 4px at 6% 71%, rgba(193, 157, 230, 0.9), transparent),
+    radial-gradient(2.5px 2.5px at 13% 81%, rgba(193, 157, 230, 0.85), transparent),
+    radial-gradient(3px 3px at 20% 17%, rgba(193, 157, 230, 0.9), transparent),
+    radial-gradient(2px 2px at 27% 27%, rgba(193, 157, 230, 0.8), transparent),
+    radial-gradient(3.5px 3.5px at 34% 37%, rgba(193, 157, 230, 0.95), transparent),
+    radial-gradient(2px 2px at 41% 47%, rgba(193, 157, 230, 0.8), transparent),
+    radial-gradient(4px 4px at 48% 57%, rgba(193, 157, 230, 0.9), transparent),
+    radial-gradient(2.5px 2.5px at 55% 67%, rgba(193, 157, 230, 0.85), transparent),
+    radial-gradient(3px 3px at 62% 77%, rgba(193, 157, 230, 0.9), transparent),
+    radial-gradient(2px 2px at 69% 87%, rgba(193, 157, 230, 0.8), transparent),
+    radial-gradient(3.5px 3.5px at 76% 13%, rgba(193, 157, 230, 0.95), transparent),
+    radial-gradient(2px 2px at 83% 23%, rgba(193, 157, 230, 0.8), transparent),
+    radial-gradient(4px 4px at 90% 33%, rgba(193, 157, 230, 0.9), transparent),
+    radial-gradient(2.5px 2.5px at 1% 43%, rgba(193, 157, 230, 0.85), transparent),
+    radial-gradient(3px 3px at 8% 53%, rgba(193, 157, 230, 0.9), transparent),
+    radial-gradient(2px 2px at 15% 63%, rgba(193, 157, 230, 0.8), transparent),
+    radial-gradient(3.5px 3.5px at 22% 73%, rgba(193, 157, 230, 0.95), transparent),
+    radial-gradient(2px 2px at 29% 83%, rgba(193, 157, 230, 0.8), transparent),
+    radial-gradient(4px 4px at 36% 9%, rgba(193, 157, 230, 0.9), transparent),
+    radial-gradient(2.5px 2.5px at 43% 19%, rgba(193, 157, 230, 0.85), transparent),
+    radial-gradient(3px 3px at 50% 29%, rgba(193, 157, 230, 0.9), transparent),
+    radial-gradient(2px 2px at 57% 39%, rgba(193, 157, 230, 0.8), transparent),
+    radial-gradient(3.5px 3.5px at 64% 49%, rgba(193, 157, 230, 0.95), transparent),
+    radial-gradient(2px 2px at 71% 59%, rgba(193, 157, 230, 0.8), transparent),
+    radial-gradient(4px 4px at 78% 69%, rgba(193, 157, 230, 0.9), transparent),
+    radial-gradient(2.5px 2.5px at 85% 79%, rgba(193, 157, 230, 0.85), transparent),
+    radial-gradient(3px 3px at 92% 89%, rgba(193, 157, 230, 0.9), transparent),
+    radial-gradient(2px 2px at 99% 99%, rgba(193, 157, 230, 0.8), transparent);
   animation: 
-    floatStars 55s cubic-bezier(0.4, 0, 0.2, 1) infinite reverse,
-    twinkleStarsPurple 12s ease-in-out infinite;
-  animation-delay: -12s, 0s;
-  opacity: 0.85;
+    floatStars 45s cubic-bezier(0.4, 0, 0.6, 1) infinite reverse,
+    twinkleStarsPurple 8s ease-in-out infinite,
+    sparkleStarsPurple 5s ease-in-out infinite;
+  animation-delay: -8s, 0s, -2s;
+  opacity: 0.9;
+  filter: blur(0.4px);
 }
 
 @keyframes floatStars {
   0% {
-    transform: translate3d(0, 0, 0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
   }
-  25% {
-    transform: translate3d(4px, -8px, 0) scale(1.008);
+  20% {
+    transform: translate3d(8px, -12px, 0) scale(1.02) rotate(1deg);
   }
-  50% {
-    transform: translate3d(-3px, -12px, 0) scale(1);
+  40% {
+    transform: translate3d(-6px, -18px, 0) scale(0.98) rotate(-1deg);
   }
-  75% {
-    transform: translate3d(-4px, -6px, 0) scale(0.992);
+  60% {
+    transform: translate3d(-8px, -8px, 0) scale(1.01) rotate(0.5deg);
+  }
+  80% {
+    transform: translate3d(6px, -15px, 0) scale(0.99) rotate(-0.5deg);
   }
   100% {
-    transform: translate3d(0, 0, 0) scale(1);
+    transform: translate3d(0, 0, 0) scale(1) rotate(0deg);
   }
 }
 
 @keyframes twinkleStars {
   0%, 100% {
-    opacity: 0.9;
+    opacity: 0.95;
+    filter: brightness(1) blur(0.3px);
+  }
+  20% {
+    opacity: 1;
+    filter: brightness(1.2) blur(0.2px);
+  }
+  40% {
+    opacity: 0.85;
+    filter: brightness(0.9) blur(0.4px);
+  }
+  60% {
+    opacity: 0.98;
+    filter: brightness(1.1) blur(0.3px);
+  }
+  80% {
+    opacity: 0.88;
+    filter: brightness(0.95) blur(0.35px);
+  }
+}
+
+@keyframes sparkleStars {
+  0%, 100% {
+    filter: blur(0.3px) brightness(1);
   }
   25% {
-    opacity: 0.95;
+    filter: blur(0.2px) brightness(1.3);
   }
   50% {
-    opacity: 0.85;
+    filter: blur(0.4px) brightness(0.8);
   }
   75% {
-    opacity: 0.92;
+    filter: blur(0.25px) brightness(1.15);
   }
 }
 
 @keyframes twinkleStarsPurple {
   0%, 100% {
-    opacity: 0.85;
+    opacity: 0.9;
+    filter: brightness(1) blur(0.4px);
+  }
+  25% {
+    opacity: 0.95;
+    filter: brightness(1.15) blur(0.3px);
+  }
+  50% {
+    opacity: 0.8;
+    filter: brightness(0.85) blur(0.5px);
+  }
+  75% {
+    opacity: 0.92;
+    filter: brightness(1.1) blur(0.35px);
+  }
+}
+
+@keyframes sparkleStarsPurple {
+  0%, 100% {
+    filter: blur(0.4px) brightness(1);
   }
   30% {
-    opacity: 0.9;
+    filter: blur(0.3px) brightness(1.25);
   }
   60% {
-    opacity: 0.8;
+    filter: blur(0.5px) brightness(0.75);
   }
-  80% {
-    opacity: 0.88;
+  90% {
+    filter: blur(0.35px) brightness(1.1);
   }
 }
 
@@ -1105,6 +1267,15 @@ const handleHeadlineLeave = () => {
 
 .headline-white {
   color: #F5F7FA;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.headline-white.animate-in {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .headline-purple {
@@ -1113,6 +1284,15 @@ const handleHeadlineLeave = () => {
   -webkit-text-fill-color: transparent;
   background-clip: text;
   font-weight: 700;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.headline-purple.animate-in {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .supporting-text {
@@ -1121,15 +1301,42 @@ const handleHeadlineLeave = () => {
   line-height: 1.8;
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-weight: 400;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.supporting-text.animate-in {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .supporting-text p {
   margin: 0.5rem 0;
+  opacity: 0;
+  transform: translateY(15px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.supporting-text.animate-in p {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 /* CTA Section */
 .cta-section {
   margin-bottom: 5rem;
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cta-section.animate-in {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .whatsapp-form {
@@ -1216,15 +1423,92 @@ const handleHeadlineLeave = () => {
   align-items: center;
   justify-content: center;
   gap: 0.5rem;
-  color: rgba(245, 247, 250, 0.9);
-  font-size: 1rem;
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-weight: 400;
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.social-proof.animate-in {
+  opacity: 1;
+  transform: translateY(0);
 }
 
 .star {
   font-size: 1.2rem;
 }
+
+/* Scroll Animation Styles */
+[data-section-id],
+[data-card-id] {
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+/* Only hide elements that are marked as below viewport */
+[data-section-id].below-viewport:not(.animate-in),
+[data-card-id].below-viewport:not(.animate-in) {
+  opacity: 0;
+  transform: translateY(40px);
+}
+
+/* Default: visible */
+[data-section-id]:not(.below-viewport),
+[data-card-id]:not(.below-viewport),
+[data-section-id].animate-in,
+[data-card-id].animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Staggered animations for cards */
+[data-card-id="stat-1"] { transition-delay: 0.1s; }
+[data-card-id="stat-2"] { transition-delay: 0.2s; }
+[data-card-id="stat-3"] { transition-delay: 0.3s; }
+[data-card-id="service-1"] { transition-delay: 0.1s; }
+[data-card-id="service-2"] { transition-delay: 0.15s; }
+[data-card-id="service-3"] { transition-delay: 0.2s; }
+[data-card-id="service-4"] { transition-delay: 0.25s; }
+[data-card-id="service-5"] { transition-delay: 0.3s; }
+[data-card-id="service-6"] { transition-delay: 0.35s; }
+
+/* Testimonial cards - special animation */
+[data-card-id^="testimonial-"] {
+  opacity: 0;
+  transform: translateY(30px) scale(0.95);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-card-id^="testimonial-"].animate-in {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+[data-card-id="testimonial-0"] { transition-delay: 0.1s; }
+[data-card-id="testimonial-1"] { transition-delay: 0.2s; }
+[data-card-id="testimonial-2"] { transition-delay: 0.3s; }
+[data-card-id="testimonial-3"] { transition-delay: 0.4s; }
+[data-card-id="testimonial-4"] { transition-delay: 0.5s; }
+[data-card-id="testimonial-5"] { transition-delay: 0.6s; }
+
+/* Real results case containers - special slide animation */
+[data-card-id^="result-case-"] {
+  opacity: 0;
+  transform: translateX(-30px);
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-card-id^="result-case-"].animate-in {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+[data-card-id="result-case-0"] { transition-delay: 0.1s; }
+[data-card-id="result-case-1"] { transition-delay: 0.3s; }
+[data-card-id="result-case-2"] { transition-delay: 0.5s; }
+[data-card-id="result-case-3"] { transition-delay: 0.7s; }
 
 /* Second Section */
 .second-section {
