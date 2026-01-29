@@ -54,6 +54,10 @@ npm install
 
 ### 2. Firebase Configuration
 
+**📖 For detailed Firebase setup instructions, see [FIREBASE_SETUP.md](./FIREBASE_SETUP.md)**
+
+Quick setup:
+
 1. Create a Firebase project at [Firebase Console](https://console.firebase.google.com)
 2. Enable **Authentication** with Email/Password provider
 3. Create a **Firestore Database**
@@ -69,6 +73,8 @@ VITE_FIREBASE_APP_ID=your-app-id
 ```
 
 5. Replace the placeholder values with your Firebase project credentials (found in Project Settings > General > Your apps)
+
+**Note:** WhatsApp form submissions are automatically saved to Firestore in the `whatsapp_leads` collection.
 
 ### Compile and Hot-Reload for Development
 

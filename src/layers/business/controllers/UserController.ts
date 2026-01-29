@@ -96,6 +96,94 @@ export class UserController extends BaseController {
       return this.handleError(error)
     }
   }
+
+  /**
+   * Check if user is admin
+   */
+  async isAdmin(userId?: string): Promise<{ success: boolean; data?: boolean; error?: string }> {
+    try {
+      const isAdmin = await this.userService.isAdmin(userId)
+      return this.success(isAdmin)
+    } catch (error) {
+      return this.handleError(error)
+    }
+  }
+
+  /**
+   * Create a new user (admin only)
+   */
+  async createUser(
+    email: string,
+    password: string,
+    displayName: string,
+    role: string,
+    adminUserId: string
+  ): Promise<{ success: boolean; data?: UserCredential; error?: string }> {
+    try {
+      const userCredential = await this.userService.createUser(email, password, displayName, role, adminUserId)
+      return this.success(userCredential)
+    } catch (error) {
+      return this.handleError(error)
+    }
+  }
+
+  /**
+   * Get all users (admin only)
+   */
+  async getAllUsers(): Promise<{ success: boolean; data?: User[]; error?: string }> {
+    try {
+      const users = await this.userService.getAllUsers()
+      return this.success(users)
+    } catch (error) {
+      return this.handleError(error)
+    }
+  }
+
+  /**
+   * Update user role (admin only)
+   */
+  async updateUserRole(
+    userId: string,
+    newRole: string,
+    adminUserId: string
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      await this.userService.updateUserRole(userId, newRole, adminUserId)
+      return { success: true }
+    } catch (error) {
+      return this.handleError(error)
+    }
+  }
+
+  /**
+   * Delete user (admin only)
+   */
+  async deleteUser(
+    userId: string,
+    adminUserId: string
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      await this.userService.deleteUser(userId, adminUserId)
+      return { success: true }
+    } catch (error) {
+      return this.handleError(error)
+    }
+  }
+
+  /**
+   * Reset user password (admin only)
+   */
+  async resetUserPassword(
+    userEmail: string,
+    adminUserId: string
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      await this.userService.resetUserPassword(userEmail, adminUserId)
+      return { success: true }
+    } catch (error) {
+      return this.handleError(error)
+    }
+  }
 }
 
 export const userController = new UserController()

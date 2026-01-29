@@ -41,6 +41,7 @@ export abstract class BaseRepository<T extends Model> {
 
   /**
    * Create a new document
+   * If data.id is provided, uses that ID; otherwise generates a new one
    */
   async create(data: Partial<T>): Promise<string> {
     const model = new this.modelClass({
@@ -48,11 +49,29 @@ export abstract class BaseRepository<T extends Model> {
       createdAt: new Date(),
       updatedAt: new Date()
     })
-    const id = await firestoreService.createDocumentWithAutoId(
-      this.collectionName,
-      model.toFirestore()
-    )
-    return id
+    
+    const firestoreData = model.toFirestore()
+    const id = firestoreData.id || ''
+    
+    // Remove id from data as Firestore uses document ID, not a field
+    const { id: _, ...dataWithoutId } = firestoreData
+    
+    if (id) {
+      // Use provided ID
+      await firestoreService.createDocument(
+        this.collectionName,
+        id,
+        dataWithoutId
+      )
+      return id
+    } else {
+      // Generate new ID
+      const newId = await firestoreService.createDocumentWithAutoId(
+        this.collectionName,
+        dataWithoutId
+      )
+      return newId
+    }
   }
 
   /**

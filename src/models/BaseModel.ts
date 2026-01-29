@@ -23,13 +23,32 @@ export abstract class Model implements BaseModel {
 
   /**
    * Convert model to plain object for Firestore
+   * Removes undefined values as Firestore doesn't allow them
    */
   toFirestore(): Record<string, any> {
-    return {
-      ...this,
-      createdAt: this.createdAt?.toISOString(),
-      updatedAt: this.updatedAt?.toISOString()
+    const data: Record<string, any> = {}
+    
+    // Copy all properties, filtering out undefined values
+    for (const [key, value] of Object.entries(this)) {
+      if (value !== undefined) {
+        // Handle Date objects
+        if (value instanceof Date) {
+          data[key] = value.toISOString()
+        } else {
+          data[key] = value
+        }
+      }
     }
+    
+    // Always include createdAt and updatedAt if they exist
+    if (this.createdAt) {
+      data.createdAt = this.createdAt instanceof Date ? this.createdAt.toISOString() : this.createdAt
+    }
+    if (this.updatedAt) {
+      data.updatedAt = this.updatedAt instanceof Date ? this.updatedAt.toISOString() : this.updatedAt
+    }
+    
+    return data
   }
 
   /**

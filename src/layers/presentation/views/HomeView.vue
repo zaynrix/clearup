@@ -1,8 +1,3 @@
-
-
-
-
-
 <template>
   <div class="home-view">
     <!-- Background image -->
@@ -18,27 +13,27 @@
     <!-- Main content -->
     <div class="home-container">
       <!-- Hero Section -->
-      <div class="hero-section">
+      <div v-if="!isSectionDisabled('hero')" class="hero-section">
         <h1 class="hero-headline">
-          <span class="headline-white">Like Oxygen For</span>
-          <span class="headline-purple">Your Business</span>
+          <span class="headline-white">{{ homeContent?.heroHeadlineWhite || 'Like Oxygen For' }}</span>
+          <span class="headline-purple">{{ homeContent?.heroHeadlinePurple || 'Your Business' }}</span>
         </h1>
         
         <div class="supporting-text">
-          <p>Growing a business is hard and chaos</p>
-          <p>We make whole a lot easer</p>
-          <p>More systemized, more predictable, less stressful, more fun</p>
+          <p v-for="(text, index) in (homeContent?.supportingText || ['Growing a business is hard and chaos', 'We make whole a lot easer', 'More systemized, more predictable, less stressful, more fun'])" :key="index">
+            {{ text }}
+          </p>
         </div>
       </div>
 
       <!-- CTA Section -->
-      <div class="cta-section">
+      <div v-if="!isSectionDisabled('cta')" class="cta-section">
         <form @submit.prevent="handleSubmit" class="whatsapp-form">
           <input
             v-model="phoneNumber"
             type="tel"
             class="whatsapp-input"
-            placeholder="Enter whatsapp Number and we will send you some magic"
+            :placeholder="homeContent?.ctaPlaceholder || 'Enter whatsapp Number and we will send you some magic'"
             :disabled="isLoading"
             required
           />
@@ -47,7 +42,7 @@
             class="cta-button"
             :disabled="isLoading"
           >
-            <span>Do it</span>
+            <span>{{ homeContent?.ctaButtonText || 'Do it' }}</span>
             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -60,44 +55,86 @@
       </div>
 
       <!-- Social Proof -->
-      <div class="social-proof">
+      <div v-if="!isSectionDisabled('social-proof')" class="social-proof">
         <span class="star">⭐</span>
-        <span>4.8 client satisfaction from +20 founders</span>
+        <span>{{ homeContent?.socialProofText || '4.8 client satisfaction from +20 founders' }}</span>
       </div>
     </div>
 
     <!-- Second Section -->
-    <div class="second-section">
+    <div v-if="!isSectionDisabled('who-we-are')" class="second-section">
       <div class="section-container">
         <!-- Header -->
         <div class="section-header">
-          <h2 class="section-title">Who We Are</h2>
-          <p class="section-description">We redesign your marketing system to run it self</p>
+          <h2 class="section-title">{{ homeContent?.whoWeAreTitle || 'Who We Are' }}</h2>
+          <p class="section-description">{{ homeContent?.whoWeAreDescription || 'We redesign your marketing system to run it self' }}</p>
         </div>
 
         <!-- Statistics Cards -->
-        <div class="stats-grid">
+        <div v-if="!isSectionDisabled('stats')" class="stats-grid">
           <div class="stat-card">
-            <h3 class="stat-title">Revenue generated</h3>
-            <div class="stat-value">$4.7M</div>
-            <p class="stat-description">we let our number do talking , $4.7M in reported client revenue and counting</p>
+            <h3 class="stat-title">{{ homeContent?.stats?.revenue?.title || 'Revenue generated' }}</h3>
+            <div class="stat-value">{{ homeContent?.stats?.revenue?.value || '$4.7M' }}</div>
+            <p class="stat-description">{{ homeContent?.stats?.revenue?.description || 'we let our number do talking , $4.7M in reported client revenue and counting' }}</p>
           </div>
 
           <div class="stat-card">
-            <h3 class="stat-title">Leads generated</h3>
-            <div class="stat-value">1.2M</div>
-            <p class="stat-description">More 1.2M leads inquires about our client's services</p>
+            <h3 class="stat-title">{{ homeContent?.stats?.leads?.title || 'Leads generated' }}</h3>
+            <div class="stat-value">{{ homeContent?.stats?.leads?.value || '1.2M' }}</div>
+            <p class="stat-description">{{ homeContent?.stats?.leads?.description || 'More 1.2M leads inquires about our client\'s services' }}</p>
           </div>
 
           <div class="stat-card">
-            <h3 class="stat-title">Our reach</h3>
-            <div class="stat-value">28</div>
-            <p class="stat-description">Serving client over 28 different country</p>
+            <h3 class="stat-title">{{ homeContent?.stats?.reach?.title || 'Our reach' }}</h3>
+            <div class="stat-value">{{ homeContent?.stats?.reach?.value || '28' }}</div>
+            <p class="stat-description">{{ homeContent?.stats?.reach?.description || 'Serving client over 28 different country' }}</p>
           </div>
         </div>
 
         <!-- Video Section -->
-        <div class="video-section">
+        <div v-if="homeContent?.videoUrl || homeContent?.videoFileUrl" class="video-section">
+          <div class="video-container">
+            <!-- Video from Link (YouTube, Vimeo, etc.) -->
+            <iframe 
+              v-if="homeContent.videoType === 'link' && homeContent.videoUrl"
+              :src="getVideoEmbedUrl(homeContent.videoUrl)"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              class="video-iframe"
+            ></iframe>
+            
+            <!-- Uploaded Video File -->
+            <video 
+              v-else-if="homeContent.videoType === 'upload' && homeContent.videoFileUrl"
+              :src="homeContent.videoFileUrl"
+              controls
+              class="video-player"
+            >
+              Your browser does not support the video tag.
+            </video>
+            
+            <!-- Fallback if videoType is not set but URL exists -->
+            <iframe 
+              v-else-if="homeContent.videoUrl && !homeContent.videoFileUrl"
+              :src="getVideoEmbedUrl(homeContent.videoUrl)"
+              frameborder="0"
+              allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+              allowfullscreen
+              class="video-iframe"
+            ></iframe>
+            
+            <video 
+              v-else-if="homeContent.videoFileUrl && !homeContent.videoUrl"
+              :src="homeContent.videoFileUrl"
+              controls
+              class="video-player"
+            >
+              Your browser does not support the video tag.
+            </video>
+          </div>
+        </div>
+        <div v-else class="video-section">
           <div class="video-placeholder">
             <span class="video-text">Video</span>
           </div>
@@ -118,10 +155,9 @@
     </div>
 
     <!-- Third Section -->
-    <div class="third-section">
+    <div v-if="!isSectionDisabled('system')" class="third-section">
       <!-- Vector shapes for this section -->
       <div class="third-section-vector third-section-vector-left"></div>
-      <div class="third-section-vector third-section-vector-right"></div>
       
       <div class="third-section-container">
         <!-- Header -->
@@ -140,7 +176,7 @@
         </div>
 
         <!-- Our Services -->
-        <div class="services-section">
+        <div v-if="!isSectionDisabled('services')" class="services-section">
           <div class="services-header">
             <h3 class="services-title">Our Services</h3>
             <p class="services-description">Who is Nextcent suitable for?</p>
@@ -225,7 +261,7 @@
         </div>
 
         <!-- What We Do -->
-        <div class="what-we-do-section">
+        <div v-if="!isSectionDisabled('what-we-do')" class="what-we-do-section">
           <h3 class="what-we-do-title">What We Do</h3>
           <div class="steps-grid">
             <div class="step-card">
@@ -288,7 +324,7 @@
         </div>
 
         <!-- What You Get -->
-        <div class="what-you-get-section">
+        <div v-if="!isSectionDisabled('what-you-get')" class="what-you-get-section">
           <h3 class="what-you-get-title">What You Get</h3>
           <div class="benefits-grid">
             <div class="benefit-item">
@@ -321,7 +357,7 @@
     </div>
 
     <!-- Bonuses Included Section -->
-    <div class="bonuses-section">
+    <div v-if="!isSectionDisabled('bonuses')" class="bonuses-section">
       <div class="bonuses-container">
         <h2 class="bonuses-title">Bonuses Included</h2>
         <div class="bonuses-list">
@@ -368,7 +404,7 @@
     </div>
 
     <!-- Our Clients Section -->
-    <div class="clients-section">
+    <div v-if="!isSectionDisabled('clients')" class="clients-section">
       <div class="clients-container">
         <h2 class="clients-title">Our Clients</h2>
         <p class="clients-subtitle">We have been working with some Fortune +30 clients</p>
@@ -436,110 +472,204 @@
       </div>
     </div>
 
-    <!-- What Our Clients Say Section -->
-    <div class="testimonials-section">
-      <div class="testimonials-container">
-        <div class="testimonials-header">
-          <h2 class="testimonials-title">What Our Clients Say</h2>
-          <p class="testimonials-subtitle">Real feedback from brands we've worked with.</p>
+    <!-- Real Results, Real Impact Section -->
+    <div v-if="!isSectionDisabled('real-results')" class="real-results-section">
+      <div class="real-results-container">
+        <!-- Section Header (Title and Subtitle) -->
+        <div class="real-results-header">
+          <h2 class="real-results-title">{{ homeContent?.realResultsTitle || 'Real Results, Real Impact.' }}</h2>
+          <p class="real-results-subtitle">{{ homeContent?.realResultsSubtitle || 'We focus on measurable outcomes that help brands grow, scale, and stand out.' }}</p>
         </div>
-        
-        <div class="testimonials-grid">
-          <div class="testimonial-card">
-            <div class="testimonial-header">
-              <div class="testimonial-avatar">
-                <img src="/images/logos/p1.png" alt="Sarah Johnson" onerror="this.style.display='none'; this.parentElement.classList.add('avatar-fallback')" />
-                <span class="avatar-initial">SJ</span>
-              </div>
-              <div class="testimonial-info">
-                <h4 class="testimonial-name">Sarah Johnson</h4>
-                <div class="testimonial-stars">
-                  <span>⭐</span>
-                  <span>⭐</span>
-                  <span>⭐</span>
-                  <span>⭐</span>
-                  <span>⭐</span>
-                </div>
-              </div>
-            </div>
-            <p class="testimonial-text">"Clear Up transformed our marketing completely. We went from struggling to generate leads to having a predictable system that brings in qualified customers every month. Their done-for-you approach saved us countless hours."</p>
-            <div class="testimonial-video">
-              <div class="video-thumbnail">
-                <img src="/images/logos/meet1.png" alt="Sarah Johnson Testimonial" class="video-thumbnail-img" />
-                <div class="play-button">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 5V19L19 12L8 5Z" fill="white"/>
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <div class="testimonial-card">
-            <div class="testimonial-header">
-              <div class="testimonial-avatar">
-                <img src="/images/logos/p2.png" alt="Michael Chen" onerror="this.style.display='none'; this.parentElement.classList.add('avatar-fallback')" />
-                <span class="avatar-initial">MC</span>
-              </div>
-              <div class="testimonial-info">
-                <h4 class="testimonial-name">Michael Chen</h4>
-                <div class="testimonial-stars">
-                  <span>⭐</span>
-                  <span>⭐</span>
-                  <span>⭐</span>
-                  <span>⭐</span>
-                  <span>⭐</span>
-                </div>
-              </div>
+        <!-- Multiple Real Results Cases/Containers -->
+        <div v-if="homeContent?.realResultsCases && homeContent.realResultsCases.length > 0" class="real-results-cases">
+          <div 
+            v-for="(resultCase, caseIndex) in homeContent.realResultsCases" 
+            :key="resultCase.id || caseIndex"
+            class="real-results-case-container"
+            @mouseenter="handleHeadlineHover(resultCase.id)"
+            @mouseleave="handleHeadlineLeave"
+          >
+            <!-- Company Logo - Top Right -->
+            <div v-if="resultCase.companyLogo || resultCase.companyLogoFileUrl" class="real-results-company-logo">
+              <img 
+                :src="resultCase.companyLogoFileUrl || resultCase.companyLogo" 
+                alt="Company Logo"
+                class="company-logo-img"
+                @error="handleImageError"
+              />
             </div>
-            <p class="testimonial-text">"The ROI we've seen is incredible. Every dollar we invested came back multiple times. Clear Up's system doesn't just create ads - it builds a complete marketing engine that works 24/7 for our business."</p>
-            <div class="testimonial-video">
-              <div class="video-thumbnail">
-                <img src="/images/logos/meet2.png" alt="Michael Chen Testimonial" class="video-thumbnail-img" />
-                <div class="play-button">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 5V19L19 12L8 5Z" fill="white"/>
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
 
-          <div class="testimonial-card">
-            <div class="testimonial-header">
-              <div class="testimonial-avatar">
-                <img src="/images/logos/p3.png" alt="Emily Rodriguez" onerror="this.style.display='none'; this.parentElement.classList.add('avatar-fallback')" />
-                <span class="avatar-initial">ER</span>
-              </div>
-              <div class="testimonial-info">
-                <h4 class="testimonial-name">Emily Rodriguez</h4>
-                <div class="testimonial-stars">
-                  <span>⭐</span>
-                  <span>⭐</span>
-                  <span>⭐</span>
-                  <span>⭐</span>
-                  <span>⭐</span>
+            <!-- Main Heading - Centered -->
+            <div v-if="resultCase.headline" class="real-results-headline-wrapper">
+              <h2 class="real-results-headline">{{ resultCase.headline }}</h2>
+            </div>
+
+            <!-- Small Cards Grid - Inside Container -->
+            <div v-if="resultCase.cards && resultCase.cards.length > 0" class="real-results-cards">
+              <div 
+                v-for="card in resultCase.cards" 
+                :key="card.id" 
+                class="real-results-card"
+              >
+                <div class="card-content">
+                  <h3 class="card-title">{{ card.title }}</h3>
+                  <div class="card-metric">{{ card.metric }}</div>
+                  <p class="card-subtitle">{{ card.subtitle }}</p>
                 </div>
               </div>
             </div>
-            <p class="testimonial-text">"Before Clear Up, we were drowning in marketing chaos. Now we have a streamlined system that generates consistent results. Our revenue increased by 340% in just 6 months. This is exactly what we needed."</p>
-            <div class="testimonial-video">
-              <div class="video-thumbnail">
-                <img src="/images/logos/meet3.png" alt="Emily Rodriguez Testimonial" class="video-thumbnail-img" />
-                <div class="play-button">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 5V19L19 12L8 5Z" fill="white"/>
-                  </svg>
+
+            <!-- Action Button - Bottom Center -->
+            <div v-if="resultCase.ctaText" class="real-results-cta">
+              <a href="#" class="cta-link">
+                {{ resultCase.ctaText }}
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </a>
+            </div>
+
+            <!-- Company Images on Hover -->
+            <div 
+              v-if="resultCase.companyImages && resultCase.companyImages.length > 0" 
+              class="headline-hover-images"
+              :class="{ 'show': hoveredCaseId === resultCase.id }"
+            >
+              <div class="company-images-grid">
+                <div 
+                  v-for="(img, imgIndex) in resultCase.companyImages" 
+                  :key="img.id || imgIndex"
+                  class="company-image-item"
+                >
+                  <img 
+                    v-if="img.imageFileUrl || img.imageUrl"
+                    :src="img.imageFileUrl || img.imageUrl" 
+                    :alt="`Company Image ${imgIndex + 1}`"
+                    class="company-img"
+                  />
                 </div>
               </div>
+            </div>
+            <div 
+              v-else
+              class="headline-hover-placeholder"
+              :class="{ 'show': hoveredCaseId === resultCase.id }"
+            >
+              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <path d="M21 19V5C21 4.46957 20.7893 3.96086 20.4142 3.58579C20.0391 3.21071 19.5304 3 19 3H5C4.46957 3 3.96086 3.21071 3.58579 3.58579C3.21071 3.96086 3 4.46957 3 5V19C3 19.5304 3.21071 20.0391 3.58579 20.4142C3.96086 20.7893 4.46957 21 5 21H19C19.5304 21 20.0391 20.7893 20.4142 20.4142C20.7893 20.0391 21 19.5304 21 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M8.5 10C9.32843 10 10 9.32843 10 8.5C10 7.67157 9.32843 7 8.5 7C7.67157 7 7 7.67157 7 8.5C7 9.32843 7.67157 10 8.5 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                <path d="M21 15L16 10L5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <p>No images set</p>
             </div>
           </div>
         </div>
       </div>
     </div>
 
+    <!-- What Our Clients Say Section -->
+    <div v-if="!isSectionDisabled('testimonials')" class="testimonials-section">
+      <div class="testimonials-container">
+        <div class="testimonials-header">
+          <h2 class="testimonials-title">What Our Clients Say</h2>
+          <p class="testimonials-subtitle">Real feedback from brands we've worked with.</p>
+        </div>
+        
+        <div v-if="homeContent?.testimonials && homeContent.testimonials.length > 0" class="testimonials-grid">
+          <div v-for="testimonial in homeContent.testimonials" :key="testimonial.id" class="testimonial-card">
+            <div class="testimonial-header">
+              <div class="testimonial-avatar">
+                <img 
+                  v-if="testimonial.photoFileUrl || testimonial.photoUrl" 
+                  :src="testimonial.photoFileUrl || testimonial.photoUrl" 
+                  :alt="testimonial.name"
+                  @error="handleImageError"
+                />
+                <span class="avatar-initial">{{ getInitials(testimonial.name) }}</span>
+              </div>
+              <div class="testimonial-info">
+                <h4 class="testimonial-name">{{ testimonial.name }}</h4>
+                <div class="testimonial-stars">
+                  <span v-for="i in testimonial.stars" :key="i">⭐</span>
+                  <span v-if="testimonial.stars < 5" class="star-empty" v-for="i in (5 - testimonial.stars)" :key="`empty-${i}`">☆</span>
+                </div>
+              </div>
+            </div>
+            <p class="testimonial-text">"{{ testimonial.review }}"</p>
+            <div v-if="testimonial.videoUrl || testimonial.videoFileUrl" class="testimonial-video">
+              <div class="video-thumbnail" @click="openVideoModal(testimonial)">
+                <img 
+                  v-if="testimonial.videoThumbnailFileUrl || testimonial.videoThumbnailUrl"
+                  :src="testimonial.videoThumbnailFileUrl || testimonial.videoThumbnailUrl" 
+                  :alt="`${testimonial.name} Testimonial Video`" 
+                  class="video-thumbnail-img" 
+                />
+                <div v-else class="video-thumbnail-placeholder">
+                  <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 5V19L19 12L8 5Z" fill="white"/>
+                  </svg>
+                </div>
+                <div class="play-button">
+                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M8 5V19L19 12L8 5Z" fill="white"/>
+                  </svg>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div v-else class="testimonials-empty">
+          <p>No testimonials available yet.</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Video Modal -->
+    <div v-if="selectedVideo" class="video-modal-overlay" @click="closeVideoModal">
+      <div class="video-modal-content" @click.stop>
+        <button class="video-modal-close" @click="closeVideoModal">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+          </svg>
+        </button>
+        <div class="video-modal-player">
+          <iframe 
+            v-if="selectedVideo.videoType === 'link' && selectedVideo.videoUrl"
+            :src="getVideoEmbedUrl(selectedVideo.videoUrl)"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+          <video 
+            v-else-if="selectedVideo.videoType === 'upload' && selectedVideo.videoFileUrl"
+            :src="selectedVideo.videoFileUrl"
+            controls
+            autoplay
+          >
+            Your browser does not support the video tag.
+          </video>
+          <iframe 
+            v-else-if="selectedVideo.videoUrl && !selectedVideo.videoFileUrl"
+            :src="getVideoEmbedUrl(selectedVideo.videoUrl)"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
+            allowfullscreen
+          ></iframe>
+          <video 
+            v-else-if="selectedVideo.videoFileUrl && !selectedVideo.videoUrl"
+            :src="selectedVideo.videoFileUrl"
+            controls
+            autoplay
+          >
+            Your browser does not support the video tag.
+          </video>
+        </div>
+      </div>
+    </div>
+
     <!-- Footer/Bottom Section -->
-    <div class="footer-section">
+    <div v-if="!isSectionDisabled('footer')" class="footer-section">
       <div class="footer-container">
         <div class="footer-content">
           <div class="footer-brand">
@@ -586,7 +716,7 @@
         </div>
         
         <div class="footer-bottom">
-          <p class="footer-copyright">Copyright © 2020 Nexcent Itd. All rights reserved</p>
+          <p class="footer-copyright">Copyright © 2025 Trusted Valley LLC. All rights reserved</p>
           <div class="footer-policies">
             <a href="#privacy">Privacy Policy</a>
             <span class="footer-divider">|</span>
@@ -601,10 +731,23 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { HomeViewController } from '../controllers/HomeViewController'
+import { HomeContentViewController } from '../controllers/HomeContentViewController'
+import { siteSettingsController } from '@/layers/business/controllers/SiteSettingsController'
+import type { SiteSettings } from '@/layers/business/services/SiteSettingsService'
 
 const viewController = new HomeViewController()
+const contentController = new HomeContentViewController()
+
+const siteSettings = ref<SiteSettings>({
+  disabledSections: [],
+  maintenanceMode: false
+})
+
+const isSectionDisabled = (sectionId: string): boolean => {
+  return siteSettings.value.disabledSections?.includes(sectionId) || false
+}
 
 const phoneNumber = computed({
   get: () => viewController.phoneNumber,
@@ -613,6 +756,16 @@ const phoneNumber = computed({
 
 const isLoading = computed(() => viewController.isLoading)
 const errorMessage = computed(() => viewController.errorMessage)
+const homeContent = computed(() => contentController.content)
+
+onMounted(async () => {
+  await contentController.loadHomeContent()
+  // Load site settings to check for disabled sections
+  const settingsResult = await siteSettingsController.getSiteSettings()
+  if (settingsResult.success && settingsResult.data) {
+    siteSettings.value = settingsResult.data
+  }
+})
 
 const handleSubmit = async () => {
   const success = await viewController.handleWhatsAppSubmit()
@@ -627,6 +780,71 @@ const handleBookMeeting = () => {
   // TODO: Implement booking meeting functionality
   // This could open a calendar booking widget or navigate to a booking page
   console.log('Book a meeting clicked')
+}
+
+const getVideoEmbedUrl = (url: string): string => {
+  if (!url) return ''
+  
+  // YouTube
+  const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
+  const youtubeMatch = url.match(youtubeRegex)
+  if (youtubeMatch) {
+    return `https://www.youtube.com/embed/${youtubeMatch[1]}`
+  }
+  
+  // Vimeo
+  const vimeoRegex = /(?:vimeo\.com\/)(?:.*\/)?(\d+)/
+  const vimeoMatch = url.match(vimeoRegex)
+  if (vimeoMatch) {
+    return `https://player.vimeo.com/video/${vimeoMatch[1]}`
+  }
+  
+  // Direct video URL (MP4, WebM, etc.)
+  if (url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i)) {
+    return url
+  }
+  
+  return url
+}
+
+const selectedVideo = ref<any>(null)
+
+const openVideoModal = (testimonial: any) => {
+  selectedVideo.value = testimonial
+  document.body.style.overflow = 'hidden' // Prevent background scrolling
+}
+
+const closeVideoModal = () => {
+  selectedVideo.value = null
+  document.body.style.overflow = '' // Restore scrolling
+}
+
+const getInitials = (name: string): string => {
+  if (!name) return 'U'
+  const parts = name.trim().split(' ')
+  if (parts.length >= 2) {
+    return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase()
+  }
+  return name.substring(0, 2).toUpperCase()
+}
+
+const handleImageError = (event: Event) => {
+  const img = event.target as HTMLImageElement
+  img.style.display = 'none'
+  const avatar = img.parentElement
+  if (avatar) {
+    avatar.classList.add('avatar-fallback')
+  }
+}
+
+const hoveredCaseId = ref<string | null>(null)
+
+const handleHeadlineHover = (caseId: string) => {
+  hoveredCaseId.value = caseId
+}
+
+const handleHeadlineLeave = () => {
+  hoveredCaseId.value = null
 }
 </script>
 
@@ -1119,6 +1337,28 @@ const handleBookMeeting = () => {
   width: 100%;
   max-width: 1280px;
   aspect-ratio: 79 / 59;
+  margin: 0 auto;
+}
+
+.video-container {
+  width: 100%;
+  height: 100%;
+  border-radius: 25px;
+  overflow: hidden;
+  background: #000;
+  box-shadow: 0 2px 4px 0 rgba(171, 190, 209, 0.20);
+}
+
+.video-iframe {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+.video-player {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
 }
 
 .video-placeholder {
@@ -1221,6 +1461,12 @@ const handleBookMeeting = () => {
   pointer-events: none;
 }
 
+/* Hide vector behind services section */
+.third-section:has(.services-section) .third-section-vector {
+  opacity: 0;
+  visibility: hidden;
+}
+
 .third-section-vector-left {
   left: 0;
   transform: scaleX(1);
@@ -1231,6 +1477,12 @@ const handleBookMeeting = () => {
   right: 0;
   transform: scaleX(-1);
   background-position: right center;
+}
+
+/* Hide vector behind services section */
+.third-section:has(.services-section) .third-section-vector {
+  opacity: 0;
+  visibility: hidden;
 }
 
 .third-section-container {
@@ -1330,6 +1582,9 @@ const handleBookMeeting = () => {
   display: flex;
   flex-direction: column;
   gap: 32px;
+  position: relative;
+  z-index: 3;
+  background: transparent;
 }
 
 .services-header {
@@ -1439,27 +1694,29 @@ const handleBookMeeting = () => {
   gap: 20px;
   justify-items: center;
   width: 100%;
+  justify-content: center;
 }
 
-/* First row: 4 cards */
-.steps-grid .step-card:nth-child(1),
-.steps-grid .step-card:nth-child(2),
-.steps-grid .step-card:nth-child(3),
-.steps-grid .step-card:nth-child(4) {
+/* All cards span 1 column by default - first 4 will fill row 1 */
+.steps-grid .step-card {
   grid-column: span 1;
 }
 
-/* Second row: 3 cards centered */
+/* Center the last row when it has an odd number of cards (3 cards) */
+/* For 7 steps: first 4 fill row 1, last 3 are centered in row 2 */
 .steps-grid .step-card:nth-child(5) {
-  grid-column: 1 / 2;
+  grid-column: 2 / 3;
+  grid-row: 2;
 }
 
 .steps-grid .step-card:nth-child(6) {
-  grid-column: 2 / 3;
+  grid-column: 3 / 4;
+  grid-row: 2;
 }
 
 .steps-grid .step-card:nth-child(7) {
-  grid-column: 3 / 4;
+  grid-column: 4 / 5;
+  grid-row: 2;
 }
 
 .step-card {
@@ -1921,6 +2178,518 @@ const handleBookMeeting = () => {
 .testimonial-stars {
   display: flex;
   gap: 4px;
+}
+
+.star-empty {
+  opacity: 0.3;
+}
+
+.testimonials-empty {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: rgba(245, 247, 250, 0.5);
+  font-size: 1.1rem;
+}
+
+.video-thumbnail-placeholder {
+  width: 100%;
+  height: 100%;
+  background: linear-gradient(135deg, #5B2096 0%, #C19DE6 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Video Modal */
+.video-modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.9);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10000;
+  padding: 2rem;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.video-modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 1200px;
+  max-height: 90vh;
+  background: #14141B;
+  border-radius: 16px;
+  overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.video-modal-close {
+  position: absolute;
+  top: 1rem;
+  right: 1rem;
+  width: 40px;
+  height: 40px;
+  background: rgba(0, 0, 0, 0.7);
+  border: none;
+  border-radius: 50%;
+  color: #F5F7FA;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10001;
+  transition: all 0.2s;
+}
+
+.video-modal-close:hover {
+  background: rgba(0, 0, 0, 0.9);
+  transform: scale(1.1);
+}
+
+.video-modal-player {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: #000;
+}
+
+.video-modal-player iframe,
+.video-modal-player video {
+  width: 100%;
+  height: 100%;
+  border: none;
+}
+
+/* Real Results Section */
+.real-results-section {
+  width: 100%;
+  padding: 80px 20px;
+  background: #0A0A0F;
+  position: relative;
+  z-index: 2;
+}
+
+.real-results-container {
+  max-width: 1400px;
+  margin: 0 auto;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3rem;
+}
+
+.real-results-header {
+  text-align: center;
+  max-width: 800px;
+}
+
+.real-results-title {
+  color: #F5F7FA;
+  font-family: 'Roboto', sans-serif;
+  font-size: 48px;
+  font-weight: 700;
+  line-height: 1.2;
+  margin: 0 0 1rem 0;
+}
+
+.real-results-subtitle {
+  color: #ABBED1;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 400;
+  line-height: 1.6;
+  margin: 0;
+}
+
+/* Real Results Cases Container */
+.real-results-cases {
+  width: 100%;
+  display: flex;
+  flex-direction: column;
+  gap: 4rem;
+  margin-top: 3rem;
+}
+
+.real-results-case-container {
+  position: relative;
+  width: 100%;
+  max-width: 1300px;
+  margin: 0 auto;
+  padding: 4rem 4rem;
+  background: rgba(91, 32, 150, 0.15);
+  border: 1px solid rgba(91, 32, 150, 0.4);
+  border-radius: 16px;
+  overflow: hidden;
+  cursor: pointer;
+  transition: all 0.4s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.real-results-case-container:hover {
+  border-color: rgba(91, 32, 150, 0.7);
+  box-shadow: 0 8px 24px rgba(91, 32, 150, 0.5);
+  background: rgba(91, 32, 150, 0.2);
+}
+
+/* Company Logo - Top Center */
+.real-results-company-logo {
+  position: relative;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 3;
+  margin-bottom: 3rem;
+}
+
+.company-logo-img {
+  max-width: 200px;
+  max-height: 120px;
+  width: auto;
+  height: auto;
+  object-fit: contain;
+}
+
+/* Main Heading - Centered */
+.real-results-headline-wrapper {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  text-align: center;
+  margin-bottom: 4rem;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.real-results-case-container:hover .real-results-headline-wrapper {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.real-results-headline {
+  color: #5B2096; /* Fallback color for browsers that don't support background-clip */
+  background: linear-gradient(135deg, #5B2096 0%, #8B5CF6 50%, #A78BFA 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  font-family: 'Roboto', sans-serif;
+  font-size: 64px;
+  font-weight: 700;
+  text-align: center;
+  line-height: 1.2;
+  margin: 0;
+  display: inline-block; /* Required for background-clip to work properly */
+}
+
+/* Company Images on Hover - Overlay entire container */
+.headline-hover-images,
+.headline-hover-placeholder {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 20, 27, 0.98);
+  border-radius: 16px;
+  padding: 4rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.headline-hover-images.show,
+.headline-hover-placeholder.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.company-images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1000px;
+  align-content: start;
+}
+
+.company-image-item {
+  border-radius: 8px;
+  overflow: hidden;
+  background: rgba(91, 32, 150, 0.1);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  transition: transform 0.2s ease;
+}
+
+.company-image-item:hover {
+  transform: scale(1.02);
+  border-color: rgba(91, 32, 150, 0.5);
+}
+
+.company-img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
+.headline-hover-placeholder {
+  flex-direction: column;
+  gap: 1rem;
+  color: rgba(245, 247, 250, 0.5);
+}
+
+.headline-hover-placeholder svg {
+  color: rgba(91, 32, 150, 0.5);
+}
+
+.headline-hover-placeholder p {
+  margin: 0;
+  font-size: 14px;
+}
+
+/* Small Cards - Inside Container */
+.real-results-cards {
+  position: relative;
+  z-index: 2;
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.5rem;
+  width: 100%;
+  margin-bottom: 3rem;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.real-results-case-container:hover .real-results-cards {
+  opacity: 0;
+  visibility: hidden;
+}
+
+@media (min-width: 768px) {
+  .real-results-cards {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 1024px) {
+  .real-results-cards {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.5rem;
+  }
+}
+
+.real-results-card {
+  background: rgba(91, 32, 150, 0.15);
+  border: 1px solid rgba(91, 32, 150, 0.4);
+  border-radius: 12px;
+  padding: 2rem 1.5rem;
+  min-height: 240px;
+  position: relative;
+  overflow: hidden;
+  transition: all 0.4s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+.real-results-card:hover {
+  border-color: rgba(91, 32, 150, 0.7);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(91, 32, 150, 0.5);
+  background: rgba(91, 32, 150, 0.2);
+}
+
+.card-content {
+  position: relative;
+  z-index: 2;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.card-title {
+  color: #F5F7FA;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 500;
+  margin: 0 0 1rem 0;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.card-metric {
+  color: #5B2096;
+  font-family: 'Roboto', sans-serif;
+  font-size: 40px;
+  font-weight: 700;
+  line-height: 1;
+  margin: 0 0 0.5rem 0;
+  text-align: center;
+}
+
+.card-subtitle {
+  color: rgba(245, 247, 250, 0.7);
+  font-family: 'Roboto', sans-serif;
+  font-size: 12px;
+  font-weight: 400;
+  margin: 0;
+  line-height: 1.5;
+  text-align: center;
+}
+
+/* Action Button - Bottom Center */
+.real-results-cta {
+  position: relative;
+  z-index: 2;
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 0;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+}
+
+.real-results-case-container:hover .real-results-cta {
+  opacity: 0;
+  visibility: hidden;
+}
+
+.cta-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.75rem;
+  color: #F5F7FA;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.cta-link:hover {
+  color: #5B2096;
+  gap: 1rem;
+}
+
+.cta-link svg {
+  transition: transform 0.2s;
+}
+
+.cta-link:hover svg {
+  transform: translateX(4px);
+}
+
+/* Real Results Section Responsive */
+@media (max-width: 768px) {
+  .real-results-section {
+    padding: 60px 15px;
+  }
+
+  .real-results-title {
+    font-size: 36px;
+  }
+
+  .real-results-subtitle {
+    font-size: 16px;
+  }
+
+  .real-results-headline {
+    font-size: 42px;
+  }
+
+  .real-results-case-container {
+    padding: 3rem 2rem;
+  }
+
+  .real-results-company-logo {
+    margin-bottom: 2rem;
+  }
+
+  .real-results-headline-wrapper {
+    margin-bottom: 3rem;
+  }
+
+  .real-results-cards {
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .company-images-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+
+  .headline-hover-images,
+  .headline-hover-placeholder {
+    padding: 2rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .real-results-section {
+    padding: 40px 10px;
+  }
+
+  .real-results-title {
+    font-size: 28px;
+  }
+
+  .real-results-headline {
+    font-size: 32px;
+  }
+
+  .real-results-case-container {
+    padding: 2rem 1.5rem;
+  }
+
+  .real-results-card {
+    padding: 1.5rem 1rem;
+    min-height: 200px;
+  }
+
+  .card-metric {
+    font-size: 32px;
+  }
+
+  .company-logo-img {
+    max-width: 150px;
+    max-height: 90px;
+  }
+
+  .headline-hover-images,
+  .headline-hover-placeholder {
+    padding: 1.5rem;
+  }
 }
 
 .testimonial-stars span {

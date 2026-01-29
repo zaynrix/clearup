@@ -1,0 +1,53 @@
+rules_version = '2';
+service firebase.storage {
+  match /b/{bucket}/o {
+    // Videos folder - authenticated users can upload, anyone can read
+    match /videos/{userId}/{allPaths=**} {
+      // Allow authenticated users to upload videos
+      allow write: if request.auth != null && request.auth.uid == userId;
+      // Allow anyone to read videos (for displaying on website)
+      allow read: if true;
+    }
+    
+    // Testimonials folder - authenticated users can upload, anyone can read
+    match /testimonials/{userId}/{allPaths=**} {
+      // Allow authenticated users to upload photos/videos for testimonials
+      allow write: if request.auth != null && request.auth.uid == userId;
+      // Allow anyone to read testimonials media (for displaying on website)
+      allow read: if true;
+    }
+    
+    // Real Results Logo folder - authenticated users can upload, anyone can read
+    // Handles: real-results/logo/{userId}/... (MUST come before general real-results rule)
+    match /real-results/logo/{userId}/{allPaths=**} {
+      // Allow authenticated users to upload logos
+      allow write: if request.auth != null && request.auth.uid == userId;
+      // Allow anyone to read logos (for displaying on website)
+      allow read: if true;
+    }
+    
+    // Real Results Company Images folder - authenticated users can upload, anyone can read
+    // Handles: real-results/company/{userId}/... (MUST come before general real-results rule)
+    match /real-results/company/{userId}/{allPaths=**} {
+      // Allow authenticated users to upload company images
+      allow write: if request.auth != null && request.auth.uid == userId;
+      // Allow anyone to read company images (for displaying on website)
+      allow read: if true;
+    }
+    
+    // Real Results folder - authenticated users can upload, anyone can read
+    // Handles: real-results/{userId}/... (card images)
+    match /real-results/{userId}/{allPaths=**} {
+      // Allow authenticated users to upload images for real results cards
+      allow write: if request.auth != null && request.auth.uid == userId;
+      // Allow anyone to read real results images (for displaying on website)
+      allow read: if true;
+    }
+    
+    // Default deny for all other paths
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
+

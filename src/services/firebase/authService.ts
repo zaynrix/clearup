@@ -3,6 +3,7 @@ import {
   createUserWithEmailAndPassword,
   signOut,
   onAuthStateChanged,
+  sendPasswordResetEmail,
   type User,
   type UserCredential
 } from 'firebase/auth'
@@ -42,6 +43,13 @@ export class AuthService {
    */
   onAuthStateChange(callback: (user: User | null) => void): () => void {
     return onAuthStateChanged(auth, callback)
+  }
+
+  /**
+   * Send password reset email
+   */
+  async sendPasswordResetEmail(email: string): Promise<void> {
+    return await sendPasswordResetEmail(auth, email)
   }
 }
 

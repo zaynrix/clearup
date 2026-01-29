@@ -45,6 +45,19 @@ export class FirestoreService {
   }
 
   /**
+   * Remove undefined values from object (Firestore doesn't allow undefined)
+   */
+  private removeUndefinedValues<T extends Record<string, any>>(data: T): DocumentData {
+    const cleaned: DocumentData = {}
+    for (const [key, value] of Object.entries(data)) {
+      if (value !== undefined) {
+        cleaned[key] = value
+      }
+    }
+    return cleaned
+  }
+
+  /**
    * Create a new document
    */
   async createDocument<T extends DocumentData>(
@@ -53,7 +66,8 @@ export class FirestoreService {
     data: T
   ): Promise<void> {
     const docRef = doc(db, collectionName, documentId)
-    await setDoc(docRef, data)
+    const cleanedData = this.removeUndefinedValues(data)
+    await setDoc(docRef, cleanedData)
   }
 
   /**
@@ -65,7 +79,8 @@ export class FirestoreService {
   ): Promise<string> {
     const collectionRef = collection(db, collectionName)
     const docRef = doc(collectionRef)
-    await setDoc(docRef, data)
+    const cleanedData = this.removeUndefinedValues(data)
+    await setDoc(docRef, cleanedData)
     return docRef.id
   }
 
@@ -78,7 +93,8 @@ export class FirestoreService {
     data: Partial<T>
   ): Promise<void> {
     const docRef = doc(db, collectionName, documentId)
-    await updateDoc(docRef, data as DocumentData)
+    const cleanedData = this.removeUndefinedValues(data as Record<string, any>)
+    await updateDoc(docRef, cleanedData)
   }
 
   /**

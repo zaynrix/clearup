@@ -1,0 +1,103 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    
+    // Helper function to check if user is authenticated
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+    
+    // Helper function to check if user owns the document
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+    
+    // Helper function to check if user is admin
+    function isAdmin() {
+      return isAuthenticated() && 
+             get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+    }
+    
+    // Users collection
+    // - Users can create their own document during registration
+    // - Users can read/update their own document
+    // - Admins can read/update/delete all users
+    match /users/{userId} {
+      // Allow users to create their own document during registration
+      // Allow admins to create any user document
+      allow create: if isAuthenticated() && (request.auth.uid == userId || isAdmin());
+      
+      // Allow users to read their own document
+      // Allow admins to read all user documents
+      allow read: if isOwner(userId) || isAdmin();
+      
+      // Allow users to update their own document
+      // Allow admins to update any user document
+      allow update: if isOwner(userId) || isAdmin();
+      
+      // Allow admins to delete any user document
+      // Users cannot delete their own document (for safety)
+      allow delete: if isAdmin();
+    }
+    
+    // WhatsApp leads collection
+    // - Anyone can create leads (for form submissions)
+    // - Authenticated users can read all leads (for admin dashboard)
+    // - Authenticated users can update/delete leads
+    match /whatsapp_leads/{leadId} {
+      // Allow anyone to create leads (for public form submissions)
+      allow create: if true;
+      
+      // Allow authenticated users to read leads
+      allow read: if isAuthenticated();
+      
+      // Allow authenticated users to update/delete leads
+      allow update, delete: if isAuthenticated();
+    }
+    
+    // Home content collection
+    // - Anyone can read (for displaying homepage)
+    // - Only authenticated users can write (for admin dashboard)
+    match /home_content/{documentId} {
+      // Allow anyone to read home content (for public homepage)
+      allow read: if true;
+      
+      // Allow authenticated users to create/update/delete
+      allow write: if isAuthenticated();
+    }
+    
+    // Roles collection
+    // - Only admins can read/write roles
+    match /roles/{roleId} {
+      allow read, write: if isAdmin();
+    }
+    
+    // Activity logs collection
+    // - Only admins can read all logs
+    // - Authenticated users can create logs (for tracking their actions)
+    match /activity_logs/{logId} {
+      // Allow authenticated users to create logs
+      allow create: if isAuthenticated();
+      
+      // Only admins can read logs
+      allow read: if isAdmin();
+      
+      // Only admins can update/delete logs
+      allow update, delete: if isAdmin();
+    }
+    
+    // Site settings collection
+    // - Anyone can read (for checking disabled sections)
+    // - Only admins can write
+    match /site_settings/{documentId} {
+      allow read: if true;
+      allow write: if isAdmin();
+    }
+    
+    // Default deny rule for any other collections
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
+
