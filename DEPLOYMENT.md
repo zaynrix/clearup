@@ -108,10 +108,21 @@ Firebase needs to allow requests from your GitHub Pages domain:
 - "API key not valid"
 - "Failed to get document because the client is offline"
 
+### 6. SPA Routing Fix (404.html)
+
+The deployment workflow automatically copies `index.html` to `404.html` to fix client-side routing issues. This ensures that when users navigate directly to routes like `/login` or `/dashboard`, GitHub Pages will serve the Vue app instead of showing a 404 error.
+
+**How it works:**
+- When GitHub Pages can't find a file (like `/clearup/login`), it serves `404.html`
+- Since `404.html` is a copy of `index.html`, it loads the Vue app
+- Vue Router reads the URL pathname and routes to the correct component
+- This is handled automatically by the deployment workflow
+
 ### Notes
 
 - The base path is set to `/clearup/` in `vite.config.ts` for GitHub Pages
 - If you want to use a custom domain, update the `base` in `vite.config.ts` to `/`
 - The workflow runs automatically on every push to `main` branch
 - You can also trigger it manually from the **Actions** tab
+- The `404.html` file is automatically created during build to fix SPA routing
 

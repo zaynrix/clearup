@@ -4,7 +4,6 @@ import { userService } from '@/layers/business/services/UserService'
 import { auth } from '@/services/firebase/config'
 import HomeView from '@/layers/presentation/views/HomeView.vue'
 import LoginView from '@/layers/presentation/views/LoginView.vue'
-import RegisterView from '@/layers/presentation/views/RegisterView.vue'
 import DashboardView from '@/layers/presentation/views/DashboardView.vue'
 
 const router = createRouter({
@@ -23,12 +22,6 @@ const router = createRouter({
       path: '/login',
       name: 'login',
       component: LoginView,
-      meta: { requiresGuest: true }
-    },
-    {
-      path: '/register',
-      name: 'register',
-      component: RegisterView,
       meta: { requiresGuest: true }
     },
     {
