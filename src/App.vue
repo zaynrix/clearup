@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { RouterView, useRoute } from 'vue-router'
 import { computed } from 'vue'
-import NavigationBar from './layers/presentation/components/NavigationBar.vue'
+import NavigationBar from './shared/components/NavigationBar.vue'
 
 const route = useRoute()
 const showNavigationBar = computed(() => route.name !== 'admin-dashboard')

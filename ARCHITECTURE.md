@@ -1,190 +1,411 @@
-# Layered MVC Architecture Documentation
+# Feature-Based MVC Architecture Documentation
 
-This project follows a **Layered MVC Architecture** where each layer implements the MVC (Model-View-Controller) pattern. The architecture is designed to separate concerns and provide a clean, maintainable codebase.
+This project follows a **Feature-Based MVC Architecture** where each feature is completely independent with its own MVC structure. The architecture is designed to separate concerns and provide a clean, maintainable, and scalable codebase.
 
 ## Architecture Overview
 
 ```
 ┌─────────────────────────────────────────────────────────┐
-│              PRESENTATION LAYER (MVC)                    │
-│  ┌──────────┐  ┌──────────────┐  ┌──────────┐         │
-│  │  Views   │  │ Controllers  │  │  Models  │         │
-│  │  (.vue)  │  │ (View Ctrl)  │  │  (State) │         │
-│  └──────────┘  └──────────────┘  └──────────┘         │
+│              FEATURE-BASED MVC STRUCTURE                │
+│                                                         │
+│  Each Feature Contains:                                │
+│  ┌──────────┐  ┌──────────────┐  ┌──────────┐        │
+│  │  Models  │  │ Controllers  │  │  Views   │        │
+│  │ (Data)   │  │ (Logic)      │  │  (UI)    │        │
+│  └──────────┘  └──────────────┘  └──────────┘        │
+│       ↓              ↓                  ↓              │
+│  ┌──────────────────────────────────────────┐         │
+│  │         Services (Business Logic)        │         │
+│  └──────────────────────────────────────────┘         │
 └─────────────────────────────────────────────────────────┘
                         ↓
 ┌─────────────────────────────────────────────────────────┐
-│            BUSINESS LOGIC LAYER (MVC)                   │
-│  ┌──────────┐  ┌──────────────┐  ┌──────────┐         │
-│  │  Views   │  │ Controllers  │  │ Services │         │
-│  │  (N/A)   │  │ (Business)   │  │ (Models) │         │
-│  └──────────┘  └──────────────┘  └──────────┘         │
-└─────────────────────────────────────────────────────────┘
-                        ↓
-┌─────────────────────────────────────────────────────────┐
-│            DATA ACCESS LAYER (MVC)                      │
-│  ┌──────────┐  ┌──────────────┐  ┌──────────┐         │
-│  │  Views   │  │ Controllers  │  │Repositories│        │
-│  │  (N/A)   │  │  (N/A)       │  │ (Models)  │         │
-│  └──────────┘  └──────────────┘  └──────────┘         │
+│              SHARED RESOURCES                           │
+│  ┌──────────┐  ┌──────────────┐  ┌──────────┐        │
+│  │  Base    │  │ Repositories │  │ Components│        │
+│  │ Classes  │  │ (Data Access)│  │ (Shared) │        │
+│  └──────────┘  └──────────────┘  └──────────┘        │
 └─────────────────────────────────────────────────────────┘
                         ↓
 ┌─────────────────────────────────────────────────────────┐
 │              FIREBASE SERVICES                          │
-│  ┌──────────┐  ┌──────────────┐  ┌──────────┐         │
-│  │   Auth   │  │  Firestore   │  │ Storage  │         │
-│  │  Service │  │   Service    │  │ Service  │         │
-│  └──────────┘  └──────────────┘  └──────────┘         │
+│  ┌──────────┐  ┌──────────────┐  ┌──────────┐        │
+│  │   Auth   │  │  Firestore   │  │ Storage  │        │
+│  │  Service │  │   Service    │  │ Service  │        │
+│  └──────────┘  └──────────────┘  └──────────┘        │
 └─────────────────────────────────────────────────────────┘
 ```
 
-## Layer Structure
+## Project Structure
 
-### 1. Presentation Layer (`src/layers/presentation/`)
+```
+src/
+├── features/                    # Feature-based modules
+│   ├── auth/                   # Authentication feature
+│   │   ├── models/            # User model
+│   │   ├── views/             # LoginView.vue
+│   │   ├── controllers/       # AuthController, AuthViewController
+│   │   ├── services/          # UserService (business logic)
+│   │   └── routes/            # Auth routes
+│   │
+│   ├── home/                   # Home page feature
+│   │   ├── models/            # HomeContent model
+│   │   ├── views/             # HomeView.vue
+│   │   ├── controllers/       # HomeContentController, HomeViewController, etc.
+│   │   ├── services/          # HomeContentService, WhatsAppService
+│   │   └── routes/            # Home routes
+│   │
+│   ├── dashboard/             # User dashboard feature
+│   │   ├── views/             # DashboardView.vue
+│   │   └── routes/            # Dashboard routes
+│   │
+│   └── admin/                 # Admin dashboard feature
+│       ├── models/            # Role, ActivityLog, SiteSettings
+│       ├── views/             # AdminDashboardView.vue
+│       ├── controllers/       # UserController, RoleController, etc.
+│       ├── services/          # UserService, RoleService, etc.
+│       └── routes/            # Admin routes
+│
+├── shared/                     # Shared resources
+│   ├── components/            # NavigationBar, HelloWorld, icons
+│   ├── repositories/          # BaseRepository, UserRepository, etc.
+│   ├── BaseModel.ts          # Base model class
+│   ├── BaseController.ts     # Base business controller
+│   ├── BaseViewController.ts # Base view controller
+│   └── BaseService.ts        # Base service class
+│
+├── shared/                     # Shared resources
+│   ├── components/            # NavigationBar, HelloWorld, icons
+│   ├── repositories/          # BaseRepository, UserRepository, etc.
+│   ├── services/              # Infrastructure services (Firebase)
+│   │   ├── config.ts
+│   │   ├── authService.ts
+│   │   ├── firestoreService.ts
+│   │   └── storageService.ts
+│   ├── BaseModel.ts
+│   ├── BaseController.ts
+│   ├── BaseViewController.ts
+│   └── BaseService.ts
+│
+├── router/                     # Vue Router configuration
+└── assets/                     # CSS and static assets
+```
 
-**Purpose**: Handles user interface and user interactions.
+## MVC Pattern in Each Feature
 
-- **Views** (`views/`): Vue components that render the UI
-  - `LoginView.vue` - Login page
-  - `RegisterView.vue` - Registration page
-  - `DashboardView.vue` - Dashboard page
+Each feature follows the MVC pattern with clear separation and **complete independence**:
 
-- **Controllers** (`controllers/`): View Controllers that manage view state and handle user interactions
-  - `BaseViewController.ts` - Base class for view controllers
-  - `UserViewController.ts` - Handles user-related UI logic
+### Feature Independence Principle
+- ✅ Each feature has its own **Models, Views, Controllers, and Services**
+- ✅ Services are **self-contained** within each feature
+- ✅ Services use **shared repositories** (not other features' services)
+- ✅ Services use **Firebase services** (infrastructure)
+- ✅ No cross-feature service dependencies
 
-**MVC Pattern**:
-- **Model**: View state (reactive refs)
-- **View**: Vue components
-- **Controller**: View Controllers
+### 1. Models (`models/`)
+**Purpose**: Data structures and domain models
 
-### 2. Business Logic Layer (`src/layers/business/`)
+- Define data structures
+- Handle data validation
+- Convert between formats (Firestore, API, etc.)
+- Extend `BaseModel` for common functionality
 
-**Purpose**: Contains business rules and orchestrates operations.
+**Example**: `features/auth/models/User.ts`
+```typescript
+export class User extends Model implements UserData {
+  email: string
+  displayName?: string
+  role?: string
+  // ...
+}
+```
 
-- **Services** (`services/`): Business logic implementation
-  - `BaseService.ts` - Base service class
-  - `UserService.ts` - User business logic
+### 2. Views (`views/`)
+**Purpose**: Vue components that render the UI
 
-- **Controllers** (`controllers/`): Business controllers that orchestrate services
-  - `BaseController.ts` - Base controller class
-  - `UserController.ts` - Orchestrates user operations
+- Present data to users
+- Handle user interactions
+- Use View Controllers for logic
+- Receive data from View Controllers
 
-**MVC Pattern**:
-- **Model**: Services (business logic)
-- **View**: N/A (no UI in this layer)
-- **Controller**: Business Controllers (orchestration)
+**Example**: `features/auth/views/LoginView.vue`
+```vue
+<template>
+  <form @submit.prevent="handleLogin">
+    <!-- Form UI -->
+  </form>
+</template>
 
-### 3. Data Access Layer (`src/repositories/` and `src/models/`)
+<script setup lang="ts">
+import { AuthViewController } from '../controllers/AuthViewController'
+const viewController = new AuthViewController()
+</script>
+```
 
-**Purpose**: Handles data persistence and retrieval.
+### 3. Controllers (`controllers/`)
+**Purpose**: Handle business logic and orchestration
 
-- **Models** (`models/`): Data models representing entities
-  - `BaseModel.ts` - Base model class
-  - `User.ts` - User model
+There are two types of controllers:
 
-- **Repositories** (`repositories/`): Data access objects
-  - `BaseRepository.ts` - Base repository with CRUD operations
-  - `UserRepository.ts` - User-specific data access
+#### View Controllers (Presentation Layer)
+- Extend `BaseViewController`
+- Manage view state (loading, errors)
+- Handle user interactions
+- Call Business Controllers
 
-**MVC Pattern**:
-- **Model**: Domain models and repositories
-- **View**: N/A (no UI in this layer)
-- **Controller**: N/A (repositories handle data operations directly)
+**Example**: `features/auth/controllers/AuthViewController.ts`
+```typescript
+export class AuthViewController extends BaseViewController {
+  async login(email: string, password: string): Promise<boolean> {
+    this.setLoading(true)
+    const result = await authController.login(email, password)
+    // Handle result...
+  }
+}
+```
 
-### 4. Firebase Services (`src/services/firebase/`)
+#### Business Controllers (Business Layer)
+- Extend `BaseController`
+- Orchestrate Services
+- Handle business logic flow
+- Return standardized responses `{ success, data, error }`
 
-**Purpose**: Firebase integration and configuration.
+**Example**: `features/auth/controllers/AuthController.ts`
+```typescript
+export class AuthController extends BaseController {
+  async login(email: string, password: string) {
+    try {
+      const credential = await this.userService.login(email, password)
+      return this.success(credential)
+    } catch (error) {
+      return this.handleError(error)
+    }
+  }
+}
+```
 
-- `config.ts` - Firebase initialization and configuration
-- `authService.ts` - Authentication operations
-- `firestoreService.ts` - Firestore database operations
-- `storageService.ts` - File storage operations
+### 4. Services (`services/`)
+**Purpose**: Business logic implementation
+
+**Key Principles**:
+- ✅ **Self-contained**: Each feature's services are within that feature
+- ✅ **No cross-feature dependencies**: Services don't import from other features' services
+- ✅ **Use repositories**: Access data through shared repositories
+- ✅ **Use Firebase services**: For external operations (auth, firestore, storage)
+
+**What Services Can Use**:
+- ✅ Shared repositories (`shared/repositories/`)
+- ✅ Infrastructure services (`shared/services/` - Firebase)
+- ✅ Shared base classes (`shared/BaseService.ts`)
+- ✅ Their own feature's models
+- ❌ Other features' services (use repositories instead)
+
+**Example**: `features/auth/services/UserService.ts`
+```typescript
+export class UserService extends BaseService {
+  private userRepository: UserRepository  // Shared repository
+
+  constructor() {
+    super()
+    this.userRepository = new UserRepository()
+  }
+
+  async register(email: string, password: string): Promise<UserCredential> {
+    // Validate
+    if (!this.validate(email)) throw new Error('Email required')
+    
+    // Business logic - use Firebase service directly
+    const credential = await authService.signUp(email, password)
+    
+    // Use repository for data access
+    await this.userRepository.create(userData)
+    
+    return credential
+  }
+}
+```
+
+**Example**: `features/home/services/HomeContentService.ts`
+```typescript
+export class HomeContentService extends BaseService {
+  private userRepository: UserRepository           // Shared repository
+  private activityLogRepository: ActivityLogRepository  // Shared repository
+
+  constructor() {
+    super()
+    this.userRepository = new UserRepository()
+    this.activityLogRepository = new ActivityLogRepository()
+  }
+
+  async updateHomeContent(content: Partial<HomeContent>, userId?: string) {
+    // Use repositories directly, not other features' services
+    if (userId) {
+      const user = await this.userRepository.findById(userId)
+      const log = new ActivityLog({ /* ... */ })
+      await this.activityLogRepository.create(log)
+    }
+  }
+}
+```
 
 ## Data Flow
 
-1. **User Interaction** → Presentation Layer View
-2. **View** → Presentation Layer Controller (View Controller)
-3. **View Controller** → Business Layer Controller
-4. **Business Controller** → Business Layer Service
-5. **Business Service** → Data Access Layer Repository
-6. **Repository** → Firebase Service
-7. **Firebase Service** → Firebase Backend
-
-Response flows back through the same layers in reverse.
-
-## Example: User Registration Flow
+### Example: User Login Flow
 
 ```
-1. User fills form in RegisterView.vue (Presentation View)
+1. User clicks "Login" in LoginView.vue (View)
    ↓
-2. UserViewController.register() (Presentation Controller)
+2. LoginView calls AuthViewController.login() (View Controller)
    ↓
-3. userController.register() (Business Controller)
+3. AuthViewController calls AuthController.login() (Business Controller)
    ↓
-4. userService.register() (Business Service)
+4. AuthController calls UserService.login() (Service)
    ↓
-5. authService.signUp() (Firebase Auth Service)
+5. UserService calls authService.signIn() (Firebase Service)
    ↓
-6. userRepository.create() (Data Repository)
+6. UserService calls UserRepository.findById() (Repository)
    ↓
-7. firestoreService.createDocument() (Firebase Service)
+7. Repository calls firestoreService.getDocument() (Firebase Service)
    ↓
 8. Firebase Backend
 ```
 
-## File Structure
+Response flows back through the same layers in reverse.
 
+## Service Layer Architecture
+
+### Base Service (`shared/BaseService.ts`)
+
+All services extend `BaseService` which provides:
+
+- **Validation**: `validate(data)` - Check if data is valid
+- **Error Handling**: `handleError(error)` - Consistent error handling
+
+### Service Responsibilities
+
+1. **Business Logic**: Implement business rules
+2. **Validation**: Validate input data
+3. **Data Transformation**: Transform data between layers
+4. **Orchestration**: Coordinate between repositories and external services
+5. **Error Handling**: Handle and transform errors
+
+### Service Examples
+
+#### Auth Service (`features/auth/services/UserService.ts`)
+- User registration
+- User login/logout
+- User profile management
+- Admin checks
+
+#### Home Content Service (`features/home/services/HomeContentService.ts`)
+- Get home content
+- Update home content
+- Reset to defaults
+- Activity logging
+
+#### Admin Services (`features/admin/services/`)
+- User management (create, update, delete)
+- Role management
+- Activity logging
+- Site settings
+
+## Repository Layer (Data Access)
+
+Repositories are in `shared/repositories/` and handle:
+
+- **CRUD Operations**: Create, Read, Update, Delete
+- **Data Access**: Abstract Firestore operations
+- **Model Conversion**: Convert between Firestore and domain models
+
+**Example**: `shared/repositories/UserRepository.ts`
+```typescript
+export class UserRepository extends BaseRepository<User> {
+  async findByEmail(email: string): Promise<User | null> {
+    // Query logic
+  }
+}
 ```
-src/
-├── layers/
-│   ├── presentation/          # Presentation Layer (MVC)
-│   │   ├── controllers/       # View Controllers
-│   │   └── views/             # Vue Components (Views)
-│   └── business/              # Business Logic Layer (MVC)
-│       ├── controllers/       # Business Controllers
-│       └── services/          # Business Services (Models)
-├── repositories/              # Data Access Layer (MVC)
-│   └── *.ts                   # Repositories (Models)
-├── models/                    # Data Models
-│   └── *.ts                   # Domain Models
-├── services/
-│   └── firebase/              # Firebase Integration
-│       ├── config.ts
-│       ├── authService.ts
-│       ├── firestoreService.ts
-│       └── storageService.ts
-└── router/                    # Vue Router Configuration
-    └── index.ts
-```
 
-## Benefits of This Architecture
+## Shared Resources
 
-1. **Separation of Concerns**: Each layer has a specific responsibility
-2. **Testability**: Each layer can be tested independently
-3. **Maintainability**: Changes in one layer don't affect others
-4. **Scalability**: Easy to add new features following the same pattern
-5. **Reusability**: Services and repositories can be reused across different controllers
+### Base Classes
+- `BaseModel`: Common model functionality
+- `BaseController`: Business controller base
+- `BaseViewController`: View controller base
+- `BaseService`: Service base class
+- `BaseRepository`: Repository base class
 
-## Adding New Features
+### Components
+- `NavigationBar`: Shared navigation component
+- Other shared UI components
 
-To add a new feature (e.g., "Product"):
+## Best Practices
 
-1. **Data Layer**: Create `Product.ts` model and `ProductRepository.ts`
-2. **Business Layer**: Create `ProductService.ts` and `ProductController.ts`
-3. **Presentation Layer**: Create `ProductViewController.ts` and `ProductView.vue`
-4. **Router**: Add routes in `router/index.ts`
+### 1. Feature Independence
+- Each feature is completely self-contained
+- Features communicate through shared services/repositories
+- No direct dependencies between features
 
-## Environment Setup
+### 2. Controller Types
+- **View Controllers**: Handle UI state and user interactions
+- **Business Controllers**: Orchestrate services and handle business flow
 
-1. Copy `.env.example` to `.env`
-2. Fill in your Firebase project credentials
-3. The app will automatically use these credentials
+### 3. Service Layer
+- Services contain business logic
+- Services use repositories for data access
+- Services use Firebase services for external operations
+- Services handle validation and error transformation
 
-## Firebase Setup
+### 4. Error Handling
+- Controllers return `{ success, data, error }` format
+- Services throw errors (caught by controllers)
+- View Controllers manage error state for UI
 
-1. Create a Firebase project at https://console.firebase.google.com
-2. Enable Authentication (Email/Password)
-3. Create a Firestore database
-4. Copy your Firebase config to `.env` file
+### 5. Type Safety
+- Use TypeScript types throughout
+- Export types from service files when needed
+- Use `type` imports for type-only imports
 
+## Adding a New Feature
+
+To add a new feature (e.g., "products"):
+
+1. **Create feature structure**:
+   ```
+   src/features/products/
+   ├── models/Product.ts
+   ├── views/ProductView.vue
+   ├── controllers/ProductController.ts, ProductViewController.ts
+   ├── services/ProductService.ts
+   └── routes/index.ts
+   ```
+
+2. **Create Model**: Extend `BaseModel`
+3. **Create Service**: Extend `BaseService`, use repositories
+4. **Create Controllers**: 
+   - Business Controller extends `BaseController`
+   - View Controller extends `BaseViewController`
+5. **Create View**: Vue component using View Controller
+6. **Create Routes**: Add routes to router
+7. **Create Repository** (if needed): In `shared/repositories/`
+
+## Benefits
+
+1. **Separation of Concerns**: Clear boundaries between layers
+2. **Feature Independence**: Each feature is self-contained
+3. **Testability**: Each layer can be tested independently
+4. **Maintainability**: Easy to locate and modify code
+5. **Scalability**: Easy to add new features
+6. **Reusability**: Shared base classes and repositories
+7. **Type Safety**: Full TypeScript support throughout
+
+## Summary
+
+- **Models**: Data structures and domain logic
+- **Views**: Vue components (UI)
+- **Controllers**: Business logic orchestration (View Controllers + Business Controllers)
+- **Services**: Business logic implementation
+- **Repositories**: Data access abstraction
+- **Firebase Services**: External service integration
+
+Each feature follows this pattern independently, making the codebase modular, maintainable, and scalable.

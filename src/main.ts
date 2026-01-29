@@ -6,7 +6,7 @@ import App from './App.vue'
 import router from './router'
 
 // Initialize Firebase early to ensure it's available throughout the app
-import '@/services/firebase/config'
+import '@/shared/services/config'
 
 const app = createApp(App)
 

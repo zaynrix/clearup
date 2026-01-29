@@ -1,41 +1,19 @@
 import { createRouter, createWebHistory } from 'vue-router'
-import { authService } from '@/services/firebase'
-import { userService } from '@/layers/business/services/UserService'
-import { auth } from '@/services/firebase/config'
-import HomeView from '@/layers/presentation/views/HomeView.vue'
-import LoginView from '@/layers/presentation/views/LoginView.vue'
-import DashboardView from '@/layers/presentation/views/DashboardView.vue'
+import { authService } from '@/features/auth/services/AuthService'
+import { userService } from '@/features/auth/services/UserService'
+import { auth } from '@/shared/services/config'
+import { authRoutes } from '@/features/auth/routes'
+import { homeRoutes } from '@/features/home/routes'
+import { dashboardRoutes } from '@/features/dashboard/routes'
+import { adminRoutes } from '@/features/admin/routes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
   routes: [
-    {
-      path: '/',
-      name: 'home',
-      component: HomeView
-    },
-    {
-      path: '/home',
-      redirect: '/'
-    },
-    {
-      path: '/login',
-      name: 'login',
-      component: LoginView,
-      meta: { requiresGuest: true }
-    },
-    {
-      path: '/dashboard',
-      name: 'dashboard',
-      component: () => import('@/layers/presentation/views/AdminDashboardView.vue'),
-      meta: { requiresAuth: true }
-    },
-    {
-      path: '/admin-dashboard',
-      name: 'admin-dashboard',
-      component: () => import('@/layers/presentation/views/AdminDashboardView.vue'),
-      meta: { requiresAuth: true, requiresAdmin: true }
-    }
+    ...homeRoutes,
+    ...authRoutes,
+    ...dashboardRoutes,
+    ...adminRoutes
   ]
 })
 
@@ -101,4 +79,3 @@ router.beforeEach(async (to, from, next) => {
 })
 
 export default router
-
