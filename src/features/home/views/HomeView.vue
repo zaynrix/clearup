@@ -61,6 +61,9 @@
       </div>
     </div>
 
+    <!-- Section Divider -->
+    <div class="section-divider"></div>
+
     <!-- Second Section -->
     <div v-if="!isSectionDisabled('who-we-are')" class="second-section" data-section-id="second-section">
       <div class="section-container">
@@ -156,26 +159,30 @@
 
     <!-- Third Section -->
     <div v-if="!isSectionDisabled('system')" class="third-section" data-section-id="third-section">
-      <!-- Vector shapes for this section -->
-      <div class="third-section-vector third-section-vector-left"></div>
-      
-      <div class="third-section-container">
-        <!-- Header -->
-        <div class="third-section-header" data-section-id="third-header">
-          <h2 class="third-section-title">The Clear up System™</h2>
-          <p class="third-section-description">An exclusive done-for-you marketing infrastructure built for predictable growth.</p>
-        </div>
+      <!-- Clear Up System Container with Vector -->
+      <div class="clearup-system-container">
+        <div class="clearup-system-vector clearup-system-vector-left"></div>
+        <div class="clearup-system-vector clearup-system-vector-right"></div>
+        
+        <div class="third-section-container">
+          <!-- Header -->
+          <div class="third-section-header" data-section-id="third-header">
+            <h2 class="third-section-title">The Clear up System™</h2>
+            <p class="third-section-description">An exclusive done-for-you marketing infrastructure built for predictable growth.</p>
+          </div>
 
-        <!-- System Card -->
-        <div class="system-card" data-section-id="system-card">
-          <h3 class="system-card-title">Done-for-you Clear Up System</h3>
-          <p class="system-card-text">We don't sell random services.</p>
-          <p class="system-card-text">We install a complete marketing system that works as one engine scalable , predictable , and built</p>
-          <p class="system-card-text">to grow with your business.</p>
-          <p class="system-card-roi">TURN EVERY $1 INTO $3893 IN REVENUE OUR SYSTEM IS BUILT TO MAXIMIZE ROI , NOT JUST SPEND YOUR BUDGET</p>
-        </div>
+          <!-- System Card Container -->
+          <div class="system-card-container">
+            <div class="system-card" data-section-id="system-card">
+              <h3 class="system-card-title">Done-for-you Clear Up System</h3>
+              <p class="system-card-text">We don't sell random services.</p>
+              <p class="system-card-text">We install a complete marketing system that works as one engine scalable , predictable , and built</p>
+              <p class="system-card-text">to grow with your business.</p>
+              <p class="system-card-roi">TURN EVERY $1 INTO $3893 IN REVENUE OUR SYSTEM IS BUILT TO MAXIMIZE ROI , NOT JUST SPEND YOUR BUDGET</p>
+            </div>
+          </div>
 
-        <!-- Our Services -->
+          <!-- Our Services -->
         <div v-if="!isSectionDisabled('services')" class="services-section">
           <div class="services-header">
             <h3 class="services-title">Our Services</h3>
@@ -353,12 +360,10 @@
             </div>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- Bonuses Included Section -->
-    <div v-if="!isSectionDisabled('bonuses')" class="bonuses-section">
-      <div class="bonuses-container">
+          <!-- Bonuses Included Section -->
+          <div v-if="!isSectionDisabled('bonuses')" class="bonuses-section">
+            <div class="bonuses-container">
         <h2 class="bonuses-title">Bonuses Included</h2>
         <div class="bonuses-list">
           <div class="bonus-item">
@@ -398,6 +403,9 @@
               </svg>
             </div>
             <p class="bonus-text">Full access to business coaching</p>
+          </div>
+        </div>
+            </div>
           </div>
         </div>
       </div>
@@ -592,12 +600,15 @@
               <div class="testimonial-info">
                 <h4 class="testimonial-name">{{ testimonial.name }}</h4>
                 <div class="testimonial-stars">
-                  <span v-for="i in testimonial.stars" :key="i">⭐</span>
-                  <span v-if="testimonial.stars < 5" class="star-empty" v-for="i in (5 - testimonial.stars)" :key="`empty-${i}`">☆</span>
+                  <svg v-for="i in 5" :key="i" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" :fill="i <= (testimonial.stars || 5) ? '#FFD700' : 'rgba(255, 255, 255, 0.2)'"/>
+                  </svg>
                 </div>
+                <p v-if="testimonial.title || testimonial.position || testimonial.company" class="testimonial-title">
+                  {{ testimonial.title || testimonial.position }}{{ testimonial.title || testimonial.position && testimonial.company ? ' - ' : '' }}{{ testimonial.company }}
+                </p>
               </div>
             </div>
-            <p class="testimonial-text">"{{ testimonial.review }}"</p>
             <div v-if="testimonial.videoUrl || testimonial.videoFileUrl" class="testimonial-video">
               <div class="video-thumbnail" @click="openVideoModal(testimonial)">
                 <img 
@@ -612,8 +623,9 @@
                   </svg>
                 </div>
                 <div class="play-button">
-                  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M8 5V19L19 12L8 5Z" fill="white"/>
+                  <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <circle cx="12" cy="12" r="12" fill="rgba(0, 0, 0, 0.6)"/>
+                    <path d="M10 8L16 12L10 16V8Z" fill="white"/>
                   </svg>
                 </div>
               </div>
@@ -1510,6 +1522,22 @@ const setupScrollAnimations = () => {
 [data-card-id="result-case-2"] { transition-delay: 0.5s; }
 [data-card-id="result-case-3"] { transition-delay: 0.7s; }
 
+/* Section Divider */
+.section-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(90deg, 
+    transparent 0%, 
+    rgba(67, 24, 111, 0.5) 20%, 
+    rgba(67, 24, 111, 0.7) 50%, 
+    rgba(67, 24, 111, 0.5) 80%, 
+    transparent 100%
+  );
+  margin: 60px 0 40px;
+  position: relative;
+  z-index: 2;
+}
+
 /* Second Section */
 .second-section {
   position: relative;
@@ -1720,55 +1748,198 @@ const setupScrollAnimations = () => {
 .third-section {
   position: relative;
   width: 100%;
-  padding: 120px 20px;
+  padding: 0;
   margin-top: 80px;
   z-index: 3;
   display: flex;
   align-items: center;
   justify-content: center;
-  overflow: hidden;
+  overflow: visible;
 }
 
-/* Vector shapes for third section */
-.third-section-vector {
+/* Clear Up System Container with Vector */
+.clearup-system-container {
+  position: relative;
+  width: 100%;
+  max-width: 1440px;
+  margin: 0 auto;
+  padding: 80px 60px;
+  min-height: 100vh;
+  overflow: hidden;
+  background: #14141B;
+  box-sizing: border-box;
+  isolation: isolate;
+  /* Organic curved cutouts at top and bottom - smooth flowing curves */
+  clip-path: polygon(
+    /* Top left corner - starts slightly down from top */
+    0% 3.9%,
+    /* Top edge with curves and indentations matching SVG */
+    1.9% 3.1%,
+    9.2% 3.1%,
+    17.8% 3.1%,
+    24.5% 0.3%,
+    26% 0%,
+    36.7% 0%,
+    51.7% 0%,
+    64.2% 0%,
+    74.3% 0%,
+    81.1% 2.8%,
+    82.6% 3.1%,
+    92% 3.1%,
+    98.1% 3.1%,
+    /* Top right corner */
+    100% 3.9%,
+    /* Right edge */
+    100% 96.1%,
+    /* Bottom right corner - starting from right side */
+    100% 99.2%,
+    /* Bottom edge - matching SVG path, going from right to left */
+    98.1% 100%,
+    58.6% 100%,
+    57.2% 99.7%,
+    52.3% 97.7%,
+    50.9% 97.5%,
+    1.9% 97.5%,
+    /* Bottom left corner */
+    0% 96.7%
+  );
+  /* Rounded corners */
+  border-radius: 50px;
+}
+
+/* Responsive adjustments for clip-path */
+@media (max-width: 1024px) {
+  .clearup-system-container {
+    padding: 60px 40px;
+    /* Remove clip-path for responsive - use normal container */
+    clip-path: none;
+  }
+}
+
+@media (max-width: 900px) {
+  .clearup-system-container {
+    padding: 50px 30px;
+    /* Remove clip-path for responsive - use normal container */
+    clip-path: none;
+  }
+}
+
+@media (max-width: 768px) {
+  .clearup-system-container {
+    padding: 40px 20px;
+    border-radius: 20px;
+    /* Remove clip-path for responsive - use normal container */
+    clip-path: none;
+  }
+}
+
+@media (max-width: 640px) {
+  .clearup-system-container {
+    padding: 35px 18px;
+    border-radius: 18px;
+    /* Remove clip-path for responsive - use normal container */
+    clip-path: none;
+  }
+}
+
+@media (max-width: 480px) {
+  .clearup-system-container {
+    padding: 30px 15px;
+    border-radius: 15px;
+    /* Remove clip-path for responsive - use normal container */
+    clip-path: none;
+  }
+}
+
+@media (max-width: 360px) {
+  .clearup-system-container {
+    padding: 25px 12px;
+    border-radius: 12px;
+    /* Remove clip-path for responsive - use normal container */
+    clip-path: none;
+  }
+}
+
+.clearup-system-vector {
   position: absolute;
   top: 0;
   bottom: 0;
+  width: 400px;
   height: 100%;
-  width: 100%;
-  max-width: 400px;
-  min-width: 288px;
+  min-height: 1200px;
   background-image: url('/images/backgrounds/vector1.svg');
   background-repeat: no-repeat;
-  background-position: center;
   background-size: contain;
-  opacity: 0.6;
-  z-index: 1;
+  opacity: 0.7;
+  z-index: 0;
   pointer-events: none;
+  border-radius: 30px 30px 0 0;
+  overflow: hidden;
 }
 
-/* Hide vector behind services section */
-.third-section:has(.services-section) .third-section-vector {
-  opacity: 0;
-  visibility: hidden;
-}
-
-.third-section-vector-left {
+.clearup-system-vector-left {
   left: 0;
-  transform: scaleX(1);
   background-position: left center;
 }
 
-.third-section-vector-right {
+.clearup-system-vector-right {
   right: 0;
-  transform: scaleX(-1);
   background-position: right center;
+  transform: scaleX(-1);
 }
 
-/* Hide vector behind services section */
-.third-section:has(.services-section) .third-section-vector {
-  opacity: 0;
-  visibility: hidden;
+/* Responsive vector adjustments */
+@media (max-width: 1024px) {
+  .clearup-system-vector {
+    width: 300px;
+    border-radius: 30px 30px 0 0;
+  }
+}
+
+@media (max-width: 900px) {
+  .clearup-system-vector {
+    width: 250px;
+    border-radius: 25px 25px 0 0;
+  }
+}
+
+@media (max-width: 768px) {
+  .clearup-system-vector {
+    width: 200px;
+    opacity: 0.5;
+    border-radius: 20px 20px 0 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .clearup-system-vector {
+    width: 180px;
+    opacity: 0.45;
+    border-radius: 18px 18px 0 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .clearup-system-vector {
+    width: 150px;
+    opacity: 0.4;
+    border-radius: 15px 15px 0 0;
+  }
+}
+
+@media (max-width: 360px) {
+  .clearup-system-vector {
+    width: 120px;
+    opacity: 0.35;
+    border-radius: 12px 12px 0 0;
+  }
+}
+
+.clearup-system-container .third-section-container {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: 1304px;
 }
 
 .third-section-container {
@@ -1781,7 +1952,38 @@ const setupScrollAnimations = () => {
   justify-content: flex-start;
   gap: 48px;
   position: relative;
-  z-index: 2;
+  z-index: 1;
+}
+
+/* Responsive third-section-container adjustments */
+@media (max-width: 1024px) {
+  .third-section-container {
+    gap: 40px;
+  }
+}
+
+@media (max-width: 768px) {
+  .third-section-container {
+    gap: 32px;
+  }
+}
+
+@media (max-width: 640px) {
+  .third-section-container {
+    gap: 28px;
+  }
+}
+
+@media (max-width: 480px) {
+  .third-section-container {
+    gap: 24px;
+  }
+}
+
+@media (max-width: 360px) {
+  .third-section-container {
+    gap: 20px;
+  }
 }
 
 /* Third Section Header */
@@ -1812,6 +2014,16 @@ const setupScrollAnimations = () => {
   font-weight: 400;
   line-height: normal;
   margin: 0;
+}
+
+/* System Card Container */
+.system-card-container {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin: 0 auto;
+  position: relative;
 }
 
 /* System Card */
@@ -1975,51 +2187,12 @@ const setupScrollAnimations = () => {
 }
 
 .steps-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 20px;
-  justify-items: center;
-  width: 100%;
+  display: flex;
+  flex-wrap: wrap;
   justify-content: center;
-}
-
-/* All cards span 1 column by default - first 4 will fill row 1 */
-.steps-grid .step-card {
-  grid-column: span 1;
-}
-
-/* Center the last row when it has an odd number of cards (3 cards) */
-/* For 7 steps: first 4 fill row 1, last 3 are centered in row 2 */
-.steps-grid .step-card:nth-child(5) {
-  grid-column: 2 / 3;
-  grid-row: 2;
-}
-
-.steps-grid .step-card:nth-child(6) {
-  grid-column: 3 / 4;
-  grid-row: 2;
-}
-
-.steps-grid .step-card:nth-child(7) {
-  grid-column: 4 / 5;
-  grid-row: 2;
-}
-
-/* Tablet responsive - 2 columns */
-@media (max-width: 1024px) and (min-width: 769px) {
-  .steps-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-  }
-  
-  .steps-grid .step-card:nth-child(n) {
-    grid-column: span 1;
-    grid-row: auto;
-  }
-  
-  .step-card {
-    max-width: 100%;
-  }
+  align-items: flex-start;
+  gap: 20px;
+  width: 100%;
 }
 
 /* Mobile responsive - 1 column */
@@ -2029,23 +2202,14 @@ const setupScrollAnimations = () => {
   }
   
   .steps-grid {
-    grid-template-columns: 1fr !important;
     gap: 16px;
     width: 100%;
-    display: grid !important;
-  }
-  
-  /* Reset all grid positioning for mobile */
-  .steps-grid .step-card:nth-child(n) {
-    grid-column: 1 !important;
-    grid-row: auto !important;
-    width: 100% !important;
-    max-width: 100% !important;
   }
   
   .step-card {
     width: 100% !important;
     max-width: 100% !important;
+    flex: 0 0 100% !important;
     min-height: auto;
     border-radius: 24px;
     display: flex !important;
@@ -2496,31 +2660,29 @@ const setupScrollAnimations = () => {
 }
 
 .testimonial-card {
-  background: #14141B;
+  background: #1F1F28;
   border-radius: 16px;
-  padding: 32px;
+  padding: 24px;
   display: flex;
   flex-direction: column;
-  gap: 24px;
-  border: 1px solid rgba(91, 32, 150, 0.3);
+  gap: 20px;
   transition: all 0.3s ease;
 }
 
 .testimonial-card:hover {
-  border-color: rgba(91, 32, 150, 0.6);
   transform: translateY(-4px);
-  box-shadow: 0 8px 24px rgba(91, 32, 150, 0.3);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
 }
 
 .testimonial-header {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   gap: 16px;
 }
 
 .testimonial-avatar {
-  width: 56px;
-  height: 56px;
+  width: 64px;
+  height: 64px;
   border-radius: 50%;
   overflow: hidden;
   flex-shrink: 0;
@@ -2543,7 +2705,7 @@ const setupScrollAnimations = () => {
 .avatar-initial {
   color: #F5F7FA;
   font-family: 'Roboto', sans-serif;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   line-height: 1;
   z-index: 1;
@@ -2562,9 +2724,9 @@ const setupScrollAnimations = () => {
 }
 
 .testimonial-name {
-  color: #F5F7FA;
+  color: #FFFFFF;
   font-family: 'Roboto', sans-serif;
-  font-size: 18px;
+  font-size: 20px;
   font-weight: 600;
   line-height: normal;
   margin: 0;
@@ -2573,10 +2735,17 @@ const setupScrollAnimations = () => {
 .testimonial-stars {
   display: flex;
   gap: 4px;
+  align-items: center;
 }
 
-.star-empty {
-  opacity: 0.3;
+.testimonial-title {
+  color: #FFFFFF;
+  font-family: 'Roboto', sans-serif;
+  font-size: 14px;
+  font-weight: 400;
+  line-height: normal;
+  margin: 0;
+  opacity: 0.9;
 }
 
 .testimonials-empty {
@@ -3103,14 +3272,17 @@ const setupScrollAnimations = () => {
 
 .testimonial-video {
   width: 100%;
-  margin-top: auto;
+  margin-top: 0;
+  flex: 1;
+  min-height: 300px;
 }
 
 .video-thumbnail {
   width: 100%;
-  aspect-ratio: 16 / 9;
+  height: 100%;
+  min-height: 300px;
   border-radius: 12px;
-  background: linear-gradient(135deg, rgba(91, 32, 150, 0.3) 0%, rgba(193, 157, 230, 0.2) 100%);
+  background: #000000;
   position: relative;
   overflow: hidden;
   cursor: pointer;
@@ -3118,7 +3290,7 @@ const setupScrollAnimations = () => {
 }
 
 .video-thumbnail:hover {
-  transform: scale(1.02);
+  transform: scale(1.01);
 }
 
 .video-thumbnail-img {
@@ -3138,7 +3310,7 @@ const setupScrollAnimations = () => {
   left: 0;
   right: 0;
   bottom: 0;
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.4);
   z-index: 1;
 }
 
@@ -3147,25 +3319,27 @@ const setupScrollAnimations = () => {
   top: 50%;
   left: 50%;
   transform: translate(-50%, -50%);
-  width: 64px;
-  height: 64px;
-  background: rgba(255, 255, 255, 0.9);
+  width: 72px;
+  height: 72px;
+  background: rgba(0, 0, 0, 0.6);
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
   z-index: 2;
   transition: all 0.3s ease;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  backdrop-filter: blur(4px);
 }
 
 .play-button:hover {
-  background: white;
-  transform: translate(-50%, -50%) scale(1.1);
+  background: rgba(0, 0, 0, 0.8);
+  transform: translate(-50%, -50%) scale(1.05);
 }
 
 .play-button svg {
-  margin-left: 4px;
+  margin-left: 2px;
+  width: 32px;
+  height: 32px;
 }
 
 /* Footer/Bottom Section */
@@ -3430,24 +3604,14 @@ const setupScrollAnimations = () => {
     min-height: auto;
   }
   
-  .third-section-vector {
-    max-width: 350px;
-    min-width: 250px;
-    opacity: 0.6;
-    background-size: contain;
+  .clearup-system-container {
+    padding: 40px 15px;
   }
   
-  .third-section-vector-right {
-    display: none;
-  }
-  
-  .third-section-vector-left {
-    max-width: 350px;
-    min-width: 250px;
-    opacity: 0.6;
+  .clearup-system-vector {
+    opacity: 0.3;
     background-size: contain;
     background-position: left center;
-    display: block;
   }
   
   .third-section-container {
@@ -4091,24 +4255,14 @@ const setupScrollAnimations = () => {
     min-height: auto;
   }
   
-  .third-section-vector {
-    max-width: 300px;
-    min-width: 200px;
-    opacity: 0.6;
-    background-size: contain;
+  .clearup-system-container {
+    padding: 30px 12px;
   }
   
-  .third-section-vector-right {
-    display: none;
-  }
-  
-  .third-section-vector-left {
-    max-width: 300px;
-    min-width: 200px;
-    opacity: 0.6;
+  .clearup-system-vector {
+    opacity: 0.25;
     background-size: contain;
     background-position: left center;
-    display: block;
   }
   
   .third-section-container {
@@ -4205,25 +4359,14 @@ const setupScrollAnimations = () => {
   }
   
   .steps-grid {
-    grid-template-columns: 1fr;
     gap: 24px;
     width: 100%;
-  }
-  
-  /* Reset grid positioning for 1-column layout */
-  .steps-grid .step-card:nth-child(1),
-  .steps-grid .step-card:nth-child(2),
-  .steps-grid .step-card:nth-child(3),
-  .steps-grid .step-card:nth-child(4),
-  .steps-grid .step-card:nth-child(5),
-  .steps-grid .step-card:nth-child(6),
-  .steps-grid .step-card:nth-child(7) {
-    grid-column: span 1;
   }
   
   .step-card {
     width: 100%;
     max-width: 100%;
+    flex: 0 0 100%;
     min-height: 180px;
     border-radius: 35px;
   }
@@ -4672,24 +4815,15 @@ const setupScrollAnimations = () => {
     min-height: auto;
   }
   
-  .third-section-vector {
-    max-width: 250px;
-    min-width: 180px;
-    opacity: 0.6;
-    background-size: contain;
+  
+  .clearup-system-container {
+    padding: 25px 10px;
   }
   
-  .third-section-vector-right {
-    display: none;
-  }
-  
-  .third-section-vector-left {
-    max-width: 250px;
-    min-width: 180px;
-    opacity: 0.6;
+  .clearup-system-vector {
+    opacity: 0.2;
     background-size: contain;
     background-position: left center;
-    display: block;
   }
   
   .third-section-container {
@@ -4927,7 +5061,7 @@ const setupScrollAnimations = () => {
   
   .testimonial-card {
     padding: 20px;
-    gap: 18px;
+    gap: 16px;
   }
   
   .testimonial-header {
@@ -4935,35 +5069,43 @@ const setupScrollAnimations = () => {
   }
   
   .testimonial-avatar {
-    width: 48px;
-    height: 48px;
-  }
-  
-  .avatar-initial {
-    font-size: 16px;
-  }
-  
-  .testimonial-name {
-    font-size: 16px;
-  }
-  
-  .testimonial-stars span {
-    font-size: 14px;
-  }
-  
-  .testimonial-text {
-    font-size: 14px;
-    line-height: 1.5;
-  }
-  
-  .play-button {
     width: 56px;
     height: 56px;
   }
   
+  .avatar-initial {
+    font-size: 18px;
+  }
+  
+  .testimonial-name {
+    font-size: 18px;
+  }
+  
+  .testimonial-stars svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .testimonial-title {
+    font-size: 13px;
+  }
+  
+  .testimonial-video {
+    min-height: 250px;
+  }
+  
+  .video-thumbnail {
+    min-height: 250px;
+  }
+  
+  .play-button {
+    width: 64px;
+    height: 64px;
+  }
+  
   .play-button svg {
-    width: 20px;
-    height: 20px;
+    width: 28px;
+    height: 28px;
   }
   
   .footer-section {
@@ -5101,20 +5243,15 @@ const setupScrollAnimations = () => {
     background-repeat: no-repeat;
   }
   
-  .third-section-vector {
-    max-width: 220px;
-    min-width: 160px;
-    opacity: 0.4;
+  
+  .clearup-system-container {
+    padding: 20px 8px;
   }
   
-  .third-section-vector-right {
-    display: none;
-  }
-  
-  .third-section-vector-left {
-    max-width: 220px;
-    min-width: 160px;
-    opacity: 0.4;
+  .clearup-system-vector {
+    opacity: 0.15;
+    background-size: contain;
+    background-position: left center;
   }
   
   .stat-value {
@@ -5249,25 +5386,34 @@ const setupScrollAnimations = () => {
   }
   
   .testimonial-name {
-    font-size: 15px;
+    font-size: 16px;
   }
   
-  .testimonial-stars span {
-    font-size: 13px;
+  .testimonial-stars svg {
+    width: 12px;
+    height: 12px;
   }
   
-  .testimonial-text {
-    font-size: 13px;
+  .testimonial-title {
+    font-size: 12px;
+  }
+  
+  .testimonial-video {
+    min-height: 200px;
+  }
+  
+  .video-thumbnail {
+    min-height: 200px;
   }
   
   .play-button {
-    width: 52px;
-    height: 52px;
+    width: 56px;
+    height: 56px;
   }
   
   .play-button svg {
-    width: 18px;
-    height: 18px;
+    width: 24px;
+    height: 24px;
   }
   
   .footer-section {
