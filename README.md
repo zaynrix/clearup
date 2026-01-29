@@ -9,6 +9,67 @@ Web application built with Vue 3 and Firebase for content management and lead ge
 - Pinia
 - Vue Router
 
+## Architecture
+
+This project follows a **Feature-Based MVC Architecture** where each feature is completely independent with its own MVC structure.
+
+### Project Structure
+
+```
+src/
+├── features/                    # Feature-based modules
+│   ├── auth/                   # Authentication feature
+│   │   ├── models/            # User model
+│   │   ├── views/             # LoginView.vue
+│   │   ├── controllers/       # AuthController, AuthViewController
+│   │   ├── services/          # AuthService, UserService
+│   │   └── routes/            # Auth routes
+│   │
+│   ├── home/                   # Home page feature
+│   │   ├── models/            # HomeContent model
+│   │   ├── views/             # HomeView.vue
+│   │   ├── controllers/       # HomeContentController, HomeViewController, etc.
+│   │   ├── services/          # HomeContentService, WhatsAppService
+│   │   └── routes/            # Home routes
+│   │
+│   ├── dashboard/             # User dashboard feature
+│   │   ├── views/             # DashboardView.vue
+│   │   └── routes/            # Dashboard routes
+│   │
+│   └── admin/                 # Admin dashboard feature
+│       ├── models/            # Role, ActivityLog, SiteSettings
+│       ├── views/             # AdminDashboardView.vue
+│       ├── controllers/       # UserController, RoleController, etc.
+│       ├── services/          # UserService, RoleService, etc.
+│       └── routes/            # Admin routes
+│
+├── shared/                     # Shared resources
+│   ├── components/            # NavigationBar (shared UI components)
+│   ├── repositories/          # BaseRepository, UserRepository, etc.
+│   ├── services/              # Infrastructure services (Firebase)
+│   │   ├── config.ts         # Firebase configuration
+│   │   ├── firestoreService.ts
+│   │   └── storageService.ts
+│   ├── BaseModel.ts          # Base model class
+│   ├── BaseController.ts     # Base business controller
+│   ├── BaseViewController.ts # Base view controller
+│   └── BaseService.ts        # Base service class
+│
+├── router/                     # Vue Router configuration
+└── assets/                     # CSS and static assets
+```
+
+### Key Principles
+
+- **Feature Independence**: Each feature is self-contained with its own MVC structure
+- **Service Separation**: 
+  - Infrastructure services → `shared/services/` (Firebase)
+  - Business logic services → `features/[feature]/services/`
+- **No Cross-Feature Dependencies**: Features don't import from other features' services
+- **Shared Resources**: Base classes, repositories, and infrastructure in `shared/`
+
+For detailed architecture documentation, see [ARCHITECTURE.md](./ARCHITECTURE.md) and [MVC_GUIDE.md](./MVC_GUIDE.md).
+
 ## Setup
 
 ### Option 1: Docker (Recommended for Teams)
@@ -100,6 +161,62 @@ docker build -f Dockerfile.prod -t clearup:prod .
 docker run -p 8080:80 clearup:prod
 ```
 
-## Architecture
+## Features
 
-Layered MVC architecture. See `ARCHITECTURE.md` for details.
+### Authentication (`features/auth/`)
+- User login/logout
+- User registration
+- Session management
+- Firebase Auth integration
+
+### Home Page (`features/home/`)
+- Dynamic content management
+- WhatsApp lead capture
+- Content editing (admin)
+- Section visibility controls
+
+### Dashboard (`features/dashboard/`)
+- User dashboard
+- Profile management
+- User information display
+
+### Admin (`features/admin/`)
+- User management (create, update, delete, role assignment)
+- Role management
+- Activity logging
+- Site settings management
+- Home content editing
+
+## Adding a New Feature
+
+To add a new feature (e.g., "products"):
+
+1. Create feature structure:
+   ```
+   src/features/products/
+   ├── models/Product.ts
+   ├── views/ProductView.vue
+   ├── controllers/ProductController.ts, ProductViewController.ts
+   ├── services/ProductService.ts
+   └── routes/index.ts
+   ```
+
+2. Create Model: Extend `BaseModel`
+3. Create Service: Extend `BaseService`, use shared repositories
+4. Create Controllers: 
+   - Business Controller extends `BaseController`
+   - View Controller extends `BaseViewController`
+5. Create View: Vue component using View Controller
+6. Create Routes: Add routes to router
+7. Create Repository (if needed): In `shared/repositories/`
+
+See [ARCHITECTURE.md](./ARCHITECTURE.md) for detailed guidelines.
+
+## Documentation
+
+- [ARCHITECTURE.md](./ARCHITECTURE.md) - Comprehensive architecture documentation
+- [MVC_GUIDE.md](./MVC_GUIDE.md) - Quick reference guide for MVC patterns
+
+## License
+
+Private project
