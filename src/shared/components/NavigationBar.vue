@@ -132,7 +132,7 @@ const menuItems = [
   { id: 'about', number: '02', label: 'ABOUT', href: '/about', scrollTo: 'top', route: 'about' },
   { id: 'services', number: '03', label: 'SERVICES', href: '/services', scrollTo: 'top', route: 'services' },
   { id: 'works', number: '04', label: 'WORKS', href: '#', scrollTo: 'real-results-section' },
-  { id: 'contact', number: '05', label: 'CONTACT', href: '#', scrollTo: 'footer-section' }
+  { id: 'contact', number: '05', label: 'CONTACT', href: '/contact', scrollTo: 'top', route: 'contact' }
 ]
 
 const socialLinks = [
