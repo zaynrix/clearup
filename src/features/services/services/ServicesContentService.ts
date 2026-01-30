@@ -52,13 +52,6 @@ export class ServicesContentService extends BaseService {
         result.whyChooseFeatures = []
       }
       
-      // Debug log
-      console.log('ServicesContentService.getServicesContent:', {
-        hasContent: !!content,
-        featuresCount: result.whyChooseFeatures?.length || 0,
-        features: result.whyChooseFeatures
-      })
-      
       return result
     } catch (error) {
       this.handleError(error)

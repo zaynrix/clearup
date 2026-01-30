@@ -191,10 +191,11 @@
         <div class="footer-content">
           <div class="footer-brand">
             <div class="footer-logo">
-              <svg width="120" height="32" viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <text x="0" y="24" font-family="Roboto, sans-serif" font-size="24" font-weight="700" fill="white">CLEAR UP</text>
-                <path d="M100 8L112 16L100 24" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              <img 
+                src="/images/logos/logo-main.png" 
+                alt="ClearUp Logo" 
+                class="footer-logo-image"
+              />
             </div>
             <p class="footer-tagline">Your creative digital partner for high-impact video ads and marketing content.</p>
             <div class="footer-social">
@@ -796,6 +797,12 @@ const handleImageError = (event: Event) => {
 
 .footer-logo {
   margin-bottom: 0.5rem;
+}
+
+.footer-logo-image {
+  height: auto;
+  max-width: 180px;
+  width: auto;
 }
 
 .footer-tagline {

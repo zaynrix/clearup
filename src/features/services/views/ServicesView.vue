@@ -238,20 +238,20 @@
               <div class="why-choose-icon">
                 <div class="icon-circle">
                   <svg v-if="!feature.icon || feature.icon === 'target'" width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <circle cx="12" cy="12" r="10" stroke="white" stroke-width="2"/>
-                    <circle cx="12" cy="12" r="6" stroke="white" stroke-width="2"/>
-                    <circle cx="12" cy="12" r="2" fill="white"/>
+                    <circle cx="12" cy="12" r="10" stroke="#5B2096" stroke-width="2"/>
+                    <circle cx="12" cy="12" r="6" stroke="#5B2096" stroke-width="2"/>
+                    <circle cx="12" cy="12" r="2" fill="#5B2096"/>
                   </svg>
                   <svg v-else-if="feature.icon === 'star'" width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="white"/>
+                    <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" fill="#5B2096"/>
                   </svg>
                   <svg v-else-if="feature.icon === 'device'" width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <rect x="5" y="2" width="14" height="20" rx="2" stroke="white" stroke-width="2"/>
-                    <rect x="9" y="6" width="6" height="1" fill="white"/>
+                    <rect x="5" y="2" width="14" height="20" rx="2" stroke="#5B2096" stroke-width="2"/>
+                    <rect x="9" y="6" width="6" height="1" fill="#5B2096"/>
                   </svg>
                   <svg v-else-if="feature.icon === 'chart'" width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M3 3V21H21" stroke="white" stroke-width="2" stroke-linecap="round"/>
-                    <path d="M7 16L12 11L16 15L21 10" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M3 3V21H21" stroke="#5B2096" stroke-width="2" stroke-linecap="round"/>
+                    <path d="M7 16L12 11L16 15L21 10" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </div>
               </div>
@@ -267,74 +267,9 @@
       </div>
 
       <!-- What Our Clients Say Section -->
-      <div v-if="homeContent?.testimonials && homeContent.testimonials.length > 0" class="testimonials-section" data-section-id="testimonials-section">
-        <div class="testimonials-container">
-          <div class="testimonials-header" data-section-id="testimonials-header">
-            <h2 class="testimonials-title">What Our Clients Say</h2>
-            <p class="testimonials-subtitle">Real feedback from brands we've worked with.</p>
-          </div>
-          
-          <div class="testimonials-grid">
-            <div 
-              v-for="(testimonial, index) in homeContent.testimonials" 
-              :key="testimonial.id" 
-              class="testimonial-card"
-              :data-card-id="`testimonial-${index}`"
-            >
-              <div class="testimonial-profile">
-                <div class="testimonial-avatar">
-                  <img 
-                    v-if="testimonial.photoFileUrl || testimonial.photoUrl" 
-                    :src="testimonial.photoFileUrl || testimonial.photoUrl" 
-                    :alt="testimonial.name"
-                    @error="handleImageError"
-                  />
-                  <span class="avatar-initial">{{ getInitials(testimonial.name) }}</span>
-                </div>
-                <div class="testimonial-info">
-                  <h4 class="testimonial-name">{{ testimonial.name }}</h4>
-                  <div class="testimonial-stars">
-                    <svg v-for="i in 5" :key="i" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" :fill="i <= (testimonial.stars || 5) ? '#FFD700' : 'rgba(255, 255, 255, 0.2)'"/>
-                    </svg>
-                  </div>
-                  <p v-if="testimonial.subtitle || testimonial.title || testimonial.position || testimonial.company" class="testimonial-job-title">
-                    {{ getTestimonialRole(testimonial) }}
-                  </p>
-                </div>
-              </div>
-              <div v-if="testimonial.videoUrl || testimonial.videoFileUrl" class="testimonial-video">
-                <div class="video-thumbnail" @click="openVideoModal(testimonial)">
-                  <img 
-                    v-if="testimonial.videoThumbnailFileUrl || testimonial.videoThumbnailUrl"
-                    :src="testimonial.videoThumbnailFileUrl || testimonial.videoThumbnailUrl" 
-                    :alt="`${testimonial.name} Testimonial Video`" 
-                    class="video-thumbnail-img" 
-                  />
-                  <div v-else class="video-thumbnail-placeholder">
-                    <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <path d="M8 5V19L19 12L8 5Z" fill="white"/>
-                    </svg>
-                  </div>
-                  <div class="play-button-overlay">
-                    <svg width="70" height="70" viewBox="0 0 70 70" fill="none" xmlns="http://www.w3.org/2000/svg">
-                      <circle cx="35" cy="35" r="35" fill="rgba(0, 0, 0, 0.6)"/>
-                      <path d="M28 22L48 35L28 48V22Z" fill="white"/>
-                    </svg>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
-      <div v-else class="testimonials-section">
-        <div class="testimonials-container">
-          <div class="testimonials-empty">
-            <p>No testimonials available yet.</p>
-          </div>
-        </div>
-      </div>
+      <TestimonialsSection 
+        :testimonials="homeContent?.testimonials || []" 
+      />
 
     <!-- Footer Section -->
     <div class="footer-section">
@@ -342,10 +277,11 @@
         <div class="footer-content">
           <div class="footer-brand">
             <div class="footer-logo">
-              <svg width="120" height="32" viewBox="0 0 120 32" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <text x="0" y="24" font-family="Roboto, sans-serif" font-size="24" font-weight="700" fill="white">CLEAR UP</text>
-                <path d="M100 8L112 16L100 24" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
+              <img 
+                src="/images/logos/logo-main.png" 
+                alt="ClearUp Logo" 
+                class="footer-logo-image"
+              />
             </div>
             <p class="footer-tagline">{{ homeContent?.footerTagline || 'Your creative digital partner for high-impact video ads and marketing content.' }}</p>
             <div class="footer-social">
@@ -396,35 +332,6 @@
       </div>
     </div>
 
-    <!-- Video Modal -->
-    <div v-if="selectedVideo" class="video-modal-overlay" @click="closeVideoModal">
-      <div class="video-modal-content" @click.stop>
-        <button class="video-modal-close" @click="closeVideoModal">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-          </svg>
-        </button>
-        <div class="video-modal-player">
-          <video 
-            v-if="selectedVideo.videoFileUrl && !selectedVideo.videoUrl"
-            :src="selectedVideo.videoFileUrl"
-            controls
-            autoplay
-            class="video-modal-video"
-          >
-            Your browser does not support the video tag.
-          </video>
-          <iframe 
-            v-else-if="selectedVideo.videoUrl && !selectedVideo.videoFileUrl"
-            :src="getVideoEmbedUrl(selectedVideo.videoUrl)"
-            frameborder="0"
-            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-            allowfullscreen
-            class="video-modal-iframe"
-          ></iframe>
-        </div>
-      </div>
-    </div>
   </div>
 </template>
 
@@ -434,6 +341,7 @@ import { HomeContentViewController } from '@/features/home/controllers/HomeConte
 import { ServicesViewController } from '../controllers/ServicesViewController'
 import type { ServicesContent } from '../models/ServicesContent'
 import type { HomeContent } from '@/features/home/models/HomeContent'
+import TestimonialsSection from '@/shared/components/TestimonialsSection.vue'
 
 const homeContentController = new HomeContentViewController()
 const servicesViewController = new ServicesViewController()
@@ -443,81 +351,8 @@ const error = computed(() => servicesViewController.errorMessage || homeContentC
 const homeContent = computed(() => homeContentController.content)
 const servicesContent = computed(() => servicesViewController.getServicesContent())
 
-const selectedVideo = ref<any>(null)
-
 const handleBookMeeting = () => {
   console.log('Book a meeting clicked')
-}
-
-const openVideoModal = (testimonial: any) => {
-  selectedVideo.value = testimonial
-  document.body.style.overflow = 'hidden'
-}
-
-const closeVideoModal = () => {
-  selectedVideo.value = null
-  document.body.style.overflow = ''
-}
-
-const getVideoEmbedUrl = (url: string): string => {
-  if (!url) return ''
-  
-  // YouTube - Add parameters to disable suggestions and related videos
-  const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
-  const youtubeMatch = url.match(youtubeRegex)
-  if (youtubeMatch) {
-    return `https://www.youtube.com/embed/${youtubeMatch[1]}?rel=0&modestbranding=1&iv_load_policy=3&cc_load_policy=0&fs=1`
-  }
-  
-  // Vimeo
-  const vimeoRegex = /(?:vimeo\.com\/)(?:.*\/)?(\d+)/
-  const vimeoMatch = url.match(vimeoRegex)
-  if (vimeoMatch) {
-    return `https://player.vimeo.com/video/${vimeoMatch[1]}`
-  }
-  
-  // Direct video URL (MP4, WebM, etc.)
-  if (url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i)) {
-    return url
-  }
-  
-  return url
-}
-
-const getInitials = (name: string): string => {
-  if (!name) return 'U'
-  const parts = name.trim().split(' ')
-  if (parts.length >= 2) {
-    const first = parts[0]?.[0] || ''
-    const last = parts[parts.length - 1]?.[0] || ''
-    return (first + last).toUpperCase() || 'U'
-  }
-  return name.substring(0, 2).toUpperCase()
-}
-
-const getTestimonialRole = (testimonial: { subtitle?: string; title?: string; position?: string; company?: string }): string => {
-  if (testimonial.subtitle) {
-    return testimonial.subtitle
-  }
-  const role = testimonial.title || testimonial.position || ''
-  const company = testimonial.company || ''
-  if (role && company) {
-    return `${role} - ${company}`
-  } else if (role) {
-    return role
-  } else if (company) {
-    return company
-  }
-  return ''
-}
-
-const handleImageError = (event: Event) => {
-  const img = event.target as HTMLImageElement
-  img.style.display = 'none'
-  const avatar = img.parentElement
-  if (avatar) {
-    avatar.classList.add('avatar-fallback')
-  }
 }
 
 onMounted(async () => {
@@ -525,16 +360,6 @@ onMounted(async () => {
     homeContentController.loadHomeContent(),
     servicesViewController.loadServicesContent()
   ])
-  
-  // Debug: Log services content to check if features are loaded
-  const content = servicesViewController.getServicesContent()
-  if (content) {
-    console.log('Services Content Loaded:', {
-      title: content.whyChooseTitle,
-      featuresCount: content.whyChooseFeatures?.length || 0,
-      features: content.whyChooseFeatures
-    })
-  }
 })
 </script>
 
@@ -2314,7 +2139,7 @@ onMounted(async () => {
   width: 80px;
   height: 80px;
   border-radius: 50%;
-  background: rgba(193, 157, 230, 0.2);
+  background: #D4B9EE;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -2322,7 +2147,8 @@ onMounted(async () => {
 }
 
 .why-choose-card:hover .icon-circle {
-  background: rgba(193, 157, 230, 0.3);
+  background: #D4B9EE;
+  opacity: 0.9;
   transform: scale(1.05);
 }
 
@@ -3132,8 +2958,10 @@ onMounted(async () => {
   align-items: center;
 }
 
-.footer-logo svg text {
-  font-family: 'Roboto', sans-serif;
+.footer-logo-image {
+  height: auto;
+  max-width: 180px;
+  width: auto;
 }
 
 .footer-tagline {
