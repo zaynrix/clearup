@@ -512,10 +512,10 @@
           <div class="footer-links">
             <h3 class="footer-links-title">Quick Links</h3>
             <ul class="footer-links-list">
-              <li><a href="#about">About Us</a></li>
-              <li><a href="#services">Our Service</a></li>
-              <li><a href="#work">Our Work</a></li>
-              <li><a href="#contact">Contact Us</a></li>
+              <li><a @click.prevent="navigateToAbout">About Us</a></li>
+              <li><a @click.prevent="navigateToServices">Our Service</a></li>
+              <li><a @click.prevent="navigateToWork">Our Work</a></li>
+              <li><a @click.prevent="navigateToContact">Contact Us</a></li>
             </ul>
           </div>
         </div>
@@ -537,12 +537,15 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { HomeViewController } from '../controllers/HomeViewController'
 import { HomeContentViewController } from '../controllers/HomeContentViewController'
 import { siteSettingsController } from '@/features/admin/controllers/SiteSettingsController'
 import type { SiteSettings } from '@/features/admin/models/SiteSettings'
 import TestimonialsSection from '@/shared/components/TestimonialsSection.vue'
 
+const router = useRouter()
+const route = useRoute()
 const viewController = new HomeViewController()
 const contentController = new HomeContentViewController()
 
@@ -640,10 +643,63 @@ const handleHeadlineLeave = () => {
   hoveredCaseId.value = null
 }
 
+const navigateToAbout = () => {
+  router.push('/about')
+}
+
+const navigateToServices = () => {
+  router.push('/services')
+}
+
+const navigateToWork = () => {
+  if (route.path === '/') {
+    // Scroll to real-results section on home page
+    const section = document.querySelector('[data-section-id="real-results-section"]')
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  } else {
+    // Navigate to home and scroll to section
+    router.push('/').then(() => {
+      setTimeout(() => {
+        const section = document.querySelector('[data-section-id="real-results-section"]')
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }, 100)
+    })
+  }
+}
+
+const navigateToContact = () => {
+  if (route.path === '/') {
+    // Scroll to footer section on home page
+    const section = document.querySelector('[data-section-id="footer-section"]')
+    if (section) {
+      section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+    }
+  } else {
+    // Navigate to home and scroll to footer
+    router.push('/').then(() => {
+      setTimeout(() => {
+        const section = document.querySelector('.footer-section')
+        if (section) {
+          section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        }
+      }, 100)
+    })
+  }
+}
+
 const isLoaded = ref(false)
 const visibleSections = ref<Set<string>>(new Set())
 
 onMounted(async () => {
+  // Reset scroll position when component mounts (only if coming from another route)
+  if (route.path === '/') {
+    window.scrollTo(0, 0)
+  }
+  
   await contentController.loadHomeContent()
   // Load site settings to check for disabled sections
   const settingsResult = await siteSettingsController.getSiteSettings()
@@ -3035,6 +3091,7 @@ const setupScrollAnimations = () => {
   font-weight: 400;
   text-decoration: none;
   transition: color 0.3s ease;
+  cursor: pointer;
 }
 
 .footer-links-list a:hover {

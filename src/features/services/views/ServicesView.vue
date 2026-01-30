@@ -311,10 +311,10 @@
           <div class="footer-links">
             <h3 class="footer-links-title">Quick Links</h3>
             <ul class="footer-links-list">
-              <li><a href="#about">About Us</a></li>
-              <li><a href="#services">Our Service</a></li>
-              <li><a href="#work">Our Work</a></li>
-              <li><a href="#contact">Contact Us</a></li>
+              <li><a @click.prevent="navigateToAbout">About Us</a></li>
+              <li><a @click.prevent="navigateToServices">Our Service</a></li>
+              <li><a @click.prevent="navigateToWork">Our Work</a></li>
+              <li><a @click.prevent="navigateToContact">Contact Us</a></li>
             </ul>
           </div>
         </div>
@@ -337,12 +337,15 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { HomeContentViewController } from '@/features/home/controllers/HomeContentViewController'
 import { ServicesViewController } from '../controllers/ServicesViewController'
 import type { ServicesContent } from '../models/ServicesContent'
 import type { HomeContent } from '@/features/home/models/HomeContent'
 import TestimonialsSection from '@/shared/components/TestimonialsSection.vue'
 
+const router = useRouter()
+const route = useRoute()
 const homeContentController = new HomeContentViewController()
 const servicesViewController = new ServicesViewController()
 
@@ -355,7 +358,39 @@ const handleBookMeeting = () => {
   console.log('Book a meeting clicked')
 }
 
+const navigateToAbout = () => {
+  router.push('/about')
+}
+
+const navigateToServices = () => {
+  router.push('/services')
+}
+
+const navigateToWork = () => {
+  router.push('/').then(() => {
+    setTimeout(() => {
+      const section = document.querySelector('[data-section-id="real-results-section"]')
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
+  })
+}
+
+const navigateToContact = () => {
+  router.push('/').then(() => {
+    setTimeout(() => {
+      const section = document.querySelector('.footer-section')
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
+  })
+}
+
 onMounted(async () => {
+  // Reset scroll position when component mounts
+  window.scrollTo(0, 0)
   await Promise.all([
     homeContentController.loadHomeContent(),
     servicesViewController.loadServicesContent()
@@ -1151,11 +1186,12 @@ onMounted(async () => {
   display: flex;
   align-items: flex-start;
   gap: 24px;
+  margin-top: 20px; /* Space between bonuses container and buttons */
 }
 
 .book-meeting-button {
   display: flex;
-  padding: 14px 32px;
+  padding: 18px 40px; /* Increased padding for bigger button */
   justify-content: center;
   align-items: center;
   gap: 10px;
@@ -1165,11 +1201,12 @@ onMounted(async () => {
   color: #F5F7FA;
   text-align: center;
   font-family: 'Roboto', sans-serif;
-  font-size: 16px;
+  font-size: 18px; /* Increased font size */
   font-weight: 500;
   line-height: normal;
   cursor: pointer;
   transition: transform 0.2s ease, opacity 0.2s ease;
+  margin-top: -40px; /* Adjusted to account for section-cta margin-top */
 }
 
 .book-meeting-button:hover {
@@ -1190,6 +1227,7 @@ onMounted(async () => {
   background: rgba(255, 255, 255, 0.1);
   border-radius: 50%;
   transition: background 0.2s ease, transform 0.2s ease;
+  margin-top: -40px; /* Adjusted to account for section-cta margin-top and match the Get Started button */
 }
 
 .whatsapp-link:hover {
@@ -3038,6 +3076,7 @@ onMounted(async () => {
   font-weight: 400;
   text-decoration: none;
   transition: color 0.3s ease;
+  cursor: pointer;
 }
 
 .footer-links-list a:hover {
@@ -3873,9 +3912,18 @@ onMounted(async () => {
     gap: 20px;
   }
   
+  .section-cta {
+    margin-top: 20px; /* Space between bonuses container and buttons */
+  }
+  
   .book-meeting-button {
-    padding: 12px 28px;
-    font-size: 15px;
+    padding: 16px 36px; /* Increased for bigger button */
+    font-size: 17px; /* Increased font size */
+    margin-top: -30px; /* Adjusted to account for section-cta margin-top */
+  }
+  
+  .whatsapp-link {
+    margin-top: -30px; /* Adjusted to account for section-cta margin-top */
   }
   
   .third-section {
@@ -4515,15 +4563,21 @@ onMounted(async () => {
     flex-wrap: wrap;
   }
   
+  .section-cta {
+    margin-top: 20px; /* Space between bonuses container and buttons */
+  }
+  
   .book-meeting-button {
     flex: 1;
     min-width: 200px;
-    padding: 12px 24px;
-    font-size: 14px;
+    padding: 16px 32px; /* Increased for bigger button */
+    font-size: 16px; /* Increased font size */
+    margin-top: -20px; /* Adjusted to account for section-cta margin-top */
   }
   
   .whatsapp-link {
     flex-shrink: 0;
+    margin-top: -20px; /* Adjusted to account for section-cta margin-top */
   }
   
   .third-section {

@@ -18,7 +18,22 @@ const router = createRouter({
     ...adminRoutes,
     ...aboutRoutes,
     ...servicesRoutes
-  ]
+  ],
+  scrollBehavior(to, from, savedPosition) {
+    // If there's a saved position (e.g., browser back/forward), use it
+    if (savedPosition) {
+      return savedPosition
+    }
+    // If navigating to a hash, scroll to that element
+    if (to.hash) {
+      return {
+        el: to.hash,
+        behavior: 'smooth'
+      }
+    }
+    // Otherwise, scroll to top instantly for better UX
+    return { top: 0, left: 0 }
+  }
 })
 
 // Wait for Firebase Auth to initialize (for persistence)
@@ -85,6 +100,17 @@ router.beforeEach(async (to, from, next) => {
   }
 
   next()
+})
+
+// Reset scroll position after navigation (backup in case scrollBehavior doesn't work)
+router.afterEach((to, from) => {
+  // Only reset scroll if navigating to a different route and not using hash
+  if (to.path !== from.path && !to.hash) {
+    // Use nextTick to ensure DOM is ready, then reset scroll
+    setTimeout(() => {
+      window.scrollTo(0, 0)
+    }, 0)
+  }
 })
 
 export default router

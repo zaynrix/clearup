@@ -227,10 +227,10 @@
           <div class="footer-links">
             <h3 class="footer-links-title">Quick Links</h3>
             <ul class="footer-links-list">
-              <li><a href="#about">About Us</a></li>
-              <li><a href="#services">Our Service</a></li>
-              <li><a href="#work">Our Work</a></li>
-              <li><a href="#contact">Contact Us</a></li>
+              <li><a @click.prevent="navigateToAbout">About Us</a></li>
+              <li><a @click.prevent="navigateToServices">Our Service</a></li>
+              <li><a @click.prevent="navigateToWork">Our Work</a></li>
+              <li><a @click.prevent="navigateToContact">Contact Us</a></li>
             </ul>
           </div>
         </div>
@@ -252,9 +252,12 @@
 
 <script setup lang="ts">
 import { ref, onMounted, computed, watch } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { AboutViewController } from '../controllers/AboutViewController'
 import type { AboutContent, TeamMember, FAQ } from '../models/AboutContent'
 
+const router = useRouter()
+const route = useRoute()
 const viewController = new AboutViewController()
 const aboutContent = ref<AboutContent | null>(null)
 const openFAQIndex = ref<number | null>(null)
@@ -305,7 +308,39 @@ const loadAboutContent = async () => {
   }
 }
 
+const navigateToAbout = () => {
+  router.push('/about')
+}
+
+const navigateToServices = () => {
+  router.push('/services')
+}
+
+const navigateToWork = () => {
+  router.push('/').then(() => {
+    setTimeout(() => {
+      const section = document.querySelector('[data-section-id="real-results-section"]')
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
+  })
+}
+
+const navigateToContact = () => {
+  router.push('/').then(() => {
+    setTimeout(() => {
+      const section = document.querySelector('.footer-section')
+      if (section) {
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' })
+      }
+    }, 100)
+  })
+}
+
 onMounted(() => {
+  // Reset scroll position when component mounts
+  window.scrollTo(0, 0)
   loadAboutContent()
 })
 
@@ -862,6 +897,7 @@ const handleImageError = (event: Event) => {
   text-decoration: none;
   transition: color 0.3s ease;
   font-size: 0.95rem;
+  cursor: pointer;
 }
 
 .footer-links-list a:hover {
