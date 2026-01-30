@@ -89,6 +89,79 @@ export class AdminUserService extends BaseService {
   }
 
   /**
+   * Update user details (admin only)
+   */
+  async updateUser(
+    userId: string,
+    data: Partial<UserData>,
+    adminUserId: string
+  ): Promise<void> {
+    if (!this.validate(userId)) {
+      throw new Error('User ID is required')
+    }
+
+    // Verify admin
+    const isAdminUser = await this.isAdmin(adminUserId)
+    if (!isAdminUser) {
+      throw new Error('Only admins can update users')
+    }
+
+    try {
+      const user = await this.userRepository.findById(userId)
+      if (!user) {
+        throw new Error('User not found')
+      }
+
+      // Check if email is being changed and if it conflicts with existing user
+      if (data.email && data.email !== user.email) {
+        const existing = await this.userRepository.findByEmail(data.email)
+        if (existing && existing.id !== userId) {
+          throw new Error('User with this email already exists')
+        }
+      }
+
+      const oldData = {
+        email: user.email,
+        displayName: user.displayName,
+        role: user.role
+      }
+
+      await this.userRepository.update(userId, {
+        ...data,
+        updatedAt: new Date()
+      } as User)
+
+      // Log activity
+      const adminUser = await this.userRepository.findById(adminUserId)
+      const changes: Record<string, any> = {}
+      
+      if (data.email && data.email !== oldData.email) {
+        changes.email = { before: oldData.email, after: data.email }
+      }
+      if (data.displayName !== undefined && data.displayName !== oldData.displayName) {
+        changes.displayName = { before: oldData.displayName, after: data.displayName }
+      }
+      if (data.role && data.role !== oldData.role) {
+        changes.role = { before: oldData.role, after: data.role }
+      }
+
+      if (Object.keys(changes).length > 0) {
+        await activityLogService.logActivity({
+          userId: adminUserId,
+          userEmail: adminUser?.email || '',
+          userName: adminUser?.displayName,
+          action: 'update_user',
+          resource: 'user',
+          resourceId: userId,
+          changes
+        })
+      }
+    } catch (error) {
+      throw this.handleError(error)
+    }
+  }
+
+  /**
    * Update user role (admin only)
    */
   async updateUserRole(

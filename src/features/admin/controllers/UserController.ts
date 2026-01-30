@@ -39,6 +39,22 @@ export class AdminUserController extends BaseController {
   }
 
   /**
+   * Update user details (admin only)
+   */
+  async updateUser(
+    userId: string,
+    data: Partial<User>,
+    adminUserId: string
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      await adminUserService.updateUser(userId, data, adminUserId)
+      return { success: true }
+    } catch (error) {
+      return this.handleError(error)
+    }
+  }
+
+  /**
    * Update user role (admin only)
    */
   async updateUserRole(

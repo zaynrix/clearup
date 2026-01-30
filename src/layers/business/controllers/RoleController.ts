@@ -46,14 +46,15 @@ export class RoleController extends BaseController {
   }
 
   /**
-   * Update role
+   * Update role (admin only)
    */
   async updateRole(
     roleId: string,
-    data: Partial<RoleData>
+    data: Partial<RoleData>,
+    adminUserId?: string
   ): Promise<{ success: boolean; error?: string }> {
     try {
-      await roleService.updateRole(roleId, data)
+      await roleService.updateRole(roleId, data, adminUserId)
       return { success: true }
     } catch (error) {
       return this.handleError(error)
@@ -61,11 +62,11 @@ export class RoleController extends BaseController {
   }
 
   /**
-   * Delete role
+   * Delete role (admin only)
    */
-  async deleteRole(roleId: string): Promise<{ success: boolean; error?: string }> {
+  async deleteRole(roleId: string, adminUserId?: string): Promise<{ success: boolean; error?: string }> {
     try {
-      await roleService.deleteRole(roleId)
+      await roleService.deleteRole(roleId, adminUserId)
       return { success: true }
     } catch (error) {
       return this.handleError(error)

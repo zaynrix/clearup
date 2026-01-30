@@ -6,6 +6,8 @@ import { authRoutes } from '@/features/auth/routes'
 import { homeRoutes } from '@/features/home/routes'
 import { dashboardRoutes } from '@/features/dashboard/routes'
 import { adminRoutes } from '@/features/admin/routes'
+import { aboutRoutes } from '@/features/about/routes'
+import { servicesRoutes } from '@/features/services/routes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -13,7 +15,9 @@ const router = createRouter({
     ...homeRoutes,
     ...authRoutes,
     ...dashboardRoutes,
-    ...adminRoutes
+    ...adminRoutes,
+    ...aboutRoutes,
+    ...servicesRoutes
   ]
 })
 

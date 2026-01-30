@@ -109,6 +109,26 @@ service cloud.firestore {
       allow write: if isAdmin();
     }
     
+    // About content collection
+    // - Anyone can read (for displaying about page)
+    // - Only authenticated users can write (for admin dashboard)
+    match /aboutContent/{documentId} {
+      // Allow anyone to read about content (for public about page)
+      allow read: if true;
+      
+      // Allow authenticated users to create/update/delete
+      allow write: if isAuthenticated();
+    }
+    
+    // Services Content - anyone can read, authenticated users can write
+    match /servicesContent/{documentId} {
+      // Allow anyone to read services content (for public services page)
+      allow read: if true;
+      
+      // Allow authenticated users to create/update/delete
+      allow write: if isAuthenticated();
+    }
+    
     // Default deny rule for any other collections
     match /{document=**} {
       allow read, write: if false;

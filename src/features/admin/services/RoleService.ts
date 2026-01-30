@@ -1,6 +1,8 @@
 import { BaseService } from '@/shared/BaseService'
 import { RoleRepository } from '@/shared/repositories/RoleRepository'
 import { Role, type RoleData } from '../models/Role'
+import { UserRepository } from '@/shared/repositories/UserRepository'
+import { authService } from '@/services/firebase'
 
 /**
  * Role Service - Business Logic Layer (Model in MVC)
@@ -8,10 +10,27 @@ import { Role, type RoleData } from '../models/Role'
  */
 export class RoleService extends BaseService {
   private roleRepository: RoleRepository
+  private userRepository: UserRepository
 
   constructor() {
     super()
     this.roleRepository = new RoleRepository()
+    this.userRepository = new UserRepository()
+  }
+
+  /**
+   * Check if current user is admin
+   */
+  private async isAdmin(userId?: string): Promise<boolean> {
+    try {
+      const currentUserId = userId || authService.getCurrentUser()?.uid
+      if (!currentUserId) return false
+
+      const user = await this.userRepository.findById(currentUserId)
+      return user?.role === 'admin'
+    } catch (error) {
+      return false
+    }
   }
 
   /**
@@ -85,11 +104,25 @@ export class RoleService extends BaseService {
   }
 
   /**
-   * Update role
+   * Update role (admin only)
    */
-  async updateRole(roleId: string, data: Partial<RoleData>): Promise<void> {
+  async updateRole(roleId: string, data: Partial<RoleData>, adminUserId?: string): Promise<void> {
     if (!this.validate(roleId)) {
       throw new Error('Role ID is required')
+    }
+
+    // Verify admin
+    const isAdminUser = await this.isAdmin(adminUserId)
+    if (!isAdminUser) {
+      throw new Error('Only admins can update roles')
+    }
+
+    // Check if role name is being changed and if it conflicts with existing role
+    if (data.name) {
+      const existing = await this.roleRepository.findByName(data.name)
+      if (existing && existing.id !== roleId) {
+        throw new Error('Role with this name already exists')
+      }
     }
 
     try {
@@ -103,11 +136,28 @@ export class RoleService extends BaseService {
   }
 
   /**
-   * Delete role
+   * Delete role (admin only)
    */
-  async deleteRole(roleId: string): Promise<void> {
+  async deleteRole(roleId: string, adminUserId?: string): Promise<void> {
     if (!this.validate(roleId)) {
       throw new Error('Role ID is required')
+    }
+
+    // Verify admin
+    const isAdminUser = await this.isAdmin(adminUserId)
+    if (!isAdminUser) {
+      throw new Error('Only admins can delete roles')
+    }
+
+    // Check if role exists
+    const role = await this.roleRepository.findById(roleId)
+    if (!role) {
+      throw new Error('Role not found')
+    }
+
+    // Prevent deletion of system roles (admin, user)
+    if (role.name === 'admin' || role.name === 'user') {
+      throw new Error('Cannot delete system roles (admin, user)')
     }
 
     try {
