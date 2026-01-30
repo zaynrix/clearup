@@ -268,16 +268,18 @@ const handleLogoClick = () => {
   z-index: 1000;
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
+  /* Ensure solid background to prevent content overlap */
+  background-color: var(--naturel-black);
 }
 
 .nav-container {
   max-width: 1440px;
   margin: 0 auto;
-  padding: 17px 49px 18px 63px;
+  padding: 12px 49px 12px 63px;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  min-height: 120px;
+  min-height: 80px;
   gap: 2rem;
 }
 
@@ -294,8 +296,8 @@ const handleLogoClick = () => {
 }
 
 .logo-image {
-  width: 274px;
-  height: 85px;
+  width: 220px;
+  height: 68px;
   object-fit: contain;
   display: block;
 }
@@ -415,7 +417,7 @@ const handleLogoClick = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 17px 49px 18px 63px;
+  padding: 12px 49px 12px 63px;
   border-bottom: 1px solid rgba(91, 32, 150, 0.3);
 }
 
@@ -431,8 +433,8 @@ const handleLogoClick = () => {
 }
 
 .menu-logo-image {
-  width: 274px;
-  height: 85px;
+  width: 220px;
+  height: 68px;
   object-fit: contain;
   display: block;
 }
@@ -603,11 +605,12 @@ const handleLogoClick = () => {
 /* Responsive Design */
 @media (max-width: 1024px) {
   .nav-container {
-    padding: 17px 30px 18px 40px;
+    padding: 12px 30px 12px 40px;
+    min-height: 70px;
   }
   
   .logo-image {
-    width: 200px;
+    width: 180px;
     height: auto;
   }
 
@@ -618,7 +621,12 @@ const handleLogoClick = () => {
   }
 
   .menu-header {
-    padding: 17px 30px 18px 40px;
+    padding: 12px 30px 12px 40px;
+  }
+
+  .menu-logo-image {
+    width: 180px;
+    height: auto;
   }
 
   .menu-item-text {
@@ -628,11 +636,20 @@ const handleLogoClick = () => {
 
 @media (max-width: 768px) {
   .nav-container {
-    padding: 15px 20px 16px 24px;
-    min-height: 80px;
+    padding: 10px 20px 10px 24px;
+    min-height: 70px;
   }
   
   .logo-image {
+    width: 150px;
+    height: auto;
+  }
+  
+  .menu-header {
+    padding: 10px 20px 10px 24px;
+  }
+  
+  .menu-logo-image {
     width: 150px;
     height: auto;
   }
@@ -656,14 +673,6 @@ const handleLogoClick = () => {
     gap: 5px;
   }
 
-  .menu-header {
-    padding: 15px 20px 16px 24px;
-  }
-
-  .menu-logo-image {
-    width: 150px;
-    height: auto;
-  }
 
   .menu-content {
     padding: 2rem 24px;
@@ -706,7 +715,7 @@ const handleLogoClick = () => {
   }
   
   .menu-text {
-    display: none;
+    font-size: 12px;
   }
   
   .menu-button {

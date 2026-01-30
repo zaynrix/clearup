@@ -6,62 +6,85 @@
     <div class="background-overlay"></div>
     <!-- Stars animation -->
     <div class="stars"></div>
+    <!-- Floating particles -->
+    <div class="floating-particles">
+      <div class="particle particle-1"></div>
+      <div class="particle particle-2"></div>
+      <div class="particle particle-3"></div>
+      <div class="particle particle-4"></div>
+      <div class="particle particle-5"></div>
+      <div class="particle particle-6"></div>
+      <div class="particle particle-7"></div>
+      <div class="particle particle-8"></div>
+    </div>
     <!-- Vector shapes on both sides -->
     <div class="vector-shape vector-left"></div>
     <div class="vector-shape vector-right"></div>
+    <!-- Ambient glow effect -->
+    <div class="ambient-glow" :class="{ 'animate-in': isLoaded }"></div>
     
     <!-- Main content -->
     <div class="home-container">
       <!-- Hero Section -->
       <div v-if="!isSectionDisabled('hero')" class="hero-section" :class="{ 'animate-in': isLoaded }">
         <h1 class="hero-headline">
-          <span class="headline-white" :class="{ 'animate-in': isLoaded }">{{ homeContent?.heroHeadlineWhite || 'Like Oxygen For' }}</span>
-          <span class="headline-purple" :class="{ 'animate-in': isLoaded }" style="animation-delay: 0.2s;">{{ homeContent?.heroHeadlinePurple || 'Your Business' }}</span>
+          <span class="headline-white" :class="{ 'animate-in': isLoaded }">
+            <span class="text-reveal">{{ homeContent?.heroHeadlineWhite || 'Like Oxygen For' }}</span>
+          </span>
+          <span class="headline-purple" :class="{ 'animate-in': isLoaded }">
+            <span class="text-reveal gradient-shimmer">{{ homeContent?.heroHeadlinePurple || 'Your Business' }}</span>
+          </span>
         </h1>
         
-        <div class="supporting-text" :class="{ 'animate-in': isLoaded }" style="animation-delay: 0.4s;">
-          <p v-for="(text, index) in (homeContent?.supportingText || ['Growing a business is hard and chaos', 'We make whole a lot easer', 'More systemized, more predictable, less stressful, more fun'])" :key="index" :style="{ animationDelay: `${0.5 + index * 0.1}s` }">
+        <div class="supporting-text" :class="{ 'animate-in': isLoaded }">
+          <p v-for="(text, index) in (homeContent?.supportingText || ['Growing a business is hard and chaos', 'We make whole a lot easer', 'More systemized, more predictable, less stressful, more fun'])" :key="index" class="text-line" :style="{ '--delay': `${0.6 + index * 0.15}s` }">
             {{ text }}
           </p>
         </div>
       </div>
 
       <!-- CTA Section -->
-      <div v-if="!isSectionDisabled('cta')" class="cta-section" :class="{ 'animate-in': isLoaded }" style="animation-delay: 0.8s;">
+      <div v-if="!isSectionDisabled('cta')" class="cta-section" :class="{ 'animate-in': isLoaded }">
         <form @submit.prevent="handleSubmit" class="whatsapp-form">
-          <input
-            v-model="email"
-            type="email"
-            class="whatsapp-input"
-            :placeholder="homeContent?.ctaPlaceholder || 'Enter your email and we will send you some magic'"
-            :disabled="isLoading"
-            required
-          />
+          <div class="input-wrapper" :class="{ 'animate-in': isLoaded }">
+            <input
+              v-model="email"
+              type="email"
+              class="whatsapp-input"
+              :placeholder="homeContent?.ctaPlaceholder || 'Enter your email and we will send you some magic'"
+              :disabled="isLoading"
+              required
+            />
+            <div class="input-glow"></div>
+          </div>
           <button 
             type="submit" 
             class="cta-button"
+            :class="{ 'animate-in': isLoaded }"
             :disabled="isLoading"
           >
-            <span>{{ isLoading ? 'Submitting...' : (homeContent?.ctaButtonText || 'Submit') }}</span>
-            <svg v-if="!isLoading" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <span class="btn-text">{{ isLoading ? 'Submitting...' : (homeContent?.ctaButtonText || 'Submit') }}</span>
+            <svg v-if="!isLoading" class="btn-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
             <div v-else class="submit-spinner"></div>
+            <div class="btn-glow"></div>
+            <div class="btn-shine"></div>
           </button>
         </form>
         
-        <div v-if="errorMessage" class="error-message">
+        <div v-if="errorMessage" class="error-message animate-shake">
           {{ errorMessage }}
         </div>
-        <div v-if="successMessage" class="success-message">
+        <div v-if="successMessage" class="success-message animate-success">
           {{ successMessage }}
         </div>
       </div>
 
       <!-- Social Proof -->
-      <div v-if="!isSectionDisabled('social-proof')" class="social-proof" :class="{ 'animate-in': isLoaded }" style="animation-delay: 1s;">
-        <span class="star">⭐</span>
-        <span>{{ homeContent?.socialProofText || '4.8 client satisfaction from +20 founders' }}</span>
+      <div v-if="!isSectionDisabled('social-proof')" class="social-proof" :class="{ 'animate-in': isLoaded }">
+        <span class="star pulse-star">⭐</span>
+        <span class="proof-text">{{ homeContent?.socialProofText || '4.8 client satisfaction from +20 founders' }}</span>
       </div>
     </div>
 
@@ -1062,8 +1085,7 @@ const setupScrollAnimations = () => {
 .vector-shape {
   position: fixed;
   top: 0;
-  bottom: 0;
-  height: 100vh;
+  height: 120px;
   z-index: 2;
   opacity: 0.6;
   pointer-events: none;
@@ -1078,7 +1100,7 @@ const setupScrollAnimations = () => {
   max-width: 400px;
   min-width: 288px;
   background-image: url('/images/backgrounds/vector1.svg');
-  background-position: left center;
+  background-position: left top;
   background-size: cover;
 }
 
@@ -1088,7 +1110,7 @@ const setupScrollAnimations = () => {
   max-width: 400px;
   min-width: 288px;
   background-image: url('/images/backgrounds/vector1.svg');
-  background-position: right center;
+  background-position: right top;
   transform: scaleX(-1); /* Flip horizontally for right side */
   background-size: cover;
 }
@@ -1103,9 +1125,153 @@ const setupScrollAnimations = () => {
   box-sizing: border-box;
 }
 
-/* Hero Section */
+/* ========== FLOATING PARTICLES ========== */
+.floating-particles {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 2;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.particle {
+  position: absolute;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(193, 157, 230, 0.8) 0%, rgba(91, 32, 150, 0.4) 50%, transparent 70%);
+  filter: blur(1px);
+  animation: floatParticle 20s ease-in-out infinite;
+}
+
+.particle-1 {
+  width: 6px;
+  height: 6px;
+  left: 10%;
+  top: 20%;
+  animation-delay: 0s;
+  animation-duration: 18s;
+}
+
+.particle-2 {
+  width: 4px;
+  height: 4px;
+  left: 85%;
+  top: 15%;
+  animation-delay: -3s;
+  animation-duration: 22s;
+}
+
+.particle-3 {
+  width: 8px;
+  height: 8px;
+  left: 70%;
+  top: 60%;
+  animation-delay: -6s;
+  animation-duration: 25s;
+}
+
+.particle-4 {
+  width: 5px;
+  height: 5px;
+  left: 25%;
+  top: 70%;
+  animation-delay: -9s;
+  animation-duration: 20s;
+}
+
+.particle-5 {
+  width: 3px;
+  height: 3px;
+  left: 50%;
+  top: 30%;
+  animation-delay: -12s;
+  animation-duration: 17s;
+}
+
+.particle-6 {
+  width: 7px;
+  height: 7px;
+  left: 15%;
+  top: 50%;
+  animation-delay: -4s;
+  animation-duration: 23s;
+}
+
+.particle-7 {
+  width: 4px;
+  height: 4px;
+  left: 90%;
+  top: 40%;
+  animation-delay: -8s;
+  animation-duration: 19s;
+}
+
+.particle-8 {
+  width: 5px;
+  height: 5px;
+  left: 60%;
+  top: 80%;
+  animation-delay: -15s;
+  animation-duration: 21s;
+}
+
+@keyframes floatParticle {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.6;
+  }
+  25% {
+    transform: translate(30px, -50px) scale(1.2);
+    opacity: 0.9;
+  }
+  50% {
+    transform: translate(-20px, -100px) scale(0.8);
+    opacity: 0.5;
+  }
+  75% {
+    transform: translate(40px, -50px) scale(1.1);
+    opacity: 0.8;
+  }
+}
+
+/* ========== AMBIENT GLOW ========== */
+.ambient-glow {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 600px;
+  height: 600px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(91, 32, 150, 0.15) 0%, rgba(193, 157, 230, 0.08) 40%, transparent 70%);
+  z-index: 1;
+  pointer-events: none;
+  opacity: 0;
+  filter: blur(60px);
+  transition: opacity 1.5s ease-out;
+}
+
+.ambient-glow.animate-in {
+  opacity: 1;
+  animation: ambientPulse 8s ease-in-out infinite;
+}
+
+@keyframes ambientPulse {
+  0%, 100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.15);
+    opacity: 1;
+  }
+}
+
+/* ========== HERO SECTION ========== */
 .hero-section {
   margin-bottom: 5rem;
+  perspective: 1000px;
 }
 
 .hero-headline {
@@ -1119,17 +1285,34 @@ const setupScrollAnimations = () => {
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
 
+/* Text Reveal Animation */
+.text-reveal {
+  display: inline-block;
+  position: relative;
+}
+
 .headline-white {
   color: #F5F7FA;
   opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
-              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(40px) rotateX(-15deg);
+  transform-origin: center bottom;
+  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .headline-white.animate-in {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) rotateX(0deg);
+  animation: textGlow 3s ease-in-out 1.2s;
+}
+
+@keyframes textGlow {
+  0%, 100% {
+    text-shadow: 0 0 0 transparent;
+  }
+  50% {
+    text-shadow: 0 0 30px rgba(245, 247, 250, 0.3), 0 0 60px rgba(245, 247, 250, 0.1);
+  }
 }
 
 .headline-purple {
@@ -1139,16 +1322,45 @@ const setupScrollAnimations = () => {
   background-clip: text;
   font-weight: 700;
   opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
-              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(40px) rotateX(-15deg);
+  transform-origin: center bottom;
+  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s, 
+              transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
 }
 
 .headline-purple.animate-in {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) rotateX(0deg);
 }
 
+/* Gradient Shimmer Effect */
+.gradient-shimmer {
+  position: relative;
+  background: linear-gradient(
+    103deg, 
+    #5B2096 0%, 
+    #C19DE6 25%,
+    #E0C8F5 50%,
+    #C19DE6 75%,
+    #5B2096 100%
+  );
+  background-size: 200% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmer 4s ease-in-out infinite 1.5s;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+/* Supporting Text with Staggered Animation */
 .supporting-text {
   font-size: 1.25rem;
   color: rgba(245, 247, 250, 0.9);
@@ -1157,8 +1369,8 @@ const setupScrollAnimations = () => {
   font-weight: 400;
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
-              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s, 
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s;
 }
 
 .supporting-text.animate-in {
@@ -1166,26 +1378,27 @@ const setupScrollAnimations = () => {
   transform: translateY(0);
 }
 
-.supporting-text p {
+.supporting-text .text-line {
   margin: 0.5rem 0;
   opacity: 0;
-  transform: translateY(15px);
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
-              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(20px) translateX(-10px);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transition-delay: var(--delay, 0s);
 }
 
-.supporting-text.animate-in p {
+.supporting-text.animate-in .text-line {
   opacity: 1;
-  transform: translateY(0);
+  transform: translateY(0) translateX(0);
 }
 
-/* CTA Section */
+/* ========== CTA SECTION ========== */
 .cta-section {
   margin-bottom: 5rem;
   opacity: 0;
   transform: translateY(30px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
-              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s, 
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s;
 }
 
 .cta-section.animate-in {
@@ -1201,28 +1414,77 @@ const setupScrollAnimations = () => {
   align-items: stretch;
 }
 
-.whatsapp-input {
+/* Input Wrapper with Glow Effect */
+.input-wrapper {
   flex: 1;
+  position: relative;
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.9s,
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.9s;
+}
+
+.input-wrapper.animate-in {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.input-glow {
+  position: absolute;
+  top: -2px;
+  left: -2px;
+  right: -2px;
+  bottom: -2px;
+  border-radius: 10px;
+  background: linear-gradient(90deg, #5B2096, #C19DE6, #5B2096);
+  background-size: 200% 100%;
+  opacity: 0;
+  z-index: -1;
+  filter: blur(8px);
+  transition: opacity 0.3s ease;
+}
+
+.input-wrapper:focus-within .input-glow {
+  opacity: 0.6;
+  animation: inputGlowMove 2s linear infinite;
+}
+
+@keyframes inputGlowMove {
+  0% {
+    background-position: 200% center;
+  }
+  100% {
+    background-position: -200% center;
+  }
+}
+
+.whatsapp-input {
+  width: 100%;
   padding: 1rem 1.5rem;
-  background-color: rgba(245, 247, 250, 0.1);
-  border: 1px solid rgba(91, 32, 150, 0.5);
+  background-color: rgba(245, 247, 250, 0.08);
+  border: 1px solid rgba(91, 32, 150, 0.4);
   border-radius: 8px;
   color: #F5F7FA;
   font-size: 1rem;
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-weight: 400;
-  transition: all 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .whatsapp-input::placeholder {
-  color: rgba(245, 247, 250, 0.5);
+  color: rgba(245, 247, 250, 0.45);
+  transition: color 0.3s ease;
 }
 
 .whatsapp-input:focus {
   outline: none;
-  border-color: #5B2096;
-  background-color: rgba(245, 247, 250, 0.15);
-  box-shadow: 0 0 0 3px rgba(91, 32, 150, 0.3);
+  border-color: #8B5CC4;
+  background-color: rgba(245, 247, 250, 0.12);
+  box-shadow: 0 0 0 4px rgba(91, 32, 150, 0.2), 0 8px 32px rgba(91, 32, 150, 0.15);
+}
+
+.whatsapp-input:focus::placeholder {
+  color: rgba(245, 247, 250, 0.3);
 }
 
 .whatsapp-input:disabled {
@@ -1230,12 +1492,14 @@ const setupScrollAnimations = () => {
   cursor: not-allowed;
 }
 
+/* CTA Button with Premium Effects */
 .cta-button {
   display: flex;
   align-items: center;
   gap: 0.5rem;
   padding: 1rem 2rem;
-  background: linear-gradient(103deg, #5B2096 0.52%, #C19DE6 125.79%);
+  background: linear-gradient(135deg, #5B2096 0%, #7B3DB8 50%, #C19DE6 100%);
+  background-size: 200% 200%;
   color: #F5F7FA;
   border: none;
   border-radius: 8px;
@@ -1243,43 +1507,155 @@ const setupScrollAnimations = () => {
   font-weight: 500;
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   cursor: pointer;
-  transition: transform 0.2s ease, opacity 0.2s ease;
   white-space: nowrap;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  transform: translateX(20px);
+  transition: 
+    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1s,
+    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1s,
+    background-position 0.5s ease,
+    box-shadow 0.3s ease;
+}
+
+.cta-button.animate-in {
+  opacity: 1;
+  transform: translateX(0);
+  animation: buttonPulse 3s ease-in-out 2s infinite;
+}
+
+@keyframes buttonPulse {
+  0%, 100% {
+    box-shadow: 0 4px 20px rgba(91, 32, 150, 0.3);
+  }
+  50% {
+    box-shadow: 0 6px 30px rgba(91, 32, 150, 0.5), 0 0 50px rgba(193, 157, 230, 0.2);
+  }
 }
 
 .cta-button:hover:not(:disabled) {
-  opacity: 0.9;
-  transform: translateY(-2px);
+  background-position: 100% 100%;
+  box-shadow: 0 8px 40px rgba(91, 32, 150, 0.5), 0 0 60px rgba(193, 157, 230, 0.3);
+  transform: translateY(-3px) scale(1.02);
 }
 
 .cta-button:active:not(:disabled) {
-  transform: translateY(0);
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 10px rgba(91, 32, 150, 0.3);
 }
 
 .cta-button:disabled {
   opacity: 0.6;
   cursor: not-allowed;
+  animation: none;
 }
 
+/* Button Text & Arrow Animation */
+.btn-text {
+  position: relative;
+  z-index: 2;
+}
+
+.btn-arrow {
+  position: relative;
+  z-index: 2;
+  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.cta-button:hover .btn-arrow {
+  transform: translateX(4px);
+}
+
+/* Button Glow Effect */
+.btn-glow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 100%;
+  height: 100%;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(193, 157, 230, 0.4) 0%, transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+  pointer-events: none;
+}
+
+.cta-button:hover .btn-glow {
+  opacity: 1;
+}
+
+/* Button Shine Effect */
+.btn-shine {
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 50%;
+  height: 100%;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.2),
+    transparent
+  );
+  transform: skewX(-25deg);
+  transition: left 0.6s ease;
+  pointer-events: none;
+}
+
+.cta-button:hover .btn-shine {
+  left: 150%;
+}
+
+/* Error & Success Messages */
 .error-message {
   padding: 0.75rem 1rem;
-  background-color: rgba(204, 51, 51, 0.2);
+  background-color: rgba(204, 51, 51, 0.15);
   color: #ff6b6b;
   border-radius: 6px;
   font-size: 0.9rem;
   max-width: 700px;
   margin: 0 auto;
+  border: 1px solid rgba(255, 107, 107, 0.3);
+}
+
+.error-message.animate-shake {
+  animation: shake 0.5s cubic-bezier(0.36, 0.07, 0.19, 0.97);
+}
+
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+  20%, 40%, 60%, 80% { transform: translateX(5px); }
 }
 
 .success-message {
   padding: 0.75rem 1rem;
-  background-color: rgba(76, 175, 80, 0.2);
+  background-color: rgba(76, 175, 80, 0.15);
   color: #4caf50;
   border-radius: 6px;
   font-size: 0.9rem;
   max-width: 700px;
   margin: 0 auto;
   border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+.success-message.animate-success {
+  animation: successPop 0.5s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes successPop {
+  0% { 
+    opacity: 0;
+    transform: scale(0.8) translateY(10px); 
+  }
+  50% { 
+    transform: scale(1.05) translateY(-2px); 
+  }
+  100% { 
+    opacity: 1;
+    transform: scale(1) translateY(0); 
+  }
 }
 
 .submit-spinner {
@@ -1297,7 +1673,7 @@ const setupScrollAnimations = () => {
   }
 }
 
-/* Social Proof */
+/* ========== SOCIAL PROOF ========== */
 .social-proof {
   display: flex;
   align-items: center;
@@ -1305,8 +1681,8 @@ const setupScrollAnimations = () => {
   gap: 0.5rem;
   opacity: 0;
   transform: translateY(20px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
-              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s, 
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s;
 }
 
 .social-proof.animate-in {
@@ -1314,8 +1690,37 @@ const setupScrollAnimations = () => {
   transform: translateY(0);
 }
 
-.star {
+.pulse-star {
   font-size: 1.2rem;
+  display: inline-block;
+  animation: starPulse 2s ease-in-out infinite 1.5s;
+}
+
+@keyframes starPulse {
+  0%, 100% {
+    transform: scale(1);
+    filter: brightness(1);
+  }
+  50% {
+    transform: scale(1.2);
+    filter: brightness(1.3) drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+  }
+}
+
+.proof-text {
+  opacity: 0;
+  animation: fadeSlideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.4s forwards;
+}
+
+@keyframes fadeSlideIn {
+  from {
+    opacity: 0;
+    transform: translateX(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateX(0);
+  }
 }
 
 /* Scroll Animation Styles */
@@ -3188,8 +3593,8 @@ const setupScrollAnimations = () => {
     min-width: 250px;
     opacity: 0.55;
     background-size: cover;
-    background-position: left center;
-    height: 100vh;
+    background-position: left top;
+    height: 120px;
     background-repeat: no-repeat;
   }
   
@@ -3736,6 +4141,22 @@ const setupScrollAnimations = () => {
     max-width: 100%;
   }
   
+  /* Responsive Floating Particles */
+  .floating-particles {
+    opacity: 0.6;
+  }
+  
+  .particle {
+    transform: scale(0.8);
+  }
+  
+  /* Responsive Ambient Glow */
+  .ambient-glow {
+    width: 400px;
+    height: 400px;
+    filter: blur(50px);
+  }
+  
   .hero-section {
     margin-bottom: 3.5rem;
   }
@@ -3746,14 +4167,35 @@ const setupScrollAnimations = () => {
     margin-bottom: 1.5rem;
   }
   
+  /* Simplified animations for tablet */
+  .headline-white,
+  .headline-purple {
+    transform: translateY(30px);
+  }
+  
+  .gradient-shimmer {
+    animation-duration: 5s;
+  }
+  
   .supporting-text {
     font-size: 1rem;
     line-height: 1.6;
     padding: 0 5px;
   }
   
-  .supporting-text p {
+  .supporting-text .text-line {
     margin-bottom: 0.5rem;
+  }
+  
+  /* Responsive CTA */
+  .whatsapp-form {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .cta-button {
+    width: 100%;
+    justify-content: center;
   }
   
   .vector-shape {
@@ -3773,8 +4215,8 @@ const setupScrollAnimations = () => {
     min-width: 200px;
     opacity: 0.5;
     background-size: cover;
-    background-position: left center;
-    height: 100vh;
+    background-position: left top;
+    height: 120px;
     background-repeat: no-repeat;
   }
   
@@ -4281,6 +4723,25 @@ const setupScrollAnimations = () => {
     max-width: 100%;
   }
   
+  /* Mobile Floating Particles - Reduced for performance */
+  .floating-particles {
+    opacity: 0.4;
+  }
+  
+  .particle-5,
+  .particle-6,
+  .particle-7,
+  .particle-8 {
+    display: none;
+  }
+  
+  /* Mobile Ambient Glow */
+  .ambient-glow {
+    width: 300px;
+    height: 300px;
+    filter: blur(40px);
+  }
+  
   .hero-section {
     margin-bottom: 2.5rem;
   }
@@ -4294,6 +4755,12 @@ const setupScrollAnimations = () => {
   .headline-white,
   .headline-purple {
     display: block;
+    transform: translateY(25px);
+  }
+  
+  /* Simplified shimmer for mobile performance */
+  .gradient-shimmer {
+    animation-duration: 6s;
   }
   
   .supporting-text {
@@ -4302,8 +4769,18 @@ const setupScrollAnimations = () => {
     padding: 0;
   }
   
-  .supporting-text p {
+  .supporting-text .text-line {
     margin-bottom: 0.4rem;
+  }
+  
+  /* Disable complex button animations on mobile */
+  .cta-button.animate-in {
+    animation: none;
+    box-shadow: 0 4px 20px rgba(91, 32, 150, 0.3);
+  }
+  
+  .btn-shine {
+    display: none;
   }
   
   .vector-shape {
@@ -4323,8 +4800,8 @@ const setupScrollAnimations = () => {
     min-width: 180px;
     opacity: 0.45;
     background-size: cover;
-    background-position: left center;
-    height: 100vh;
+    background-position: left top;
+    height: 120px;
     background-repeat: no-repeat;
   }
   
@@ -4877,8 +5354,8 @@ const setupScrollAnimations = () => {
     min-width: 160px;
     opacity: 0.4;
     background-size: cover;
-    background-position: left center;
-    height: 100vh;
+    background-position: left top;
+    height: 120px;
     background-repeat: no-repeat;
   }
   
