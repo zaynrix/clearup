@@ -1,5 +1,5 @@
 import { BaseService } from './BaseService'
-import { firestoreService } from '@/services/firebase'
+import { firestoreService } from '@/shared/services'
 
 /**
  * WhatsApp Service - Business Logic Layer (Model in MVC)

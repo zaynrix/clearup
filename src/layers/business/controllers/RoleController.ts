@@ -1,6 +1,6 @@
 import { BaseController } from './BaseController'
 import { roleService } from '../services/RoleService'
-import type { Role, RoleData } from '@/models/Role'
+import type { Role, RoleData } from '@/features/admin/models/Role'
 
 /**
  * Role Controller - Business Logic Layer (Controller in MVC)

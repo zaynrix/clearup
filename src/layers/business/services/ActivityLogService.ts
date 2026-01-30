@@ -1,6 +1,6 @@
 import { BaseService } from './BaseService'
-import { ActivityLogRepository } from '@/repositories/ActivityLogRepository'
-import { ActivityLog, type ActivityLogData } from '@/models/ActivityLog'
+import { ActivityLogRepository } from '@/shared/repositories/ActivityLogRepository'
+import { ActivityLog, type ActivityLogData } from '@/features/admin/models/ActivityLog'
 
 /**
  * Activity Log Service - Business Logic Layer (Model in MVC)

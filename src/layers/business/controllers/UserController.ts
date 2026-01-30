@@ -1,6 +1,6 @@
 import { BaseController } from './BaseController'
 import { UserService } from '../services/UserService'
-import type { User } from '@/models/User'
+import type { User } from '@/features/auth/models/User'
 import type { UserCredential } from 'firebase/auth'
 
 /**

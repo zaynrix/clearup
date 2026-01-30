@@ -1,6 +1,6 @@
 import { BaseController } from './BaseController'
 import { activityLogService } from '../services/ActivityLogService'
-import type { ActivityLog } from '@/models/ActivityLog'
+import type { ActivityLog } from '@/features/admin/models/ActivityLog'
 
 /**
  * Activity Log Controller - Business Logic Layer (Controller in MVC)

@@ -1,8 +1,8 @@
 import { BaseService } from './BaseService'
-import { RoleRepository } from '@/repositories/RoleRepository'
-import { Role, type RoleData } from '@/models/Role'
-import { UserRepository } from '@/repositories/UserRepository'
-import { authService } from '@/services/firebase'
+import { RoleRepository } from '@/shared/repositories/RoleRepository'
+import { Role, type RoleData } from '@/features/admin/models/Role'
+import { UserRepository } from '@/shared/repositories/UserRepository'
+import { authService } from '@/shared/services'
 
 /**
  * Role Service - Business Logic Layer (Model in MVC)

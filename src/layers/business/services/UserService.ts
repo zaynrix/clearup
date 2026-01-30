@@ -1,7 +1,7 @@
 import { BaseService } from './BaseService'
-import { UserRepository } from '@/repositories/UserRepository'
-import { authService } from '@/services/firebase'
-import { User, type UserData } from '@/models/User'
+import { UserRepository } from '@/shared/repositories/UserRepository'
+import { authService } from '@/shared/services'
+import { User, type UserData } from '@/features/auth/models/User'
 import { activityLogService } from './ActivityLogService'
 import type { UserCredential } from 'firebase/auth'
 
@@ -320,7 +320,7 @@ export class UserService extends BaseService {
       }
 
       // Import authService here to avoid circular dependency
-      const { authService } = await import('@/services/firebase')
+      const { authService } = await import('@/shared/services')
       await authService.sendPasswordResetEmail(userEmail)
 
       // Log activity

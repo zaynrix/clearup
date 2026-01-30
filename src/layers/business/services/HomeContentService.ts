@@ -1,5 +1,5 @@
 import { BaseService } from './BaseService'
-import { firestoreService } from '@/services/firebase'
+import { firestoreService } from '@/shared/services'
 import { activityLogService } from './ActivityLogService'
 import { userService } from './UserService'
 

@@ -1,6 +1,6 @@
 import { BaseRepository } from './BaseRepository'
-import { Role, type RoleData } from '@/models/Role'
-import { firestoreService } from '@/services/firebase'
+import { Role, type RoleData } from '@/features/admin/models/Role'
+import { firestoreService } from '@/shared/services'
 
 /**
  * Role Repository - Data Access Layer (Model in MVC)

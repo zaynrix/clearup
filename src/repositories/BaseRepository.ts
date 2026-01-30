@@ -1,5 +1,5 @@
-import { firestoreService } from '@/services/firebase'
-import { Model, type BaseModel } from '@/models/BaseModel'
+import { firestoreService } from '@/shared/services'
+import { Model, type BaseModel } from '@/shared/BaseModel'
 
 /**
  * Interface for model classes with static fromFirestore method
