@@ -187,6 +187,16 @@
               <p class="system-card-text">We install a complete marketing system that works as one engine scalable , predictable , and built</p>
               <p class="system-card-text">to grow with your business.</p>
               <p class="system-card-roi">TURN EVERY $1 INTO $3893 IN REVENUE OUR SYSTEM IS BUILT TO MAXIMIZE ROI , NOT JUST SPEND YOUR BUDGET</p>
+              
+              <!-- CTA Button -->
+              <div class="system-card-cta">
+                <button class="system-cta-button" @click="handleBookMeeting">
+                  Get Started
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </button>
+              </div>
             </div>
           </div>
 
@@ -2317,6 +2327,48 @@ const setupScrollAnimations = () => {
   letter-spacing: 0.5px;
 }
 
+/* System Card CTA */
+.system-card-cta {
+  margin-top: 32px;
+  display: flex;
+  justify-content: center;
+}
+
+.system-cta-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px 40px;
+  background: linear-gradient(275deg, #C19DE6 -48.8%, #5B2096 96.84%);
+  border: none;
+  border-radius: 50px;
+  color: #F5F7FA;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 20px rgba(91, 32, 150, 0.3);
+}
+
+.system-cta-button:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 30px rgba(91, 32, 150, 0.4);
+}
+
+.system-cta-button:active {
+  transform: translateY(-1px);
+}
+
+.system-cta-button svg {
+  transition: transform 0.3s ease;
+}
+
+.system-cta-button:hover svg {
+  transform: translateX(4px);
+}
+
 /* Services Section */
 .services-section {
   width: 100%;
@@ -3662,6 +3714,15 @@ const setupScrollAnimations = () => {
     font-size: 24px;
   }
   
+  .system-card-cta {
+    margin-top: 28px;
+  }
+  
+  .system-cta-button {
+    padding: 14px 36px;
+    font-size: 17px;
+  }
+  
   .services-section {
     gap: 32px;
     max-width: 100%;
@@ -4433,6 +4494,16 @@ const setupScrollAnimations = () => {
     margin-top: 12px;
   }
   
+  .system-card-cta {
+    margin-top: 24px;
+  }
+  
+  .system-cta-button {
+    padding: 12px 32px;
+    font-size: 16px;
+    gap: 10px;
+  }
+  
   .services-section {
     gap: 28px;
     max-width: 100%;
@@ -5074,6 +5145,18 @@ const setupScrollAnimations = () => {
     font-size: 16px;
     margin-top: 10px;
     line-height: 1.4;
+  }
+  
+  .system-card-cta {
+    margin-top: 20px;
+  }
+  
+  .system-cta-button {
+    padding: 12px 28px;
+    font-size: 15px;
+    gap: 8px;
+    width: 100%;
+    max-width: 280px;
   }
   
   .services-section {
