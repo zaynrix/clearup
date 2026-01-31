@@ -2970,7 +2970,7 @@
                             'role-admin': u.role === 'admin', 
                             'role-user': u.role === 'user' 
                           }"
-                          :title="getRoleDescription(u.role)"
+                          :title="getRoleDescription(u.role || '')"
                         >
                           {{ u.role }}
                         </span>
@@ -3778,7 +3778,7 @@ const permissionsByCategory = computed(() => {
     if (!categories[permission.category]) {
       categories[permission.category] = []
     }
-    categories[permission.category].push(permission)
+    categories[permission.category]!.push(permission)
   })
   return categories
 })
@@ -6079,7 +6079,7 @@ const loadContent = async () => {
     
     // Set initial tab to first accessible tab
     const accessibleTabs = tabs.value
-    if (accessibleTabs.length > 0 && !canAccessTab(activeTab.value)) {
+    if (accessibleTabs.length > 0 && !canAccessTab(activeTab.value) && accessibleTabs[0]) {
       activeTab.value = accessibleTabs[0].id
     }
   } catch (error) {

@@ -5,6 +5,9 @@ import { type LegalContent, defaultLegalContent } from '../models/LegalContent'
 const COLLECTION_NAME = 'site_content'
 const DOCUMENT_ID = 'legal'
 
+// Re-export LegalContent type for use in controllers
+export type { LegalContent }
+
 /**
  * Legal Content Service - Business Logic Layer
  * Handles CRUD operations for legal content (Privacy Policy, Terms of Service, Cookie Policy)
@@ -15,7 +18,7 @@ export class LegalContentService extends BaseService {
    */
   async getLegalContent(): Promise<LegalContent> {
     try {
-      const doc = await firestoreService.getDocument(COLLECTION_NAME, DOCUMENT_ID)
+      const doc = await firestoreService.getDocument<LegalContent>(COLLECTION_NAME, DOCUMENT_ID)
       
       if (doc) {
         return {
@@ -43,7 +46,7 @@ export class LegalContentService extends BaseService {
         ...content
       }
       
-      await firestoreService.setDocument(COLLECTION_NAME, DOCUMENT_ID, updatedContent)
+      await firestoreService.createDocument(COLLECTION_NAME, DOCUMENT_ID, updatedContent)
     } catch (error) {
       console.error('Error updating legal content:', error)
       throw error
@@ -55,7 +58,7 @@ export class LegalContentService extends BaseService {
    */
   async resetToDefaults(): Promise<void> {
     try {
-      await firestoreService.setDocument(COLLECTION_NAME, DOCUMENT_ID, defaultLegalContent)
+      await firestoreService.createDocument(COLLECTION_NAME, DOCUMENT_ID, defaultLegalContent)
     } catch (error) {
       console.error('Error resetting legal content:', error)
       throw error
