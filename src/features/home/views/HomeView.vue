@@ -2017,9 +2017,9 @@ const setupScrollAnimations = () => {
   width: 100%;
   max-width: 1440px;
   margin: 0 auto;
-  padding: 80px 60px;
-  min-height: 100vh;
-  overflow: hidden;
+  padding: 80px 60px 100px;
+  min-height: auto;
+  overflow: visible;
   background: #14141B;
   box-sizing: border-box;
   isolation: isolate;
@@ -2064,7 +2064,9 @@ const setupScrollAnimations = () => {
 /* Responsive adjustments for clip-path */
 @media (max-width: 1024px) {
   .clearup-system-container {
-    padding: 60px 40px;
+    padding: 60px 40px 80px;
+    min-height: auto;
+    overflow: visible;
     /* Remove clip-path for responsive - use normal container */
     clip-path: none;
   }
@@ -2072,7 +2074,9 @@ const setupScrollAnimations = () => {
 
 @media (max-width: 900px) {
   .clearup-system-container {
-    padding: 50px 30px;
+    padding: 50px 30px 70px;
+    min-height: auto;
+    overflow: visible;
     /* Remove clip-path for responsive - use normal container */
     clip-path: none;
   }
@@ -2080,8 +2084,10 @@ const setupScrollAnimations = () => {
 
 @media (max-width: 768px) {
   .clearup-system-container {
-    padding: 40px 20px;
+    padding: 40px 20px 60px;
     border-radius: 20px;
+    min-height: auto;
+    overflow: visible;
     /* Remove clip-path for responsive - use normal container */
     clip-path: none;
   }
@@ -2089,8 +2095,10 @@ const setupScrollAnimations = () => {
 
 @media (max-width: 640px) {
   .clearup-system-container {
-    padding: 35px 18px;
+    padding: 35px 18px 55px;
     border-radius: 18px;
+    min-height: auto;
+    overflow: visible;
     /* Remove clip-path for responsive - use normal container */
     clip-path: none;
   }
@@ -2098,8 +2106,10 @@ const setupScrollAnimations = () => {
 
 @media (max-width: 480px) {
   .clearup-system-container {
-    padding: 30px 15px;
+    padding: 30px 15px 50px;
     border-radius: 15px;
+    min-height: auto;
+    overflow: visible;
     /* Remove clip-path for responsive - use normal container */
     clip-path: none;
   }
@@ -2107,8 +2117,10 @@ const setupScrollAnimations = () => {
 
 @media (max-width: 360px) {
   .clearup-system-container {
-    padding: 25px 12px;
+    padding: 25px 12px 45px;
     border-radius: 12px;
+    min-height: auto;
+    overflow: visible;
     /* Remove clip-path for responsive - use normal container */
     clip-path: none;
   }
@@ -2278,23 +2290,25 @@ const setupScrollAnimations = () => {
   align-items: center;
   margin: 0 auto;
   position: relative;
+  overflow: visible;
 }
 
 /* System Card */
 .system-card {
   width: 100%;
   max-width: 1138px;
-  min-height: 409px;
+  min-height: auto;
   height: auto;
   border-radius: 50px;
   background: #14141B;
   border: 2px solid #5B2096;
   box-shadow: 0 4px 4px 0 rgba(91, 32, 150, 0.3) inset, 0 4px 4px 0 rgba(91, 32, 150, 0.3);
-  padding: 74px 59px;
+  padding: 74px 59px 60px;
   display: flex;
   flex-direction: column;
   gap: 16px;
   position: relative;
+  overflow: visible;
 }
 
 .system-card-title {
