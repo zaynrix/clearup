@@ -37,7 +37,7 @@
         </h1>
         
         <div class="supporting-text" :class="{ 'animate-in': isLoaded }">
-          <p v-for="(text, index) in (homeContent?.supportingText || ['Growing a business is hard and chaos', 'We make whole a lot easer', 'More systemized, more predictable, less stressful, more fun'])" :key="index" class="text-line" :style="{ '--delay': `${0.6 + index * 0.15}s` }">
+          <p v-for="(text, index) in (homeContent?.supportingText || ['Growing a business is hard and chaos', 'We make whole a lot easer', 'More systemized, more predictable, less stressful, more fun'])" :key="index" class="text-line" :style="{ '--delay': `${0.25 + index * 0.08}s` }">
             {{ text }}
           </p>
         </div>
@@ -729,10 +729,8 @@ onMounted(async () => {
   if (settingsResult.success && settingsResult.data) {
     siteSettings.value = settingsResult.data
   }
-  // Trigger entrance animations after a brief delay
-  setTimeout(() => {
-    isLoaded.value = true
-  }, 100)
+  // Trigger entrance animations immediately
+  isLoaded.value = true
   
   // Setup scroll animations
   setupScrollAnimations()
@@ -1304,10 +1302,10 @@ const setupScrollAnimations = () => {
 .headline-white {
   color: #F5F7FA;
   opacity: 0;
-  transform: translateY(40px);
+  transform: translateY(25px);
   transition: 
-    opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .headline-white.animate-in {
@@ -1324,10 +1322,10 @@ const setupScrollAnimations = () => {
   color: transparent;
   font-weight: 700;
   opacity: 0;
-  transform: translateY(40px);
+  transform: translateY(25px);
   transition: 
-    opacity 1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s,
-    transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s,
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
 }
 
 .headline-purple.animate-in {
@@ -1375,10 +1373,10 @@ const setupScrollAnimations = () => {
 .supporting-text .text-line {
   margin: 0.3rem 0;
   opacity: 0;
-  transform: translateY(20px);
+  transform: translateY(15px);
   transition: 
-    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
-    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+    opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: var(--delay, 0s);
 }
 
@@ -1405,10 +1403,10 @@ const setupScrollAnimations = () => {
   backdrop-filter: blur(10px);
   -webkit-backdrop-filter: blur(10px);
   opacity: 0;
-  transform: translateY(25px);
+  transform: translateY(20px);
   transition: 
-    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.9s,
-    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.9s,
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.45s,
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.45s,
     border-color 0.3s ease,
     box-shadow 0.3s ease;
   box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
@@ -1645,10 +1643,10 @@ const setupScrollAnimations = () => {
   justify-content: center;
   gap: 0.5rem;
   opacity: 0;
-  transform: translateY(15px);
+  transform: translateY(12px);
   transition: 
-    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s,
-    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s;
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s,
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s;
   font-size: 0.9rem;
   color: rgba(245, 247, 250, 0.8);
 }
@@ -1664,8 +1662,8 @@ const setupScrollAnimations = () => {
   opacity: 0;
   transform: scale(0.5);
   transition: 
-    opacity 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 1.5s,
-    transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 1.5s;
+    opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.75s,
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.75s;
 }
 
 .social-proof.animate-in .pulse-star {
@@ -1685,10 +1683,10 @@ const setupScrollAnimations = () => {
 
 .proof-text {
   opacity: 0;
-  transform: translateX(-8px);
+  transform: translateX(-6px);
   transition: 
-    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.6s,
-    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.6s;
+    opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.8s,
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.8s;
 }
 
 .social-proof.animate-in .proof-text {
