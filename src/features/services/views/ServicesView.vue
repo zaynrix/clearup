@@ -9,7 +9,7 @@
     
     <!-- Main content -->
     <!-- Clear Up System Section -->
-    <div class="third-section">
+    <div v-if="!isSectionDisabled('services-system')" class="third-section">
         <div class="clearup-system-container">
           <div class="clearup-system-vector clearup-system-vector-left"></div>
           <div class="clearup-system-vector clearup-system-vector-right"></div>
@@ -116,7 +116,7 @@
             </div>
 
             <!-- What We Do -->
-            <div v-if="homeContent?.steps && homeContent.steps.length > 0" class="what-we-do-section">
+            <div v-if="!isSectionDisabled('services-what-we-do') && homeContent?.steps && homeContent.steps.length > 0" class="what-we-do-section">
               <h3 class="what-we-do-title">{{ homeContent?.whatWeDoTitle || 'What We Do' }}</h3>
               <div class="steps-grid">
                 <div 
@@ -135,7 +135,7 @@
             </div>
 
             <!-- What You Get -->
-            <div v-if="homeContent?.benefits && homeContent.benefits.length > 0" class="what-you-get-section">
+            <div v-if="!isSectionDisabled('services-what-you-get') && homeContent?.benefits && homeContent.benefits.length > 0" class="what-you-get-section">
               <h3 class="what-you-get-title">{{ homeContent?.whatYouGetTitle || 'What You Get' }}</h3>
               <div class="benefits-grid">
                 <div 
@@ -154,7 +154,7 @@
             </div>
 
             <!-- Bonuses Included Section -->
-            <div class="bonuses-section">
+            <div v-if="!isSectionDisabled('services-bonuses')" class="bonuses-section">
               <div class="bonuses-container">
                 <h2 class="bonuses-title">{{ homeContent?.bonusesTitle || 'Bonuses Included' }}</h2>
                 <div class="bonuses-list">
@@ -222,7 +222,7 @@
       </div>
 
       <!-- Why Choose Clear Up Section -->
-      <div v-if="!isLoading" class="why-choose-section">
+      <div v-if="!isSectionDisabled('services-why-choose') && !isLoading" class="why-choose-section">
         <div class="why-choose-container">
           <div class="why-choose-header">
             <h2 class="why-choose-title">{{ servicesContent?.whyChooseTitle || 'Why Choose Clear Up' }}</h2>
@@ -268,69 +268,15 @@
 
       <!-- What Our Clients Say Section -->
       <TestimonialsSection 
+        v-if="!isSectionDisabled('services-testimonials')"
         :testimonials="homeContent?.testimonials || []" 
       />
 
     <!-- Footer Section -->
-    <div class="footer-section">
-      <div class="footer-container">
-        <div class="footer-content">
-          <div class="footer-brand">
-            <div class="footer-logo">
-              <img 
-                src="/images/logos/logo-main.png" 
-                alt="ClearUp Logo" 
-                class="footer-logo-image"
-              />
-            </div>
-            <p class="footer-tagline">{{ homeContent?.footerTagline || 'Your creative digital partner for high-impact video ads and marketing content.' }}</p>
-            <div class="footer-social">
-              <a href="#" class="social-icon" aria-label="Instagram">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M12 2.163C8.678 2.163 8.25 2.175 7.05 2.225C5.85 2.275 4.95 2.475 4.15 2.775C3.35 3.075 2.65 3.475 2.05 4.075C1.45 4.675 1.05 5.375 0.75 6.175C0.45 6.975 0.25 7.875 0.2 9.075C0.15 10.275 0.138 10.703 0.138 14.025C0.138 17.347 0.15 17.775 0.2 18.975C0.25 20.175 0.45 21.075 0.75 21.875C1.05 22.675 1.45 23.375 2.05 23.975C2.65 24.575 3.35 24.975 4.15 25.275C4.95 25.575 5.85 25.775 7.05 25.825C8.25 25.875 8.678 25.887 12 25.887C15.322 25.887 15.75 25.875 16.95 25.825C18.15 25.775 19.05 25.575 19.85 25.275C20.65 24.975 21.35 24.575 21.95 23.975C22.55 23.375 22.95 22.675 23.25 21.875C23.55 21.075 23.75 20.175 23.8 18.975C23.85 17.775 23.862 17.347 23.862 14.025C23.862 10.703 23.85 10.275 23.8 9.075C23.75 7.875 23.55 6.975 23.25 6.175C22.95 5.375 22.55 4.675 21.95 4.075C21.35 3.475 20.65 3.075 19.85 2.775C19.05 2.475 18.15 2.275 16.95 2.225C15.75 2.175 15.322 2.163 12 2.163Z" fill="white"/>
-                </svg>
-              </a>
-              <a href="#" class="social-icon" aria-label="LinkedIn">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20.447 20.452H16.893V14.883C16.893 13.555 16.866 11.843 15.041 11.843C13.188 11.843 12.905 13.269 12.905 14.785V20.452H9.351V9H12.765V10.561H12.811C13.161 9.809 14.084 9.008 15.48 9.008C18.376 9.008 19.084 11.183 19.084 14.167V20.452H20.447ZM5.337 7.433C4.193 7.433 3.274 6.507 3.274 5.367C3.274 4.224 4.194 3.305 5.337 3.305C6.477 3.305 7.401 4.224 7.401 5.367C7.401 6.507 6.476 7.433 5.337 7.433ZM7.119 20.452H3.555V9H7.119V20.452ZM22.225 0H1.771C0.792 0 0 0.774 0 1.729V22.271C0 23.227 0.792 24 1.771 24H22.222C23.2 24 24 23.227 24 22.271V1.729C24 0.774 23.2 0 22.222 0H22.225Z" fill="white"/>
-                </svg>
-              </a>
-              <a href="#" class="social-icon" aria-label="Email">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M20 4H4C2.9 4 2.01 4.9 2.01 6L2 18C2 19.1 2.9 20 4 20H20C21.1 20 22 19.1 22 18V6C22 4.9 21.1 4 20 4ZM20 8L12 13L4 8V6L12 11L20 6V8Z" fill="white"/>
-                </svg>
-              </a>
-              <a href="#" class="social-icon" aria-label="WhatsApp">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M11.125 1.33325C5.7171 1.33325 1.33337 5.71698 1.33337 11.1249C1.33337 12.9755 1.84744 14.7087 2.74142 16.1853L1.868 19.1541C1.81785 19.3245 1.81455 19.5054 1.85845 19.6775C1.90234 19.8497 1.99181 20.0069 2.11745 20.1325C2.24309 20.2581 2.40026 20.3476 2.57243 20.3915C2.7446 20.4354 2.92542 20.4321 3.09587 20.382L6.06471 19.5085C7.59097 20.4318 9.34123 20.9189 11.125 20.9166C16.533 20.9166 20.9167 16.5329 20.9167 11.1249C20.9167 5.71698 16.533 1.33325 11.125 1.33325Z" fill="white"/>
-                </svg>
-              </a>
-            </div>
-          </div>
-          
-          <div class="footer-links">
-            <h3 class="footer-links-title">Quick Links</h3>
-            <ul class="footer-links-list">
-              <li><a @click.prevent="navigateToAbout">About Us</a></li>
-              <li><a @click.prevent="navigateToServices">Our Service</a></li>
-              <li><a @click.prevent="navigateToWork">Our Work</a></li>
-              <li><a @click.prevent="navigateToContact">Contact Us</a></li>
-            </ul>
-          </div>
-        </div>
-        
-        <div class="footer-bottom">
-          <p class="footer-copyright">{{ homeContent?.footerAddress || 'Copyright © 2025 Trusted Valley LLC. All rights reserved' }}</p>
-          <div class="footer-policies">
-            <a href="#privacy">Privacy Policy</a>
-            <span class="footer-divider">|</span>
-            <a href="#terms">Terms of Service</a>
-            <span class="footer-divider">|</span>
-            <a href="#cookies">Cookie Policy</a>
-          </div>
-        </div>
-      </div>
-    </div>
+    <FooterSection 
+      :tagline="homeContent?.footerTagline"
+      :copyright="homeContent?.footerAddress"
+    />
 
   </div>
 </template>
@@ -343,11 +289,24 @@ import { ServicesViewController } from '../controllers/ServicesViewController'
 import type { ServicesContent } from '../models/ServicesContent'
 import type { HomeContent } from '@/features/home/models/HomeContent'
 import TestimonialsSection from '@/shared/components/TestimonialsSection.vue'
+import FooterSection from '@/shared/components/FooterSection.vue'
+import { siteSettingsController } from '@/features/admin/controllers/SiteSettingsController'
+import type { SiteSettings } from '@/features/admin/models/SiteSettings'
 
 const router = useRouter()
 const route = useRoute()
 const homeContentController = new HomeContentViewController()
 const servicesViewController = new ServicesViewController()
+
+// Site settings for disabled sections
+const siteSettings = ref<SiteSettings>({
+  disabledSections: [],
+  maintenanceMode: false
+})
+
+const isSectionDisabled = (sectionId: string): boolean => {
+  return siteSettings.value.disabledSections?.includes(sectionId) || false
+}
 
 const isLoading = computed(() => servicesViewController.isLoading || homeContentController.isLoading)
 const error = computed(() => servicesViewController.errorMessage || homeContentController.errorMessage)
@@ -358,39 +317,17 @@ const handleBookMeeting = () => {
   console.log('Book a meeting clicked')
 }
 
-const navigateToAbout = () => {
-  router.push('/about')
-}
-
-const navigateToServices = () => {
-  router.push('/services')
-}
-
-const navigateToWork = () => {
-  router.push('/').then(() => {
-    setTimeout(() => {
-      const section = document.querySelector('[data-section-id="real-results-section"]')
-      if (section) {
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
-    }, 100)
-  })
-}
-
-const navigateToContact = () => {
-  router.push('/').then(() => {
-    setTimeout(() => {
-      const section = document.querySelector('.footer-section')
-      if (section) {
-        section.scrollIntoView({ behavior: 'smooth', block: 'start' })
-      }
-    }, 100)
-  })
-}
 
 onMounted(async () => {
   // Reset scroll position when component mounts
   window.scrollTo(0, 0)
+  
+  // Load site settings to check for disabled sections
+  const settingsResult = await siteSettingsController.getSiteSettings()
+  if (settingsResult.success && settingsResult.data) {
+    siteSettings.value = settingsResult.data
+  }
+  
   await Promise.all([
     homeContentController.loadHomeContent(),
     servicesViewController.loadServicesContent()
@@ -2962,172 +2899,6 @@ onMounted(async () => {
   fill: rgba(0, 0, 0, 0.8);
 }
 
-/* Footer/Bottom Section */
-.footer-section {
-  position: relative;
-  width: 100%;
-  z-index: 3;
-  background: #5B2096;
-  padding: 80px 20px 40px;
-  box-sizing: border-box;
-}
-
-.footer-container {
-  max-width: 1304px;
-  width: 100%;
-  margin: 0 auto;
-}
-
-.footer-content {
-  display: grid;
-  grid-template-columns: 2fr 1fr;
-  gap: 80px;
-  margin-bottom: 48px;
-}
-
-.footer-brand {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.footer-logo {
-  display: flex;
-  align-items: center;
-}
-
-.footer-logo-image {
-  height: auto;
-  max-width: 180px;
-  width: auto;
-}
-
-.footer-tagline {
-  color: rgba(245, 247, 250, 0.9);
-  font-family: 'Roboto', sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  line-height: 1.6;
-  margin: 0;
-  max-width: 500px;
-}
-
-.footer-social {
-  display: flex;
-  gap: 16px;
-  margin-top: 8px;
-}
-
-.social-icon {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.1);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.3s ease;
-  border: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.social-icon:hover {
-  background: rgba(255, 255, 255, 0.2);
-  transform: translateY(-2px);
-  border-color: rgba(255, 255, 255, 0.4);
-}
-
-.social-icon svg {
-  width: 20px;
-  height: 20px;
-}
-
-.footer-links {
-  display: flex;
-  flex-direction: column;
-  gap: 24px;
-}
-
-.footer-links-title {
-  color: #F5F7FA;
-  font-family: 'Roboto', sans-serif;
-  font-size: 20px;
-  font-weight: 600;
-  line-height: normal;
-  margin: 0;
-}
-
-.footer-links-list {
-  list-style: none;
-  padding: 0;
-  margin: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 16px;
-}
-
-.footer-links-list li {
-  margin: 0;
-}
-
-.footer-links-list a {
-  color: rgba(245, 247, 250, 0.8);
-  font-family: 'Roboto', sans-serif;
-  font-size: 16px;
-  font-weight: 400;
-  text-decoration: none;
-  transition: color 0.3s ease;
-  cursor: pointer;
-}
-
-.footer-links-list a:hover {
-  color: #F5F7FA;
-}
-
-.footer-bottom {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 16px;
-  padding-top: 32px;
-  border-top: 1px solid rgba(255, 255, 255, 0.2);
-}
-
-.footer-copyright {
-  color: rgba(245, 247, 250, 0.8);
-  font-family: 'Roboto', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  line-height: normal;
-  margin: 0;
-  text-align: center;
-}
-
-.footer-policies {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  flex-wrap: wrap;
-  justify-content: center;
-}
-
-.footer-policies a {
-  color: rgba(245, 247, 250, 0.8);
-  font-family: 'Roboto', sans-serif;
-  font-size: 14px;
-  font-weight: 400;
-  text-decoration: none;
-  transition: color 0.3s ease;
-}
-
-.footer-policies a:hover {
-  color: #F5F7FA;
-}
-
-.footer-divider {
-  color: rgba(245, 247, 250, 0.5);
-  font-size: 14px;
-}
-
 /* Responsive Design - Comprehensive Breakpoints */
 
 /* Large Tablets and Small Desktops (1024px and below) */
@@ -3432,19 +3203,6 @@ onMounted(async () => {
     gap: 20px;
   }
   
-  .footer-section {
-    padding: 70px 20px 35px;
-  }
-  
-  .footer-content {
-    gap: 70px;
-    margin-bottom: 40px;
-  }
-  
-  .footer-tagline {
-    font-size: 15px;
-  }
-  
   .clients-container {
     padding: 0 40px;
   }
@@ -3737,19 +3495,6 @@ onMounted(async () => {
   .testimonial-card {
     padding: 26px;
     gap: 18px;
-  }
-  
-  .footer-section {
-    padding: 60px 20px 30px;
-  }
-  
-  .footer-content {
-    gap: 60px;
-    margin-bottom: 36px;
-  }
-  
-  .footer-tagline {
-    font-size: 15px;
   }
 }
 
@@ -4236,20 +3981,6 @@ onMounted(async () => {
     gap: 20px;
   }
   
-  .footer-section {
-    padding: 60px 20px 30px;
-  }
-  
-  .footer-content {
-    grid-template-columns: 1fr;
-    gap: 40px;
-    margin-bottom: 32px;
-  }
-  
-  .footer-tagline {
-    font-size: 14px;
-  }
-  
   .bonuses-section {
     padding: 60px 20px;
     margin-top: 50px;
@@ -4379,19 +4110,6 @@ onMounted(async () => {
   
   .testimonial-card {
     padding: 28px;
-  }
-  
-  .footer-section {
-    padding: 60px 20px 30px;
-  }
-  
-  .footer-content {
-    grid-template-columns: 1fr;
-    gap: 40px;
-  }
-  
-  .footer-social {
-    flex-wrap: wrap;
   }
 }
 
@@ -4922,83 +4640,6 @@ onMounted(async () => {
     width: 60px;
     height: 60px;
   }
-  
-  .footer-section {
-    padding: 40px 15px 20px;
-  }
-  
-  .footer-container {
-    max-width: 100%;
-  }
-  
-  .footer-content {
-    grid-template-columns: 1fr;
-    gap: 32px;
-    margin-bottom: 32px;
-  }
-  
-  .footer-brand {
-    gap: 20px;
-  }
-  
-  .footer-tagline {
-    font-size: 14px;
-    max-width: 100%;
-  }
-  
-  .footer-social {
-    flex-wrap: wrap;
-    gap: 12px;
-  }
-  
-  .social-icon {
-    width: 40px;
-    height: 40px;
-  }
-  
-  .social-icon svg {
-    width: 18px;
-    height: 18px;
-  }
-  
-  .footer-links {
-    gap: 20px;
-  }
-  
-  .footer-links-title {
-    font-size: 18px;
-  }
-  
-  .footer-links-list {
-    gap: 14px;
-  }
-  
-  .footer-links-list a {
-    font-size: 14px;
-  }
-  
-  .footer-bottom {
-    gap: 14px;
-    padding-top: 28px;
-  }
-  
-  .footer-copyright {
-    font-size: 12px;
-  }
-  
-  .footer-policies {
-    gap: 8px;
-    flex-wrap: wrap;
-    justify-content: center;
-  }
-  
-  .footer-policies a {
-    font-size: 12px;
-  }
-  
-  .footer-divider {
-    font-size: 12px;
-  }
 }
 
 /* Extra Small Mobile Devices (360px and below) */
@@ -5314,74 +4955,6 @@ onMounted(async () => {
   .play-button-overlay svg {
     width: 50px;
     height: 50px;
-  }
-  
-  .footer-section {
-    padding: 35px 12px 18px;
-  }
-  
-  .footer-content {
-    gap: 28px;
-    margin-bottom: 28px;
-  }
-  
-  .footer-brand {
-    gap: 18px;
-  }
-  
-  .footer-tagline {
-    font-size: 13px;
-  }
-  
-  .footer-social {
-    gap: 10px;
-  }
-  
-  .social-icon {
-    width: 38px;
-    height: 38px;
-  }
-  
-  .social-icon svg {
-    width: 16px;
-    height: 16px;
-  }
-  
-  .footer-links {
-    gap: 18px;
-  }
-  
-  .footer-links-title {
-    font-size: 17px;
-  }
-  
-  .footer-links-list {
-    gap: 12px;
-  }
-  
-  .footer-links-list a {
-    font-size: 13px;
-  }
-  
-  .footer-bottom {
-    gap: 12px;
-    padding-top: 24px;
-  }
-  
-  .footer-copyright {
-    font-size: 11px;
-  }
-  
-  .footer-policies {
-    gap: 6px;
-  }
-  
-  .footer-policies a {
-    font-size: 11px;
-  }
-  
-  .footer-divider {
-    font-size: 11px;
   }
 }
 

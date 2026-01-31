@@ -2546,6 +2546,237 @@
             </div>
           </div>
 
+          <!-- Legal Pages Editor -->
+          <div v-if="activeTab === 'legal-pages'" class="editor-section">
+            <div class="section-header">
+              <div class="section-title-group">
+                <div class="section-icon">⚖️</div>
+                <div>
+                  <h3>Legal Pages</h3>
+                  <p class="section-description">Manage Privacy Policy, Terms of Service, and Cookie Policy content</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Privacy Policy Section -->
+            <div class="content-section-card">
+              <div class="content-section-header">
+                <div class="content-section-title-group">
+                  <div class="content-section-icon">🔒</div>
+                  <h3 class="content-section-title">Privacy Policy</h3>
+                </div>
+                <p class="content-section-description">Your website's privacy policy - explains how you collect and use user data</p>
+              </div>
+              
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Page Title</span>
+                  </label>
+                  <input v-model="legalFormData.privacyPolicy.title" type="text" placeholder="Privacy Policy" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Last Updated Date</span>
+                  </label>
+                  <input v-model="legalFormData.privacyPolicy.lastUpdated" type="text" placeholder="January 31, 2026" class="form-input" />
+                </div>
+              </div>
+
+              <div class="section-action-bar">
+                <div class="section-info">
+                  <span class="section-count">{{ legalFormData.privacyPolicy.sections?.length || 0 }} section{{ (legalFormData.privacyPolicy.sections?.length || 0) !== 1 ? 's' : '' }}</span>
+                </div>
+                <button @click="addLegalSection('privacy')" class="btn-primary">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  Add Section
+                </button>
+              </div>
+
+              <div v-if="legalFormData.privacyPolicy.sections && legalFormData.privacyPolicy.sections.length > 0" class="legal-sections-list">
+                <div v-for="(section, index) in legalFormData.privacyPolicy.sections" :key="section.id" class="legal-section-item">
+                  <div class="legal-section-header">
+                    <div class="legal-section-number">#{{ index + 1 }}</div>
+                    <div class="legal-section-title">{{ section.heading }}</div>
+                    <div class="legal-section-actions">
+                      <button @click="startEditLegalSection('privacy', index)" class="btn-icon btn-icon-warning" title="Edit section">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87866 20 1.87866C20.5626 1.87866 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10218 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                      <button @click="removeLegalSection('privacy', index)" class="btn-icon btn-icon-danger" title="Remove section">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="legal-section-preview">{{ section.content.substring(0, 150) }}{{ section.content.length > 150 ? '...' : '' }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Terms of Service Section -->
+            <div class="content-section-card">
+              <div class="content-section-header">
+                <div class="content-section-title-group">
+                  <div class="content-section-icon">📜</div>
+                  <h3 class="content-section-title">Terms of Service</h3>
+                </div>
+                <p class="content-section-description">Terms and conditions for using your website and services</p>
+              </div>
+              
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Page Title</span>
+                  </label>
+                  <input v-model="legalFormData.termsOfService.title" type="text" placeholder="Terms of Service" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Last Updated Date</span>
+                  </label>
+                  <input v-model="legalFormData.termsOfService.lastUpdated" type="text" placeholder="January 31, 2026" class="form-input" />
+                </div>
+              </div>
+
+              <div class="section-action-bar">
+                <div class="section-info">
+                  <span class="section-count">{{ legalFormData.termsOfService.sections?.length || 0 }} section{{ (legalFormData.termsOfService.sections?.length || 0) !== 1 ? 's' : '' }}</span>
+                </div>
+                <button @click="addLegalSection('terms')" class="btn-primary">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  Add Section
+                </button>
+              </div>
+
+              <div v-if="legalFormData.termsOfService.sections && legalFormData.termsOfService.sections.length > 0" class="legal-sections-list">
+                <div v-for="(section, index) in legalFormData.termsOfService.sections" :key="section.id" class="legal-section-item">
+                  <div class="legal-section-header">
+                    <div class="legal-section-number">#{{ index + 1 }}</div>
+                    <div class="legal-section-title">{{ section.heading }}</div>
+                    <div class="legal-section-actions">
+                      <button @click="startEditLegalSection('terms', index)" class="btn-icon btn-icon-warning" title="Edit section">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87866 20 1.87866C20.5626 1.87866 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10218 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                      <button @click="removeLegalSection('terms', index)" class="btn-icon btn-icon-danger" title="Remove section">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="legal-section-preview">{{ section.content.substring(0, 150) }}{{ section.content.length > 150 ? '...' : '' }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cookie Policy Section -->
+            <div class="content-section-card">
+              <div class="content-section-header">
+                <div class="content-section-title-group">
+                  <div class="content-section-icon">🍪</div>
+                  <h3 class="content-section-title">Cookie Policy</h3>
+                </div>
+                <p class="content-section-description">Information about how your website uses cookies</p>
+              </div>
+              
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Page Title</span>
+                  </label>
+                  <input v-model="legalFormData.cookiePolicy.title" type="text" placeholder="Cookie Policy" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Last Updated Date</span>
+                  </label>
+                  <input v-model="legalFormData.cookiePolicy.lastUpdated" type="text" placeholder="January 31, 2026" class="form-input" />
+                </div>
+              </div>
+
+              <div class="section-action-bar">
+                <div class="section-info">
+                  <span class="section-count">{{ legalFormData.cookiePolicy.sections?.length || 0 }} section{{ (legalFormData.cookiePolicy.sections?.length || 0) !== 1 ? 's' : '' }}</span>
+                </div>
+                <button @click="addLegalSection('cookies')" class="btn-primary">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  Add Section
+                </button>
+              </div>
+
+              <div v-if="legalFormData.cookiePolicy.sections && legalFormData.cookiePolicy.sections.length > 0" class="legal-sections-list">
+                <div v-for="(section, index) in legalFormData.cookiePolicy.sections" :key="section.id" class="legal-section-item">
+                  <div class="legal-section-header">
+                    <div class="legal-section-number">#{{ index + 1 }}</div>
+                    <div class="legal-section-title">{{ section.heading }}</div>
+                    <div class="legal-section-actions">
+                      <button @click="startEditLegalSection('cookies', index)" class="btn-icon btn-icon-warning" title="Edit section">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87866 20 1.87866C20.5626 1.87866 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10218 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                      <button @click="removeLegalSection('cookies', index)" class="btn-icon btn-icon-danger" title="Remove section">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="legal-section-preview">{{ section.content.substring(0, 150) }}{{ section.content.length > 150 ? '...' : '' }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Edit Legal Section Modal -->
+            <div v-if="editingLegalPolicy !== null" class="modal-overlay" @click.self="cancelEditLegalSection">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3>Edit {{ editingLegalPolicy === 'privacy' ? 'Privacy Policy' : editingLegalPolicy === 'terms' ? 'Terms of Service' : 'Cookie Policy' }} Section</h3>
+                  <button @click="cancelEditLegalSection" class="modal-close">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label>
+                      <span class="label-text">Section Heading</span>
+                    </label>
+                    <input v-model="editLegalSectionForm.heading" type="text" placeholder="e.g., Information We Collect" class="form-input" />
+                  </div>
+                  <div class="form-group">
+                    <label>
+                      <span class="label-text">Section Content</span>
+                    </label>
+                    <textarea v-model="editLegalSectionForm.content" rows="8" placeholder="Enter the section content..." class="form-textarea"></textarea>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button @click="cancelEditLegalSection" class="btn-secondary">Cancel</button>
+                  <button @click="saveLegalSection" class="btn-primary">Save Section</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Email Submissions -->
           <div v-if="activeTab === 'email-submissions'" class="editor-section">
             <div class="section-header">
@@ -2697,13 +2928,28 @@
                 <div class="form-group">
                   <label>Role</label>
                   <select v-model="newUserForm.role" class="form-input">
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
+                    <option v-for="role in roles" :key="role.id" :value="role.name">
+                      {{ role.name }}
+                      <template v-if="role.description"> - {{ role.description }}</template>
+                    </option>
                   </select>
+                  <p v-if="getSelectedRolePermissions(newUserForm.role).length > 0" class="role-permissions-hint">
+                    <span class="hint-label">Permissions:</span>
+                    {{ getSelectedRolePermissions(newUserForm.role).slice(0, 3).map(p => getPermissionLabel(p)).join(', ') }}
+                    <span v-if="getSelectedRolePermissions(newUserForm.role).length > 3">
+                      +{{ getSelectedRolePermissions(newUserForm.role).length - 3 }} more
+                    </span>
+                  </p>
                 </div>
               </div>
-              <button @click="createUser" :disabled="isAdminLoading" class="btn-primary" style="margin-top: 1rem;">
-                Create User
+              <button @click="createUser" :disabled="isAdminLoading || !newUserForm.email || !newUserForm.password" class="btn-primary" style="margin-top: 1rem;">
+                <svg v-if="!isAdminLoading" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="8.5" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+                  <path d="M20 8V14M17 11H23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <div v-else class="btn-spinner"></div>
+                {{ isAdminLoading ? 'Creating...' : 'Create User' }}
               </button>
             </div>
 
@@ -2718,7 +2964,14 @@
                       <div class="user-main-info">
                         <h5>{{ u.email }}</h5>
                         <p>{{ u.displayName || 'No display name' }}</p>
-                        <span class="user-role-badge" :class="{ 'role-admin': u.role === 'admin', 'role-user': u.role === 'user' }">
+                        <span 
+                          class="user-role-badge" 
+                          :class="{ 
+                            'role-admin': u.role === 'admin', 
+                            'role-user': u.role === 'user' 
+                          }"
+                          :title="getRoleDescription(u.role)"
+                        >
                           {{ u.role }}
                         </span>
                       </div>
@@ -2767,17 +3020,26 @@
                       <div class="form-group">
                         <label>Role</label>
                         <select v-model="editUserForm.role" class="form-input">
-                          <option value="user">User</option>
-                          <option value="admin">Admin</option>
+                          <option v-for="role in roles" :key="role.id" :value="role.name">
+                            {{ role.name }}
+                          </option>
                         </select>
+                        <p v-if="getSelectedRolePermissions(editUserForm.role).length > 0" class="role-permissions-hint">
+                          <span class="hint-label">Permissions:</span>
+                          {{ getSelectedRolePermissions(editUserForm.role).slice(0, 3).map(p => getPermissionLabel(p)).join(', ') }}
+                          <span v-if="getSelectedRolePermissions(editUserForm.role).length > 3">
+                            +{{ getSelectedRolePermissions(editUserForm.role).length - 3 }} more
+                          </span>
+                        </p>
                       </div>
                     </div>
                     <div class="user-edit-actions">
-                      <button @click="saveUserEdit(u.id)" :disabled="isAdminLoading" class="btn-primary">
-                        Save
-                      </button>
                       <button @click="cancelUserEdit" class="btn-secondary">
                         Cancel
+                      </button>
+                      <button @click="saveUserEdit(u.id)" :disabled="isAdminLoading" class="btn-primary">
+                        <div v-if="isAdminLoading" class="btn-spinner"></div>
+                        {{ isAdminLoading ? 'Saving...' : 'Save Changes' }}
                       </button>
                     </div>
                   </div>
@@ -2793,8 +3055,20 @@
                 <div class="section-icon">🔐</div>
                 <div>
                   <h3>Role Management</h3>
-                  <p class="section-description">Create and manage roles</p>
+                  <p class="section-description">Create and manage roles with specific permissions</p>
                 </div>
+              </div>
+            </div>
+            
+            <!-- Info Banner -->
+            <div class="info-banner">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="12" cy="8" r="1" fill="currentColor"/>
+              </svg>
+              <div>
+                <strong>How permissions work:</strong> When you update a role's permissions, users with that role will see the changes when they refresh their page or log in again.
               </div>
             </div>
 
@@ -2804,42 +3078,137 @@
               <div class="form-grid">
                 <div class="form-group">
                   <label>Role Name</label>
-                  <input v-model="newRoleForm.name" type="text" placeholder="editor" class="form-input" />
+                  <input v-model="newRoleForm.name" type="text" placeholder="e.g., content_writer" class="form-input" />
                 </div>
                 <div class="form-group full-width">
                   <label>Description</label>
-                  <textarea v-model="newRoleForm.description" rows="2" placeholder="Role description" class="form-textarea"></textarea>
+                  <textarea v-model="newRoleForm.description" rows="2" placeholder="Describe what this role can do" class="form-textarea"></textarea>
                 </div>
               </div>
-              <button @click="createRole" :disabled="isAdminLoading" class="btn-primary" style="margin-top: 1rem;">
-                Create Role
+              
+              <!-- Permissions Selection -->
+              <div class="permissions-section">
+                <h5 class="permissions-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+                    <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Permissions
+                </h5>
+                <p class="permissions-description">Select what this role can access and modify</p>
+                
+                <div class="permissions-categories">
+                  <div v-for="(permissions, category) in permissionsByCategory" :key="category" class="permission-category">
+                    <div class="category-header">
+                      <h6 class="category-title">{{ category }}</h6>
+                      <div class="category-actions">
+                        <button 
+                          type="button"
+                          @click="selectAllInCategory(newRoleForm, category)" 
+                          class="category-btn"
+                          :class="{ 'active': allCategorySelected(newRoleForm, category) }"
+                        >
+                          Select All
+                        </button>
+                        <button 
+                          type="button"
+                          @click="deselectAllInCategory(newRoleForm, category)" 
+                          class="category-btn"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+                    <div class="permission-checkboxes">
+                      <label 
+                        v-for="permission in permissions" 
+                        :key="permission.id" 
+                        class="permission-checkbox"
+                        :class="{ 'checked': newRoleForm.permissions.includes(permission.id) }"
+                      >
+                        <input 
+                          type="checkbox" 
+                          :checked="newRoleForm.permissions.includes(permission.id)"
+                          @change="togglePermission(newRoleForm, permission.id)"
+                        />
+                        <span class="checkbox-custom"></span>
+                        <span class="checkbox-label">{{ permission.label }}</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+                
+                <div class="selected-permissions-count">
+                  <span class="count-badge">{{ newRoleForm.permissions.length }}</span>
+                  permission{{ newRoleForm.permissions.length !== 1 ? 's' : '' }} selected
+                </div>
+              </div>
+              
+              <button @click="createRole" :disabled="isAdminLoading || !newRoleForm.name" class="btn-primary" style="margin-top: 1.5rem;">
+                <svg v-if="!isAdminLoading" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <div v-else class="btn-spinner"></div>
+                {{ isAdminLoading ? 'Creating...' : 'Create Role' }}
               </button>
             </div>
 
             <!-- Roles List -->
             <div class="admin-table-card">
-              <h4>All Roles</h4>
-              <div v-if="isAdminLoading" class="loading-text">Loading roles...</div>
+              <h4>Existing Roles</h4>
+              <div v-if="isAdminLoading && roles.length === 0" class="loading-text">Loading roles...</div>
+              <div v-else-if="roles.length === 0" class="empty-state">
+                <p>No roles created yet. Create your first role above.</p>
+              </div>
               <div v-else class="roles-list">
                 <div v-for="role in roles" :key="role.id" class="role-card">
                   <div v-if="editingRoleId !== role.id" class="role-card-content">
-                  <div>
-                    <h5>{{ role.name }}</h5>
-                    <p>{{ role.description || 'No description' }}</p>
+                    <div class="role-info">
+                      <div class="role-header">
+                        <h5 class="role-name">
+                          {{ role.name }}
+                          <span v-if="role.name === 'admin'" class="role-badge admin-badge">System</span>
+                          <span v-else-if="role.name === 'user'" class="role-badge user-badge">Default</span>
+                        </h5>
+                        <p class="role-description">{{ role.description || 'No description provided' }}</p>
+                      </div>
                       <div v-if="role.permissions && role.permissions.length > 0" class="role-permissions">
-                        <span class="permission-badge" v-for="permission in role.permissions" :key="permission">
-                          {{ permission }}
-                        </span>
-                  </div>
-                </div>
+                        <span class="permissions-label">Permissions:</span>
+                        <div class="permission-badges">
+                          <span 
+                            v-for="permission in role.permissions.slice(0, 5)" 
+                            :key="permission" 
+                            class="permission-badge"
+                            :title="getPermissionLabel(permission)"
+                          >
+                            {{ getPermissionLabel(permission) }}
+                          </span>
+                          <span 
+                            v-if="role.permissions.length > 5" 
+                            class="permission-badge more-badge"
+                            :title="role.permissions.slice(5).map(p => getPermissionLabel(p)).join(', ')"
+                          >
+                            +{{ role.permissions.length - 5 }} more
+                          </span>
+                        </div>
+                      </div>
+                      <div v-else class="role-no-permissions">
+                        <span>No permissions assigned</span>
+                      </div>
+                    </div>
                     <div class="role-actions">
-                      <button @click="startEditRole(role)" class="btn-icon" title="Edit role">
+                      <button @click="startEditRole(role)" class="btn-icon btn-icon-warning" title="Edit role">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </button>
-                      <button @click="deleteRole(role.id)" class="btn-icon btn-icon-danger" title="Delete role" :disabled="role.name === 'admin' || role.name === 'user'">
+                      <button 
+                        @click="deleteRole(role.id)" 
+                        class="btn-icon btn-icon-danger" 
+                        title="Delete role" 
+                        :disabled="role.name === 'admin' || role.name === 'user'"
+                      >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2847,24 +3216,89 @@
                       </button>
                     </div>
                   </div>
+                  
                   <!-- Edit Form -->
                   <div v-else class="role-edit-form">
                     <div class="form-grid">
                       <div class="form-group">
                         <label>Role Name</label>
-                        <input v-model="editRoleForm.name" type="text" class="form-input" />
+                        <input 
+                          v-model="editRoleForm.name" 
+                          type="text" 
+                          class="form-input" 
+                          :disabled="role.name === 'admin' || role.name === 'user'"
+                        />
                       </div>
                       <div class="form-group full-width">
                         <label>Description</label>
                         <textarea v-model="editRoleForm.description" rows="2" class="form-textarea"></textarea>
                       </div>
                     </div>
+                    
+                    <!-- Permissions Selection for Edit -->
+                    <div class="permissions-section">
+                      <h5 class="permissions-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+                          <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Permissions
+                      </h5>
+                      
+                      <div class="permissions-categories">
+                        <div v-for="(permissions, category) in permissionsByCategory" :key="category" class="permission-category">
+                          <div class="category-header">
+                            <h6 class="category-title">{{ category }}</h6>
+                            <div class="category-actions">
+                              <button 
+                                type="button"
+                                @click="selectAllInCategory(editRoleForm, category)" 
+                                class="category-btn"
+                                :class="{ 'active': allCategorySelected(editRoleForm, category) }"
+                              >
+                                Select All
+                              </button>
+                              <button 
+                                type="button"
+                                @click="deselectAllInCategory(editRoleForm, category)" 
+                                class="category-btn"
+                              >
+                                Clear
+                              </button>
+                            </div>
+                          </div>
+                          <div class="permission-checkboxes">
+                            <label 
+                              v-for="permission in permissions" 
+                              :key="permission.id" 
+                              class="permission-checkbox"
+                              :class="{ 'checked': editRoleForm.permissions.includes(permission.id) }"
+                            >
+                              <input 
+                                type="checkbox" 
+                                :checked="editRoleForm.permissions.includes(permission.id)"
+                                @change="togglePermission(editRoleForm, permission.id)"
+                              />
+                              <span class="checkbox-custom"></span>
+                              <span class="checkbox-label">{{ permission.label }}</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div class="selected-permissions-count">
+                        <span class="count-badge">{{ editRoleForm.permissions.length }}</span>
+                        permission{{ editRoleForm.permissions.length !== 1 ? 's' : '' }} selected
+                      </div>
+                    </div>
+                    
                     <div class="role-edit-actions">
-                      <button @click="saveRoleEdit(role.id)" :disabled="isAdminLoading" class="btn-primary">
-                        Save
-                      </button>
                       <button @click="cancelRoleEdit" class="btn-secondary">
                         Cancel
+                      </button>
+                      <button @click="saveRoleEdit(role.id)" :disabled="isAdminLoading" class="btn-primary">
+                        <div v-if="isAdminLoading" class="btn-spinner"></div>
+                        {{ isAdminLoading ? 'Saving...' : 'Save Changes' }}
                       </button>
                     </div>
                   </div>
@@ -2891,21 +3325,71 @@
                 Disable sections that need to be fixed or are experiencing errors. Disabled sections will be hidden from the website.
               </p>
               <div v-if="isAdminLoading" class="loading-text">Loading settings...</div>
-              <div v-else class="sections-list">
-                <div v-for="section in availableSections" :key="section.id" class="section-toggle-item">
-                  <div class="section-info">
-                    <h5>{{ section.label }}</h5>
-                    <span class="section-id">ID: {{ section.id }}</span>
+              <div v-else class="sections-groups">
+                <!-- Home Page Sections -->
+                <div class="section-group">
+                  <h5 class="section-group-title">🏠 Home Page</h5>
+                  <div class="sections-list">
+                    <div v-for="section in homeSections" :key="section.id" class="section-toggle-item">
+                      <div class="section-info">
+                        <h5>{{ section.label }}</h5>
+                        <span class="section-id">ID: {{ section.id }}</span>
+                      </div>
+                      <label class="toggle-switch">
+                        <input 
+                          type="checkbox" 
+                          :checked="!siteSettings.disabledSections?.includes(section.id)"
+                          @change="toggleSection(section.id, !($event.target as HTMLInputElement).checked)"
+                        />
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">{{ siteSettings.disabledSections?.includes(section.id) ? 'Disabled' : 'Enabled' }}</span>
+                      </label>
+                    </div>
                   </div>
-                  <label class="toggle-switch">
-                    <input 
-                      type="checkbox" 
-                      :checked="!siteSettings.disabledSections?.includes(section.id)"
-                      @change="toggleSection(section.id, !($event.target as HTMLInputElement).checked)"
-                    />
-                    <span class="toggle-slider"></span>
-                    <span class="toggle-label">{{ siteSettings.disabledSections?.includes(section.id) ? 'Disabled' : 'Enabled' }}</span>
-                  </label>
+                </div>
+
+                <!-- About Page Sections -->
+                <div class="section-group">
+                  <h5 class="section-group-title">ℹ️ About Page</h5>
+                  <div class="sections-list">
+                    <div v-for="section in aboutSections" :key="section.id" class="section-toggle-item">
+                      <div class="section-info">
+                        <h5>{{ section.label }}</h5>
+                        <span class="section-id">ID: {{ section.id }}</span>
+                      </div>
+                      <label class="toggle-switch">
+                        <input 
+                          type="checkbox" 
+                          :checked="!siteSettings.disabledSections?.includes(section.id)"
+                          @change="toggleSection(section.id, !($event.target as HTMLInputElement).checked)"
+                        />
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">{{ siteSettings.disabledSections?.includes(section.id) ? 'Disabled' : 'Enabled' }}</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Services Page Sections -->
+                <div class="section-group">
+                  <h5 class="section-group-title">🛠️ Services Page</h5>
+                  <div class="sections-list">
+                    <div v-for="section in servicesSections" :key="section.id" class="section-toggle-item">
+                      <div class="section-info">
+                        <h5>{{ section.label }}</h5>
+                        <span class="section-id">ID: {{ section.id }}</span>
+                      </div>
+                      <label class="toggle-switch">
+                        <input 
+                          type="checkbox" 
+                          :checked="!siteSettings.disabledSections?.includes(section.id)"
+                          @change="toggleSection(section.id, !($event.target as HTMLInputElement).checked)"
+                        />
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">{{ siteSettings.disabledSections?.includes(section.id) ? 'Disabled' : 'Enabled' }}</span>
+                      </label>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -3049,6 +3533,7 @@ import { AuthViewController } from '@/features/auth/controllers/AuthViewControll
 import { homeContentController } from '@/features/home/controllers/HomeContentController'
 import { aboutContentController } from '@/features/about/controllers/AboutContentController'
 import { servicesContentController } from '@/features/services/controllers/ServicesContentController'
+import { legalContentController } from '@/features/legal/controllers/LegalContentController'
 import { adminUserController } from '../controllers/UserController'
 import { adminUserService } from '../services/UserService'
 import { roleController } from '../controllers/RoleController'
@@ -3060,6 +3545,8 @@ import type { SiteSettings } from '../models/SiteSettings'
 import type { HomeContent } from '@/features/home/models/HomeContent'
 import type { AboutContent, TeamMember, FAQ, StatCard } from '@/features/about/models/AboutContent'
 import type { ServicesContent, WhyChooseFeature } from '@/features/services/models/ServicesContent'
+import type { LegalContent } from '@/features/legal/models/LegalContent'
+import { defaultLegalContent } from '@/features/legal/models/LegalContent'
 import type { User } from '@/features/auth/models/User'
 import type { Role } from '../models/Role'
 import type { ActivityLog } from '../models/ActivityLog'
@@ -3097,6 +3584,7 @@ const baseTabs = [
   { id: 'about', label: 'About Page' },
   { id: 'services-page', label: 'Services Page' },
   { id: 'footer', label: 'Footer' },
+  { id: 'legal-pages', label: 'Legal Pages' },
   { id: 'email-submissions', label: 'Email Submissions' }
 ]
 const adminTabs = [
@@ -3105,8 +3593,69 @@ const adminTabs = [
   { id: 'site-settings', label: 'Site Settings' },
   { id: 'activity-logs', label: 'Activity Logs' }
 ]
+// Map tabs to required permissions
+const tabPermissionMap: Record<string, string> = {
+  'hero': 'edit_hero',
+  'cta': 'edit_cta',
+  'who-we-are': 'edit_who_we_are',
+  'system': 'edit_system',
+  'services': 'edit_services',
+  'what-we-do': 'edit_what_we_do',
+  'what-you-get': 'edit_what_you_get',
+  'bonuses': 'edit_bonuses',
+  'clients': 'edit_clients',
+  'real-results': 'edit_real_results',
+  'footer': 'edit_footer',
+  'about': 'edit_about_page',
+  'services-page': 'edit_services_page',
+  'legal-pages': 'edit_legal_pages',
+  'email-submissions': 'view_email_submissions',
+  'users': 'manage_users',
+  'roles': 'manage_roles',
+  'site-settings': 'manage_site_settings',
+  'activity-logs': 'view_activity_logs',
+}
+
+// Get current user's permissions from their role
+const userPermissions = computed(() => {
+  if (isAdmin.value) {
+    // Admin has all permissions
+    return availablePermissions.map(p => p.id)
+  }
+  
+  const userRole = user.value?.role
+  if (!userRole) return []
+  
+  const role = roles.value.find(r => r.name === userRole)
+  return role?.permissions || []
+})
+
+// Check if user has a specific permission
+const hasPermission = (permissionId: string): boolean => {
+  if (isAdmin.value) return true
+  return userPermissions.value.includes(permissionId)
+}
+
+// Check if user can access a specific tab
+const canAccessTab = (tabId: string): boolean => {
+  if (isAdmin.value) return true
+  
+  const requiredPermission = tabPermissionMap[tabId]
+  if (!requiredPermission) return true // Tab has no permission requirement
+  
+  return hasPermission(requiredPermission)
+}
+
 const tabs = computed(() => {
-  return isAdmin.value ? [...baseTabs, ...adminTabs] : baseTabs
+  const allTabs = isAdmin.value ? [...baseTabs, ...adminTabs] : baseTabs
+  
+  // For admin, show all tabs
+  if (isAdmin.value) {
+    return allTabs
+  }
+  
+  // For other users, filter tabs based on permissions
+  return allTabs.filter(tab => canAccessTab(tab.id))
 })
 
 // Admin management state
@@ -3126,22 +3675,50 @@ const uploadingVideo = ref(false)
 const uploadProgress = ref(0)
 const videoFileInput = ref<HTMLInputElement | null>(null)
 const availableSections = [
-  { id: 'hero', label: 'Hero Section' },
-  { id: 'cta', label: 'CTA Section' },
-  { id: 'social-proof', label: 'Social Proof' },
-  { id: 'who-we-are', label: 'Who We Are' },
-  { id: 'stats', label: 'Statistics' },
-  { id: 'system', label: 'System Section' },
-  { id: 'services', label: 'Services' },
-  { id: 'what-we-do', label: 'What We Do' },
-  { id: 'what-you-get', label: 'What You Get' },
-  { id: 'bonuses', label: 'Bonuses' },
-  { id: 'clients', label: 'Clients' },
-  { id: 'real-results', label: 'Real Results' },
-  { id: 'testimonials', label: 'Testimonials' },
-  { id: 'about', label: 'About Page' },
-  { id: 'footer', label: 'Footer' }
+  // Home Page Sections
+  { id: 'hero', label: 'Hero Section (Home)' },
+  { id: 'cta', label: 'CTA Section (Home)' },
+  { id: 'social-proof', label: 'Social Proof (Home)' },
+  { id: 'who-we-are', label: 'Who We Are (Home)' },
+  { id: 'stats', label: 'Statistics (Home)' },
+  { id: 'system', label: 'System Section (Home)' },
+  { id: 'services', label: 'Services (Home)' },
+  { id: 'what-we-do', label: 'What We Do (Home)' },
+  { id: 'what-you-get', label: 'What You Get (Home)' },
+  { id: 'bonuses', label: 'Bonuses (Home)' },
+  { id: 'clients', label: 'Clients (Home)' },
+  { id: 'real-results', label: 'Real Results (Home)' },
+  { id: 'testimonials', label: 'Testimonials (Home)' },
+  { id: 'footer', label: 'Footer (Home)' },
+  // About Page Sections
+  { id: 'about-page', label: 'About Page (Entire Page)' },
+  { id: 'about-who-we-are', label: 'Who We Are (About)' },
+  { id: 'about-video', label: 'Video Section (About)' },
+  { id: 'about-cta', label: 'CTA Section (About)' },
+  { id: 'about-team', label: 'Our Team (About)' },
+  { id: 'about-faq', label: 'FAQ Section (About)' },
+  // Services Page Sections
+  { id: 'services-page', label: 'Services Page (Entire Page)' },
+  { id: 'services-hero', label: 'Hero Section (Services)' },
+  { id: 'services-system', label: 'System Section (Services)' },
+  { id: 'services-what-we-do', label: 'What We Do (Services)' },
+  { id: 'services-what-you-get', label: 'What You Get (Services)' },
+  { id: 'services-bonuses', label: 'Bonuses (Services)' },
+  { id: 'services-why-choose', label: 'Why Choose Us (Services)' },
+  { id: 'services-testimonials', label: 'Testimonials (Services)' }
 ]
+
+// Computed properties for section groups
+const homeSections = computed(() => availableSections.filter(s => 
+  !s.id.startsWith('about-') && !s.id.startsWith('services-')
+))
+const aboutSections = computed(() => availableSections.filter(s => 
+  s.id.startsWith('about-') || s.id === 'about-page'
+))
+const servicesSections = computed(() => availableSections.filter(s => 
+  s.id.startsWith('services-') || s.id === 'services-page'
+))
+
 const newUserForm = ref({
   email: '',
   password: '',
@@ -3165,6 +3742,107 @@ const editRoleForm = ref({
   description: '',
   permissions: [] as string[]
 })
+
+// Available permissions for roles
+const availablePermissions = [
+  // Home Page Sections
+  { id: 'edit_hero', label: 'Edit Hero Section', category: 'Home Page' },
+  { id: 'edit_cta', label: 'Edit CTA Section', category: 'Home Page' },
+  { id: 'edit_who_we_are', label: 'Edit Who We Are', category: 'Home Page' },
+  { id: 'edit_system', label: 'Edit System Section', category: 'Home Page' },
+  { id: 'edit_services', label: 'Edit Services Section', category: 'Home Page' },
+  { id: 'edit_what_we_do', label: 'Edit What We Do', category: 'Home Page' },
+  { id: 'edit_what_you_get', label: 'Edit What You Get', category: 'Home Page' },
+  { id: 'edit_bonuses', label: 'Edit Bonuses Section', category: 'Home Page' },
+  { id: 'edit_clients', label: 'Edit Clients & Testimonials', category: 'Home Page' },
+  { id: 'edit_real_results', label: 'Edit Real Results', category: 'Home Page' },
+  { id: 'edit_footer', label: 'Edit Footer', category: 'Home Page' },
+  // Other Pages
+  { id: 'edit_about_page', label: 'Edit About Page', category: 'Other Pages' },
+  { id: 'edit_services_page', label: 'Edit Services Page', category: 'Other Pages' },
+  { id: 'edit_legal_pages', label: 'Edit Legal Pages', category: 'Other Pages' },
+  // Content Management
+  { id: 'view_email_submissions', label: 'View Email Submissions', category: 'Content Management' },
+  { id: 'delete_email_submissions', label: 'Delete Email Submissions', category: 'Content Management' },
+  // Admin Functions (only for admin role)
+  { id: 'manage_users', label: 'Manage Users', category: 'Administration' },
+  { id: 'manage_roles', label: 'Manage Roles', category: 'Administration' },
+  { id: 'manage_site_settings', label: 'Manage Site Settings', category: 'Administration' },
+  { id: 'view_activity_logs', label: 'View Activity Logs', category: 'Administration' },
+]
+
+// Group permissions by category for display
+const permissionsByCategory = computed(() => {
+  const categories: Record<string, typeof availablePermissions> = {}
+  availablePermissions.forEach(permission => {
+    if (!categories[permission.category]) {
+      categories[permission.category] = []
+    }
+    categories[permission.category].push(permission)
+  })
+  return categories
+})
+
+// Toggle permission in form
+const togglePermission = (form: { permissions: string[] }, permissionId: string) => {
+  const index = form.permissions.indexOf(permissionId)
+  if (index === -1) {
+    form.permissions.push(permissionId)
+  } else {
+    form.permissions.splice(index, 1)
+  }
+}
+
+// Select all permissions in a category
+const selectAllInCategory = (form: { permissions: string[] }, category: string) => {
+  const categoryPermissions = availablePermissions.filter(p => p.category === category)
+  categoryPermissions.forEach(p => {
+    if (!form.permissions.includes(p.id)) {
+      form.permissions.push(p.id)
+    }
+  })
+}
+
+// Deselect all permissions in a category
+const deselectAllInCategory = (form: { permissions: string[] }, category: string) => {
+  const categoryPermissions = availablePermissions.filter(p => p.category === category)
+  categoryPermissions.forEach(p => {
+    const index = form.permissions.indexOf(p.id)
+    if (index !== -1) {
+      form.permissions.splice(index, 1)
+    }
+  })
+}
+
+// Check if all permissions in category are selected
+const allCategorySelected = (form: { permissions: string[] }, category: string) => {
+  const categoryPermissions = availablePermissions.filter(p => p.category === category)
+  return categoryPermissions.every(p => form.permissions.includes(p.id))
+}
+
+// Get permission label by id
+const getPermissionLabel = (permissionId: string): string => {
+  const permission = availablePermissions.find(p => p.id === permissionId)
+  return permission?.label || permissionId
+}
+
+// Get permissions for a selected role name
+const getSelectedRolePermissions = (roleName: string): string[] => {
+  const role = roles.value.find(r => r.name === roleName)
+  return role?.permissions || []
+}
+
+// Get role description by name
+const getRoleDescription = (roleName: string): string => {
+  const role = roles.value.find(r => r.name === roleName)
+  if (!role) return ''
+  
+  const permCount = role.permissions?.length || 0
+  if (role.description) {
+    return `${role.description} (${permCount} permission${permCount !== 1 ? 's' : ''})`
+  }
+  return `${permCount} permission${permCount !== 1 ? 's' : ''}`
+}
 
 // About page form data
 const aboutFormData = ref<AboutContent>({
@@ -3213,6 +3891,17 @@ const servicesFormData = ref<ServicesContent>({
   whyChooseTitle: 'Why Choose Clear Up',
   whyChooseSubtitle: 'Creative thinking, fast execution, and results-driven content built for modern brands.',
   whyChooseFeatures: []
+})
+
+// Legal Pages form data
+const legalFormData = ref<LegalContent>({ ...defaultLegalContent })
+
+// Editing states for legal sections
+const editingLegalPolicy = ref<'privacy' | 'terms' | 'cookies' | null>(null)
+const editingLegalSectionIndex = ref<number | null>(null)
+const editLegalSectionForm = ref<{ heading: string; content: string }>({
+  heading: '',
+  content: ''
 })
 
 // Track original feature IDs from backend to detect new features
@@ -3314,6 +4003,7 @@ const getTabIcon = (tabId: string): string => {
     'about': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/></svg>',
     'services-page': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'footer': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    'legal-pages': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 18V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 15L12 12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'email-submissions': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'users': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'roles': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/><path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
@@ -4001,6 +4691,101 @@ const deleteFAQ = (index: number) => {
   
   aboutFormData.value.faqs.splice(index, 1)
   saveMessage.value = 'FAQ deleted'
+  saveMessageType.value = 'success'
+  setTimeout(() => { saveMessage.value = '' }, 2000)
+}
+
+// Legal section methods
+const getLegalPolicySections = (policy: 'privacy' | 'terms' | 'cookies') => {
+  if (policy === 'privacy') return legalFormData.value.privacyPolicy.sections
+  if (policy === 'terms') return legalFormData.value.termsOfService.sections
+  return legalFormData.value.cookiePolicy.sections
+}
+
+const setLegalPolicySections = (policy: 'privacy' | 'terms' | 'cookies', sections: Array<{ id: string; heading: string; content: string }>) => {
+  if (policy === 'privacy') {
+    legalFormData.value.privacyPolicy.sections = sections
+  } else if (policy === 'terms') {
+    legalFormData.value.termsOfService.sections = sections
+  } else {
+    legalFormData.value.cookiePolicy.sections = sections
+  }
+}
+
+const addLegalSection = (policy: 'privacy' | 'terms' | 'cookies') => {
+  const sections = getLegalPolicySections(policy)
+  const newSection = {
+    id: `section-${Date.now()}`,
+    heading: '',
+    content: ''
+  }
+  sections.push(newSection)
+  startEditLegalSection(policy, sections.length - 1)
+}
+
+const startEditLegalSection = (policy: 'privacy' | 'terms' | 'cookies', index: number) => {
+  const sections = getLegalPolicySections(policy)
+  const section = sections[index]
+  if (!section) return
+  
+  editingLegalPolicy.value = policy
+  editingLegalSectionIndex.value = index
+  editLegalSectionForm.value = {
+    heading: section.heading,
+    content: section.content
+  }
+}
+
+const cancelEditLegalSection = () => {
+  // If it's a new empty section, remove it
+  if (editingLegalPolicy.value !== null && editingLegalSectionIndex.value !== null) {
+    const sections = getLegalPolicySections(editingLegalPolicy.value)
+    const section = sections[editingLegalSectionIndex.value]
+    if (section && !section.heading && !section.content) {
+      sections.splice(editingLegalSectionIndex.value, 1)
+    }
+  }
+  
+  editingLegalPolicy.value = null
+  editingLegalSectionIndex.value = null
+  editLegalSectionForm.value = { heading: '', content: '' }
+}
+
+const saveLegalSection = () => {
+  if (editingLegalPolicy.value === null || editingLegalSectionIndex.value === null) return
+  
+  if (!editLegalSectionForm.value.heading || !editLegalSectionForm.value.content) {
+    saveMessage.value = 'Heading and content are required'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+    return
+  }
+  
+  const sections = getLegalPolicySections(editingLegalPolicy.value)
+  const section = sections[editingLegalSectionIndex.value]
+  if (!section) return
+  
+  section.heading = editLegalSectionForm.value.heading
+  section.content = editLegalSectionForm.value.content
+  
+  saveMessage.value = 'Section updated'
+  saveMessageType.value = 'success'
+  setTimeout(() => { saveMessage.value = '' }, 2000)
+  
+  editingLegalPolicy.value = null
+  editingLegalSectionIndex.value = null
+  editLegalSectionForm.value = { heading: '', content: '' }
+}
+
+const removeLegalSection = (policy: 'privacy' | 'terms' | 'cookies', index: number) => {
+  if (!confirm('Are you sure you want to delete this section?')) {
+    return
+  }
+  
+  const sections = getLegalPolicySections(policy)
+  sections.splice(index, 1)
+  
+  saveMessage.value = 'Section deleted'
   saveMessageType.value = 'success'
   setTimeout(() => { saveMessage.value = '' }, 2000)
 }
@@ -5275,9 +6060,27 @@ const loadContent = async () => {
       )
     }
     
+    // Load legal content
+    const legalResult = await legalContentController.getLegalContent()
+    if (legalResult.success && legalResult.data) {
+      legalFormData.value = legalResult.data
+    }
+    
+    // Load roles for all users (needed for permission checking)
+    const rolesResult = await roleController.getAllRoles()
+    if (rolesResult.success && rolesResult.data) {
+      roles.value = rolesResult.data
+    }
+    
     // Load admin data if admin
     if (isAdmin.value) {
       await loadAdminData()
+    }
+    
+    // Set initial tab to first accessible tab
+    const accessibleTabs = tabs.value
+    if (accessibleTabs.length > 0 && !canAccessTab(activeTab.value)) {
+      activeTab.value = accessibleTabs[0].id
     }
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : 'Failed to load content'
@@ -5473,7 +6276,11 @@ const createRole = async () => {
     const result = await roleController.createRole(newRoleForm.value)
     if (result.success) {
       newRoleForm.value = { name: '', description: '', permissions: [] }
+      
+      // Reload roles to update the dropdown lists
+      await reloadRoles()
       await loadAdminData()
+      
       saveMessage.value = 'Role created successfully!'
       saveMessageType.value = 'success'
       setTimeout(() => { saveMessage.value = '' }, 4000)
@@ -5512,8 +6319,12 @@ const saveRoleEdit = async (roleId: string) => {
     if (result.success) {
       editingRoleId.value = null
       editRoleForm.value = { name: '', description: '', permissions: [] }
+      
+      // Reload roles to update permissions across the app
+      await reloadRoles()
       await loadAdminData()
-      saveMessage.value = 'Role updated successfully!'
+      
+      saveMessage.value = 'Role updated successfully! Users with this role will see updated permissions.'
       saveMessageType.value = 'success'
       setTimeout(() => { saveMessage.value = '' }, 4000)
     } else {
@@ -5528,14 +6339,26 @@ const saveRoleEdit = async (roleId: string) => {
   }
 }
 
+// Reload roles to refresh permissions
+const reloadRoles = async () => {
+  const rolesResult = await roleController.getAllRoles()
+  if (rolesResult.success && rolesResult.data) {
+    // Create a new array reference to ensure reactivity
+    roles.value = [...rolesResult.data]
+  }
+}
+
 const deleteRole = async (roleId: string) => {
-  if (!user.value?.id || !confirm('Are you sure you want to delete this role?')) return
+  if (!user.value?.id || !confirm('Are you sure you want to delete this role? Users with this role may lose access.')) return
   
   isAdminLoading.value = true
   try {
     const result = await roleController.deleteRole(roleId, user.value.id)
     if (result.success) {
+      // Reload roles to update permissions
+      await reloadRoles()
       await loadAdminData()
+      
       saveMessage.value = 'Role deleted successfully!'
       saveMessageType.value = 'success'
       setTimeout(() => { saveMessage.value = '' }, 4000)
@@ -5638,6 +6461,14 @@ const saveContent = async () => {
       return
     }
 
+    // Check if user has permission to save this content
+    if (!canAccessTab(activeTab.value)) {
+      saveMessage.value = 'You do not have permission to modify this content'
+      saveMessageType.value = 'error'
+      isSaving.value = false
+      return
+    }
+
     // Save about content if on about tab
     if (activeTab.value === 'about') {
       const aboutResult = await aboutContentController.updateAboutContent(aboutFormData.value, userId)
@@ -5661,6 +6492,20 @@ const saveContent = async () => {
         setTimeout(() => { saveMessage.value = '' }, 4000)
       } else {
         saveMessage.value = servicesResult.error || 'Failed to save services content'
+        saveMessageType.value = 'error'
+      }
+      return
+    }
+
+    // Save legal content if on legal-pages tab
+    if (activeTab.value === 'legal-pages') {
+      const legalResult = await legalContentController.updateLegalContent(legalFormData.value)
+      if (legalResult.success) {
+        saveMessage.value = 'Legal content saved successfully!'
+        saveMessageType.value = 'success'
+        setTimeout(() => { saveMessage.value = '' }, 4000)
+      } else {
+        saveMessage.value = legalResult.error || 'Failed to save legal content'
         saveMessageType.value = 'error'
       }
       return
@@ -7425,6 +8270,31 @@ onMounted(() => {
   border-color: rgba(255, 152, 0, 0.5);
 }
 
+.sections-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.section-group {
+  background: rgba(91, 32, 150, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.15);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.section-group-title {
+  color: #F5F7FA;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(91, 32, 150, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
 .sections-list {
   display: flex;
   flex-direction: column;
@@ -8817,5 +9687,536 @@ onMounted(() => {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
+}
+
+/* Legal Sections Styles */
+.legal-sections-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.legal-section-item {
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.2s;
+}
+
+.legal-section-item:hover {
+  border-color: rgba(91, 32, 150, 0.4);
+}
+
+.legal-section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.legal-section-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  background: rgba(91, 32, 150, 0.2);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #C19DE6;
+}
+
+.legal-section-title {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #F5F7FA;
+}
+
+.legal-section-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.legal-section-preview {
+  font-size: 0.9rem;
+  color: rgba(245, 247, 250, 0.6);
+  line-height: 1.6;
+  padding-left: 2.75rem;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: #1a1a2e;
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.modal-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #F5F7FA;
+  margin: 0;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: rgba(245, 247, 250, 0.6);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: rgba(245, 247, 250, 0.1);
+  color: #F5F7FA;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-body .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.modal-body .form-group:last-child {
+  margin-bottom: 0;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+/* Permissions Section Styles */
+.permissions-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.permissions-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #F5F7FA;
+  margin: 0 0 0.5rem 0;
+}
+
+.permissions-title svg {
+  color: #C19DE6;
+}
+
+.permissions-description {
+  font-size: 0.875rem;
+  color: rgba(245, 247, 250, 0.6);
+  margin: 0 0 1.25rem 0;
+}
+
+.permissions-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.permission-category {
+  background: rgba(245, 247, 250, 0.03);
+  border: 1px solid rgba(91, 32, 150, 0.15);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(91, 32, 150, 0.1);
+}
+
+.category-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #C19DE6;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.category-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.category-btn {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  background: rgba(91, 32, 150, 0.2);
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 4px;
+  color: rgba(245, 247, 250, 0.7);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.category-btn:hover {
+  background: rgba(91, 32, 150, 0.3);
+  color: #F5F7FA;
+}
+
+.category-btn.active {
+  background: rgba(91, 32, 150, 0.4);
+  border-color: #5B2096;
+  color: #F5F7FA;
+}
+
+.permission-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.5rem;
+}
+
+.permission-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(245, 247, 250, 0.02);
+  border: 1px solid rgba(91, 32, 150, 0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.permission-checkbox:hover {
+  background: rgba(91, 32, 150, 0.1);
+  border-color: rgba(91, 32, 150, 0.3);
+}
+
+.permission-checkbox.checked {
+  background: rgba(91, 32, 150, 0.15);
+  border-color: rgba(91, 32, 150, 0.4);
+}
+
+.permission-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.checkbox-custom {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  border: 2px solid rgba(91, 32, 150, 0.4);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.permission-checkbox.checked .checkbox-custom {
+  background: linear-gradient(135deg, #5B2096, #7B3DB8);
+  border-color: #5B2096;
+}
+
+.permission-checkbox.checked .checkbox-custom::after {
+  content: '';
+  width: 5px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+}
+
+.checkbox-label {
+  font-size: 0.875rem;
+  color: rgba(245, 247, 250, 0.85);
+  line-height: 1.3;
+}
+
+.selected-permissions-count {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.1);
+  font-size: 0.875rem;
+  color: rgba(245, 247, 250, 0.7);
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 0.5rem;
+  background: linear-gradient(135deg, #5B2096, #7B3DB8);
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #F5F7FA;
+}
+
+/* Role Card Improvements */
+.role-card {
+  background: rgba(245, 247, 250, 0.03);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s;
+}
+
+.role-card:hover {
+  border-color: rgba(91, 32, 150, 0.4);
+}
+
+.role-card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.role-info {
+  flex: 1;
+}
+
+.role-header {
+  margin-bottom: 0.75rem;
+}
+
+.role-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #F5F7FA;
+  margin: 0 0 0.25rem 0;
+}
+
+.role-badge {
+  font-size: 0.65rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.admin-badge {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.user-badge {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.role-description {
+  font-size: 0.9rem;
+  color: rgba(245, 247, 250, 0.6);
+  margin: 0;
+}
+
+.role-permissions {
+  margin-top: 0.75rem;
+}
+
+.permissions-label {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(245, 247, 250, 0.5);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.permission-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.permission-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  background: rgba(91, 32, 150, 0.2);
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 4px;
+  color: rgba(245, 247, 250, 0.85);
+}
+
+.permission-badge.more-badge {
+  background: rgba(245, 247, 250, 0.1);
+  border-color: rgba(245, 247, 250, 0.2);
+  color: rgba(245, 247, 250, 0.7);
+  cursor: help;
+}
+
+.role-no-permissions {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: rgba(245, 247, 250, 0.4);
+  font-style: italic;
+}
+
+.role-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.role-edit-form {
+  padding-top: 0.5rem;
+}
+
+.role-edit-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+/* Empty state for roles */
+.roles-list .empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: rgba(245, 247, 250, 0.5);
+}
+
+/* Info banner */
+.info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: rgba(245, 247, 250, 0.85);
+  line-height: 1.5;
+}
+
+.info-banner svg {
+  color: #60a5fa;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.info-banner strong {
+  color: #60a5fa;
+}
+
+/* Role permissions hint in user form */
+.role-permissions-hint {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: rgba(245, 247, 250, 0.6);
+  line-height: 1.4;
+}
+
+.role-permissions-hint .hint-label {
+  color: #C19DE6;
+  font-weight: 500;
+}
+
+/* User role badge improvements */
+.user-role-badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  margin-top: 0.5rem;
+}
+
+.user-role-badge.role-admin {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.user-role-badge.role-user {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.user-role-badge:not(.role-admin):not(.role-user) {
+  background: rgba(91, 32, 150, 0.2);
+  color: #C19DE6;
+  border: 1px solid rgba(91, 32, 150, 0.3);
+}
+
+@media (max-width: 768px) {
+  .permission-checkboxes {
+    grid-template-columns: 1fr;
+  }
+  
+  .category-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .role-card-content {
+    flex-direction: column;
+  }
+  
+  .role-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
 }
 </style>

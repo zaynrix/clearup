@@ -82,9 +82,11 @@ service cloud.firestore {
     }
     
     // Roles collection
-    // - Only admins can read/write roles
+    // - Authenticated users can read roles (to check their own permissions)
+    // - Only admins can write (create/update/delete) roles
     match /roles/{roleId} {
-      allow read, write: if isAdmin();
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
     
     // Activity logs collection
@@ -123,6 +125,17 @@ service cloud.firestore {
     // Services Content - anyone can read, authenticated users can write
     match /servicesContent/{documentId} {
       // Allow anyone to read services content (for public services page)
+      allow read: if true;
+      
+      // Allow authenticated users to create/update/delete
+      allow write: if isAuthenticated();
+    }
+    
+    // Site content collection (legal pages, etc.)
+    // - Anyone can read (for displaying public pages like privacy policy, terms, cookies)
+    // - Only authenticated users can write (for admin dashboard)
+    match /site_content/{documentId} {
+      // Allow anyone to read site content (for public pages)
       allow read: if true;
       
       // Allow authenticated users to create/update/delete

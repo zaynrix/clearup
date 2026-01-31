@@ -49,9 +49,9 @@
           <div class="input-wrapper" :class="{ 'animate-in': isLoaded }">
             <input
               v-model="email"
-              type="email"
+              type="text"
               class="whatsapp-input"
-              :placeholder="homeContent?.ctaPlaceholder || 'Enter your email and we will send you some magic'"
+              :placeholder="homeContent?.ctaPlaceholder || 'Enter whatsapp Number and we will send you magic'"
               :disabled="isLoading"
               required
             />
@@ -63,7 +63,7 @@
             :class="{ 'animate-in': isLoaded }"
             :disabled="isLoading"
           >
-            <span class="btn-text">{{ isLoading ? 'Submitting...' : (homeContent?.ctaButtonText || 'Submit') }}</span>
+            <span class="btn-text">{{ isLoading ? 'Sending...' : (homeContent?.ctaButtonText || 'Do it') }}</span>
             <svg v-if="!isLoading" class="btn-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
@@ -546,11 +546,11 @@
         <div class="footer-bottom">
           <p class="footer-copyright">{{ homeContent?.footerAddress || 'Copyright © 2025 Trusted Valley LLC. All rights reserved' }}</p>
           <div class="footer-policies">
-            <a href="#privacy">Privacy Policy</a>
+            <router-link to="/privacy-policy">Privacy Policy</router-link>
             <span class="footer-divider">|</span>
-            <a href="#terms">Terms of Service</a>
+            <router-link to="/terms-of-service">Terms of Service</router-link>
             <span class="footer-divider">|</span>
-            <a href="#cookies">Cookie Policy</a>
+            <router-link to="/cookie-policy">Cookie Policy</router-link>
           </div>
         </div>
       </div>
@@ -1125,7 +1125,7 @@ const setupScrollAnimations = () => {
   box-sizing: border-box;
 }
 
-/* ========== FLOATING PARTICLES ========== */
+/* ========== FLOATING PARTICLES - REFINED ========== */
 .floating-particles {
   position: fixed;
   top: 0;
@@ -1135,449 +1135,414 @@ const setupScrollAnimations = () => {
   z-index: 2;
   pointer-events: none;
   overflow: hidden;
+  opacity: 0;
+  animation: fadeInSlow 2s ease-out 0.5s forwards;
+}
+
+@keyframes fadeInSlow {
+  to { opacity: 1; }
 }
 
 .particle {
   position: absolute;
   border-radius: 50%;
-  background: radial-gradient(circle, rgba(193, 157, 230, 0.8) 0%, rgba(91, 32, 150, 0.4) 50%, transparent 70%);
-  filter: blur(1px);
-  animation: floatParticle 20s ease-in-out infinite;
+  background: rgba(193, 157, 230, 0.6);
+  box-shadow: 0 0 20px rgba(193, 157, 230, 0.4), 0 0 40px rgba(91, 32, 150, 0.2);
+  animation: floatParticle var(--duration, 25s) cubic-bezier(0.45, 0, 0.55, 1) infinite;
+  will-change: transform, opacity;
 }
 
 .particle-1 {
-  width: 6px;
-  height: 6px;
-  left: 10%;
-  top: 20%;
+  width: 3px;
+  height: 3px;
+  left: 8%;
+  top: 15%;
+  --duration: 28s;
   animation-delay: 0s;
-  animation-duration: 18s;
 }
 
 .particle-2 {
-  width: 4px;
-  height: 4px;
-  left: 85%;
-  top: 15%;
-  animation-delay: -3s;
-  animation-duration: 22s;
+  width: 2px;
+  height: 2px;
+  left: 88%;
+  top: 12%;
+  --duration: 32s;
+  animation-delay: -5s;
 }
 
 .particle-3 {
-  width: 8px;
-  height: 8px;
-  left: 70%;
-  top: 60%;
-  animation-delay: -6s;
-  animation-duration: 25s;
+  width: 4px;
+  height: 4px;
+  left: 75%;
+  top: 55%;
+  --duration: 26s;
+  animation-delay: -10s;
 }
 
 .particle-4 {
-  width: 5px;
-  height: 5px;
-  left: 25%;
-  top: 70%;
-  animation-delay: -9s;
-  animation-duration: 20s;
+  width: 2px;
+  height: 2px;
+  left: 20%;
+  top: 65%;
+  --duration: 30s;
+  animation-delay: -15s;
 }
 
 .particle-5 {
   width: 3px;
   height: 3px;
-  left: 50%;
-  top: 30%;
-  animation-delay: -12s;
-  animation-duration: 17s;
+  left: 45%;
+  top: 25%;
+  --duration: 24s;
+  animation-delay: -8s;
 }
 
 .particle-6 {
-  width: 7px;
-  height: 7px;
-  left: 15%;
-  top: 50%;
-  animation-delay: -4s;
-  animation-duration: 23s;
+  width: 2px;
+  height: 2px;
+  left: 12%;
+  top: 45%;
+  --duration: 27s;
+  animation-delay: -12s;
 }
 
 .particle-7 {
-  width: 4px;
-  height: 4px;
-  left: 90%;
-  top: 40%;
-  animation-delay: -8s;
-  animation-duration: 19s;
+  width: 3px;
+  height: 3px;
+  left: 92%;
+  top: 35%;
+  --duration: 29s;
+  animation-delay: -3s;
 }
 
 .particle-8 {
-  width: 5px;
-  height: 5px;
-  left: 60%;
-  top: 80%;
-  animation-delay: -15s;
-  animation-duration: 21s;
+  width: 2px;
+  height: 2px;
+  left: 55%;
+  top: 75%;
+  --duration: 31s;
+  animation-delay: -18s;
 }
 
 @keyframes floatParticle {
   0%, 100% {
     transform: translate(0, 0) scale(1);
-    opacity: 0.6;
+    opacity: 0.4;
   }
   25% {
-    transform: translate(30px, -50px) scale(1.2);
-    opacity: 0.9;
+    transform: translate(15px, -30px) scale(1.1);
+    opacity: 0.7;
   }
   50% {
-    transform: translate(-20px, -100px) scale(0.8);
-    opacity: 0.5;
+    transform: translate(-10px, -60px) scale(0.9);
+    opacity: 0.3;
   }
   75% {
-    transform: translate(40px, -50px) scale(1.1);
-    opacity: 0.8;
+    transform: translate(20px, -30px) scale(1.05);
+    opacity: 0.6;
   }
 }
 
-/* ========== AMBIENT GLOW ========== */
+/* ========== AMBIENT GLOW - SUBTLE ========== */
 .ambient-glow {
   position: fixed;
-  top: 50%;
+  top: 40%;
   left: 50%;
-  width: 600px;
+  width: 800px;
   height: 600px;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(91, 32, 150, 0.15) 0%, rgba(193, 157, 230, 0.08) 40%, transparent 70%);
+  background: 
+    radial-gradient(ellipse at 30% 40%, rgba(91, 32, 150, 0.08) 0%, transparent 50%),
+    radial-gradient(ellipse at 70% 60%, rgba(193, 157, 230, 0.06) 0%, transparent 50%);
   z-index: 1;
   pointer-events: none;
   opacity: 0;
-  filter: blur(60px);
-  transition: opacity 1.5s ease-out;
+  filter: blur(80px);
+  transition: opacity 2s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .ambient-glow.animate-in {
   opacity: 1;
-  animation: ambientPulse 8s ease-in-out infinite;
+  animation: ambientBreath 12s cubic-bezier(0.45, 0, 0.55, 1) infinite;
 }
 
-@keyframes ambientPulse {
+@keyframes ambientBreath {
   0%, 100% {
     transform: translate(-50%, -50%) scale(1);
-    opacity: 0.8;
+    filter: blur(80px);
   }
   50% {
-    transform: translate(-50%, -50%) scale(1.15);
-    opacity: 1;
+    transform: translate(-50%, -50%) scale(1.08);
+    filter: blur(90px);
   }
 }
 
-/* ========== HERO SECTION ========== */
+/* ========== HERO SECTION - CINEMATIC ========== */
 .hero-section {
-  margin-bottom: 5rem;
-  perspective: 1000px;
+  margin-bottom: 4rem;
+  perspective: 1200px;
+  transform-style: preserve-3d;
 }
 
 .hero-headline {
   font-size: 4.5rem;
   font-weight: 600;
   line-height: 1.1;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: -0.02em;
 }
 
 /* Text Reveal Animation */
 .text-reveal {
   display: inline-block;
-  position: relative;
 }
 
 .headline-white {
   color: #F5F7FA;
   opacity: 0;
-  transform: translateY(40px) rotateX(-15deg);
-  transform-origin: center bottom;
-  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), 
-              transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(40px);
+  transition: 
+    opacity 1s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .headline-white.animate-in {
   opacity: 1;
-  transform: translateY(0) rotateX(0deg);
-  animation: textGlow 3s ease-in-out 1.2s;
-}
-
-@keyframes textGlow {
-  0%, 100% {
-    text-shadow: 0 0 0 transparent;
-  }
-  50% {
-    text-shadow: 0 0 30px rgba(245, 247, 250, 0.3), 0 0 60px rgba(245, 247, 250, 0.1);
-  }
+  transform: translateY(0);
 }
 
 .headline-purple {
-  background: linear-gradient(103deg, #5B2096 0.52%, #C19DE6 125.79%);
+  display: inline-block;
+  background: linear-gradient(103deg, #5B2096 0%, #8B4CC4 50%, #C19DE6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  color: transparent;
   font-weight: 700;
   opacity: 0;
-  transform: translateY(40px) rotateX(-15deg);
-  transform-origin: center bottom;
-  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s, 
-              transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+  transform: translateY(40px);
+  transition: 
+    opacity 1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s,
+    transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.15s;
 }
 
 .headline-purple.animate-in {
   opacity: 1;
-  transform: translateY(0) rotateX(0deg);
-}
-
-/* Gradient Shimmer Effect */
-.gradient-shimmer {
-  position: relative;
-  background: linear-gradient(
-    103deg, 
-    #5B2096 0%, 
-    #C19DE6 25%,
-    #E0C8F5 50%,
-    #C19DE6 75%,
-    #5B2096 100%
-  );
-  background-size: 200% 100%;
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  animation: shimmer 4s ease-in-out infinite 1.5s;
-}
-
-@keyframes shimmer {
-  0% {
-    background-position: 200% center;
-  }
-  100% {
-    background-position: -200% center;
-  }
-}
-
-/* Supporting Text with Staggered Animation */
-.supporting-text {
-  font-size: 1.25rem;
-  color: rgba(245, 247, 250, 0.9);
-  line-height: 1.8;
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-weight: 400;
-  opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s, 
-              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.4s;
-}
-
-.supporting-text.animate-in {
-  opacity: 1;
   transform: translateY(0);
 }
 
+/* Gradient Shimmer - Subtle */
+.gradient-shimmer {
+  background: linear-gradient(
+    103deg, 
+    #5B2096 0%, 
+    #8B4CC4 30%,
+    #D4B8E8 50%,
+    #8B4CC4 70%,
+    #5B2096 100%
+  );
+  background-size: 300% 100%;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  animation: shimmerGradient 6s ease-in-out infinite;
+  animation-delay: 2s;
+}
+
+@keyframes shimmerGradient {
+  0%, 100% {
+    background-position: 0% center;
+  }
+  50% {
+    background-position: 100% center;
+  }
+}
+
+/* Supporting Text - Elegant Stagger */
+.supporting-text {
+  font-size: 1.1rem;
+  color: rgba(245, 247, 250, 0.8);
+  line-height: 1.8;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-weight: 400;
+  letter-spacing: 0.01em;
+}
+
 .supporting-text .text-line {
-  margin: 0.5rem 0;
+  margin: 0.3rem 0;
   opacity: 0;
-  transform: translateY(20px) translateX(-10px);
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), 
-              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(20px);
+  transition: 
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: var(--delay, 0s);
 }
 
 .supporting-text.animate-in .text-line {
   opacity: 1;
-  transform: translateY(0) translateX(0);
-}
-
-/* ========== CTA SECTION ========== */
-.cta-section {
-  margin-bottom: 5rem;
-  opacity: 0;
-  transform: translateY(30px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s, 
-              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s;
-}
-
-.cta-section.animate-in {
-  opacity: 1;
   transform: translateY(0);
+}
+
+/* ========== CTA SECTION - REFINED ========== */
+.cta-section {
+  margin-bottom: 4rem;
 }
 
 .whatsapp-form {
   display: flex;
-  gap: 1rem;
-  max-width: 700px;
+  gap: 0;
+  max-width: 650px;
   margin: 0 auto 1rem;
   align-items: stretch;
+  background: rgba(30, 30, 40, 0.6);
+  border-radius: 60px;
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  padding: 5px 5px 5px 10px;
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  opacity: 0;
+  transform: translateY(25px);
+  transition: 
+    opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.9s,
+    transform 0.9s cubic-bezier(0.16, 1, 0.3, 1) 0.9s,
+    border-color 0.3s ease,
+    box-shadow 0.3s ease;
+  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.2);
 }
 
-/* Input Wrapper with Glow Effect */
+.whatsapp-form:focus-within {
+  border-color: rgba(91, 32, 150, 0.5);
+  box-shadow: 0 6px 40px rgba(91, 32, 150, 0.15);
+}
+
+.cta-section.animate-in .whatsapp-form {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Input Wrapper */
 .input-wrapper {
   flex: 1;
   position: relative;
-  opacity: 0;
-  transform: translateX(-20px);
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.9s,
-              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.9s;
-}
-
-.input-wrapper.animate-in {
-  opacity: 1;
-  transform: translateX(0);
 }
 
 .input-glow {
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #5B2096, #C19DE6, #5B2096);
-  background-size: 200% 100%;
-  opacity: 0;
-  z-index: -1;
-  filter: blur(8px);
-  transition: opacity 0.3s ease;
-}
-
-.input-wrapper:focus-within .input-glow {
-  opacity: 0.6;
-  animation: inputGlowMove 2s linear infinite;
-}
-
-@keyframes inputGlowMove {
-  0% {
-    background-position: 200% center;
-  }
-  100% {
-    background-position: -200% center;
-  }
+  display: none;
 }
 
 .whatsapp-input {
   width: 100%;
-  padding: 1rem 1.5rem;
-  background-color: rgba(245, 247, 250, 0.08);
-  border: 1px solid rgba(91, 32, 150, 0.4);
-  border-radius: 8px;
+  padding: 0.95rem 1.5rem;
+  background-color: transparent;
+  border: none;
+  border-radius: 55px;
   color: #F5F7FA;
-  font-size: 1rem;
+  font-size: 0.9rem;
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   font-weight: 400;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  letter-spacing: 0.01em;
+  transition: all 0.3s ease;
 }
 
 .whatsapp-input::placeholder {
-  color: rgba(245, 247, 250, 0.45);
+  color: rgba(245, 247, 250, 0.5);
   transition: color 0.3s ease;
 }
 
 .whatsapp-input:focus {
   outline: none;
-  border-color: #8B5CC4;
-  background-color: rgba(245, 247, 250, 0.12);
-  box-shadow: 0 0 0 4px rgba(91, 32, 150, 0.2), 0 8px 32px rgba(91, 32, 150, 0.15);
+  background-color: transparent;
 }
 
 .whatsapp-input:focus::placeholder {
-  color: rgba(245, 247, 250, 0.3);
+  color: rgba(245, 247, 250, 0.35);
 }
 
 .whatsapp-input:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
 }
 
-/* CTA Button with Premium Effects */
+/* CTA Button - Refined & Professional */
 .cta-button {
   display: flex;
   align-items: center;
   gap: 0.5rem;
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, #5B2096 0%, #7B3DB8 50%, #C19DE6 100%);
+  padding: 0.95rem 1.6rem;
+  background: linear-gradient(135deg, #5B2096 0%, #7B3DB8 50%, #9B5DD8 100%);
   background-size: 200% 200%;
+  background-position: 0% 50%;
   color: #F5F7FA;
   border: none;
-  border-radius: 8px;
-  font-size: 1rem;
+  border-radius: 55px;
+  font-size: 0.9rem;
   font-weight: 500;
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   cursor: pointer;
   white-space: nowrap;
   position: relative;
   overflow: hidden;
-  opacity: 0;
-  transform: translateX(20px);
+  flex-shrink: 0;
   transition: 
-    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1s,
-    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1s,
-    background-position 0.5s ease,
-    box-shadow 0.3s ease;
-}
-
-.cta-button.animate-in {
-  opacity: 1;
-  transform: translateX(0);
-  animation: buttonPulse 3s ease-in-out 2s infinite;
-}
-
-@keyframes buttonPulse {
-  0%, 100% {
-    box-shadow: 0 4px 20px rgba(91, 32, 150, 0.3);
-  }
-  50% {
-    box-shadow: 0 6px 30px rgba(91, 32, 150, 0.5), 0 0 50px rgba(193, 157, 230, 0.2);
-  }
+    background-position 0.6s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.4s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 2px 15px rgba(91, 32, 150, 0.25);
 }
 
 .cta-button:hover:not(:disabled) {
-  background-position: 100% 100%;
-  box-shadow: 0 8px 40px rgba(91, 32, 150, 0.5), 0 0 60px rgba(193, 157, 230, 0.3);
-  transform: translateY(-3px) scale(1.02);
+  background-position: 100% 50%;
+  box-shadow: 
+    0 4px 20px rgba(91, 32, 150, 0.35),
+    0 0 30px rgba(139, 76, 196, 0.15);
+  transform: translateY(-1px);
 }
 
 .cta-button:active:not(:disabled) {
-  transform: translateY(0) scale(0.98);
-  box-shadow: 0 2px 10px rgba(91, 32, 150, 0.3);
+  transform: translateY(0) scale(0.99);
+  box-shadow: 0 2px 10px rgba(91, 32, 150, 0.25);
+  transition-duration: 0.1s;
 }
 
 .cta-button:disabled {
-  opacity: 0.6;
+  opacity: 0.5;
   cursor: not-allowed;
-  animation: none;
 }
 
-/* Button Text & Arrow Animation */
+/* Button Text & Arrow - Smooth */
 .btn-text {
   position: relative;
   z-index: 2;
+  letter-spacing: 0.02em;
 }
 
 .btn-arrow {
   position: relative;
   z-index: 2;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+  opacity: 0.9;
 }
 
 .cta-button:hover .btn-arrow {
-  transform: translateX(4px);
+  transform: translateX(3px);
+  opacity: 1;
 }
 
-/* Button Glow Effect */
+/* Button Glow - Subtle */
 .btn-glow {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 100%;
-  height: 100%;
+  width: 120%;
+  height: 120%;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(193, 157, 230, 0.4) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(193, 157, 230, 0.2) 0%, transparent 60%);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
 }
 
@@ -1585,26 +1550,26 @@ const setupScrollAnimations = () => {
   opacity: 1;
 }
 
-/* Button Shine Effect */
+/* Button Shine - Elegant */
 .btn-shine {
   position: absolute;
   top: 0;
   left: -100%;
-  width: 50%;
+  width: 60%;
   height: 100%;
   background: linear-gradient(
-    90deg,
+    100deg,
     transparent,
-    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.15),
     transparent
   );
-  transform: skewX(-25deg);
-  transition: left 0.6s ease;
+  transform: skewX(-20deg);
+  transition: left 0.8s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
 }
 
 .cta-button:hover .btn-shine {
-  left: 150%;
+  left: 180%;
 }
 
 /* Error & Success Messages */
@@ -1680,9 +1645,12 @@ const setupScrollAnimations = () => {
   justify-content: center;
   gap: 0.5rem;
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s, 
-              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s;
+  transform: translateY(15px);
+  transition: 
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s,
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s;
+  font-size: 0.9rem;
+  color: rgba(245, 247, 250, 0.8);
 }
 
 .social-proof.animate-in {
@@ -1691,36 +1659,41 @@ const setupScrollAnimations = () => {
 }
 
 .pulse-star {
-  font-size: 1.2rem;
+  font-size: 1rem;
   display: inline-block;
-  animation: starPulse 2s ease-in-out infinite 1.5s;
+  opacity: 0;
+  transform: scale(0.5);
+  transition: 
+    opacity 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 1.5s,
+    transform 0.6s cubic-bezier(0.34, 1.56, 0.64, 1) 1.5s;
 }
 
-@keyframes starPulse {
+.social-proof.animate-in .pulse-star {
+  opacity: 1;
+  transform: scale(1);
+  animation: starGlow 3s ease-in-out infinite 2s;
+}
+
+@keyframes starGlow {
   0%, 100% {
-    transform: scale(1);
-    filter: brightness(1);
+    filter: brightness(1) drop-shadow(0 0 0 transparent);
   }
   50% {
-    transform: scale(1.2);
-    filter: brightness(1.3) drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+    filter: brightness(1.15) drop-shadow(0 0 6px rgba(255, 215, 0, 0.4));
   }
 }
 
 .proof-text {
   opacity: 0;
-  animation: fadeSlideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.4s forwards;
+  transform: translateX(-8px);
+  transition: 
+    opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.6s,
+    transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.6s;
 }
 
-@keyframes fadeSlideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.social-proof.animate-in .proof-text {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 /* Scroll Animation Styles */
@@ -3572,8 +3545,7 @@ const setupScrollAnimations = () => {
   }
   
   .whatsapp-form {
-    max-width: 100%;
-    padding: 0 10px;
+    max-width: 580px;
   }
   
   .vector-shape {
@@ -3872,26 +3844,65 @@ const setupScrollAnimations = () => {
 
 /* Medium Tablets (900px and below) */
 @media (max-width: 900px) {
+  .home-view {
+    padding: 40px 20px 30px;
+  }
+  
+  .home-container {
+    padding: 0 15px;
+  }
+  
+  .hero-section {
+    margin-bottom: 3rem;
+  }
+  
   .hero-headline {
-    font-size: 3rem;
+    font-size: 2.8rem;
+    margin-bottom: 1.5rem;
   }
   
   .supporting-text {
     font-size: 1rem;
+    line-height: 1.7;
+  }
+  
+  .supporting-text .text-line {
+    margin-bottom: 0.4rem;
+  }
+  
+  .cta-section {
+    margin-bottom: 3rem;
   }
   
   .whatsapp-form {
-    flex-direction: column;
-    gap: 12px;
+    flex-direction: row;
+    gap: 0;
+    border-radius: 55px;
+    padding: 5px 5px 5px 10px;
+    max-width: 520px;
   }
   
   .whatsapp-input {
-    width: 100%;
+    flex: 1;
+    border-radius: 50px;
+    text-align: left;
+    padding: 0.85rem 1.1rem;
+    font-size: 0.88rem;
+  }
+  
+  .whatsapp-input::placeholder {
+    font-size: 0.85rem;
   }
   
   .cta-button {
-    width: 100%;
-    justify-content: center;
+    width: auto;
+    border-radius: 50px;
+    margin-top: 0;
+    padding: 0.85rem 1.4rem;
+  }
+  
+  .social-proof {
+    font-size: 0.9rem;
   }
   
   .stats-grid {
@@ -4132,76 +4143,144 @@ const setupScrollAnimations = () => {
 /* Tablets (768px and below) */
 @media (max-width: 768px) {
   .home-view {
-    padding: 40px 15px 30px;
-    min-height: calc(100vh - 100px);
+    padding: 30px 15px 25px;
+    min-height: calc(100vh - 80px);
   }
   
   .home-container {
-    padding: 0 10px;
+    padding: 0 15px;
     max-width: 100%;
   }
   
-  /* Responsive Floating Particles */
+  /* Tablet - Optimized effects */
   .floating-particles {
-    opacity: 0.6;
+    opacity: 0.5;
   }
   
-  .particle {
-    transform: scale(0.8);
+  .particle-5,
+  .particle-6,
+  .particle-7,
+  .particle-8 {
+    display: none;
   }
   
-  /* Responsive Ambient Glow */
   .ambient-glow {
-    width: 400px;
-    height: 400px;
-    filter: blur(50px);
+    width: 350px;
+    height: 350px;
+    filter: blur(60px);
+    top: 35%;
   }
   
   .hero-section {
-    margin-bottom: 3.5rem;
+    margin-bottom: 2.5rem;
   }
   
   .hero-headline {
-    font-size: 2.5rem;
-    line-height: 1.15;
-    margin-bottom: 1.5rem;
+    font-size: 2.2rem;
+    line-height: 1.2;
+    margin-bottom: 1.25rem;
+    gap: 0.15rem;
   }
   
-  /* Simplified animations for tablet */
   .headline-white,
   .headline-purple {
-    transform: translateY(30px);
+    transform: translateY(25px);
+  }
+  
+  .headline-white.animate-in,
+  .headline-purple.animate-in {
+    transform: translateY(0);
   }
   
   .gradient-shimmer {
-    animation-duration: 5s;
+    animation: none;
   }
   
   .supporting-text {
-    font-size: 1rem;
+    font-size: 0.9rem;
     line-height: 1.6;
-    padding: 0 5px;
+    padding: 0 10px;
   }
   
   .supporting-text .text-line {
-    margin-bottom: 0.5rem;
+    margin-bottom: 0.35rem;
   }
   
-  /* Responsive CTA */
+  /* Responsive CTA - Keep horizontal layout */
+  .cta-section {
+    margin-bottom: 2rem;
+  }
+  
   .whatsapp-form {
-    flex-direction: column;
-    gap: 0.75rem;
+    flex-direction: row;
+    gap: 0;
+    max-width: 100%;
+    border-radius: 50px;
+    padding: 4px;
+    background: rgba(255, 255, 255, 0.95);
+  }
+  
+  .whatsapp-input {
+    flex: 1;
+    font-size: 0.85rem;
+    padding: 0.85rem 1rem;
+    border-radius: 46px;
+    text-align: left;
+    color: #333;
+    background: transparent;
+  }
+  
+  .whatsapp-input::placeholder {
+    font-size: 0.8rem;
+    color: rgba(0, 0, 0, 0.4);
+  }
+  
+  .whatsapp-input:focus::placeholder {
+    color: rgba(0, 0, 0, 0.25);
   }
   
   .cta-button {
-    width: 100%;
-    justify-content: center;
+    width: auto;
+    padding: 0.75rem 1rem;
+    border-radius: 50%;
+    margin-top: 0;
+    min-width: 44px;
+    height: 44px;
+  }
+  
+  .cta-button .btn-text {
+    display: none;
+  }
+  
+  .cta-button .btn-arrow {
+    width: 18px;
+    height: 18px;
+  }
+  
+  .btn-shine {
+    display: none;
+  }
+  
+  /* Social Proof */
+  .social-proof {
+    font-size: 0.85rem;
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+    padding: 0 10px;
+  }
+  
+  .pulse-star {
+    font-size: 0.9rem;
+  }
+  
+  .proof-text {
+    width: auto;
   }
   
   .vector-shape {
     width: 100%;
-    max-width: 300px;
-    opacity: 0.5;
+    max-width: 250px;
+    opacity: 0.4;
   }
   
   /* Hide right vector on tablets and below */
@@ -4211,46 +4290,20 @@ const setupScrollAnimations = () => {
   
   .vector-left {
     width: 100%;
-    max-width: 300px;
-    min-width: 200px;
-    opacity: 0.5;
+    max-width: 250px;
+    min-width: 180px;
+    opacity: 0.4;
     background-size: cover;
     background-position: left top;
-    height: 120px;
+    height: 100px;
     background-repeat: no-repeat;
   }
   
   /* Ensure stars remain visible on tablets */
   .stars::before,
   .stars::after {
-    opacity: 0.85;
-  }
-  
-  .cta-section {
-    margin-bottom: 3.5rem;
-  }
-  
-  .whatsapp-form {
-    flex-direction: column;
-    gap: 12px;
-    max-width: 100%;
-    padding: 0;
-  }
-  
-  .whatsapp-input {
-    width: 100%;
-    font-size: 0.95rem;
-    padding: 0.9rem 1.2rem;
-  }
-  
-  .whatsapp-input::placeholder {
-    font-size: 0.9rem;
-  }
-  
-  .cta-button {
-    width: 100%;
-    justify-content: center;
-    padding: 0.9rem 1.5rem;
+    opacity: 0.7;
+    margin-top: 8px;
   }
   
   .social-proof {
@@ -4714,126 +4767,171 @@ const setupScrollAnimations = () => {
 /* Mobile Devices (480px and below) */
 @media (max-width: 480px) {
   .home-view {
-    padding: 30px 10px 25px;
-    min-height: calc(100vh - 80px);
+    padding: 25px 12px 20px;
+    min-height: calc(100vh - 70px);
   }
   
   .home-container {
-    padding: 0 5px;
+    padding: 0 8px;
     max-width: 100%;
   }
   
-  /* Mobile Floating Particles - Reduced for performance */
+  /* Mobile - Reduced effects for performance */
   .floating-particles {
-    opacity: 0.4;
-  }
-  
-  .particle-5,
-  .particle-6,
-  .particle-7,
-  .particle-8 {
     display: none;
   }
   
-  /* Mobile Ambient Glow */
   .ambient-glow {
-    width: 300px;
-    height: 300px;
+    width: 200px;
+    height: 200px;
     filter: blur(40px);
+    opacity: 0.5;
+    top: 30%;
+  }
+  
+  .ambient-glow.animate-in {
+    animation: none;
   }
   
   .hero-section {
-    margin-bottom: 2.5rem;
+    margin-bottom: 2rem;
   }
   
   .hero-headline {
-    font-size: 2rem;
-    line-height: 1.2;
-    margin-bottom: 1.25rem;
+    font-size: 1.75rem;
+    line-height: 1.25;
+    margin-bottom: 1rem;
+    gap: 0.1rem;
   }
   
   .headline-white,
   .headline-purple {
     display: block;
-    transform: translateY(25px);
+    transform: translateY(20px);
   }
   
-  /* Simplified shimmer for mobile performance */
+  .headline-white.animate-in,
+  .headline-purple.animate-in {
+    transform: translateY(0);
+  }
+  
+  /* Simplified shimmer for mobile */
   .gradient-shimmer {
-    animation-duration: 6s;
+    animation: none;
   }
   
   .supporting-text {
-    font-size: 0.9rem;
-    line-height: 1.5;
-    padding: 0;
+    font-size: 0.85rem;
+    line-height: 1.55;
+    padding: 0 5px;
   }
   
   .supporting-text .text-line {
-    margin-bottom: 0.4rem;
+    margin-bottom: 0.3rem;
   }
   
-  /* Disable complex button animations on mobile */
-  .cta-button.animate-in {
-    animation: none;
-    box-shadow: 0 4px 20px rgba(91, 32, 150, 0.3);
-  }
-  
+  /* Simplified button on mobile */
   .btn-shine {
     display: none;
   }
   
-  .vector-shape {
-    width: 100%;
-    max-width: 250px;
-    opacity: 0.45;
+  .btn-glow {
+    display: none;
   }
   
-  /* Hide right vector on mobile - show only left */
+  .cta-button:hover:not(:disabled) {
+    transform: none;
+    box-shadow: 0 2px 15px rgba(91, 32, 150, 0.25);
+  }
+  
+  .vector-shape {
+    width: 100%;
+    max-width: 200px;
+    opacity: 0.35;
+  }
+  
+  /* Hide right vector on mobile */
   .vector-right {
     display: none;
   }
   
   .vector-left {
     width: 100%;
-    max-width: 250px;
-    min-width: 180px;
-    opacity: 0.45;
+    max-width: 200px;
+    min-width: 150px;
+    opacity: 0.35;
     background-size: cover;
     background-position: left top;
-    height: 120px;
+    height: 80px;
     background-repeat: no-repeat;
   }
   
   /* Ensure stars remain visible on mobile */
   .stars::before {
-    opacity: 0.8;
+    opacity: 0.6;
   }
   
   .stars::after {
-    opacity: 0.75;
+    opacity: 0.5;
   }
   
   .cta-section {
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }
   
   .whatsapp-form {
-    padding: 0;
+    padding: 3px;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.95);
   }
   
   .whatsapp-input {
-    font-size: 0.9rem;
-    padding: 0.875rem 1.25rem;
+    flex: 1;
+    font-size: 0.8rem;
+    padding: 0.75rem 0.9rem;
+    border-radius: 46px;
+    text-align: left;
+    color: #333;
+    background: transparent;
   }
   
   .whatsapp-input::placeholder {
-    font-size: 0.85rem;
+    font-size: 0.72rem;
+    color: rgba(0, 0, 0, 0.4);
   }
   
   .cta-button {
-    padding: 0.875rem 1.5rem;
-    font-size: 0.9rem;
+    padding: 0.65rem 0.9rem;
+    border-radius: 50%;
+    margin-top: 0;
+    min-width: 40px;
+    height: 40px;
+  }
+  
+  .cta-button .btn-text {
+    display: none;
+  }
+  
+  .cta-button .btn-arrow {
+    width: 16px;
+    height: 16px;
+  }
+  
+  /* Social Proof Mobile */
+  .social-proof {
+    font-size: 0.8rem;
+    gap: 0.35rem;
+    padding: 0 5px;
+    flex-wrap: nowrap;
+    justify-content: center;
+  }
+  
+  .pulse-star {
+    font-size: 0.85rem;
+  }
+  
+  .proof-text {
+    width: auto;
   }
   
   .social-proof {
@@ -5305,25 +5403,83 @@ const setupScrollAnimations = () => {
 /* Extra Small Mobile Devices (360px and below) */
 @media (max-width: 360px) {
   .home-view {
-    padding: 25px 8px 20px;
+    padding: 20px 8px 15px;
+  }
+  
+  .home-container {
+    padding: 0 5px;
+  }
+  
+  .hero-section {
+    margin-bottom: 1.5rem;
   }
   
   .hero-headline {
-    font-size: 1.75rem;
+    font-size: 1.5rem;
+    margin-bottom: 0.85rem;
+    gap: 0;
   }
   
   .supporting-text {
-    font-size: 0.85rem;
+    font-size: 0.8rem;
+    line-height: 1.5;
+  }
+  
+  .supporting-text .text-line {
+    margin-bottom: 0.25rem;
+  }
+  
+  .cta-section {
+    margin-bottom: 1rem;
+  }
+  
+  .whatsapp-form {
+    padding: 3px;
+    border-radius: 50px;
+    background: rgba(255, 255, 255, 0.95);
   }
   
   .whatsapp-input {
-    font-size: 0.85rem;
-    padding: 0.8rem 1rem;
+    flex: 1;
+    font-size: 0.75rem;
+    padding: 0.7rem 0.8rem;
+    border-radius: 46px;
+    text-align: left;
+    color: #333;
+  }
+  
+  .whatsapp-input::placeholder {
+    font-size: 0.68rem;
+    color: rgba(0, 0, 0, 0.4);
   }
   
   .cta-button {
-    padding: 0.8rem 1.2rem;
-    font-size: 0.85rem;
+    padding: 0.6rem 0.8rem;
+    border-radius: 50%;
+    margin-top: 0;
+    min-width: 36px;
+    height: 36px;
+  }
+  
+  .cta-button .btn-arrow {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .social-proof {
+    font-size: 0.72rem;
+    gap: 0.25rem;
+  }
+  
+  .pulse-star {
+    font-size: 0.75rem;
+  }
+  
+  .ambient-glow {
+    width: 150px;
+    height: 150px;
+    filter: blur(30px);
+    opacity: 0.4;
   }
   
   .section-title,
@@ -5334,28 +5490,28 @@ const setupScrollAnimations = () => {
   .bonuses-title,
   .clients-title,
   .testimonials-title {
-    font-size: 22px;
+    font-size: 20px;
   }
   
   .vector-shape {
     width: 100%;
-    max-width: 220px;
-    opacity: 0.4;
+    max-width: 180px;
+    opacity: 0.3;
   }
   
-  /* Hide right vector on extra small mobile - show only left */
+  /* Hide right vector on extra small mobile */
   .vector-right {
     display: none;
   }
   
   .vector-left {
     width: 100%;
-    max-width: 220px;
-    min-width: 160px;
-    opacity: 0.4;
+    max-width: 180px;
+    min-width: 120px;
+    opacity: 0.3;
     background-size: cover;
     background-position: left top;
-    height: 120px;
+    height: 70px;
     background-repeat: no-repeat;
   }
   

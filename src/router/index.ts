@@ -8,6 +8,7 @@ import { dashboardRoutes } from '@/features/dashboard/routes'
 import { adminRoutes } from '@/features/admin/routes'
 import { aboutRoutes } from '@/features/about/routes'
 import { servicesRoutes } from '@/features/services/routes'
+import { legalRoutes } from '@/features/legal/routes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -17,7 +18,8 @@ const router = createRouter({
     ...dashboardRoutes,
     ...adminRoutes,
     ...aboutRoutes,
-    ...servicesRoutes
+    ...servicesRoutes,
+    ...legalRoutes
   ],
   scrollBehavior(to, from, savedPosition) {
     // If there's a saved position (e.g., browser back/forward), use it
