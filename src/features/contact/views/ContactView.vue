@@ -408,10 +408,11 @@ onMounted(() => {
 
 /* Contact Content */
 .contact-content {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 40px;
-  align-items: start;
+  display: flex;
+  justify-content: center;
+  gap: 90px;
+  align-items: stretch;
+  flex-wrap: wrap;
 }
 
 /* Form Card */
@@ -420,6 +421,12 @@ onMounted(() => {
   border: 1px solid rgba(91, 32, 150, 0.3);
   border-radius: 16px;
   padding: 40px;
+  width: 661px;
+  min-height: 675px;
+  max-width: 100%;
+  box-sizing: border-box;
+  display: flex;
+  flex-direction: column;
 }
 
 .form-title {
@@ -434,6 +441,7 @@ onMounted(() => {
   display: flex;
   flex-direction: column;
   gap: 24px;
+  flex: 1;
 }
 
 .form-group {
@@ -477,6 +485,17 @@ onMounted(() => {
 .form-textarea {
   resize: vertical;
   min-height: 120px;
+  flex: 1;
+}
+
+.form-group:has(.form-textarea) {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group:has(.form-textarea) .form-textarea {
+  flex: 1;
 }
 
 .submit-button {
@@ -514,10 +533,14 @@ onMounted(() => {
 
 /* Info Card */
 .info-card {
-  background: linear-gradient(145deg, rgba(91, 32, 150, 0.15) 0%, rgba(91, 32, 150, 0.05) 100%);
+  background: #14141B;
   border: 1px solid rgba(91, 32, 150, 0.3);
   border-radius: 16px;
   padding: 40px;
+  width: 445px;
+  min-height: 675px;
+  max-width: 100%;
+  box-sizing: border-box;
 }
 
 .info-title {
@@ -604,6 +627,22 @@ onMounted(() => {
 }
 
 /* Responsive Design */
+@media (max-width: 1200px) {
+  .contact-content {
+    gap: 60px;
+  }
+
+  .form-card {
+    width: 580px;
+    min-height: 650px;
+  }
+
+  .info-card {
+    width: 400px;
+    min-height: 650px;
+  }
+}
+
 @media (max-width: 1024px) {
   .contact-main {
     padding: 50px 40px 80px;
@@ -614,12 +653,39 @@ onMounted(() => {
   }
 
   .contact-content {
-    gap: 32px;
+    gap: 40px;
   }
 
-  .form-card,
-  .info-card {
+  .form-card {
+    width: 500px;
+    min-height: 620px;
     padding: 32px;
+  }
+
+  .info-card {
+    width: 360px;
+    min-height: 620px;
+    padding: 32px;
+  }
+}
+
+@media (max-width: 900px) {
+  .contact-content {
+    flex-direction: column;
+    align-items: center;
+    gap: 24px;
+  }
+
+  .form-card {
+    width: 100%;
+    max-width: 661px;
+    min-height: auto;
+  }
+
+  .info-card {
+    width: 100%;
+    max-width: 661px;
+    min-height: auto;
   }
 }
 
@@ -638,11 +704,6 @@ onMounted(() => {
 
   .contact-header {
     margin-bottom: 40px;
-  }
-
-  .contact-content {
-    grid-template-columns: 1fr;
-    gap: 24px;
   }
 
   .form-card,

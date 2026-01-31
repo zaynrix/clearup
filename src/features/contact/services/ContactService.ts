@@ -105,7 +105,7 @@ export class ContactService extends BaseService {
    */
   async getContactMessages(): Promise<ContactMessage[]> {
     try {
-      const messages = await firestoreService.getCollection<ContactMessage>(MESSAGES_COLLECTION)
+      const messages = await firestoreService.getDocuments<ContactMessage>(MESSAGES_COLLECTION)
       return messages.sort((a, b) => {
         const dateA = a.createdAt ? new Date(a.createdAt).getTime() : 0
         const dateB = b.createdAt ? new Date(b.createdAt).getTime() : 0

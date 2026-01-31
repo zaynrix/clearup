@@ -129,6 +129,32 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
     
+    // Contact messages collection
+    // - Anyone can create messages (for contact form submissions from website)
+    // - Authenticated users can read all messages (for admin dashboard)
+    // - Authenticated users can update/delete messages
+    match /contactMessages/{messageId} {
+      // Allow anyone to create contact messages (for public contact form)
+      allow create: if true;
+      
+      // Allow authenticated users to read messages
+      allow read: if isAuthenticated();
+      
+      // Allow authenticated users to update/delete messages
+      allow update, delete: if isAuthenticated();
+    }
+    
+    // Contact content/settings collection
+    // - Anyone can read (for displaying contact page)
+    // - Only authenticated users can write (for admin dashboard)
+    match /contactContent/{documentId} {
+      // Allow anyone to read contact content (for public contact page)
+      allow read: if true;
+      
+      // Allow authenticated users to create/update/delete
+      allow write: if isAuthenticated();
+    }
+    
     // Default deny rule for any other collections
     match /{document=**} {
       allow read, write: if false;

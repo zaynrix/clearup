@@ -2666,6 +2666,217 @@
             </div>
           </div>
 
+          <!-- Contact Messages -->
+          <div v-if="activeTab === 'contact-messages'" class="editor-section">
+            <div class="section-header">
+              <div class="section-title-group">
+                <div class="section-icon">💬</div>
+                <div>
+                  <h3>Contact Messages</h3>
+                  <p class="section-description">View and manage messages from the contact form</p>
+                </div>
+              </div>
+            </div>
+            
+            <div v-if="loadingContactMessages" class="loading-state">
+              <div class="loading-spinner"></div>
+              <p>Loading messages...</p>
+            </div>
+            
+            <div v-else-if="contactMessages.length === 0" class="empty-state">
+              <p>No contact messages yet.</p>
+            </div>
+            
+            <div v-else class="contact-messages-list">
+              <div class="submissions-header">
+                <div class="submission-count">
+                  <span>Total: {{ contactMessages.length }} message{{ contactMessages.length !== 1 ? 's' : '' }}</span>
+                </div>
+                <div class="submission-filters">
+                  <button 
+                    :class="['filter-btn', { active: contactMessageFilter === 'all' }]"
+                    @click="contactMessageFilter = 'all'"
+                  >All</button>
+                  <button 
+                    :class="['filter-btn', { active: contactMessageFilter === 'pending' }]"
+                    @click="contactMessageFilter = 'pending'"
+                  >Pending</button>
+                  <button 
+                    :class="['filter-btn', { active: contactMessageFilter === 'read' }]"
+                    @click="contactMessageFilter = 'read'"
+                  >Read</button>
+                  <button 
+                    :class="['filter-btn', { active: contactMessageFilter === 'replied' }]"
+                    @click="contactMessageFilter = 'replied'"
+                  >Replied</button>
+                </div>
+              </div>
+              
+              <div class="messages-grid">
+                <div 
+                  v-for="message in filteredContactMessages" 
+                  :key="message.id"
+                  class="message-card"
+                  :class="{ 'message-unread': message.status === 'pending' }"
+                >
+                  <div class="message-header">
+                    <div class="message-sender">
+                      <span class="sender-name">{{ message.name }}</span>
+                      <span class="sender-email">{{ message.email }}</span>
+                    </div>
+                    <div class="message-meta">
+                      <span :class="['status-badge', `status-${message.status}`]">
+                        {{ message.status }}
+                      </span>
+                      <span class="message-date">{{ formatContactDate(message.createdAt) }}</span>
+                    </div>
+                  </div>
+                  <div class="message-subject">
+                    <strong>Subject:</strong> {{ message.subject }}
+                  </div>
+                  <div class="message-body">
+                    {{ message.message }}
+                  </div>
+                  <div class="message-actions">
+                    <select 
+                      :value="message.status"
+                      @change="updateContactMessageStatus(message.id!, ($event.target as HTMLSelectElement).value as ContactMessage['status'])"
+                      class="status-select"
+                    >
+                      <option value="pending">Pending</option>
+                      <option value="read">Read</option>
+                      <option value="replied">Replied</option>
+                    </select>
+                    <a :href="'mailto:' + message.email + '?subject=Re: ' + message.subject" class="btn-reply">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 10H13C17.4183 10 21 13.5817 21 18V20M3 10L9 16M3 10L9 4" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                      Reply
+                    </a>
+                    <button @click="deleteContactMessage(message.id!)" class="btn-delete">
+                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        <path d="M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Contact Settings -->
+          <div v-if="activeTab === 'contact-settings'" class="editor-section">
+            <div class="section-header">
+              <div class="section-title-group">
+                <div class="section-icon">📞</div>
+                <div>
+                  <h3>Contact Settings</h3>
+                  <p class="section-description">Edit contact page content and social links</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="form-section">
+              <h4 class="subsection-title">Page Header</h4>
+              <div class="form-group">
+                <label>Header Title</label>
+                <input v-model="contactSettings.headerTitle" type="text" class="form-input" placeholder="Ready To Elevate Your Brand ?" />
+              </div>
+              <div class="form-group">
+                <label>Header Subtitle</label>
+                <input v-model="contactSettings.headerSubtitle" type="text" class="form-input" placeholder="Contact us today for a free consultation and quote" />
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h4 class="subsection-title">Section Titles</h4>
+              <div class="form-row">
+                <div class="form-group">
+                  <label>Form Section Title</label>
+                  <input v-model="contactSettings.formTitle" type="text" class="form-input" placeholder="Send us a Message" />
+                </div>
+                <div class="form-group">
+                  <label>Contact Info Title</label>
+                  <input v-model="contactSettings.infoTitle" type="text" class="form-input" placeholder="Contact Information" />
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h4 class="subsection-title">Contact Information</h4>
+              
+              <div class="contact-info-grid">
+                <!-- Instagram -->
+                <div class="contact-info-card">
+                  <div class="contact-info-header">
+                    <span class="contact-info-icon instagram">📷</span>
+                    <span class="contact-info-label">Instagram</span>
+                  </div>
+                  <div class="form-group">
+                    <label>Display Name</label>
+                    <input v-model="contactSettings.contactInfo.instagram" type="text" class="form-input" placeholder="clear-up00" />
+                  </div>
+                  <div class="form-group">
+                    <label>Profile URL</label>
+                    <input v-model="contactSettings.contactInfo.instagramUrl" type="url" class="form-input" placeholder="https://instagram.com/clear-up00" />
+                  </div>
+                </div>
+
+                <!-- Email -->
+                <div class="contact-info-card">
+                  <div class="contact-info-header">
+                    <span class="contact-info-icon email">✉️</span>
+                    <span class="contact-info-label">Email</span>
+                  </div>
+                  <div class="form-group">
+                    <label>Email Address</label>
+                    <input v-model="contactSettings.contactInfo.email" type="email" class="form-input" placeholder="info@ClearUP.com" />
+                  </div>
+                </div>
+
+                <!-- LinkedIn -->
+                <div class="contact-info-card">
+                  <div class="contact-info-header">
+                    <span class="contact-info-icon linkedin">💼</span>
+                    <span class="contact-info-label">LinkedIn</span>
+                  </div>
+                  <div class="form-group">
+                    <label>Display Name</label>
+                    <input v-model="contactSettings.contactInfo.linkedin" type="text" class="form-input" placeholder="Clear Up" />
+                  </div>
+                  <div class="form-group">
+                    <label>Profile URL</label>
+                    <input v-model="contactSettings.contactInfo.linkedinUrl" type="url" class="form-input" placeholder="https://linkedin.com/company/clearup" />
+                  </div>
+                </div>
+
+                <!-- WhatsApp -->
+                <div class="contact-info-card">
+                  <div class="contact-info-header">
+                    <span class="contact-info-icon whatsapp">📱</span>
+                    <span class="contact-info-label">WhatsApp</span>
+                  </div>
+                  <div class="form-group">
+                    <label>Phone Number</label>
+                    <input v-model="contactSettings.contactInfo.whatsapp" type="text" class="form-input" placeholder="+9708888888" />
+                  </div>
+                  <div class="form-group">
+                    <label>WhatsApp Link</label>
+                    <input v-model="contactSettings.contactInfo.whatsappUrl" type="url" class="form-input" placeholder="https://wa.me/9708888888" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button @click="saveContactSettings" class="btn-primary" :disabled="savingContactSettings">
+                <span v-if="savingContactSettings">Saving...</span>
+                <span v-else>Save Contact Settings</span>
+              </button>
+            </div>
+          </div>
+
           <!-- User Management (Admin Only) -->
           <div v-if="activeTab === 'users' && isAdmin" class="editor-section">
             <div class="section-header">
@@ -3055,7 +3266,9 @@ import { roleController } from '../controllers/RoleController'
 import { activityLogController } from '../controllers/ActivityLogController'
 import { siteSettingsController } from '../controllers/SiteSettingsController'
 import { emailController } from '@/features/home/controllers/EmailController'
+import { contactContentController } from '@/features/contact/controllers/ContactContentController'
 import type { EmailSubmission } from '@/features/home/services/EmailService'
+import type { ContactMessage, ContactContent, ContactInfo } from '@/features/contact/models/ContactMessage'
 import type { SiteSettings } from '../models/SiteSettings'
 import type { HomeContent } from '@/features/home/models/HomeContent'
 import type { AboutContent, TeamMember, FAQ, StatCard } from '@/features/about/models/AboutContent'
@@ -3097,7 +3310,9 @@ const baseTabs = [
   { id: 'about', label: 'About Page' },
   { id: 'services-page', label: 'Services Page' },
   { id: 'footer', label: 'Footer' },
-  { id: 'email-submissions', label: 'Email Submissions' }
+  { id: 'email-submissions', label: 'Email Submissions' },
+  { id: 'contact-messages', label: 'Contact Messages' },
+  { id: 'contact-settings', label: 'Contact Settings' }
 ]
 const adminTabs = [
   { id: 'users', label: 'User Management' },
@@ -3121,6 +3336,28 @@ const siteSettings = ref<SiteSettings>({
 const emailSubmissions = ref<EmailSubmission[]>([])
 const loadingEmails = ref(false)
 const emailFilter = ref<'all' | 'pending' | 'confirmed'>('all')
+
+// Contact management state
+const contactMessages = ref<ContactMessage[]>([])
+const loadingContactMessages = ref(false)
+const contactMessageFilter = ref<'all' | 'pending' | 'read' | 'replied'>('all')
+const contactSettings = ref<ContactContent>({
+  headerTitle: 'Ready To Elevate Your Brand ?',
+  headerSubtitle: 'Contact us today for a free consultation and quote',
+  formTitle: 'Send us a Message',
+  infoTitle: 'Contact Information',
+  contactInfo: {
+    instagram: 'clear-up00',
+    instagramUrl: 'https://instagram.com/clear-up00',
+    email: 'info@ClearUP.com',
+    linkedin: 'Clear Up',
+    linkedinUrl: 'https://linkedin.com/company/clearup',
+    whatsapp: '+9708888888',
+    whatsappUrl: 'https://wa.me/9708888888'
+  }
+})
+const savingContactSettings = ref(false)
+
 const selectedVideoFile = ref<File | null>(null)
 const uploadingVideo = ref(false)
 const uploadProgress = ref(0)
@@ -3315,6 +3552,8 @@ const getTabIcon = (tabId: string): string => {
     'services-page': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'footer': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     'email-submissions': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    'contact-messages': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    'contact-settings': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 16.92V19.92C22.0011 20.1985 21.9441 20.4742 21.8325 20.7293C21.7209 20.9845 21.5573 21.2136 21.3521 21.4019C21.1468 21.5901 20.9046 21.7335 20.6407 21.8227C20.3769 21.9119 20.0974 21.9451 19.82 21.92C16.7428 21.5856 13.787 20.5341 11.19 18.85C8.77382 17.3147 6.72533 15.2662 5.18999 12.85C3.49997 10.2412 2.44824 7.27099 2.11999 4.18C2.09501 3.90347 2.12787 3.62476 2.21649 3.36162C2.30512 3.09849 2.44756 2.85669 2.63476 2.65162C2.82196 2.44655 3.0498 2.28271 3.30379 2.17052C3.55777 2.05833 3.83233 2.00026 4.10999 2H7.10999C7.5953 1.99522 8.06579 2.16708 8.43376 2.48353C8.80173 2.79999 9.04207 3.23945 9.10999 3.72C9.23662 4.68007 9.47144 5.62273 9.80999 6.53C9.94454 6.88792 9.97366 7.27691 9.8939 7.65088C9.81415 8.02485 9.62886 8.36811 9.35999 8.64L8.08999 9.91C9.51355 12.4135 11.5765 14.4765 14.08 15.9L15.35 14.63C15.6219 14.3611 15.9651 14.1758 16.3391 14.0961C16.7131 14.0163 17.1021 14.0454 17.46 14.18C18.3673 14.5185 19.3099 14.7534 20.27 14.88C20.7558 14.9485 21.1996 15.1907 21.5177 15.5627C21.8359 15.9347 22.0058 16.4108 22 16.9V16.92Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'users': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'roles': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/><path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     'site-settings': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.4 15C19.2669 15.3016 19.2272 15.6362 19.286 15.9606C19.3448 16.285 19.4995 16.5843 19.73 16.82L19.79 16.88C19.976 17.0657 20.1235 17.2863 20.2241 17.5291C20.3248 17.7719 20.3766 18.0322 20.3766 18.295C20.3766 18.5578 20.3248 18.8181 20.2241 19.0609C20.1235 19.3037 19.976 19.5243 19.79 19.71C19.6043 19.896 19.3837 20.0435 19.1409 20.1441C18.8981 20.2448 18.6378 20.2966 18.375 20.2966C18.1122 20.2966 17.8519 20.2448 17.6091 20.1441C17.3663 20.0435 17.1457 19.896 16.96 19.71L16.9 19.65C16.6643 19.4195 16.365 19.2648 16.0406 19.206C15.7162 19.1472 15.3816 19.1869 15.08 19.32C14.7842 19.4468 14.532 19.6572 14.3543 19.9255C14.1766 20.1938 14.0813 20.5082 14.08 20.83V21C14.08 21.5304 13.8693 22.0391 13.4942 22.4142C13.1191 22.7893 12.6104 23 12.08 23C11.5496 23 11.0409 22.7893 10.6658 22.4142C10.2907 22.0391 10.08 21.5304 10.08 21V20.91C10.0723 20.579 9.96512 20.258 9.77251 19.9887C9.5799 19.7194 9.31074 19.5143 9 19.4C8.69838 19.2669 8.36381 19.2272 8.03941 19.286C7.71502 19.3448 7.41568 19.4995 7.18 19.73L7.12 19.79C6.93425 19.976 6.71368 20.1235 6.47088 20.2241C6.22808 20.3248 5.96783 20.3766 5.705 20.3766C5.44217 20.3766 5.18192 20.3248 4.93912 20.2241C4.69632 20.1235 4.47575 19.976 4.29 19.79C4.10405 19.6043 3.95653 19.3837 3.85588 19.1409C3.75523 18.8981 3.70343 18.6378 3.70343 18.375C3.70343 18.1122 3.75523 17.8519 3.85588 17.6091C3.95653 17.3663 4.10405 17.1457 4.29 16.96L4.35 16.9C4.58054 16.6643 4.73519 16.365 4.794 16.0406C4.85282 15.7162 4.81312 15.3816 4.68 15.08C4.55324 14.7842 4.34276 14.532 4.07447 14.3543C3.80618 14.1766 3.49179 14.0813 3.17 14.08H3C2.46957 14.08 1.96086 13.8693 1.58579 13.4942C1.21071 13.1191 1 12.6104 1 12.08C1 11.5496 1.21071 11.0409 1.58579 10.6658C1.96086 10.2907 2.46957 10.08 3 10.08H3.09C3.42099 10.0723 3.742 9.96512 4.01131 9.77251C4.28062 9.5799 4.48571 9.31074 4.6 9C4.73312 8.69838 4.77282 8.36381 4.714 8.03941C4.65519 7.71502 4.50054 7.41568 4.27 7.18L4.21 7.12C4.02405 6.93425 3.87653 6.71368 3.77588 6.47088C3.67523 6.22808 3.62343 5.96783 3.62343 5.705C3.62343 5.44217 3.67523 5.18192 3.77588 4.93912C3.87653 4.69632 4.02405 4.47575 4.21 4.29C4.39575 4.10405 4.61632 3.95653 4.85912 3.85588C5.10192 3.75523 5.36217 3.70343 5.625 3.70343C5.88783 3.70343 6.14808 3.75523 6.39088 3.85588C6.63368 3.95653 6.85425 4.10405 7.04 4.29L7.1 4.35C7.33568 4.58054 7.63502 4.73519 7.95941 4.794C8.28381 4.85282 8.61838 4.81312 8.92 4.68H9C9.29577 4.55324 9.54802 4.34276 9.72569 4.07447C9.90337 3.80618 9.99872 3.49179 10 3.17V3C10 2.46957 10.2107 1.96086 10.5858 1.58579C10.9609 1.21071 11.4696 1 12 1C12.5304 1 13.0391 1.21071 13.4142 1.58579C13.7893 1.96086 14 2.46957 14 3V3.09C14.0013 3.41179 14.0966 3.72618 14.2743 3.99447C14.452 4.26276 14.7042 4.47324 15 4.6C15.3016 4.73312 15.6362 4.77282 15.9606 4.714C16.285 4.65519 16.5843 4.50054 16.82 4.27L16.88 4.21C17.0657 4.02405 17.2863 3.87653 17.5291 3.77588C17.7719 3.67523 18.0322 3.62343 18.295 3.62343C18.5578 3.62343 18.8181 3.67523 19.0609 3.77588C19.3037 3.87653 19.5243 4.02405 19.71 4.21C19.896 4.39575 20.0435 4.61632 20.1441 4.85912C20.2448 5.10192 20.2966 5.36217 20.2966 5.625C20.2966 5.88783 20.2448 6.14808 20.1441 6.39088C20.0435 6.63368 19.896 6.85425 19.71 7.04L19.65 7.1C19.4195 7.33568 19.2648 7.63502 19.206 7.95941C19.1472 8.28381 19.1869 8.61838 19.32 8.92V9C19.4468 9.29577 19.6572 9.54802 19.9255 9.72569C20.1938 9.90337 20.5082 9.99872 20.83 10H21C21.5304 10 22.0391 10.2107 22.4142 10.5858C22.7893 10.9609 23 11.4696 23 12C23 12.5304 22.7893 13.0391 22.4142 13.4142C22.0391 13.7893 21.5304 14 21 14H20.91C20.5882 14.0013 20.2738 14.0966 20.0055 14.2743C19.7372 14.452 19.5268 14.7042 19.4 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -4699,6 +4938,122 @@ const resendConfirmationEmail = async (submission: EmailSubmission) => {
   }
 }
 
+// Contact Messages Management
+const loadContactMessages = async () => {
+  loadingContactMessages.value = true
+  try {
+    const result = await contactContentController.getMessages()
+    if (result.success && result.data) {
+      contactMessages.value = result.data
+    } else {
+      saveMessage.value = result.error || 'Failed to load contact messages'
+      saveMessageType.value = 'error'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+    }
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to load contact messages'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } finally {
+    loadingContactMessages.value = false
+  }
+}
+
+const filteredContactMessages = computed(() => {
+  if (contactMessageFilter.value === 'all') {
+    return contactMessages.value
+  }
+  return contactMessages.value.filter(msg => msg.status === contactMessageFilter.value)
+})
+
+const updateContactMessageStatus = async (messageId: string, status: ContactMessage['status']) => {
+  try {
+    const result = await contactContentController.updateMessageStatus(messageId, status)
+    if (result.success) {
+      saveMessage.value = 'Message status updated!'
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+      await loadContactMessages()
+    } else {
+      saveMessage.value = result.error || 'Failed to update message status'
+      saveMessageType.value = 'error'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+    }
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to update message status'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  }
+}
+
+const deleteContactMessage = async (messageId: string) => {
+  if (!confirm('Are you sure you want to delete this message?')) return
+  
+  try {
+    const result = await contactContentController.deleteMessage(messageId)
+    if (result.success) {
+      saveMessage.value = 'Message deleted!'
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+      await loadContactMessages()
+    } else {
+      saveMessage.value = result.error || 'Failed to delete message'
+      saveMessageType.value = 'error'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+    }
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to delete message'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  }
+}
+
+const formatContactDate = (date: Date | string | undefined): string => {
+  if (!date) return 'N/A'
+  const d = typeof date === 'string' ? new Date(date) : date
+  return d.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
+// Contact Settings Management
+const loadContactSettings = async () => {
+  try {
+    const result = await contactContentController.getContactContent()
+    if (result.success && result.data) {
+      contactSettings.value = result.data
+    }
+  } catch (error) {
+    console.error('Failed to load contact settings:', error)
+  }
+}
+
+const saveContactSettings = async () => {
+  savingContactSettings.value = true
+  try {
+    const result = await contactContentController.updateContactContent(contactSettings.value)
+    if (result.success) {
+      saveMessage.value = 'Contact settings saved successfully!'
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+    } else {
+      saveMessage.value = result.error || 'Failed to save contact settings'
+      saveMessageType.value = 'error'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+    }
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to save contact settings'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } finally {
+    savingContactSettings.value = false
+  }
+}
+
 // Real Results Cases Management
 const addNewRealResultsCase = () => {
   if (!formData.value.realResultsCases) {
@@ -5623,6 +5978,12 @@ watch(activeTab, (newTab) => {
   }
   if (newTab === 'email-submissions') {
     loadEmailSubmissions()
+  }
+  if (newTab === 'contact-messages') {
+    loadContactMessages()
+  }
+  if (newTab === 'contact-settings') {
+    loadContactSettings()
   }
 })
 
@@ -7752,6 +8113,269 @@ onMounted(() => {
   color: rgba(245, 247, 250, 0.4);
   font-weight: bold;
   font-size: 1.1rem;
+}
+
+/* Contact Messages Styles */
+.contact-messages-list {
+  margin-top: 1.5rem;
+}
+
+.messages-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.message-card {
+  background: rgba(245, 247, 250, 0.03);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.2s;
+}
+
+.message-card:hover {
+  background: rgba(245, 247, 250, 0.05);
+  border-color: rgba(91, 32, 150, 0.3);
+}
+
+.message-card.message-unread {
+  border-left: 3px solid #5B2096;
+  background: rgba(91, 32, 150, 0.05);
+}
+
+.message-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 0.75rem;
+}
+
+.message-sender {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.sender-name {
+  font-weight: 600;
+  color: #F5F7FA;
+  font-size: 1rem;
+}
+
+.sender-email {
+  font-size: 0.875rem;
+  color: rgba(245, 247, 250, 0.6);
+}
+
+.message-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.message-date {
+  font-size: 0.8rem;
+  color: rgba(245, 247, 250, 0.5);
+}
+
+.message-subject {
+  font-size: 0.9rem;
+  color: rgba(245, 247, 250, 0.8);
+  margin-bottom: 0.5rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 1px solid rgba(91, 32, 150, 0.15);
+}
+
+.message-body {
+  font-size: 0.9rem;
+  color: rgba(245, 247, 250, 0.7);
+  line-height: 1.6;
+  margin-bottom: 1rem;
+  white-space: pre-wrap;
+}
+
+.message-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.15);
+}
+
+.status-select {
+  padding: 0.5rem 0.75rem;
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 6px;
+  color: #F5F7FA;
+  font-size: 0.85rem;
+  cursor: pointer;
+}
+
+.status-select:focus {
+  outline: none;
+  border-color: #5B2096;
+}
+
+.btn-reply {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.5rem 1rem;
+  background: rgba(91, 32, 150, 0.2);
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 6px;
+  color: #C19DE6;
+  font-size: 0.85rem;
+  cursor: pointer;
+  text-decoration: none;
+  transition: all 0.2s;
+}
+
+.btn-reply:hover {
+  background: rgba(91, 32, 150, 0.3);
+  border-color: #5B2096;
+}
+
+.btn-delete {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.5rem;
+  background: rgba(239, 68, 68, 0.1);
+  border: 1px solid rgba(239, 68, 68, 0.2);
+  border-radius: 6px;
+  color: #ef4444;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-delete:hover {
+  background: rgba(239, 68, 68, 0.2);
+  border-color: rgba(239, 68, 68, 0.4);
+}
+
+.status-badge.status-pending {
+  background: rgba(255, 193, 7, 0.2);
+  color: #FFC107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.status-badge.status-read {
+  background: rgba(33, 150, 243, 0.2);
+  color: #2196F3;
+  border: 1px solid rgba(33, 150, 243, 0.3);
+}
+
+.status-badge.status-replied {
+  background: rgba(76, 175, 80, 0.2);
+  color: #4CAF50;
+  border: 1px solid rgba(76, 175, 80, 0.3);
+}
+
+/* Contact Settings Styles */
+.form-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(245, 247, 250, 0.03);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 12px;
+}
+
+.subsection-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #F5F7FA;
+  margin: 0 0 1.25rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1rem;
+}
+
+.contact-info-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.contact-info-card {
+  background: rgba(20, 20, 27, 0.5);
+  border: 1px solid rgba(91, 32, 150, 0.25);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.contact-info-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(91, 32, 150, 0.15);
+}
+
+.contact-info-icon {
+  font-size: 1.25rem;
+}
+
+.contact-info-label {
+  font-weight: 600;
+  color: #F5F7FA;
+  font-size: 1rem;
+}
+
+.form-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+}
+
+.btn-primary {
+  padding: 0.875rem 2rem;
+  background: linear-gradient(90deg, #5B2096 0%, #C19DE6 100%);
+  border: none;
+  border-radius: 8px;
+  color: #F5F7FA;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-2px);
+  box-shadow: 0 8px 24px rgba(91, 32, 150, 0.4);
+}
+
+.btn-primary:disabled {
+  opacity: 0.7;
+  cursor: not-allowed;
+}
+
+@media (max-width: 768px) {
+  .contact-info-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .form-row {
+    grid-template-columns: 1fr;
+  }
+  
+  .message-header {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .message-actions {
+    flex-wrap: wrap;
+  }
 }
 
 .loading-state {
