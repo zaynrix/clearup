@@ -10,27 +10,8 @@
     <!-- Main content -->
     <!-- Clear Up System Section -->
     <div v-if="!isSectionDisabled('services-system')" class="third-section">
-        <div class="clearup-system-container">
-          <div class="clearup-system-vector clearup-system-vector-left"></div>
-          <div class="clearup-system-vector clearup-system-vector-right"></div>
-          
-          <div class="third-section-container">
-            <div class="third-section-header">
-              <h2 class="third-section-title">The Clear up System™</h2>
-              <p class="third-section-description">An exclusive done-for-you marketing infrastructure built for predictable growth.</p>
-            </div>
-
-            <div class="system-card-container">
-              <div class="system-card">
-                <h3 class="system-card-title">Done-for-you Clear Up System</h3>
-                <p class="system-card-text">We don&apos;t sell random services.</p>
-                <p class="system-card-text">We install a complete marketing system that works as one engine scalable , predictable , and built</p>
-                <p class="system-card-text">to grow with your business.</p>
-                <p class="system-card-roi">TURN EVERY $1 INTO $3893 IN REVENUE OUR SYSTEM IS BUILT TO MAXIMIZE ROI , NOT JUST SPEND YOUR BUDGET</p>
-              </div>
-            </div>
-
-            <!-- Our Services -->
+      <ClearUpSystemSection @cta-click="handleBookMeeting">
+        <!-- Our Services -->
             <div class="services-section">
               <div class="services-header">
                 <h3 class="services-title">{{ homeContent?.servicesTitle || 'Our Services' }}</h3>
@@ -200,28 +181,27 @@
               </div>
             </div>
 
-            <!-- CTA Button -->
-            <div class="section-cta">
-              <button class="book-meeting-button" @click="handleBookMeeting">
-                {{ homeContent?.ctaButtonText || 'Book a Meeting' }}
-              </button>
-              <a 
-                href="https://wa.me/your-number" 
-                class="whatsapp-link" 
-                aria-label="Contact us on WhatsApp"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path fill-rule="evenodd" clip-rule="evenodd" d="M11.125 1.33325C5.7171 1.33325 1.33337 5.71698 1.33337 11.1249C1.33337 12.9755 1.84744 14.7087 2.74142 16.1853L1.868 19.1541C1.81785 19.3245 1.81455 19.5054 1.85845 19.6775C1.90234 19.8497 1.99181 20.0069 2.11745 20.1325C2.24309 20.2581 2.40026 20.3476 2.57243 20.3915C2.7446 20.4354 2.92542 20.4321 3.09587 20.382L6.06471 19.5085C7.59097 20.4318 9.34123 20.9189 11.125 20.9166C16.533 20.9166 20.9167 16.5329 20.9167 11.1249C20.9167 5.71698 16.533 1.33325 11.125 1.33325ZM8.91017 13.3408C10.891 15.3206 12.7818 15.5821 13.4496 15.6066C14.465 15.6438 15.4539 14.8683 15.8387 13.9684C15.8869 13.8564 15.9043 13.7335 15.8892 13.6125C15.874 13.4915 15.8269 13.3768 15.7526 13.2801C15.216 12.5946 14.4904 12.1021 13.7815 11.6125C13.6336 11.51 13.4516 11.4688 13.2739 11.4976C13.0962 11.5265 12.9367 11.6231 12.8288 11.7673L12.2413 12.6632C12.2102 12.7112 12.1621 12.7456 12.1067 12.7594C12.0512 12.7732 11.9926 12.7654 11.9426 12.7376C11.5441 12.5095 10.9635 12.1217 10.5464 11.7046C10.1292 11.2875 9.76498 10.7333 9.56033 10.3602C9.53558 10.3127 9.52858 10.2579 9.5406 10.2056C9.55263 10.1534 9.58289 10.1072 9.62594 10.0753L10.5307 9.40354C10.6602 9.29152 10.7438 9.13565 10.7655 8.96581C10.7871 8.79596 10.7454 8.62409 10.6482 8.48313C10.2095 7.84079 9.69839 7.02417 8.95717 6.48269C8.8613 6.41381 8.74928 6.37086 8.63194 6.358C8.5146 6.34513 8.39593 6.36279 8.28742 6.40925C7.38658 6.79504 6.60717 7.784 6.64437 8.80136C6.66885 9.46915 6.93029 11.3599 8.91017 13.3408Z" fill="white"/>
-                </svg>
-              </a>
-            </div>
-          </div>
+        <!-- CTA Button -->
+        <div class="section-cta">
+          <button class="book-meeting-button" @click="handleBookMeeting">
+            {{ homeContent?.ctaButtonText || 'Book a Meeting' }}
+          </button>
+          <a 
+            href="https://wa.me/your-number" 
+            class="whatsapp-link" 
+            aria-label="Contact us on WhatsApp"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M11.125 1.33325C5.7171 1.33325 1.33337 5.71698 1.33337 11.1249C1.33337 12.9755 1.84744 14.7087 2.74142 16.1853L1.868 19.1541C1.81785 19.3245 1.81455 19.5054 1.85845 19.6775C1.90234 19.8497 1.99181 20.0069 2.11745 20.1325C2.24309 20.2581 2.40026 20.3476 2.57243 20.3915C2.7446 20.4354 2.92542 20.4321 3.09587 20.382L6.06471 19.5085C7.59097 20.4318 9.34123 20.9189 11.125 20.9166C16.533 20.9166 20.9167 16.5329 20.9167 11.1249C20.9167 5.71698 16.533 1.33325 11.125 1.33325ZM8.91017 13.3408C10.891 15.3206 12.7818 15.5821 13.4496 15.6066C14.465 15.6438 15.4539 14.8683 15.8387 13.9684C15.8869 13.8564 15.9043 13.7335 15.8892 13.6125C15.874 13.4915 15.8269 13.3768 15.7526 13.2801C15.216 12.5946 14.4904 12.1021 13.7815 11.6125C13.6336 11.51 13.4516 11.4688 13.2739 11.4976C13.0962 11.5265 12.9367 11.6231 12.8288 11.7673L12.2413 12.6632C12.2102 12.7112 12.1621 12.7456 12.1067 12.7594C12.0512 12.7732 11.9926 12.7654 11.9426 12.7376C11.5441 12.5095 10.9635 12.1217 10.5464 11.7046C10.1292 11.2875 9.76498 10.7333 9.56033 10.3602C9.53558 10.3127 9.52858 10.2579 9.5406 10.2056C9.55263 10.1534 9.58289 10.1072 9.62594 10.0753L10.5307 9.40354C10.6602 9.29152 10.7438 9.13565 10.7655 8.96581C10.7871 8.79596 10.7454 8.62409 10.6482 8.48313C10.2095 7.84079 9.69839 7.02417 8.95717 6.48269C8.8613 6.41381 8.74928 6.37086 8.63194 6.358C8.5146 6.34513 8.39593 6.36279 8.28742 6.40925C7.38658 6.79504 6.60717 7.784 6.64437 8.80136C6.66885 9.46915 6.93029 11.3599 8.91017 13.3408Z" fill="white"/>
+            </svg>
+          </a>
         </div>
-      </div>
+      </ClearUpSystemSection>
+    </div>
 
-      <!-- Why Choose Clear Up Section -->
+    <!-- Why Choose Clear Up Section -->
       <div v-if="!isSectionDisabled('services-why-choose') && !isLoading" class="why-choose-section">
         <div class="why-choose-container">
           <div class="why-choose-header">
@@ -290,6 +270,7 @@ import type { ServicesContent } from '../models/ServicesContent'
 import type { HomeContent } from '@/features/home/models/HomeContent'
 import TestimonialsSection from '@/shared/components/TestimonialsSection.vue'
 import FooterSection from '@/shared/components/FooterSection.vue'
+import ClearUpSystemSection from '@/shared/components/ClearUpSystemSection.vue'
 import { siteSettingsController } from '@/features/admin/controllers/SiteSettingsController'
 import type { SiteSettings } from '@/features/admin/models/SiteSettings'
 

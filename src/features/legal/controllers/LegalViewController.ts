@@ -60,3 +60,4 @@ export class LegalViewController extends BaseViewController {
   }
 }
 
+

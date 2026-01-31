@@ -48,3 +48,4 @@ export class LegalContentController extends BaseController {
 
 export const legalContentController = new LegalContentController()
 
+

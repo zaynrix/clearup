@@ -165,42 +165,10 @@
       </div>
     </div>
 
-    <!-- Third Section -->
+    <!-- Third Section - Clear Up System -->
     <div v-if="!isSectionDisabled('system')" class="third-section" data-section-id="third-section">
-      <!-- Clear Up System Container with Vector -->
-      <div class="clearup-system-container">
-        <div class="clearup-system-vector clearup-system-vector-left"></div>
-        <div class="clearup-system-vector clearup-system-vector-right"></div>
-        
-        <div class="third-section-container">
-          <!-- Header -->
-          <div class="third-section-header" data-section-id="third-header">
-            <h2 class="third-section-title">The Clear up System™</h2>
-            <p class="third-section-description">An exclusive done-for-you marketing infrastructure built for predictable growth.</p>
-          </div>
-
-          <!-- System Card Container -->
-          <div class="system-card-container">
-            <div class="system-card" data-section-id="system-card">
-              <h3 class="system-card-title">Done-for-you Clear Up System</h3>
-              <p class="system-card-text">We don't sell random services.</p>
-              <p class="system-card-text">We install a complete marketing system that works as one engine scalable , predictable , and built</p>
-              <p class="system-card-text">to grow with your business.</p>
-              <p class="system-card-roi">TURN EVERY $1 INTO $3893 IN REVENUE OUR SYSTEM IS BUILT TO MAXIMIZE ROI , NOT JUST SPEND YOUR BUDGET</p>
-              
-              <!-- CTA Button -->
-              <div class="system-card-cta">
-                <button class="system-cta-button" @click="handleBookMeeting">
-                  Get Started
-                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  </svg>
-                </button>
-              </div>
-            </div>
-          </div>
-
-          <!-- Our Services -->
+      <ClearUpSystemSection @cta-click="handleBookMeeting">
+        <!-- Our Services -->
         <div v-if="!isSectionDisabled('services')" class="services-section">
           <div class="services-header">
             <h3 class="services-title">Our Services</h3>
@@ -369,8 +337,7 @@
         </div>
             </div>
           </div>
-        </div>
-      </div>
+      </ClearUpSystemSection>
     </div>
 
     <!-- Our Clients Section -->
@@ -576,6 +543,7 @@ import { HomeContentViewController } from '../controllers/HomeContentViewControl
 import { siteSettingsController } from '@/features/admin/controllers/SiteSettingsController'
 import type { SiteSettings } from '@/features/admin/models/SiteSettings'
 import TestimonialsSection from '@/shared/components/TestimonialsSection.vue'
+import ClearUpSystemSection from '@/shared/components/ClearUpSystemSection.vue'
 
 const router = useRouter()
 const route = useRoute()
