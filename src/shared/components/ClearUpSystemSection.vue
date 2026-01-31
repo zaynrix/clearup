@@ -90,40 +90,7 @@ const handleCtaClick = () => {
   background: #14141B;
   box-sizing: border-box;
   isolation: isolate;
-  /* Organic curved cutouts at top and bottom - smooth flowing curves */
-  clip-path: polygon(
-    /* Top left corner - starts slightly down from top */
-    0% 3.9%,
-    /* Top edge with curves and indentations matching SVG */
-    1.9% 3.1%,
-    9.2% 3.1%,
-    17.8% 3.1%,
-    24.5% 0.3%,
-    26% 0%,
-    36.7% 0%,
-    51.7% 0%,
-    64.2% 0%,
-    74.3% 0%,
-    81.1% 2.8%,
-    82.6% 3.1%,
-    92% 3.1%,
-    98.1% 3.1%,
-    /* Top right corner */
-    100% 3.9%,
-    /* Right edge */
-    100% 96.1%,
-    /* Bottom right corner - starting from right side */
-    100% 99.2%,
-    /* Bottom edge - matching SVG path, going from right to left */
-    98.1% 100%,
-    58.6% 100%,
-    57.2% 99.7%,
-    52.3% 97.7%,
-    50.9% 97.5%,
-    1.9% 97.5%,
-    /* Bottom left corner */
-    0% 96.7%
-  );
+  /* Simple rounded container - no clip-path to prevent content clipping */
   /* Rounded corners */
   border-radius: 50px;
 }
@@ -191,23 +158,6 @@ const handleCtaClick = () => {
     /* Remove clip-path for responsive - use normal container */
     clip-path: none;
   }
-}
-
-.clearup-system-vector {
-  position: absolute;
-  top: 0;
-  bottom: 0;
-  width: 400px;
-  height: 100%;
-  min-height: 1200px;
-  background-image: url('/images/backgrounds/vector1.svg');
-  background-repeat: no-repeat;
-  background-size: contain;
-  opacity: 0.7;
-  z-index: 0;
-  pointer-events: none;
-  border-radius: 30px 30px 0 0;
-  overflow: hidden;
 }
 
 .clearup-system-vector-left {
