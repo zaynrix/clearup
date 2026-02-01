@@ -3632,6 +3632,155 @@
             </div>
           </div>
 
+          <!-- Maintenance Mode (Admin Only) -->
+          <div v-if="activeTab === 'maintenance' && isAdmin && canAccessTab('maintenance')" class="editor-section">
+            <div class="section-header">
+              <div class="section-title-group">
+                <div class="section-icon">🔧</div>
+                <div>
+                  <h3>Maintenance Mode</h3>
+                  <p class="section-description">Control website maintenance with multi-admin approval</p>
+                </div>
+              </div>
+              <button @click="loadMaintenanceData" class="btn-secondary btn-small" :disabled="loadingMaintenance">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M23 20V14H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M20.49 9C19.95 5.95 17.42 3.42 14.37 2.88M3.51 15C4.05 18.05 6.58 20.58 9.63 21.12M14.37 2.88C13.69 2.95 13.02 3.11 12.37 3.37M9.63 21.12C10.31 21.05 10.98 20.89 11.63 20.63M14.37 2.88L17.37 5.88M9.63 21.12L6.63 18.12M17.37 5.88L20.37 2.88M6.63 18.12L3.63 21.12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Refresh
+              </button>
+            </div>
+
+            <div v-if="loadingMaintenance" class="loading-state">
+              <div class="upload-spinner"></div>
+              <p>Loading maintenance status...</p>
+            </div>
+
+            <div v-else class="maintenance-content">
+              <!-- Current Status -->
+              <div class="maintenance-status-card" :class="{ 'active': isMaintenanceActive }">
+                <div class="status-header">
+                  <div class="status-indicator" :class="{ 'active': isMaintenanceActive }"></div>
+                  <h4>{{ isMaintenanceActive ? 'Maintenance Mode Active' : 'Website Online' }}</h4>
+                </div>
+                <p v-if="activeMaintenanceRequest" class="status-details">
+                  {{ activeMaintenanceRequest.type === 'turn_off' ? 'Website is currently offline for maintenance.' : 'Website is online.' }}
+                </p>
+                <p v-else class="status-details">Website is currently online and accessible.</p>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="maintenance-actions">
+                <button 
+                  v-if="!isMaintenanceActive"
+                  @click="showTurnOffModal = true"
+                  class="btn-danger btn-large"
+                  :disabled="hasPendingRequest"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Turn Off Website
+                </button>
+                <button 
+                  v-else
+                  @click="showTurnOnModal = true"
+                  class="btn-success btn-large"
+                  :disabled="hasPendingRequest"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Turn On Website
+                </button>
+              </div>
+
+              <!-- Pending Requests -->
+              <div v-if="pendingRequests.length > 0" class="pending-requests-section">
+                <h4 class="subsection-title">Pending Approval Requests</h4>
+                <div class="requests-list">
+                  <div v-for="request in pendingRequests" :key="request.id" class="request-card">
+                    <div class="request-header">
+                      <div class="request-info">
+                        <h5>{{ request.type === 'turn_off' ? 'Turn Off Website' : 'Turn On Website' }}</h5>
+                        <p class="request-meta">
+                          Requested by <strong>{{ request.requestedByName || request.requestedByEmail }}</strong>
+                          <span v-if="request.createdAt" class="request-time">
+                            on {{ formatMaintenanceDate(request.createdAt) }}
+                          </span>
+                        </p>
+                        <p v-if="request.message" class="request-message">{{ request.message }}</p>
+                        <p v-if="request.estimatedEndTime" class="request-time">
+                          Estimated end: {{ formatMaintenanceDate(request.estimatedEndTime) }}
+                        </p>
+                      </div>
+                      <div class="request-status-badge pending">Pending (1/2)</div>
+                    </div>
+                    <div class="request-actions">
+                      <button 
+                        v-if="request.requestedBy !== currentUserId"
+                        @click="approveMaintenanceRequest(request.id!)"
+                        class="btn-success btn-small"
+                        :disabled="processingRequest === request.id"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Approve
+                      </button>
+                      <button 
+                        v-if="request.requestedBy !== currentUserId"
+                        @click="showRejectModal(request)"
+                        class="btn-danger btn-small"
+                        :disabled="processingRequest === request.id"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Reject
+                      </button>
+                      <button 
+                        v-if="request.requestedBy === currentUserId"
+                        @click="cancelMaintenanceRequest(request.id!)"
+                        class="btn-secondary btn-small"
+                        :disabled="processingRequest === request.id"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Request History -->
+              <div v-if="maintenanceHistory.length > 0" class="maintenance-history-section">
+                <h4 class="subsection-title">Request History</h4>
+                <div class="history-list">
+                  <div v-for="request in maintenanceHistory" :key="request.id" class="history-item">
+                    <div class="history-info">
+                      <div class="history-type">
+                        <span class="history-badge" :class="request.type">{{ request.type === 'turn_off' ? 'Turn Off' : 'Turn On' }}</span>
+                        <span class="history-status" :class="request.status">{{ request.status }}</span>
+                      </div>
+                      <p class="history-meta">
+                        Requested by <strong>{{ request.requestedByName || request.requestedByEmail }}</strong>
+                        <span v-if="request.approvedBy">, approved by <strong>{{ request.approvedByName || request.approvedByEmail }}</strong></span>
+                        <span v-if="request.createdAt" class="history-time"> on {{ formatMaintenanceDate(request.createdAt) }}</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Bookings Management (Admin Only) -->
           <div v-if="activeTab === 'bookings' && isAdmin && canAccessTab('bookings')" class="editor-section">
             <div class="section-header">
@@ -4124,12 +4273,129 @@
         </div>
       </main>
     </div>
+
+    <!-- Maintenance Modals -->
+    <!-- Turn Off Modal -->
+    <div v-if="showTurnOffModal" class="modal-overlay" @click.self="showTurnOffModal = false">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Turn Off Website</h3>
+          <button @click="showTurnOffModal = false" class="modal-close">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-warning">
+            This will create a maintenance request that requires approval from another admin. 
+            Once approved, the website will be turned off for all non-admin users.
+          </p>
+          <div class="form-group">
+            <label>Maintenance Message (Optional)</label>
+            <textarea 
+              v-model="maintenanceForm.message" 
+              rows="3" 
+              class="form-textarea"
+              placeholder="Website is currently under maintenance. Please check back later."
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label>Estimated End Time (Optional)</label>
+            <input 
+              v-model="maintenanceForm.estimatedEndTime" 
+              type="datetime-local" 
+              class="form-input"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button @click="showTurnOffModal = false" class="btn-secondary">Cancel</button>
+          <button 
+            @click="createMaintenanceRequest('turn_off')" 
+            class="btn-danger"
+            :disabled="processingRequest === 'creating'"
+          >
+            {{ processingRequest === 'creating' ? 'Creating...' : 'Create Request' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Turn On Modal -->
+    <div v-if="showTurnOnModal" class="modal-overlay" @click.self="showTurnOnModal = false">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Turn On Website</h3>
+          <button @click="showTurnOnModal = false" class="modal-close">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-warning">
+            This will create a maintenance request that requires approval from another admin. 
+            Once approved, the website will be turned back on for all users.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button @click="showTurnOnModal = false" class="btn-secondary">Cancel</button>
+          <button 
+            @click="createMaintenanceRequest('turn_on')" 
+            class="btn-success"
+            :disabled="processingRequest === 'creating'"
+          >
+            {{ processingRequest === 'creating' ? 'Creating...' : 'Create Request' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reject Modal -->
+    <div v-if="showRejectModal && rejectRequest" class="modal-overlay" @click.self="showRejectModal = false">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Reject Maintenance Request</h3>
+          <button @click="showRejectModal = false" class="modal-close">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to reject this maintenance request?</p>
+          <div class="form-group">
+            <label>Rejection Reason (Optional)</label>
+            <textarea 
+              v-model="rejectReason" 
+              rows="3" 
+              class="form-textarea"
+              placeholder="Reason for rejection..."
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button @click="showRejectModal = false" class="btn-secondary">Cancel</button>
+          <button 
+            @click="rejectMaintenanceRequest(rejectRequest.id!, rejectReason || undefined)" 
+            class="btn-danger"
+            :disabled="processingRequest === rejectRequest.id"
+          >
+            {{ processingRequest === rejectRequest.id ? 'Rejecting...' : 'Reject Request' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { useRouter, useRoute } from 'vue-router'
 import { authService } from '@/features/auth/services/AuthService'
 import { storageService } from '@/shared/services'
 import { AuthViewController } from '@/features/auth/controllers/AuthViewController'
@@ -4142,6 +4408,7 @@ import { adminUserService } from '../services/UserService'
 import { roleController } from '../controllers/RoleController'
 import { activityLogController } from '../controllers/ActivityLogController'
 import { siteSettingsController } from '../controllers/SiteSettingsController'
+import { maintenanceController } from '../controllers/MaintenanceController'
 import { emailController } from '@/features/home/controllers/EmailController'
 import { contactContentController } from '@/features/contact/controllers/ContactContentController'
 import type { EmailSubmission } from '@/features/home/services/EmailService'
@@ -4158,8 +4425,10 @@ import { defaultLegalContent } from '@/features/legal/models/LegalContent'
 import type { User } from '@/features/auth/models/User'
 import type { Role } from '../models/Role'
 import type { ActivityLog } from '../models/ActivityLog'
+import type { MaintenanceRequest } from '../models/MaintenanceRequest'
 
 const router = useRouter()
+const route = useRoute()
 const userViewController = new AuthViewController()
 
 const user = computed(() => userViewController.user)
@@ -4202,6 +4471,7 @@ const adminTabs = [
   { id: 'roles', label: 'Role Management' },
   { id: 'bookings', label: 'Bookings' },
   { id: 'site-settings', label: 'Site Settings' },
+  { id: 'maintenance', label: 'Maintenance Mode' },
   { id: 'activity-logs', label: 'Activity Logs' }
 ]
 // Map tabs to required permissions
@@ -4227,6 +4497,7 @@ const tabPermissionMap: Record<string, string> = {
   'roles': 'manage_roles',
   'bookings': 'manage_bookings',
   'site-settings': 'manage_site_settings',
+  'maintenance': 'manage_maintenance',
   'activity-logs': 'view_activity_logs',
 }
 
@@ -4306,6 +4577,28 @@ const contactSettings = ref<ContactContent>({
 })
 const savingContactSettings = ref(false)
 
+// Maintenance management state
+const isMaintenanceActive = ref(false)
+const activeMaintenanceRequest = ref<MaintenanceRequest | null>(null)
+const pendingRequests = ref<MaintenanceRequest[]>([])
+const maintenanceHistory = ref<MaintenanceRequest[]>([])
+const loadingMaintenance = ref(false)
+const processingRequest = ref<string | null>(null)
+const showTurnOffModal = ref(false)
+const showTurnOnModal = ref(false)
+const showRejectModal = ref(false)
+const rejectRequest = ref<MaintenanceRequest | null>(null)
+const maintenanceForm = ref({
+  message: '',
+  estimatedEndTime: ''
+})
+const rejectReason = ref('')
+const currentUserId = computed(() => user.value?.id || authService.getCurrentUser()?.uid || '')
+
+const hasPendingRequest = computed(() => {
+  return pendingRequests.value.length > 0
+})
+
 // Booking management state
 const bookings = ref<Booking[]>([])
 const isLoadingBookings = ref(false)
@@ -4339,7 +4632,16 @@ const defaultTimeSlots = [
 ]
 
 const sortedBookings = computed(() => {
-  return [...bookings.value].sort((a, b) => {
+  // Filter out bookings without IDs and log warnings
+  const validBookings = bookings.value.filter(booking => {
+    if (!booking.id) {
+      console.warn('Booking without ID found:', booking)
+      return false
+    }
+    return true
+  })
+  
+  return [...validBookings].sort((a, b) => {
     const dateA = new Date(a.meetingDate).getTime()
     const dateB = new Date(b.meetingDate).getTime()
     if (dateA !== dateB) return dateA - dateB
@@ -4353,6 +4655,8 @@ const upcomingBookings = computed(() => {
   tomorrow.setDate(tomorrow.getDate() + 1)
   
   return sortedBookings.value.filter(booking => {
+    // Only include bookings with valid IDs
+    if (!booking.id) return false
     if (booking.status === 'cancelled') return false
     const bookingDate = booking.getFullDateTime()
     return bookingDate >= now && bookingDate <= tomorrow
@@ -4400,12 +4704,22 @@ const refreshBookings = () => {
 }
 
 const startEditBooking = (booking: Booking) => {
-  if (!booking.id) {
-    console.error('Cannot edit booking: booking.id is undefined')
+  // Try multiple ways to get the ID
+  const bookingId = booking.id || (booking as any).id || (booking as any)['id']
+  
+  if (!bookingId) {
+    console.error('Cannot edit booking: booking.id is undefined', {
+      booking,
+      hasId: 'id' in booking,
+      keys: Object.keys(booking),
+      bookingString: JSON.stringify(booking, null, 2)
+    })
+    alert('Error: Cannot edit this booking. The booking ID is missing. Please refresh the page and try again.')
     return
   }
+  
   // Set the editing ID to this specific booking
-  editingBookingId.value = booking.id
+  editingBookingId.value = bookingId
   const date = new Date(booking.meetingDate)
   editBookingForm.value = {
     userName: booking.userName,
@@ -6765,6 +7079,167 @@ const saveContactSettings = async () => {
   }
 }
 
+// Maintenance Mode Management
+const loadMaintenanceData = async () => {
+  loadingMaintenance.value = true
+  try {
+    // Check if maintenance is active
+    const activeResult = await maintenanceController.getActiveMaintenanceRequest()
+    if (activeResult.success) {
+      activeMaintenanceRequest.value = activeResult.data || null
+      isMaintenanceActive.value = activeResult.data !== null && activeResult.data.type === 'turn_off'
+    }
+
+    // Load pending requests
+    const pendingResult = await maintenanceController.getPendingRequests()
+    if (pendingResult.success && pendingResult.data) {
+      pendingRequests.value = pendingResult.data
+    }
+
+    // Load history
+    const historyResult = await maintenanceController.getAllRequests(20)
+    if (historyResult.success && historyResult.data) {
+      maintenanceHistory.value = historyResult.data.filter(r => r.status !== 'pending')
+    }
+  } catch (error) {
+    console.error('Failed to load maintenance data:', error)
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to load maintenance data'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } finally {
+    loadingMaintenance.value = false
+  }
+}
+
+const createMaintenanceRequest = async (type: 'turn_on' | 'turn_off') => {
+  processingRequest.value = 'creating'
+  try {
+    const estimatedEndTime = maintenanceForm.value.estimatedEndTime 
+      ? new Date(maintenanceForm.value.estimatedEndTime)
+      : undefined
+
+    const result = await maintenanceController.createMaintenanceRequest(
+      type,
+      estimatedEndTime,
+      maintenanceForm.value.message || undefined
+    )
+
+    if (result.success) {
+      saveMessage.value = `Maintenance request created. Waiting for another admin's approval.`
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 5000)
+      showTurnOffModal.value = false
+      showTurnOnModal.value = false
+      maintenanceForm.value = { message: '', estimatedEndTime: '' }
+      await loadMaintenanceData()
+    } else {
+      saveMessage.value = result.error || 'Failed to create maintenance request'
+      saveMessageType.value = 'error'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+    }
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to create maintenance request'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } finally {
+    processingRequest.value = null
+  }
+}
+
+const approveMaintenanceRequest = async (requestId: string) => {
+  if (!confirm('Are you sure you want to approve this maintenance request? This will immediately ' + 
+    (pendingRequests.value.find(r => r.id === requestId)?.type === 'turn_off' ? 'turn off' : 'turn on') + 
+    ' the website.')) {
+    return
+  }
+
+  processingRequest.value = requestId
+  try {
+    const result = await maintenanceController.approveMaintenanceRequest(requestId)
+    if (result.success) {
+      saveMessage.value = 'Maintenance request approved. Website status updated.'
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 5000)
+      await loadMaintenanceData()
+    } else {
+      saveMessage.value = result.error || 'Failed to approve maintenance request'
+      saveMessageType.value = 'error'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+    }
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to approve maintenance request'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } finally {
+    processingRequest.value = null
+  }
+}
+
+const rejectMaintenanceRequest = async (requestId: string, reason?: string) => {
+  processingRequest.value = requestId
+  try {
+    const result = await maintenanceController.rejectMaintenanceRequest(requestId, reason)
+    if (result.success) {
+      saveMessage.value = 'Maintenance request rejected.'
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+      showRejectModal.value = false
+      rejectRequest.value = null
+      rejectReason.value = ''
+      await loadMaintenanceData()
+    } else {
+      saveMessage.value = result.error || 'Failed to reject maintenance request'
+      saveMessageType.value = 'error'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+    }
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to reject maintenance request'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } finally {
+    processingRequest.value = null
+  }
+}
+
+const cancelMaintenanceRequest = async (requestId: string) => {
+  if (!confirm('Are you sure you want to cancel this maintenance request?')) {
+    return
+  }
+
+  processingRequest.value = requestId
+  try {
+    const result = await maintenanceController.cancelMaintenanceRequest(requestId)
+    if (result.success) {
+      saveMessage.value = 'Maintenance request cancelled.'
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+      await loadMaintenanceData()
+    } else {
+      saveMessage.value = result.error || 'Failed to cancel maintenance request'
+      saveMessageType.value = 'error'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+    }
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to cancel maintenance request'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } finally {
+    processingRequest.value = null
+  }
+}
+
+const formatMaintenanceDate = (date: Date | string | undefined): string => {
+  if (!date) return ''
+  const d = date instanceof Date ? date : new Date(date)
+  return d.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
 // Real Results Cases Management
 const addNewRealResultsCase = () => {
   if (!formData.value.realResultsCases) {
@@ -7744,6 +8219,9 @@ watch(activeTab, (newTab) => {
   if (newTab === 'contact-settings') {
     loadContactSettings()
   }
+  if (newTab === 'maintenance' && isAdmin.value) {
+    loadMaintenanceData()
+  }
 })
 
 // Watch for user changes to reload roles and update permissions
@@ -7894,8 +8372,25 @@ const handleLogout = async () => {
   }
 }
 
+// Watch for route query to set active tab
+watch(() => route.query.tab, (newTab) => {
+  if (newTab && typeof newTab === 'string') {
+    const tabExists = tabs.value.find(t => t.id === newTab)
+    if (tabExists && canAccessTab(newTab)) {
+      activeTab.value = newTab
+    }
+  }
+}, { immediate: true })
+
 onMounted(() => {
   loadContent()
+  // Check if tab query parameter exists
+  if (route.query.tab && typeof route.query.tab === 'string') {
+    const tabExists = tabs.value.find(t => t.id === route.query.tab)
+    if (tabExists && canAccessTab(route.query.tab as string)) {
+      activeTab.value = route.query.tab as string
+    }
+  }
 })
 </script>
 
@@ -12554,6 +13049,232 @@ onMounted(() => {
   .availability-date-controls {
     margin-top: 1rem;
     padding-top: 1rem;
+  }
+}
+
+/* Maintenance Mode Styles */
+.maintenance-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.maintenance-status-card {
+  background: rgba(34, 197, 94, 0.1);
+  border: 2px solid rgba(34, 197, 94, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.maintenance-status-card.active {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.status-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.status-indicator.active {
+  background: #ef4444;
+}
+
+.status-header h4 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #F5F7FA;
+}
+
+.status-details {
+  margin: 0;
+  color: rgba(245, 247, 250, 0.7);
+  font-size: 0.95rem;
+}
+
+.maintenance-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-large {
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  border: none;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.btn-success {
+  background: #22c55e;
+  color: white;
+  border: none;
+}
+
+.btn-success:hover:not(:disabled) {
+  background: #16a34a;
+}
+
+.pending-requests-section,
+.maintenance-history-section {
+  margin-top: 2rem;
+}
+
+.subsection-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #F5F7FA;
+  margin-bottom: 1rem;
+}
+
+.requests-list,
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.request-card,
+.history-item {
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.request-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.request-info h5 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #F5F7FA;
+}
+
+.request-meta {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  color: rgba(245, 247, 250, 0.6);
+}
+
+.request-message {
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+  background: rgba(91, 32, 150, 0.1);
+  border-radius: 6px;
+  color: rgba(245, 247, 250, 0.8);
+  font-size: 0.9rem;
+}
+
+.request-time {
+  font-size: 0.85rem;
+  color: rgba(245, 247, 250, 0.5);
+  margin-left: 0.5rem;
+}
+
+.request-status-badge {
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.request-status-badge.pending {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.request-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.history-type {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.history-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.history-badge.turn_off {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.history-badge.turn_on {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.history-status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.history-status.active {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.history-status.rejected {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.history-meta {
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(245, 247, 250, 0.6);
+}
+
+.history-time {
+  color: rgba(245, 247, 250, 0.5);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
   }
 }
 </style>

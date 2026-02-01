@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import { authService } from '@/features/auth/services/AuthService'
 import { userService } from '@/features/auth/services/UserService'
+import { maintenanceService } from '@/features/admin/services/MaintenanceService'
 import { auth } from '@/shared/services/config'
 import { authRoutes } from '@/features/auth/routes'
 import { homeRoutes } from '@/features/home/routes'
@@ -69,22 +70,63 @@ router.beforeEach(async (to, from, next) => {
   const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest)
   
-  // Wait for auth to be ready if route requires auth (Firebase Auth persistence initialization)
-  if (requiresAuth || requiresGuest) {
-    await waitForAuth()
-  }
+  // Skip maintenance check for maintenance page itself, login page, and secret maintenance toggle route
+  const isMaintenanceRoute = to.name === 'maintenance' || to.name === 'secret-maintenance-toggle'
+  const isLoginRoute = to.name === 'login'
+  const isAdminRoute = to.path.startsWith('/admin-dashboard')
+  const isDashboardRoute = to.path.startsWith('/dashboard')
+  
+  // Wait for auth to be ready (needed to check if user is admin)
+  // We need to wait for auth even for public routes to check admin status for maintenance bypass
+  await waitForAuth()
   
   const currentUser = authService.getCurrentUser()
+  let isAdmin = false
+  
+  // Check if user is admin (needed for maintenance bypass)
+  if (currentUser) {
+    try {
+      isAdmin = await userService.isAdmin(currentUser.uid)
+    } catch (error) {
+      console.error('Error checking admin status:', error)
+    }
+  }
 
+  // Check maintenance mode for ALL routes except maintenance page, login page, and admin routes
+  // Login page is accessible but login functionality will be blocked for non-admins in the LoginView
+  // This applies to: /, /about, /services, /contact, /work, /dashboard (for non-admins), etc.
+  if (!isMaintenanceRoute && !isAdminRoute && !isLoginRoute) {
+    try {
+      const isMaintenanceActive = await maintenanceService.isMaintenanceModeActive()
+      if (isMaintenanceActive) {
+        // Allow admins to bypass maintenance mode for all routes
+        if (isAdmin) {
+          // Admin can proceed to any route
+        } else {
+          // Block all routes for non-admin users during maintenance
+          // This includes: home, about, services, contact, work, dashboard, etc.
+          if (to.name !== 'maintenance') {
+            next({ name: 'maintenance' })
+            return
+          }
+        }
+      }
+    } catch (error) {
+      // If maintenance check fails, log but don't block navigation
+      console.error('Error checking maintenance mode:', error)
+    }
+  }
+
+  // Now handle route-specific guards
   if (requiresAuth && !currentUser) {
     // Redirect to login if route requires auth and user is not logged in
+    // But if maintenance is active and user is not admin, they'll be redirected to maintenance page above
     next({ name: 'login', query: { redirect: to.fullPath } })
     return
   }
 
   if (requiresAdmin && currentUser) {
     // Check if user is admin
-    const isAdmin = await userService.isAdmin(currentUser.uid)
     if (!isAdmin) {
       // Redirect non-admin users to dashboard
       next({ name: 'dashboard' })
@@ -94,7 +136,6 @@ router.beforeEach(async (to, from, next) => {
 
   if (requiresGuest && currentUser) {
     // Redirect logged-in users to appropriate dashboard based on role
-    const isAdmin = await userService.isAdmin(currentUser.uid)
     if (isAdmin) {
       next({ name: 'admin-dashboard' })
     } else {

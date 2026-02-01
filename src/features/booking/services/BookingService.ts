@@ -65,10 +65,19 @@ export class BookingService extends BaseService {
         [firestoreService.orderBy('meetingDate', 'asc')]
       )
       return bookings.map(booking => {
-        const bookingInstance = Booking.fromFirestore(booking)
-        // Ensure ID is set from the document
+        // Ensure ID is explicitly passed to fromFirestore
+        const bookingData = {
+          ...booking,
+          id: booking.id || '' // Explicitly ensure ID is set
+        }
+        const bookingInstance = Booking.fromFirestore(bookingData)
+        // Double-check ID is set (fallback)
         if (booking.id && !bookingInstance.id) {
           bookingInstance.id = booking.id
+        }
+        // Final safety check - if still no ID, log warning
+        if (!bookingInstance.id) {
+          console.warn('Booking loaded without ID:', booking)
         }
         return bookingInstance
       })

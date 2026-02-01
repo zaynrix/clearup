@@ -200,6 +200,17 @@ service cloud.firestore {
     allow write: if isAdmin();
   }
   
+  // Maintenance requests collection
+  // - Anyone can read active maintenance requests (to check if site is in maintenance)
+  // - Only admins can create/update/delete maintenance requests
+  match /maintenance_requests/{requestId} {
+    // Allow anyone to read maintenance requests (to check if site is in maintenance mode)
+    allow read: if true;
+    
+    // Only admins can create/update/delete maintenance requests
+    allow write: if isAdmin();
+  }
+  
   // Default deny rule for any other collections
   match /{document=**} {
     allow read, write: if false;
