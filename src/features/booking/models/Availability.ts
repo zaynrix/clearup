@@ -17,7 +17,7 @@ export class Availability extends Model implements AvailabilityData {
 
   constructor(data: Partial<AvailabilityData> = {}) {
     super(data)
-    this.date = data.date ?? new Date().toISOString().split('T')[0]
+    this.date = (data.date ?? new Date().toISOString().split('T')[0]) as string | Date
     this.timeSlot = data.timeSlot || ''
     this.isBlocked = data.isBlocked || false
     this.reason = data.reason

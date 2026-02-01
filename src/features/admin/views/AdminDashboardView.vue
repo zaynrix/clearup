@@ -4370,8 +4370,10 @@ const formatBookingDateTime = (booking: Booking): string => {
     month: 'short', 
     day: 'numeric' 
   })
-  const [hours, minutes] = booking.meetingTime.split(':')
-  const timeStr = new Date(2000, 0, 1, parseInt(hours) || 0, parseInt(minutes) || 0)
+  const timeParts = booking.meetingTime.split(':')
+  const hours = timeParts[0] ? parseInt(timeParts[0]) : 0
+  const minutes = timeParts[1] ? parseInt(timeParts[1]) : 0
+  const timeStr = new Date(2000, 0, 1, hours, minutes)
     .toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
   return `${dateStr} at ${timeStr}`
 }
