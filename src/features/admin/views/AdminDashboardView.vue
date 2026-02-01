@@ -3845,10 +3845,10 @@
                       </div>
                     </div>
                     <div class="booking-edit-actions">
-                      <button @click="cancelBookingEdit" class="btn-secondary">Cancel</button>
-                      <button @click="saveBookingEdit(booking.id!)" :disabled="isLoadingBookings" class="btn-primary">
-                        <div v-if="isLoadingBookings" class="btn-spinner"></div>
-                        {{ isLoadingBookings ? 'Saving...' : 'Save Changes' }}
+                      <button @click="cancelBookingEdit" class="btn-secondary" :disabled="isSavingBooking">Cancel</button>
+                      <button @click="saveBookingEdit(booking.id!)" :disabled="isSavingBooking" class="btn-primary">
+                        <div v-if="isSavingBooking" class="btn-spinner"></div>
+                        {{ isSavingBooking ? 'Saving...' : 'Save Changes' }}
                       </button>
                     </div>
                   </div>
@@ -4309,6 +4309,7 @@ const savingContactSettings = ref(false)
 // Booking management state
 const bookings = ref<Booking[]>([])
 const isLoadingBookings = ref(false)
+const isSavingBooking = ref(false)
 const editingBookingId = ref<string | null>(null)
 const bookingViewMode = ref<'list' | 'calendar' | 'availability'>('list')
 const editBookingForm = ref<Partial<BookingData>>({
@@ -4426,7 +4427,7 @@ const cancelBookingEdit = () => {
 }
 
 const saveBookingEdit = async (bookingId: string) => {
-  isLoadingBookings.value = true
+  isSavingBooking.value = true
   try {
     const updateData: Partial<BookingData> = {
       userName: editBookingForm.value.userName,
@@ -4445,11 +4446,13 @@ const saveBookingEdit = async (bookingId: string) => {
       // TODO: Send notification email to user about the change
     } else {
       console.error('Failed to update booking:', result.error)
+      alert('Failed to update booking: ' + (result.error || 'Unknown error'))
     }
   } catch (error) {
     console.error('Error updating booking:', error)
+    alert('Error updating booking: ' + (error instanceof Error ? error.message : 'Unknown error'))
   } finally {
-    isLoadingBookings.value = false
+    isSavingBooking.value = false
   }
 }
 
