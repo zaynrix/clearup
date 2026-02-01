@@ -64,7 +64,14 @@ export class BookingService extends BaseService {
         COLLECTION_NAME,
         [firestoreService.orderBy('meetingDate', 'asc')]
       )
-      return bookings.map(booking => Booking.fromFirestore(booking))
+      return bookings.map(booking => {
+        const bookingInstance = Booking.fromFirestore(booking)
+        // Ensure ID is set from the document
+        if (booking.id && !bookingInstance.id) {
+          bookingInstance.id = booking.id
+        }
+        return bookingInstance
+      })
     } catch (error) {
       this.handleError(error)
       throw error

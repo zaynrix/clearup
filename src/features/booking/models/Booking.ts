@@ -61,13 +61,19 @@ export class Booking extends Model implements BookingData {
    * Create Booking instance from Firestore data
    */
   static fromFirestore(data: any): Booking {
-    return new Booking({
+    const booking = new Booking({
       ...data,
+      id: data.id || '', // Ensure ID is explicitly set
       createdAt: data.createdAt ? new Date(data.createdAt) : undefined,
       updatedAt: data.updatedAt ? new Date(data.updatedAt) : undefined,
       meetingDate: data.meetingDate ? new Date(data.meetingDate) : undefined,
       cancelledAt: data.cancelledAt ? new Date(data.cancelledAt) : undefined
     })
+    // Ensure ID is set (in case it wasn't in the spread)
+    if (data.id && !booking.id) {
+      booking.id = data.id
+    }
+    return booking
   }
 
   /**
