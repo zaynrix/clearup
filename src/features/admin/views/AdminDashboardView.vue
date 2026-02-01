@@ -4400,7 +4400,12 @@ const refreshBookings = () => {
 }
 
 const startEditBooking = (booking: Booking) => {
-  editingBookingId.value = booking.id!
+  if (!booking.id) {
+    console.error('Cannot edit booking: booking.id is undefined')
+    return
+  }
+  // Set the editing ID to this specific booking
+  editingBookingId.value = booking.id
   const date = new Date(booking.meetingDate)
   editBookingForm.value = {
     userName: booking.userName,
