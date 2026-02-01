@@ -18,7 +18,7 @@ export class AvailabilityService extends BaseService {
     blockedBy?: string
   ): Promise<Availability> {
     try {
-      const dateStr: string = typeof date === 'string' ? date : date.toISOString().split('T')[0]
+      const dateStr: string = typeof date === 'string' ? date : (date.toISOString().split('T')[0] || '')
       
       // Check if already exists
       const existing = await this.getAvailability(dateStr, timeSlot)
@@ -66,7 +66,7 @@ export class AvailabilityService extends BaseService {
    */
   async unblockTimeSlot(date: Date | string, timeSlot: string): Promise<void> {
     try {
-      const dateStr: string = typeof date === 'string' ? date : date.toISOString().split('T')[0]
+      const dateStr: string = typeof date === 'string' ? date : (date.toISOString().split('T')[0] || '')
       const existing = await this.getAvailability(dateStr, timeSlot)
       
       if (existing && existing.id) {
@@ -86,7 +86,7 @@ export class AvailabilityService extends BaseService {
    */
   async getAvailability(date: Date | string, timeSlot: string): Promise<Availability | null> {
     try {
-      const dateStr: string = typeof date === 'string' ? date : date.toISOString().split('T')[0]
+      const dateStr: string = typeof date === 'string' ? date : (date.toISOString().split('T')[0] || '')
       const all = await this.getAvailabilityByDate(dateStr)
       return all.find(a => a.timeSlot === timeSlot) || null
     } catch (error) {
@@ -124,8 +124,8 @@ export class AvailabilityService extends BaseService {
       
       // Sort in memory by date, then by timeSlot
       return availability.sort((a, b) => {
-        const dateA: string = typeof a.date === 'string' ? a.date : new Date(a.date).toISOString().split('T')[0]
-        const dateB: string = typeof b.date === 'string' ? b.date : new Date(b.date).toISOString().split('T')[0]
+        const dateA: string = typeof a.date === 'string' ? a.date : (new Date(a.date).toISOString().split('T')[0] || '')
+        const dateB: string = typeof b.date === 'string' ? b.date : (new Date(b.date).toISOString().split('T')[0] || '')
         if (dateA !== dateB) {
           return dateA.localeCompare(dateB)
         }
@@ -143,11 +143,11 @@ export class AvailabilityService extends BaseService {
   async getBlockedSlots(startDate: Date, endDate: Date): Promise<Availability[]> {
     try {
       const all = await this.getAllAvailability()
-      const start: string = startDate.toISOString().split('T')[0]
-      const end: string = endDate.toISOString().split('T')[0]
+      const start: string = startDate.toISOString().split('T')[0] || ''
+      const end: string = endDate.toISOString().split('T')[0] || ''
       
       return all.filter(a => {
-        const aDate: string = typeof a.date === 'string' ? a.date : new Date(a.date).toISOString().split('T')[0]
+        const aDate: string = typeof a.date === 'string' ? a.date : (new Date(a.date).toISOString().split('T')[0] || '')
         return a.isBlocked && aDate >= start && aDate <= end
       })
     } catch (error) {

@@ -309,8 +309,10 @@ The ClearUP Team`
       month: 'long',
       day: 'numeric'
     })
-    const [hours, minutes] = time.split(':')
-    const timeDate = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes))
+    const timeParts = time.split(':')
+    const hours = timeParts[0] ? parseInt(timeParts[0]) : 0
+    const minutes = timeParts[1] ? parseInt(timeParts[1]) : 0
+    const timeDate = new Date(2000, 0, 1, hours, minutes)
     const timeStr = timeDate.toLocaleTimeString('en-US', {
       hour: 'numeric',
       minute: '2-digit',
