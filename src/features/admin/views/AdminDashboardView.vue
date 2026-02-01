@@ -4315,7 +4315,7 @@ const editBookingForm = ref<Partial<BookingData>>({
   userName: '',
   userEmail: '',
   userPhone: '',
-  meetingDate: null,
+  meetingDate: undefined,
   meetingTime: '',
   status: 'pending',
   notes: ''
@@ -4371,7 +4371,7 @@ const formatBookingDateTime = (booking: Booking): string => {
     day: 'numeric' 
   })
   const [hours, minutes] = booking.meetingTime.split(':')
-  const timeStr = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes))
+  const timeStr = new Date(2000, 0, 1, parseInt(hours) || 0, parseInt(minutes) || 0)
     .toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
   return `${dateStr} at ${timeStr}`
 }
@@ -4416,7 +4416,7 @@ const cancelBookingEdit = () => {
     userName: '',
     userEmail: '',
     userPhone: '',
-    meetingDate: null,
+    meetingDate: undefined,
     meetingTime: '',
     status: 'pending',
     notes: ''
@@ -4663,7 +4663,7 @@ const toggleTimeSlot = async (date: Date, timeSlot: string) => {
 const formatTime = (time: string): string => {
   const [hours, minutes] = time.split(':').map(Number)
   const date = new Date()
-  date.setHours(hours, minutes)
+  date.setHours(hours || 0, minutes || 0)
   return date.toLocaleTimeString('en-US', { 
     hour: 'numeric', 
     minute: '2-digit',

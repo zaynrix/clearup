@@ -76,7 +76,7 @@ export class Booking extends Model implements BookingData {
   getFullDateTime(): Date {
     const date = new Date(this.meetingDate)
     const [hours, minutes] = this.meetingTime.split(':').map(Number)
-    date.setHours(hours, minutes, 0, 0)
+    date.setHours(hours || 0, minutes || 0, 0, 0)
     return date
   }
 

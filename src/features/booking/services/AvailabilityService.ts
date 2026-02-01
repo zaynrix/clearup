@@ -23,7 +23,7 @@ export class AvailabilityService extends BaseService {
       // Check if already exists
       const existing = await this.getAvailability(dateStr, timeSlot)
       
-      if (existing) {
+      if (existing && existing.id) {
         // Update existing
         await firestoreService.updateDocument(COLLECTION_NAME, existing.id, {
           isBlocked: true,
@@ -47,9 +47,10 @@ export class AvailabilityService extends BaseService {
           updatedAt: new Date()
         })
         
+        const firestoreData = availability.toFirestore() as AvailabilityData
         const id = await firestoreService.createDocumentWithAutoId<AvailabilityData>(
           COLLECTION_NAME,
-          availability.toFirestore()
+          firestoreData
         )
         availability.id = id
         return availability

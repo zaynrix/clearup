@@ -328,7 +328,7 @@ const loadTimeSlots = async (date: Date) => {
 const formatTime = (time: string): string => {
   const [hours, minutes] = time.split(':').map(Number)
   const date = new Date()
-  date.setHours(hours, minutes)
+  date.setHours(hours || 0, minutes || 0)
   return date.toLocaleTimeString('en-US', { 
     hour: 'numeric', 
     minute: '2-digit',
