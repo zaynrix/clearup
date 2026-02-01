@@ -289,7 +289,10 @@ const selectDate = async (date: Date) => {
 }
 
 const selectTime = (time: string) => {
-  formData.value.meetingTime = time
+  const slot = availableTimeSlots.value.find(s => s.time === time)
+  if (slot && slot.available) {
+    formData.value.meetingTime = time
+  }
 }
 
 const previousMonth = () => {
