@@ -34,10 +34,10 @@
           </div>
           
           <!-- Stat Cards -->
-          <div v-if="aboutContent?.statCards && aboutContent.statCards.length > 0" class="stat-cards-container">
+          <div v-if="statCards.length > 0" class="stat-cards-container">
             <div class="stat-cards-grid">
               <div 
-                v-for="statCard in aboutContent.statCards" 
+                v-for="statCard in statCards" 
                 :key="statCard.id" 
                 class="stat-card"
               >
@@ -219,12 +219,59 @@ const isSectionDisabled = (sectionId: string): boolean => {
 
 const teamMembers = computed(() => {
   if (!aboutContent.value) return []
-  return aboutContent.value.teamMembers || []
+  const members = [...(aboutContent.value.teamMembers || [])]
+  // Sort by order property, ensuring all members have an order
+  members.forEach((member, index) => {
+    if (member.order === undefined || member.order === null) {
+      member.order = index
+    }
+  })
+  return members.sort((a, b) => {
+    const orderA = a.order ?? 0
+    const orderB = b.order ?? 0
+    if (orderA !== orderB) {
+      return orderA - orderB
+    }
+    return 0
+  })
 })
 
 const faqs = computed(() => {
   if (!aboutContent.value) return []
-  return aboutContent.value.faqs || []
+  const faqList = [...(aboutContent.value.faqs || [])]
+  // Sort by order property, ensuring all FAQs have an order
+  faqList.forEach((faq, index) => {
+    if (faq.order === undefined || faq.order === null) {
+      faq.order = index
+    }
+  })
+  return faqList.sort((a, b) => {
+    const orderA = a.order ?? 0
+    const orderB = b.order ?? 0
+    if (orderA !== orderB) {
+      return orderA - orderB
+    }
+    return 0
+  })
+})
+
+const statCards = computed(() => {
+  if (!aboutContent.value) return []
+  const cards = [...(aboutContent.value.statCards || [])]
+  // Sort by order property, ensuring all stat cards have an order
+  cards.forEach((card, index) => {
+    if (card.order === undefined || card.order === null) {
+      card.order = index
+    }
+  })
+  return cards.sort((a, b) => {
+    const orderA = a.order ?? 0
+    const orderB = b.order ?? 0
+    if (orderA !== orderB) {
+      return orderA - orderB
+    }
+    return 0
+  })
 })
 
 const loadAboutContent = async () => {

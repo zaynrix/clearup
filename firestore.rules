@@ -131,7 +131,7 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
     
-// Site content collection (legal pages, etc.)
+    // Site content collection (legal pages, etc.)
     // - Anyone can read (for displaying public pages like privacy policy, terms, cookies)
     // - Only authenticated users can write (for admin dashboard)
     match /site_content/{documentId} {
@@ -142,10 +142,70 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
     
-    // Default deny rule for any other collections
-    match /{document=**} {
-      allow read, write: if false;
+    // Contact messages collection
+    // - Anyone can create messages (for public contact form submissions)
+    // - Authenticated users can read all messages (for admin dashboard)
+    // - Authenticated users can update/delete messages
+    match /contactMessages/{messageId} {
+      // Allow anyone to create contact messages (for public form submissions)
+      allow create: if true;
+      
+      // Allow authenticated users to read messages
+      allow read: if isAuthenticated();
+      
+      // Allow authenticated users to update/delete messages
+      allow update, delete: if isAuthenticated();
     }
+    
+    // Contact content collection
+    // - Anyone can read (for displaying contact page)
+    // - Only authenticated users can write (for admin dashboard)
+    match /contactContent/{documentId} {
+      // Allow anyone to read contact content (for public contact page)
+      allow read: if true;
+      
+      // Allow authenticated users to create/update/delete
+      allow write: if isAuthenticated();
+    }
+    
+  // Bookings collection
+  // - Authenticated users can create bookings (for public booking form)
+  // - Authenticated users can read their own bookings
+  // - Admins can read/update/delete all bookings
+  match /bookings/{bookingId} {
+    // Allow authenticated users to create bookings
+    allow create: if isAuthenticated();
+    
+    // Allow users to read their own bookings (by email)
+    // Allow admins to read all bookings
+    allow read: if isAuthenticated() && (
+      resource.data.userEmail == request.auth.token.email ||
+      isAdmin()
+    );
+    
+    // Allow admins to update/delete bookings
+    // Allow users to update their own bookings (for cancellation)
+    allow update, delete: if isAuthenticated() && (
+      isAdmin() ||
+      (resource.data.userEmail == request.auth.token.email && request.resource.data.status == 'cancelled')
+    );
   }
+  
+  // Availability collection
+  // - Only authenticated users can read (to check availability)
+  // - Only admins can write (block/unblock time slots)
+  match /availability/{availabilityId} {
+    // Allow authenticated users to read availability
+    allow read: if isAuthenticated();
+    
+    // Only admins can create/update/delete availability
+    allow write: if isAdmin();
+  }
+  
+  // Default deny rule for any other collections
+  match /{document=**} {
+    allow read, write: if false;
+  }
+}
 }
 

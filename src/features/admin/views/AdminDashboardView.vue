@@ -107,7 +107,7 @@
         <!-- Content Editor -->
         <div v-else class="content-editor">
           <!-- Hero Section Editor -->
-          <div v-if="activeTab === 'hero'" class="editor-section">
+          <div v-if="activeTab === 'hero' && canAccessTab('hero')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">🎯</div>
@@ -164,7 +164,7 @@
           </div>
 
           <!-- CTA Section Editor -->
-          <div v-if="activeTab === 'cta'" class="editor-section">
+          <div v-if="activeTab === 'cta' && canAccessTab('cta')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">📞</div>
@@ -218,7 +218,7 @@
           </div>
 
           <!-- Who We Are Editor -->
-          <div v-if="activeTab === 'who-we-are'" class="editor-section">
+          <div v-if="activeTab === 'who-we-are' && canAccessTab('who-we-are')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">👥</div>
@@ -241,22 +241,22 @@
                   Basic Information
                 </h4>
                 <p class="content-section-description">Set the title and description for this section</p>
-            </div>
-            
-            <div class="form-grid">
-              <div class="form-group full-width">
-                <label>
-                  <span class="label-text">Section Title</span>
-                    <span class="label-hint">Main heading for the section</span>
-                </label>
-                <input v-model="formData.whoWeAreTitle" type="text" placeholder="Who We Are" class="form-input" />
               </div>
+            
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label>
+                    <span class="label-text">Section Title</span>
+                    <span class="label-hint">Main heading for the section</span>
+                  </label>
+                  <input v-model="formData.whoWeAreTitle" type="text" placeholder="Who We Are" class="form-input" />
+                </div>
               
-              <div class="form-group full-width">
-                <label>
-                  <span class="label-text">Description</span>
+                <div class="form-group full-width">
+                  <label>
+                    <span class="label-text">Description</span>
                     <span class="label-hint">Brief introduction about your company</span>
-                </label>
+                  </label>
                   <textarea v-model="formData.whoWeAreDescription" rows="4" placeholder="We are your marketing growth partner." class="form-textarea"></textarea>
                 </div>
               </div>
@@ -486,7 +486,7 @@
           </div>
 
           <!-- System Section Editor -->
-          <div v-if="activeTab === 'system'" class="editor-section">
+          <div v-if="activeTab === 'system' && canAccessTab('system')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">⚙️</div>
@@ -538,7 +538,7 @@
           </div>
 
           <!-- Services Editor -->
-          <div v-if="activeTab === 'services'" class="editor-section">
+          <div v-if="activeTab === 'services' && canAccessTab('services')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">🛠️</div>
@@ -604,7 +604,7 @@
           </div>
 
           <!-- What We Do Editor -->
-          <div v-if="activeTab === 'what-we-do'" class="editor-section">
+          <div v-if="activeTab === 'what-we-do' && canAccessTab('what-we-do')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">📋</div>
@@ -715,7 +715,7 @@
           </div>
 
           <!-- What You Get Editor -->
-          <div v-if="activeTab === 'what-you-get'" class="editor-section">
+          <div v-if="activeTab === 'what-you-get' && canAccessTab('what-you-get')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">✅</div>
@@ -829,7 +829,7 @@
           </div>
 
           <!-- Bonuses Editor -->
-          <div v-if="activeTab === 'bonuses'" class="editor-section">
+          <div v-if="activeTab === 'bonuses' && canAccessTab('bonuses')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">🎁</div>
@@ -941,7 +941,7 @@
           </div>
 
           <!-- Clients & Testimonials Editor -->
-          <div v-if="activeTab === 'clients'" class="editor-section">
+          <div v-if="activeTab === 'clients' && canAccessTab('clients')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">💼</div>
@@ -1436,7 +1436,7 @@
           </div>
 
           <!-- Real Results Editor -->
-          <div v-if="activeTab === 'real-results'" class="editor-section">
+          <div v-if="activeTab === 'real-results' && canAccessTab('real-results')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">📊</div>
@@ -1818,7 +1818,7 @@
           </div>
 
           <!-- About Page Editor -->
-          <div v-if="activeTab === 'about'" class="editor-section">
+          <div v-if="activeTab === 'about' && canAccessTab('about')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">ℹ️</div>
@@ -2128,17 +2128,39 @@
               </div>
 
               <div v-else class="team-grid-admin">
-                <div v-for="(member, index) in aboutFormData.teamMembers" :key="member.id || index" class="team-member-card-admin">
+                <div v-for="(member, index) in sortedTeamMembers" :key="member.id || index" class="team-member-card-admin">
                   <div class="team-member-header">
                     <div class="team-member-number">#{{ index + 1 }}</div>
                     <div class="team-member-actions">
-                      <button @click="startEditTeamMember(index)" class="btn-icon" title="Edit">
+                      <div class="reorder-buttons">
+                        <button 
+                          @click="moveTeamMemberUp(index)" 
+                          class="btn-icon btn-icon-reorder" 
+                          title="Move Up"
+                          :disabled="index === 0"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </button>
+                        <button 
+                          @click="moveTeamMemberDown(index)" 
+                          class="btn-icon btn-icon-reorder" 
+                          title="Move Down"
+                          :disabled="index === sortedTeamMembers.length - 1"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </button>
+                      </div>
+                      <button @click="startEditTeamMemberByOrder(member.order || index)" class="btn-icon" title="Edit">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </button>
-                      <button @click="deleteTeamMember(index)" class="btn-icon btn-icon-danger" title="Delete">
+                      <button @click="deleteTeamMemberByOrder(member.order || index)" class="btn-icon btn-icon-danger" title="Delete">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2255,7 +2277,7 @@
 
                       <div class="form-group full-width">
                         <div class="form-actions">
-                          <button @click="saveTeamMemberEdit(index)" class="btn-primary">Save</button>
+                          <button @click="saveTeamMemberEditByOrder(member.order || index)" class="btn-primary">Save</button>
                           <button @click="cancelTeamMemberEdit" class="btn-secondary">Cancel</button>
                         </div>
                       </div>
@@ -2378,7 +2400,7 @@
           </div>
 
           <!-- Services Page Editor -->
-          <div v-if="activeTab === 'services-page'" class="editor-section">
+          <div v-if="activeTab === 'services-page' && canAccessTab('services-page')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">⚙️</div>
@@ -2517,7 +2539,7 @@
           </div>
 
           <!-- Footer Editor -->
-          <div v-if="activeTab === 'footer'" class="editor-section">
+          <div v-if="activeTab === 'footer' && canAccessTab('footer')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">📄</div>
@@ -2547,7 +2569,7 @@
           </div>
 
           <!-- Legal Pages Editor -->
-          <div v-if="activeTab === 'legal-pages'" class="editor-section">
+          <div v-if="activeTab === 'legal-pages' && canAccessTab('legal-pages')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">⚖️</div>
@@ -2778,7 +2800,7 @@
           </div>
 
           <!-- Email Submissions -->
-          <div v-if="activeTab === 'email-submissions'" class="editor-section">
+          <div v-if="activeTab === 'email-submissions' && canAccessTab('email-submissions')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">📧</div>
@@ -2898,7 +2920,7 @@
           </div>
 
           <!-- Contact Messages -->
-          <div v-if="activeTab === 'contact-messages'" class="editor-section">
+          <div v-if="activeTab === 'contact-messages' && canAccessTab('contact-messages')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">💬</div>
@@ -2984,7 +3006,11 @@
                       </svg>
                       Reply
                     </a>
-                    <button @click="deleteContactMessage(message.id!)" class="btn-delete">
+                    <button 
+                      v-if="hasPermission('delete_contact_messages')"
+                      @click="deleteContactMessage(message.id!)" 
+                      class="btn-delete"
+                    >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2997,7 +3023,7 @@
           </div>
 
           <!-- Contact Settings -->
-          <div v-if="activeTab === 'contact-settings'" class="editor-section">
+          <div v-if="activeTab === 'contact-settings' && canAccessTab('contact-settings')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">📞</div>
@@ -3109,7 +3135,7 @@
           </div>
 
           <!-- User Management (Admin Only) -->
-          <div v-if="activeTab === 'users' && isAdmin" class="editor-section">
+          <div v-if="activeTab === 'users' && isAdmin && canAccessTab('users')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">👥</div>
@@ -3260,7 +3286,7 @@
           </div>
 
           <!-- Role Management (Admin Only) -->
-          <div v-if="activeTab === 'roles' && isAdmin" class="editor-section">
+          <div v-if="activeTab === 'roles' && isAdmin && canAccessTab('roles')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">🔐</div>
@@ -3519,7 +3545,7 @@
           </div>
 
           <!-- Site Settings (Admin Only) -->
-          <div v-if="activeTab === 'site-settings' && isAdmin" class="editor-section">
+          <div v-if="activeTab === 'site-settings' && isAdmin && canAccessTab('site-settings')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">⚙️</div>
@@ -3606,8 +3632,374 @@
             </div>
           </div>
 
+          <!-- Bookings Management (Admin Only) -->
+          <div v-if="activeTab === 'bookings' && isAdmin && canAccessTab('bookings')" class="editor-section">
+            <div class="section-header">
+              <div class="section-title-group">
+                <div class="section-icon">📅</div>
+                <div>
+                  <h3>Meeting Bookings</h3>
+                  <p class="section-description">View and manage all meeting bookings</p>
+                </div>
+              </div>
+              <div class="section-header-actions">
+                <div v-if="upcomingBookingsCount > 0" class="reminder-badge">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
+                  </svg>
+                  {{ upcomingBookingsCount }} upcoming
+                </div>
+                <button @click="refreshBookings" class="btn-secondary">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M23 20V14H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M20.49 9C19.95 5.95 17.42 3.42 14.37 2.88M3.51 15C4.05 18.05 6.58 20.58 9.63 21.12M14.37 2.88C13.69 2.95 13.02 3.11 12.37 3.37M9.63 21.12C10.31 21.05 10.98 20.89 11.63 20.63M14.37 2.88L17.37 5.88M9.63 21.12L6.63 18.12M17.37 5.88L20.37 2.88M6.63 18.12L3.63 21.12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Refresh
+                </button>
+              </div>
+            </div>
+
+            <!-- Upcoming Bookings Reminder -->
+            <div v-if="upcomingBookings.length > 0" class="reminder-section">
+              <div class="reminder-header">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
+                </svg>
+                <h4>Upcoming Meetings (Next 24 Hours)</h4>
+              </div>
+              <div class="reminder-list">
+                <div 
+                  v-for="booking in upcomingBookings" 
+                  :key="booking.id"
+                  class="reminder-item"
+                >
+                  <div class="reminder-time">{{ formatBookingDateTime(booking) }}</div>
+                  <div class="reminder-info">
+                    <strong>{{ booking.userName }}</strong>
+                    <span>{{ booking.userEmail }}</span>
+                  </div>
+                  <button @click="startEditBooking(booking)" class="btn-icon-small" title="View/Edit">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- View Toggle -->
+            <div class="view-toggle">
+              <button 
+                @click="bookingViewMode = 'list'" 
+                :class="['view-toggle-btn', { active: bookingViewMode === 'list' }]"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 6H21M8 12H21M8 18H21M3 6H3.01M3 12H3.01M3 18H3.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                List View
+              </button>
+              <button 
+                @click="bookingViewMode = 'calendar'" 
+                :class="['view-toggle-btn', { active: bookingViewMode === 'calendar' }]"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 2V6M16 2V6M3 10H21M5 4H19C20.1046 4 21 4.89543 21 6V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V6C3 4.89543 3.89543 4 5 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Calendar View
+              </button>
+              <button 
+                @click="bookingViewMode = 'availability'" 
+                :class="['view-toggle-btn', { active: bookingViewMode === 'availability' }]"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
+                </svg>
+                Manage Availability
+              </button>
+            </div>
+
+            <!-- List View -->
+            <div v-if="bookingViewMode === 'list'" class="admin-table-card">
+              <div v-if="isLoadingBookings && bookings.length === 0" class="loading-text">Loading bookings...</div>
+              <div v-else-if="bookings.length === 0" class="empty-state">
+                <p>No bookings found.</p>
+              </div>
+              <div v-else class="bookings-list">
+                <div v-for="booking in sortedBookings" :key="booking.id" class="booking-card">
+                  <div v-if="editingBookingId !== booking.id" class="booking-card-content">
+                    <div class="booking-info">
+                      <div class="booking-header">
+                        <h5 class="booking-user-name">{{ booking.userName }}</h5>
+                        <span :class="['booking-status-badge', `status-${booking.status}`]">
+                          {{ booking.status }}
+                        </span>
+                      </div>
+                      <div class="booking-details">
+                        <div class="booking-detail-item">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 4H20C21.1 4 22 4.9 22 6V20C22 21.1 21.1 22 20 22H4C2.9 22 2 21.1 2 20V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                          <span>{{ booking.userEmail }}</span>
+                        </div>
+                        <div class="booking-detail-item">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                          </svg>
+                          <span>{{ formatBookingDateTime(booking) }}</span>
+                        </div>
+                        <div v-if="booking.userPhone" class="booking-detail-item">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 16.92V19.92C22.0011 20.1985 21.9441 20.4742 21.8325 20.7292C21.7209 20.9842 21.5573 21.2131 21.3522 21.4014C21.1472 21.5897 20.9053 21.7334 20.6391 21.8232C20.373 21.913 20.0882 21.9468 19.8052 21.9222C16.7427 21.5857 13.7862 20.5341 11.19 18.8522C8.77382 17.3147 6.72533 15.2662 5.18779 12.85C3.50589 10.2538 2.45428 7.29729 2.11779 4.23479C2.09319 3.9518 2.127 3.66898 2.2168 3.40285C2.30659 3.13672 2.45026 2.89479 2.63857 2.68975C2.82688 2.48471 3.05578 2.32115 3.31078 2.20955C3.56578 2.09795 3.84149 2.04095 4.11979 2.04192H7.11979C7.59722 2.04192 8.05553 2.23158 8.39379 2.56984C8.73205 2.9081 8.92171 3.36641 8.92171 3.84392C8.92171 4.32143 8.73205 4.77974 8.39379 5.118C8.05553 5.45626 7.59722 5.64592 7.11979 5.64592H5.11979C5.11979 7.92092 5.80979 10.1209 7.08979 11.9809L8.51979 10.5509C8.85979 10.2109 9.31979 10.0209 9.79979 10.0209C10.2798 10.0209 10.7398 10.2109 11.0798 10.5509L13.5198 12.9909C13.8598 13.3309 14.0498 13.7909 14.0498 14.2709C14.0498 14.7509 13.8598 15.2109 13.5198 15.5509L12.0898 16.9809C13.9498 18.2609 16.1498 18.9509 18.4248 18.9509H16.4248C15.9473 18.9509 15.489 19.1406 15.1507 19.4788C14.8125 19.8171 14.6228 20.2754 14.6228 20.7529C14.6228 21.2304 14.8125 21.6887 15.1507 22.027C15.489 22.3652 15.9473 22.5549 16.4248 22.5549H19.4248C19.9023 22.5549 20.3606 22.3652 20.6989 22.027C21.0371 21.6887 21.2268 21.2304 21.2268 20.7529C21.2268 20.2754 21.0371 19.8171 20.6989 19.4788C20.3606 19.1406 19.9023 18.9509 19.4248 18.9509V16.9509C19.9023 16.9509 20.3606 17.1406 20.6989 17.4788C21.0371 17.8171 21.2268 18.2754 21.2268 18.7529C21.2268 19.2304 21.0371 19.6887 20.6989 20.027C20.3606 20.3652 19.9023 20.5549 19.4248 20.5549Z" fill="currentColor"/>
+                          </svg>
+                          <span>{{ booking.userPhone }}</span>
+                        </div>
+                        <div class="booking-detail-item">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
+                          </svg>
+                          <span>{{ booking.contactMethod === 'email' ? 'Email' : 'WhatsApp' }}</span>
+                        </div>
+                        <div v-if="booking.meetingLink" class="booking-detail-item">
+                          <a :href="booking.meetingLink" target="_blank" class="meeting-link">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                              <path d="M15 3H21M21 3V9M21 3L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Meeting Link
+                          </a>
+                        </div>
+                      </div>
+                      <div v-if="booking.notes" class="booking-notes">
+                        <strong>Notes:</strong> {{ booking.notes }}
+                      </div>
+                    </div>
+                    <div class="booking-actions">
+                      <button @click="startEditBooking(booking)" class="btn-icon" title="Edit booking">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                      <button 
+                        v-if="booking.status !== 'cancelled'"
+                        @click="cancelBooking(booking.id!)" 
+                        class="btn-icon btn-icon-danger" 
+                        title="Cancel booking"
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                      <button 
+                        @click="deleteBooking(booking.id!)" 
+                        class="btn-icon btn-icon-danger" 
+                        title="Delete booking"
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  
+                  <!-- Edit Booking Form -->
+                  <div v-else class="booking-edit-form">
+                    <div class="form-grid">
+                      <div class="form-group">
+                        <label>User Name</label>
+                        <input v-model="editBookingForm.userName" type="text" class="form-input" />
+                      </div>
+                      <div class="form-group">
+                        <label>Email</label>
+                        <input v-model="editBookingForm.userEmail" type="email" class="form-input" />
+                      </div>
+                      <div class="form-group">
+                        <label>Phone</label>
+                        <input v-model="editBookingForm.userPhone" type="tel" class="form-input" />
+                      </div>
+                      <div class="form-group">
+                        <label>Date</label>
+                        <input v-model="editBookingForm.meetingDate" type="date" class="form-input" />
+                      </div>
+                      <div class="form-group">
+                        <label>Time</label>
+                        <input v-model="editBookingForm.meetingTime" type="time" class="form-input" />
+                      </div>
+                      <div class="form-group">
+                        <label>Status</label>
+                        <select v-model="editBookingForm.status" class="form-input">
+                          <option value="pending">Pending</option>
+                          <option value="confirmed">Confirmed</option>
+                          <option value="cancelled">Cancelled</option>
+                          <option value="completed">Completed</option>
+                        </select>
+                      </div>
+                      <div class="form-group full-width">
+                        <label>Notes</label>
+                        <textarea v-model="editBookingForm.notes" rows="3" class="form-textarea"></textarea>
+                      </div>
+                    </div>
+                    <div class="booking-edit-actions">
+                      <button @click="cancelBookingEdit" class="btn-secondary">Cancel</button>
+                      <button @click="saveBookingEdit(booking.id!)" :disabled="isLoadingBookings" class="btn-primary">
+                        <div v-if="isLoadingBookings" class="btn-spinner"></div>
+                        {{ isLoadingBookings ? 'Saving...' : 'Save Changes' }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Calendar View -->
+            <div v-if="bookingViewMode === 'calendar'" class="admin-table-card">
+              <div class="calendar-view-container">
+                <div class="calendar-header-controls">
+                  <button @click="previousMonth" class="calendar-nav-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <h4>{{ calendarMonthYear }}</h4>
+                  <button @click="nextMonth" class="calendar-nav-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="admin-calendar-grid">
+                  <div class="calendar-day-header" v-for="day in dayHeaders" :key="day">
+                    {{ day }}
+                  </div>
+                  <div 
+                    v-for="day in adminCalendarDays" 
+                    :key="day.date.toISOString()"
+                    class="admin-calendar-day"
+                    :class="{
+                      'other-month': !day.isCurrentMonth,
+                      'has-booking': day.bookings.length > 0,
+                      'today': day.isToday
+                    }"
+                    @click="selectCalendarDate(day.date)"
+                  >
+                    <div class="calendar-day-number">{{ day.day }}</div>
+                    <div v-if="day.bookings.length > 0" class="calendar-day-bookings">
+                      <div 
+                        v-for="booking in day.bookings" 
+                        :key="booking.id"
+                        class="calendar-booking-dot"
+                        :class="`status-${booking.status}`"
+                        :title="`${booking.userName} - ${booking.meetingTime}`"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+                <div v-if="selectedCalendarDate" class="selected-date-bookings">
+                  <h5>Bookings on {{ formatSelectedDate(selectedCalendarDate) }}</h5>
+                  <div v-if="getBookingsForDate(selectedCalendarDate).length === 0" class="no-bookings">
+                    No bookings for this date
+                  </div>
+                  <div v-else class="date-bookings-list">
+                    <div 
+                      v-for="booking in getBookingsForDate(selectedCalendarDate)" 
+                      :key="booking.id"
+                      class="date-booking-item"
+                    >
+                      <div class="booking-time">{{ booking.meetingTime }}</div>
+                      <div class="booking-info">
+                        <strong>{{ booking.userName }}</strong>
+                        <span class="booking-email">{{ booking.userEmail }}</span>
+                      </div>
+                      <span :class="['booking-status-badge', `status-${booking.status}`]">
+                        {{ booking.status }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Availability Management View -->
+            <div v-if="bookingViewMode === 'availability'" class="admin-table-card">
+              <div class="availability-management">
+                <div class="availability-header">
+                  <h4>Manage Your Availability</h4>
+                  <p class="section-description">Block or unblock time slots to control when meetings can be booked</p>
+                </div>
+                
+                <div class="availability-calendar-container">
+                  <div class="calendar-header-controls">
+                    <button @click="previousAvailabilityMonth" class="calendar-nav-btn">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                    <h4>{{ availabilityMonthYear }}</h4>
+                    <button @click="nextAvailabilityMonth" class="calendar-nav-btn">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+                  
+                  <div class="admin-calendar-grid">
+                    <div class="calendar-day-header" v-for="day in dayHeaders" :key="day">
+                      {{ day }}
+                    </div>
+                    <div 
+                      v-for="day in availabilityCalendarDays" 
+                      :key="day.date.toISOString()"
+                      class="admin-calendar-day"
+                      :class="{
+                        'other-month': !day.isCurrentMonth,
+                        'selected': isSelectedAvailabilityDate(day.date),
+                        'today': day.isToday
+                      }"
+                      @click="selectAvailabilityDate(day.date)"
+                    >
+                      <div class="calendar-day-number">{{ day.day }}</div>
+                    </div>
+                  </div>
+                  
+                  <div v-if="selectedAvailabilityDate" class="availability-date-controls">
+                    <h5>Manage Time Slots for {{ formatSelectedDate(selectedAvailabilityDate) }}</h5>
+                    <div class="time-slots-management">
+                      <div 
+                        v-for="slot in defaultTimeSlots" 
+                        :key="slot"
+                        class="time-slot-control"
+                        :class="{ 'blocked': isTimeSlotBlocked(selectedAvailabilityDate, slot) }"
+                      >
+                        <div class="time-slot-info">
+                          <span class="time-slot-time">{{ formatTime(slot) }}</span>
+                          <span v-if="isTimeSlotBlocked(selectedAvailabilityDate, slot)" class="blocked-reason">
+                            {{ getBlockedReason(selectedAvailabilityDate, slot) }}
+                          </span>
+                        </div>
+                        <button 
+                          @click="toggleTimeSlot(selectedAvailabilityDate, slot)"
+                          :class="['btn-toggle', isTimeSlotBlocked(selectedAvailabilityDate, slot) ? 'btn-unblock' : 'btn-block']"
+                        >
+                          {{ isTimeSlotBlocked(selectedAvailabilityDate, slot) ? 'Unblock' : 'Block' }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else class="select-date-message">
+                    <p>Select a date from the calendar above to manage time slots</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Activity Logs (Admin Only) -->
-          <div v-if="activeTab === 'activity-logs' && isAdmin" class="editor-section">
+          <div v-if="activeTab === 'activity-logs' && isAdmin && canAccessTab('activity-logs')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">📋</div>
@@ -3754,6 +4146,9 @@ import { emailController } from '@/features/home/controllers/EmailController'
 import { contactContentController } from '@/features/contact/controllers/ContactContentController'
 import type { EmailSubmission } from '@/features/home/services/EmailService'
 import type { ContactMessage, ContactContent, ContactInfo } from '@/features/contact/models/ContactMessage'
+import { bookingController } from '@/features/booking/controllers/BookingController'
+import type { Booking, BookingData } from '@/features/booking/models/Booking'
+import { availabilityService } from '@/features/booking/services/AvailabilityService'
 import type { SiteSettings } from '../models/SiteSettings'
 import type { HomeContent } from '@/features/home/models/HomeContent'
 import type { AboutContent, TeamMember, FAQ, StatCard } from '@/features/about/models/AboutContent'
@@ -3805,6 +4200,7 @@ const baseTabs = [
 const adminTabs = [
   { id: 'users', label: 'User Management' },
   { id: 'roles', label: 'Role Management' },
+  { id: 'bookings', label: 'Bookings' },
   { id: 'site-settings', label: 'Site Settings' },
   { id: 'activity-logs', label: 'Activity Logs' }
 ]
@@ -3825,8 +4221,11 @@ const tabPermissionMap: Record<string, string> = {
   'services-page': 'edit_services_page',
   'legal-pages': 'edit_legal_pages',
   'email-submissions': 'view_email_submissions',
+  'contact-messages': 'view_contact_messages',
+  'contact-settings': 'edit_contact_settings',
   'users': 'manage_users',
   'roles': 'manage_roles',
+  'bookings': 'manage_bookings',
   'site-settings': 'manage_site_settings',
   'activity-logs': 'view_activity_logs',
 }
@@ -3906,6 +4305,424 @@ const contactSettings = ref<ContactContent>({
   }
 })
 const savingContactSettings = ref(false)
+
+// Booking management state
+const bookings = ref<Booking[]>([])
+const isLoadingBookings = ref(false)
+const editingBookingId = ref<string | null>(null)
+const bookingViewMode = ref<'list' | 'calendar' | 'availability'>('list')
+const editBookingForm = ref<Partial<BookingData>>({
+  userName: '',
+  userEmail: '',
+  userPhone: '',
+  meetingDate: null,
+  meetingTime: '',
+  status: 'pending',
+  notes: ''
+})
+
+// Calendar view state
+const calendarMonth = ref(new Date().getMonth())
+const calendarYear = ref(new Date().getFullYear())
+const selectedCalendarDate = ref<Date | null>(null)
+
+// Availability management state
+const availabilityMonth = ref(new Date().getMonth())
+const availabilityYear = ref(new Date().getFullYear())
+const selectedAvailabilityDate = ref<Date | null>(null)
+const blockedSlots = ref<Map<string, { reason?: string; blockedBy?: string }>>(new Map())
+const defaultTimeSlots = [
+  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+  '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
+  '15:00', '15:30', '16:00', '16:30', '17:00'
+]
+
+const sortedBookings = computed(() => {
+  return [...bookings.value].sort((a, b) => {
+    const dateA = new Date(a.meetingDate).getTime()
+    const dateB = new Date(b.meetingDate).getTime()
+    if (dateA !== dateB) return dateA - dateB
+    return a.meetingTime.localeCompare(b.meetingTime)
+  })
+})
+
+const upcomingBookings = computed(() => {
+  const now = new Date()
+  const tomorrow = new Date(now)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+  
+  return sortedBookings.value.filter(booking => {
+    if (booking.status === 'cancelled') return false
+    const bookingDate = booking.getFullDateTime()
+    return bookingDate >= now && bookingDate <= tomorrow
+  })
+})
+
+const upcomingBookingsCount = computed(() => {
+  return upcomingBookings.value.length
+})
+
+const formatBookingDateTime = (booking: Booking): string => {
+  const date = new Date(booking.meetingDate)
+  const dateStr = date.toLocaleDateString('en-US', { 
+    weekday: 'short', 
+    year: 'numeric', 
+    month: 'short', 
+    day: 'numeric' 
+  })
+  const [hours, minutes] = booking.meetingTime.split(':')
+  const timeStr = new Date(2000, 0, 1, parseInt(hours), parseInt(minutes))
+    .toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+  return `${dateStr} at ${timeStr}`
+}
+
+const loadBookings = async () => {
+  isLoadingBookings.value = true
+  try {
+    const result = await bookingController.getAllBookings()
+    if (result.success && result.data) {
+      bookings.value = result.data
+    } else {
+      console.error('Failed to load bookings:', result.error)
+    }
+  } catch (error) {
+    console.error('Error loading bookings:', error)
+  } finally {
+    isAdminLoading.value = false
+  }
+}
+
+const refreshBookings = () => {
+  loadBookings()
+}
+
+const startEditBooking = (booking: Booking) => {
+  editingBookingId.value = booking.id!
+  const date = new Date(booking.meetingDate)
+  editBookingForm.value = {
+    userName: booking.userName,
+    userEmail: booking.userEmail,
+    userPhone: booking.userPhone || '',
+    meetingDate: date.toISOString().split('T')[0],
+    meetingTime: booking.meetingTime,
+    status: booking.status,
+    notes: booking.notes || ''
+  }
+}
+
+const cancelBookingEdit = () => {
+  editingBookingId.value = null
+  editBookingForm.value = {
+    userName: '',
+    userEmail: '',
+    userPhone: '',
+    meetingDate: null,
+    meetingTime: '',
+    status: 'pending',
+    notes: ''
+  }
+}
+
+const saveBookingEdit = async (bookingId: string) => {
+  isLoadingBookings.value = true
+  try {
+    const updateData: Partial<BookingData> = {
+      userName: editBookingForm.value.userName,
+      userEmail: editBookingForm.value.userEmail,
+      userPhone: editBookingForm.value.userPhone,
+      meetingDate: editBookingForm.value.meetingDate ? new Date(editBookingForm.value.meetingDate) : undefined,
+      meetingTime: editBookingForm.value.meetingTime,
+      status: editBookingForm.value.status as any,
+      notes: editBookingForm.value.notes
+    }
+    
+    const result = await bookingController.updateBooking(bookingId, updateData)
+    if (result.success) {
+      await loadBookings()
+      editingBookingId.value = null
+      // TODO: Send notification email to user about the change
+    } else {
+      console.error('Failed to update booking:', result.error)
+    }
+  } catch (error) {
+    console.error('Error updating booking:', error)
+  } finally {
+    isLoadingBookings.value = false
+  }
+}
+
+const cancelBooking = async (bookingId: string) => {
+  if (!confirm('Are you sure you want to cancel this booking?')) return
+  
+  isLoadingBookings.value = true
+  try {
+    const userId = user.value?.id || 'admin'
+    const result = await bookingController.cancelBooking(bookingId, userId, 'Cancelled by admin')
+    if (result.success) {
+      await loadBookings()
+      // TODO: Send cancellation notification to user
+    } else {
+      console.error('Failed to cancel booking:', result.error)
+    }
+  } catch (error) {
+    console.error('Error cancelling booking:', error)
+  } finally {
+    isLoadingBookings.value = false
+  }
+}
+
+const deleteBooking = async (bookingId: string) => {
+  if (!confirm('Are you sure you want to delete this booking? This action cannot be undone.')) return
+  
+  isLoadingBookings.value = true
+  try {
+    const result = await bookingController.deleteBooking(bookingId)
+    if (result.success) {
+      await loadBookings()
+    } else {
+      console.error('Failed to delete booking:', result.error)
+    }
+  } catch (error) {
+    console.error('Error deleting booking:', error)
+  } finally {
+    isLoadingBookings.value = false
+  }
+}
+
+// Calendar view functions
+const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+const calendarMonthYear = computed(() => {
+  const date = new Date(calendarYear.value, calendarMonth.value, 1)
+  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+})
+
+const adminCalendarDays = computed(() => {
+  const firstDay = new Date(calendarYear.value, calendarMonth.value, 1)
+  const startDate = new Date(firstDay)
+  startDate.setDate(startDate.getDate() - startDate.getDay())
+  
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  
+  const days: Array<{
+    date: Date
+    day: number
+    isCurrentMonth: boolean
+    isToday: boolean
+    bookings: Booking[]
+  }> = []
+  
+  for (let i = 0; i < 42; i++) {
+    const date = new Date(startDate)
+    date.setDate(startDate.getDate() + i)
+    const dateOnly = new Date(date)
+    dateOnly.setHours(0, 0, 0, 0)
+    
+    const dateStr = dateOnly.toISOString().split('T')[0]
+    const dayBookings = bookings.value.filter(b => {
+      const bookingDate = new Date(b.meetingDate)
+      bookingDate.setHours(0, 0, 0, 0)
+      return bookingDate.getTime() === dateOnly.getTime()
+    })
+    
+    days.push({
+      date,
+      day: date.getDate(),
+      isCurrentMonth: date.getMonth() === calendarMonth.value,
+      isToday: dateOnly.getTime() === today.getTime(),
+      bookings: dayBookings
+    })
+  }
+  
+  return days
+})
+
+const previousMonth = () => {
+  if (calendarMonth.value === 0) {
+    calendarMonth.value = 11
+    calendarYear.value--
+  } else {
+    calendarMonth.value--
+  }
+}
+
+const nextMonth = () => {
+  if (calendarMonth.value === 11) {
+    calendarMonth.value = 0
+    calendarYear.value++
+  } else {
+    calendarMonth.value++
+  }
+}
+
+const selectCalendarDate = (date: Date) => {
+  selectedCalendarDate.value = date
+}
+
+const formatSelectedDate = (date: Date): string => {
+  return date.toLocaleDateString('en-US', { 
+    weekday: 'long', 
+    year: 'numeric', 
+    month: 'long', 
+    day: 'numeric' 
+  })
+}
+
+const getBookingsForDate = (date: Date): Booking[] => {
+  const dateStr = date.toISOString().split('T')[0]
+  return bookings.value.filter(b => {
+    const bookingDate = new Date(b.meetingDate)
+    bookingDate.setHours(0, 0, 0, 0)
+    return bookingDate.toISOString().split('T')[0] === dateStr
+  }).sort((a, b) => a.meetingTime.localeCompare(b.meetingTime))
+}
+
+// Availability management functions
+const availabilityMonthYear = computed(() => {
+  const date = new Date(availabilityYear.value, availabilityMonth.value, 1)
+  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+})
+
+const previousAvailabilityMonth = () => {
+  if (availabilityMonth.value === 0) {
+    availabilityMonth.value = 11
+    availabilityYear.value--
+  } else {
+    availabilityMonth.value--
+  }
+  loadBlockedSlots()
+}
+
+const nextAvailabilityMonth = () => {
+  if (availabilityMonth.value === 11) {
+    availabilityMonth.value = 0
+    availabilityYear.value++
+  } else {
+    availabilityMonth.value++
+  }
+  loadBlockedSlots()
+}
+
+const loadBlockedSlots = async () => {
+  try {
+    const startDate = new Date(availabilityYear.value, availabilityMonth.value, 1)
+    const endDate = new Date(availabilityYear.value, availabilityMonth.value + 1, 0)
+    const blocked = await availabilityService.getBlockedSlots(startDate, endDate)
+    
+    blockedSlots.value.clear()
+    blocked.forEach(avail => {
+      const key = `${avail.date}-${avail.timeSlot}`
+      blockedSlots.value.set(key, {
+        reason: avail.reason,
+        blockedBy: avail.blockedBy
+      })
+    })
+  } catch (error) {
+    console.error('Error loading blocked slots:', error)
+  }
+}
+
+const isTimeSlotBlocked = (date: Date, timeSlot: string): boolean => {
+  const dateStr = date.toISOString().split('T')[0]
+  const key = `${dateStr}-${timeSlot}`
+  return blockedSlots.value.has(key)
+}
+
+const getBlockedReason = (date: Date, timeSlot: string): string => {
+  const dateStr = date.toISOString().split('T')[0]
+  const key = `${dateStr}-${timeSlot}`
+  const blocked = blockedSlots.value.get(key)
+  return blocked?.reason || 'Blocked'
+}
+
+const toggleTimeSlot = async (date: Date, timeSlot: string) => {
+  try {
+    const dateStr = date.toISOString().split('T')[0]
+    const key = `${dateStr}-${timeSlot}`
+    const isBlocked = blockedSlots.value.has(key)
+    
+    if (isBlocked) {
+      await availabilityService.unblockTimeSlot(date, timeSlot)
+      blockedSlots.value.delete(key)
+    } else {
+      const reason = prompt('Reason for blocking this time slot (optional):') || undefined
+      const userId = user.value?.id || 'admin'
+      await availabilityService.blockTimeSlot(date, timeSlot, reason, userId)
+      blockedSlots.value.set(key, { reason, blockedBy: userId })
+    }
+    
+    // Reload bookings to reflect availability changes
+    await loadBookings()
+  } catch (error) {
+    console.error('Error toggling time slot:', error)
+    alert('Failed to update availability. Please try again.')
+  }
+}
+
+const formatTime = (time: string): string => {
+  const [hours, minutes] = time.split(':').map(Number)
+  const date = new Date()
+  date.setHours(hours, minutes)
+  return date.toLocaleTimeString('en-US', { 
+    hour: 'numeric', 
+    minute: '2-digit',
+    hour12: true 
+  })
+}
+
+// Availability calendar days
+const availabilityCalendarDays = computed(() => {
+  const firstDay = new Date(availabilityYear.value, availabilityMonth.value, 1)
+  const startDate = new Date(firstDay)
+  startDate.setDate(startDate.getDate() - startDate.getDay())
+  
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+  
+  const days: Array<{
+    date: Date
+    day: number
+    isCurrentMonth: boolean
+    isToday: boolean
+  }> = []
+  
+  for (let i = 0; i < 42; i++) {
+    const date = new Date(startDate)
+    date.setDate(startDate.getDate() + i)
+    const dateOnly = new Date(date)
+    dateOnly.setHours(0, 0, 0, 0)
+    
+    days.push({
+      date,
+      day: date.getDate(),
+      isCurrentMonth: date.getMonth() === availabilityMonth.value,
+      isToday: dateOnly.getTime() === today.getTime()
+    })
+  }
+  
+  return days
+})
+
+const isSelectedAvailabilityDate = (date: Date): boolean => {
+  if (!selectedAvailabilityDate.value) return false
+  const d1 = new Date(date)
+  const d2 = new Date(selectedAvailabilityDate.value)
+  d1.setHours(0, 0, 0, 0)
+  d2.setHours(0, 0, 0, 0)
+  return d1.getTime() === d2.getTime()
+}
+
+const selectAvailabilityDate = (date: Date) => {
+  selectedAvailabilityDate.value = date
+}
+
+// Initialize availability calendar
+const initAvailabilityCalendar = () => {
+  const today = new Date()
+  selectedAvailabilityDate.value = today
+  loadBlockedSlots()
+}
 
 const selectedVideoFile = ref<File | null>(null)
 const uploadingVideo = ref(false)
@@ -4001,6 +4818,10 @@ const availablePermissions = [
   // Content Management
   { id: 'view_email_submissions', label: 'View Email Submissions', category: 'Content Management' },
   { id: 'delete_email_submissions', label: 'Delete Email Submissions', category: 'Content Management' },
+  { id: 'view_contact_messages', label: 'View Contact Messages', category: 'Content Management' },
+  { id: 'delete_contact_messages', label: 'Delete Contact Messages', category: 'Content Management' },
+  { id: 'edit_contact_settings', label: 'Edit Contact Settings', category: 'Content Management' },
+  { id: 'manage_bookings', label: 'Manage Bookings', category: 'Content Management' },
   // Admin Functions (only for admin role)
   { id: 'manage_users', label: 'Manage Users', category: 'Administration' },
   { id: 'manage_roles', label: 'Manage Roles', category: 'Administration' },
@@ -4080,6 +4901,26 @@ const getRoleDescription = (roleName: string): string => {
   }
   return `${permCount} permission${permCount !== 1 ? 's' : ''}`
 }
+
+// Sorted team members by order
+const sortedTeamMembers = computed(() => {
+  const members = [...aboutFormData.value.teamMembers]
+  // Ensure all members have an order property
+  members.forEach((member, index) => {
+    if (member.order === undefined || member.order === null) {
+      member.order = index
+    }
+  })
+  // Sort by order, then by index if order is the same
+  return members.sort((a, b) => {
+    const orderA = a.order ?? 0
+    const orderB = b.order ?? 0
+    if (orderA !== orderB) {
+      return orderA - orderB
+    }
+    return 0
+  })
+})
 
 // About page form data
 const aboutFormData = ref<AboutContent>({
@@ -4738,12 +5579,17 @@ const deleteAboutVideo = async () => {
 
 // Team member methods
 const addNewTeamMember = () => {
+  // Get the maximum order value or use length
+  const maxOrder = aboutFormData.value.teamMembers.length > 0
+    ? Math.max(...aboutFormData.value.teamMembers.map(m => m.order ?? 0))
+    : -1
+  
   const newMember: TeamMember = {
     id: `temp-${Date.now()}`,
     name: '',
     role: '',
     photoType: 'url',
-    order: aboutFormData.value.teamMembers.length
+    order: maxOrder + 1
   }
   aboutFormData.value.teamMembers.push(newMember)
   startEditTeamMember(aboutFormData.value.teamMembers.length - 1)
@@ -4774,6 +5620,16 @@ const cancelTeamMemberEdit = () => {
   }
 }
 
+// Helper function to find member index by order
+const findMemberIndexByOrder = (order: number): number => {
+  return aboutFormData.value.teamMembers.findIndex(m => (m.order ?? 0) === order)
+}
+
+// Helper function to find member by order
+const findMemberByOrder = (order: number): TeamMember | undefined => {
+  return aboutFormData.value.teamMembers.find(m => (m.order ?? 0) === order)
+}
+
 const saveTeamMemberEdit = (index: number) => {
   const member = aboutFormData.value.teamMembers[index]
   if (!member) return
@@ -4800,6 +5656,12 @@ const saveTeamMemberEdit = (index: number) => {
   setTimeout(() => { saveMessage.value = '' }, 2000)
 }
 
+const saveTeamMemberEditByOrder = (order: number) => {
+  const index = findMemberIndexByOrder(order)
+  if (index === -1) return
+  saveTeamMemberEdit(index)
+}
+
 const deleteTeamMember = (index: number) => {
   if (!confirm('Are you sure you want to delete this team member?')) {
     return
@@ -4816,7 +5678,61 @@ const deleteTeamMember = (index: number) => {
   }
   
   aboutFormData.value.teamMembers.splice(index, 1)
+  // Reassign order values after deletion
+  aboutFormData.value.teamMembers.forEach((m, i) => {
+    m.order = i
+  })
   saveMessage.value = 'Team member deleted'
+  saveMessageType.value = 'success'
+  setTimeout(() => { saveMessage.value = '' }, 2000)
+}
+
+const deleteTeamMemberByOrder = (order: number) => {
+  const index = findMemberIndexByOrder(order)
+  if (index === -1) return
+  deleteTeamMember(index)
+}
+
+const startEditTeamMemberByOrder = (order: number) => {
+  const index = findMemberIndexByOrder(order)
+  if (index === -1) return
+  startEditTeamMember(index)
+}
+
+// Move team member up in the list
+const moveTeamMemberUp = (sortedIndex: number) => {
+  if (sortedIndex === 0) return
+  
+  const member = sortedTeamMembers.value[sortedIndex]
+  const previousMember = sortedTeamMembers.value[sortedIndex - 1]
+  
+  if (!member || !previousMember) return
+  
+  // Swap orders
+  const tempOrder = member.order ?? sortedIndex
+  member.order = previousMember.order ?? sortedIndex - 1
+  previousMember.order = tempOrder
+  
+  saveMessage.value = 'Team member order updated'
+  saveMessageType.value = 'success'
+  setTimeout(() => { saveMessage.value = '' }, 2000)
+}
+
+// Move team member down in the list
+const moveTeamMemberDown = (sortedIndex: number) => {
+  if (sortedIndex === sortedTeamMembers.value.length - 1) return
+  
+  const member = sortedTeamMembers.value[sortedIndex]
+  const nextMember = sortedTeamMembers.value[sortedIndex + 1]
+  
+  if (!member || !nextMember) return
+  
+  // Swap orders
+  const tempOrder = member.order ?? sortedIndex
+  member.order = nextMember.order ?? sortedIndex + 1
+  nextMember.order = tempOrder
+  
+  saveMessage.value = 'Team member order updated'
   saveMessageType.value = 'success'
   setTimeout(() => { saveMessage.value = '' }, 2000)
 }
@@ -6401,6 +7317,12 @@ const loadContent = async () => {
     const aboutResult = await aboutContentController.getAboutContent()
     if (aboutResult.success && aboutResult.data) {
       aboutFormData.value = aboutResult.data
+      // Ensure all team members have order values
+      aboutFormData.value.teamMembers.forEach((member, index) => {
+        if (member.order === undefined || member.order === null) {
+          member.order = index
+        }
+      })
     }
     
     // Load services content
@@ -6796,6 +7718,10 @@ const refreshActivityLogs = async () => {
 
 // Watch for tab changes to refresh activity logs when viewing them
 watch(activeTab, (newTab) => {
+  if (newTab === 'bookings' && isAdmin.value) {
+    loadBookings()
+    initAvailabilityCalendar()
+  }
   if (newTab === 'activity-logs' && isAdmin.value) {
     refreshActivityLogs()
   }
@@ -6809,6 +7735,23 @@ watch(activeTab, (newTab) => {
     loadContactSettings()
   }
 })
+
+// Watch for user changes to reload roles and update permissions
+watch(() => user.value?.id, async (newUserId, oldUserId) => {
+  if (newUserId && newUserId !== oldUserId) {
+    // User logged in or changed - reload roles to get latest permissions
+    const rolesResult = await roleController.getAllRoles()
+    if (rolesResult.success && rolesResult.data) {
+      roles.value = rolesResult.data
+    }
+  }
+})
+
+// Watch for role changes to ensure permissions are up to date
+watch(() => roles.value, () => {
+  // When roles change, permissions will automatically update via computed property
+  // This ensures UI reacts to role permission changes
+}, { deep: true })
 
 const saveContent = async () => {
   isSaving.value = true
@@ -10011,6 +10954,38 @@ onMounted(() => {
   font-size: 0.875rem;
 }
 
+.reorder-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-right: 0.5rem;
+}
+
+.btn-icon-reorder {
+  padding: 0.375rem;
+  background: rgba(91, 32, 150, 0.15);
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  color: rgba(245, 247, 250, 0.7);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-icon-reorder:hover:not(:disabled) {
+  background: rgba(91, 32, 150, 0.25);
+  border-color: rgba(91, 32, 150, 0.4);
+  color: rgba(245, 247, 250, 0.9);
+  transform: translateY(-1px);
+}
+
+.btn-icon-reorder:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.btn-icon-reorder:active:not(:disabled) {
+  transform: translateY(0);
+}
+
 .team-member-actions {
   display: flex;
   gap: 0.5rem;
@@ -10529,6 +11504,581 @@ onMounted(() => {
 .category-btn.active {
   background: rgba(91, 32, 150, 0.4);
   border-color: #5B2096;
+  color: #F5F7FA;
+}
+
+/* Booking Cards */
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.booking-card {
+  background: rgba(245, 247, 250, 0.03);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.booking-card:hover {
+  border-color: rgba(91, 32, 150, 0.4);
+  background: rgba(245, 247, 250, 0.05);
+}
+
+.booking-card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.booking-info {
+  flex: 1;
+}
+
+.booking-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.booking-user-name {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #F5F7FA;
+}
+
+.booking-status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-pending {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.status-confirmed {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+  border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.status-cancelled {
+  background: rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+  border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.status-completed {
+  background: rgba(108, 117, 125, 0.2);
+  color: #6c757d;
+  border: 1px solid rgba(108, 117, 125, 0.3);
+}
+
+.booking-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.booking-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(245, 247, 250, 0.7);
+  font-size: 0.9rem;
+}
+
+.booking-detail-item svg {
+  width: 16px;
+  height: 16px;
+  color: rgba(193, 157, 230, 0.7);
+  flex-shrink: 0;
+}
+
+.meeting-link {
+  color: #C19DE6;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.2s ease;
+}
+
+.meeting-link:hover {
+  color: #F5F7FA;
+}
+
+.booking-notes {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.2);
+  color: rgba(245, 247, 250, 0.7);
+  font-size: 0.9rem;
+}
+
+.booking-notes strong {
+  color: #F5F7FA;
+}
+
+.booking-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.booking-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.booking-edit-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+/* View Toggle */
+.view-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.view-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 8px;
+  color: rgba(245, 247, 250, 0.7);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-toggle-btn:hover {
+  background: rgba(91, 32, 150, 0.1);
+  border-color: rgba(91, 32, 150, 0.5);
+  color: #F5F7FA;
+}
+
+.view-toggle-btn.active {
+  background: linear-gradient(103deg, #5B2096 0.52%, #C19DE6 125.79%);
+  border-color: rgba(193, 157, 230, 0.5);
+  color: #F5F7FA;
+}
+
+/* Calendar View */
+.calendar-view-container {
+  padding: 1rem;
+}
+
+.calendar-header-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.calendar-header-controls h4 {
+  margin: 0;
+  color: #F5F7FA;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.calendar-nav-btn {
+  background: rgba(91, 32, 150, 0.2);
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 8px;
+  color: #F5F7FA;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.calendar-nav-btn:hover {
+  background: rgba(91, 32, 150, 0.3);
+  border-color: rgba(91, 32, 150, 0.5);
+}
+
+.admin-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.admin-calendar-day {
+  aspect-ratio: 1;
+  background: rgba(245, 247, 250, 0.03);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 8px;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.admin-calendar-day:hover {
+  border-color: rgba(91, 32, 150, 0.4);
+  background: rgba(245, 247, 250, 0.05);
+}
+
+.admin-calendar-day.other-month {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.admin-calendar-day.today {
+  border-color: rgba(193, 157, 230, 0.5);
+  background: rgba(193, 157, 230, 0.1);
+}
+
+.admin-calendar-day.has-booking {
+  border-color: rgba(40, 167, 69, 0.5);
+}
+
+.admin-calendar-day.selected {
+  border-color: rgba(193, 157, 230, 0.8);
+  background: rgba(193, 157, 230, 0.2);
+  box-shadow: 0 0 0 2px rgba(193, 157, 230, 0.3);
+}
+
+.calendar-day-number {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #F5F7FA;
+  margin-bottom: 0.25rem;
+}
+
+.calendar-day-bookings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.calendar-booking-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.calendar-booking-dot.status-pending {
+  background: #ffc107;
+}
+
+.calendar-booking-dot.status-confirmed {
+  background: #28a745;
+}
+
+.calendar-booking-dot.status-cancelled {
+  background: #dc3545;
+}
+
+.calendar-booking-dot.status-completed {
+  background: #6c757d;
+}
+
+.selected-date-bookings {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.selected-date-bookings h5 {
+  margin: 0 0 1rem 0;
+  color: #F5F7FA;
+  font-size: 1.125rem;
+}
+
+.date-bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.date-booking-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 8px;
+}
+
+.booking-time {
+  font-weight: 600;
+  color: #C19DE6;
+  min-width: 80px;
+}
+
+.booking-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.booking-info strong {
+  color: #F5F7FA;
+}
+
+.booking-email {
+  font-size: 0.85rem;
+  color: rgba(245, 247, 250, 0.6);
+}
+
+/* Availability Management */
+.availability-management {
+  padding: 1rem;
+}
+
+.availability-header {
+  margin-bottom: 2rem;
+}
+
+.availability-header h4 {
+  margin: 0 0 0.5rem 0;
+  color: #F5F7FA;
+  font-size: 1.25rem;
+}
+
+.availability-calendar-container {
+  margin-top: 1.5rem;
+}
+
+.select-date-message {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: rgba(245, 247, 250, 0.6);
+  font-style: italic;
+}
+
+.availability-date-controls {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.availability-date-controls h5 {
+  margin: 0 0 1rem 0;
+  color: #F5F7FA;
+  font-size: 1.125rem;
+}
+
+.time-slots-management {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.time-slot-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.time-slot-control.blocked {
+  background: rgba(220, 53, 69, 0.1);
+  border-color: rgba(220, 53, 69, 0.3);
+}
+
+.time-slot-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.time-slot-time {
+  font-weight: 600;
+  color: #F5F7FA;
+}
+
+.blocked-reason {
+  font-size: 0.75rem;
+  color: rgba(245, 247, 250, 0.5);
+  font-style: italic;
+}
+
+.btn-toggle {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-block {
+  background: rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+  border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.btn-block:hover {
+  background: rgba(220, 53, 69, 0.3);
+  border-color: rgba(220, 53, 69, 0.5);
+}
+
+.btn-unblock {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+  border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.btn-unblock:hover {
+  background: rgba(40, 167, 69, 0.3);
+  border-color: rgba(40, 167, 69, 0.5);
+}
+
+/* Reminder Section */
+.section-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.reminder-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 193, 7, 0.15);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 8px;
+  color: #ffc107;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.reminder-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 193, 7, 0.05);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  border-radius: 12px;
+}
+
+.reminder-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: #ffc107;
+}
+
+.reminder-header h4 {
+  margin: 0;
+  color: #ffc107;
+  font-size: 1.125rem;
+}
+
+.reminder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.reminder-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.reminder-item:hover {
+  border-color: rgba(255, 193, 7, 0.4);
+  background: rgba(255, 193, 7, 0.05);
+}
+
+.reminder-time {
+  font-weight: 600;
+  color: #ffc107;
+  min-width: 200px;
+}
+
+.reminder-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.reminder-info strong {
+  color: #F5F7FA;
+}
+
+.reminder-info span {
+  font-size: 0.85rem;
+  color: rgba(245, 247, 250, 0.6);
+}
+
+.btn-icon-small {
+  background: transparent;
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 6px;
+  color: rgba(245, 247, 250, 0.7);
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-icon-small:hover {
+  background: rgba(91, 32, 150, 0.2);
+  border-color: rgba(91, 32, 150, 0.5);
   color: #F5F7FA;
 }
 
