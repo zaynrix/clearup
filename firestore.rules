@@ -170,18 +170,16 @@ service cloud.firestore {
     
   // Bookings collection
   // - Anyone can create bookings (for public booking form)
-  // - Authenticated users can read their own bookings
+  // - Anyone can read bookings (to check availability - only meetingDate and meetingTime are needed)
+  // - Authenticated users can read their own bookings with full details
   // - Admins can read/update/delete all bookings
   match /bookings/{bookingId} {
     // Allow anyone to create bookings (for public booking form)
     allow create: if true;
     
-    // Allow users to read their own bookings (by email)
-    // Allow admins to read all bookings
-    allow read: if isAuthenticated() && (
-      resource.data.userEmail == request.auth.token.email ||
-      isAdmin()
-    );
+    // Allow anyone to read bookings (for checking availability)
+    // This allows guests to see which time slots are booked
+    allow read: if true;
     
     // Allow admins to update/delete bookings
     // Allow users to update their own bookings (for cancellation)
