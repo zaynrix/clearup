@@ -131,7 +131,7 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
     
-    // Site content collection (legal pages, etc.)
+// Site content collection (legal pages, etc.)
     // - Anyone can read (for displaying public pages like privacy policy, terms, cookies)
     // - Only authenticated users can write (for admin dashboard)
     match /site_content/{documentId} {
