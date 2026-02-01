@@ -12394,5 +12394,158 @@ onMounted(() => {
     width: 100%;
     justify-content: flex-end;
   }
+  
+  /* Booking Section Responsive */
+  .bookings-list {
+    gap: 0.75rem;
+  }
+  
+  .booking-card {
+    padding: 1rem;
+  }
+  
+  .booking-card-content {
+    flex-direction: column;
+    gap: 1rem;
+  }
+  
+  .booking-actions {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+  
+  .view-toggle {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .view-toggle-btn {
+    flex: 1;
+    min-width: 120px;
+    justify-content: center;
+  }
+  
+  .calendar-header-controls {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .calendar-header-controls h4 {
+    font-size: 1rem;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .admin-calendar-grid {
+    gap: 0.25rem;
+  }
+  
+  .admin-calendar-day {
+    padding: 0.25rem;
+    font-size: 0.75rem;
+    min-height: 40px;
+  }
+  
+  .calendar-day-header {
+    font-size: 0.7rem;
+    padding: 0.25rem;
+  }
+  
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .booking-edit-actions {
+    flex-direction: column;
+  }
+  
+  .booking-edit-actions button {
+    width: 100%;
+  }
+  
+  .time-slots-management {
+    gap: 0.75rem;
+  }
+  
+  .time-slot-control {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .time-slot-control .btn-toggle {
+    width: 100%;
+  }
+  
+  .availability-calendar-container {
+    margin-top: 1rem;
+  }
+  
+  .reminder-section {
+    padding: 1rem;
+  }
+  
+  .upcoming-bookings-list {
+    gap: 0.5rem;
+  }
+  
+  .upcoming-booking-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-calendar-grid {
+    gap: 0.2rem;
+  }
+  
+  .admin-calendar-day {
+    padding: 0.2rem;
+    font-size: 0.7rem;
+    min-height: 36px;
+  }
+  
+  .calendar-day-header {
+    font-size: 0.65rem;
+    padding: 0.2rem;
+  }
+  
+  .view-toggle-btn {
+    min-width: 100px;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+  }
+  
+  .booking-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+  
+  .booking-details {
+    gap: 0.5rem;
+  }
+  
+  .booking-detail-item {
+    font-size: 0.85rem;
+  }
+  
+  .calendar-header-controls h4 {
+    font-size: 0.9rem;
+  }
+  
+  .selected-date-bookings {
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+  
+  .availability-date-controls {
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
 }
 </style>

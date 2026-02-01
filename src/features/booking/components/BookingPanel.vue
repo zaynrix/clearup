@@ -804,10 +804,101 @@ watch(() => props.isOpen, (isOpen) => {
 @media (max-width: 768px) {
   .booking-panel {
     max-width: 100%;
+    border-left: none;
+  }
+  
+  .panel-header {
+    padding: 1rem;
+  }
+  
+  .panel-header h2 {
+    font-size: 1.25rem;
+  }
+  
+  .panel-content {
+    padding: 1rem;
+  }
+  
+  .calendar-container {
+    padding: 0.75rem;
+  }
+  
+  .calendar-header {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+  
+  .calendar-header h4 {
+    font-size: 1rem;
+    width: 100%;
+    text-align: center;
+  }
+  
+  .calendar-grid {
+    gap: 0.25rem;
+  }
+  
+  .calendar-day {
+    padding: 0.25rem;
+    font-size: 0.75rem;
+    min-height: 36px;
+  }
+  
+  .calendar-day-header {
+    font-size: 0.7rem;
+    padding: 0.25rem;
   }
   
   .time-slots-grid {
-    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    grid-template-columns: repeat(auto-fill, minmax(70px, 1fr));
+    gap: 0.5rem;
+  }
+  
+  .time-slot-btn {
+    padding: 0.5rem 0.75rem;
+    font-size: 0.85rem;
+  }
+  
+  .contact-method-options {
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  
+  .radio-option {
+    width: 100%;
+  }
+  
+  .panel-actions {
+    flex-direction: column-reverse;
+  }
+  
+  .panel-actions button {
+    width: 100%;
+  }
+}
+
+@media (max-width: 480px) {
+  .calendar-grid {
+    gap: 0.2rem;
+  }
+  
+  .calendar-day {
+    padding: 0.2rem;
+    font-size: 0.7rem;
+    min-height: 32px;
+  }
+  
+  .calendar-day-header {
+    font-size: 0.65rem;
+    padding: 0.2rem;
+  }
+  
+  .time-slots-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+  
+  .form-section h3 {
+    font-size: 1rem;
   }
 }
 </style>
