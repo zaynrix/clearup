@@ -28,9 +28,10 @@ export class BookingService extends BaseService {
         updatedAt: new Date()
       })
 
+      const firestoreData = booking.toFirestore() as BookingData
       const bookingId = await firestoreService.createDocumentWithAutoId<BookingData>(
         COLLECTION_NAME,
-        booking.toFirestore()
+        firestoreData
       )
 
       booking.id = bookingId
@@ -138,7 +139,7 @@ export class BookingService extends BaseService {
       const bookingsByDate = new Map<string, Booking[]>()
       
       bookings.forEach(booking => {
-        const dateKey = new Date(booking.meetingDate).toISOString().split('T')[0]
+        const dateKey: string = new Date(booking.meetingDate).toISOString().split('T')[0] || ''
         if (!bookingsByDate.has(dateKey)) {
           bookingsByDate.set(dateKey, [])
         }
@@ -149,7 +150,7 @@ export class BookingService extends BaseService {
       const currentDate = new Date(startDate)
       
       while (currentDate <= endDate) {
-        const dateKey = currentDate.toISOString().split('T')[0]
+        const dateKey: string = currentDate.toISOString().split('T')[0] || ''
         const dateBookings = bookingsByDate.get(dateKey) || []
         const bookedTimes = new Set(dateBookings.map(b => b.meetingTime))
         
