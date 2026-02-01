@@ -3808,7 +3808,7 @@
                   </div>
                   
                   <!-- Edit Booking Form -->
-                  <div v-else class="booking-edit-form">
+                  <div v-else-if="editingBookingId === booking.id" class="booking-edit-form">
                     <div class="form-grid">
                       <div class="form-group">
                         <label>User Name</label>
