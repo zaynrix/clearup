@@ -169,12 +169,12 @@ service cloud.firestore {
     }
     
   // Bookings collection
-  // - Authenticated users can create bookings (for public booking form)
+  // - Anyone can create bookings (for public booking form)
   // - Authenticated users can read their own bookings
   // - Admins can read/update/delete all bookings
   match /bookings/{bookingId} {
-    // Allow authenticated users to create bookings
-    allow create: if isAuthenticated();
+    // Allow anyone to create bookings (for public booking form)
+    allow create: if true;
     
     // Allow users to read their own bookings (by email)
     // Allow admins to read all bookings
@@ -192,11 +192,11 @@ service cloud.firestore {
   }
   
   // Availability collection
-  // - Only authenticated users can read (to check availability)
+  // - Anyone can read (for guests to check availability when booking)
   // - Only admins can write (block/unblock time slots)
   match /availability/{availabilityId} {
-    // Allow authenticated users to read availability
-    allow read: if isAuthenticated();
+    // Allow anyone to read availability (for public booking form)
+    allow read: if true;
     
     // Only admins can create/update/delete availability
     allow write: if isAdmin();

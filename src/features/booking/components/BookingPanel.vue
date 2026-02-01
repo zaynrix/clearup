@@ -106,8 +106,11 @@
                 {{ formatTime(slot.time) }}
               </button>
             </div>
-            <p v-if="availableTimeSlots.length === 0" class="no-slots-message">
+            <p v-if="!loadingTimeSlots && availableTimeSlots.length === 0" class="no-slots-message">
               No available time slots for this date. Please select another date.
+            </p>
+            <p v-else-if="!loadingTimeSlots && availableTimeSlots.filter(s => s.available).length === 0" class="no-slots-message">
+              All time slots are booked or blocked for this date. Please select another date.
             </p>
           </div>
 
