@@ -186,8 +186,8 @@ service cloud.firestore {
     // 2. Authenticated users can update their own bookings (for cancellation)
     // 3. Allow updates to guest bookings (no userId field) immediately after creation
     //    This is needed because the booking controller updates the booking right after creation
-    //    to set the meeting link and status. We verify by checking email/name match and
-    //    that the update is only changing status/meetingLink (not user data).
+    //    to set the meeting link, status, and ID. We verify by checking email/name match and
+    //    that the update is only changing status/meetingLink/id (not user data).
     allow update: if isAdmin() ||
       (isAuthenticated() && resource.data.userEmail == request.auth.token.email && request.resource.data.status == 'cancelled') ||
       (!isAuthenticated() && 
@@ -196,9 +196,11 @@ service cloud.firestore {
        // Verify email and name match (same person)
        request.resource.data.userEmail == resource.data.userEmail &&
        request.resource.data.userName == resource.data.userName &&
-       // Verify user data hasn't changed (only status/meetingLink can change)
+       // Verify user data hasn't changed (only status/meetingLink/id can change)
        request.resource.data.meetingDate == resource.data.meetingDate &&
-       request.resource.data.meetingTime == resource.data.meetingTime);
+       request.resource.data.meetingTime == resource.data.meetingTime &&
+       // Allow adding/updating ID field if it was empty or missing before
+       (resource.data.id == '' || resource.data.id == request.resource.data.id || !('id' in resource.data) || request.resource.data.id == bookingId));
     
     // Allow deletes:
     // 1. Admins can delete any booking
@@ -241,6 +243,40 @@ service cloud.firestore {
     
     // Only admins can update/delete analytics data
     allow update, delete: if isAdmin();
+  }
+  
+  // Admins collection
+  // - Only admins can read/write their own admin document (for Google Calendar tokens)
+  // - Admins can only access their own document (by ID matching their user ID)
+  // - Tokens are private and should never be exposed to public
+  match /admins/{adminId} {
+    // Allow admins to create/update their own admin document
+    allow create, update: if isAuthenticated() && 
+                          isAdmin() && 
+                          request.auth.uid == adminId;
+    
+    // Allow admins to read their own admin document only
+    allow read: if isAuthenticated() && 
+                 isAdmin() && 
+                 request.auth.uid == adminId;
+    
+    // Admins cannot delete their own admin document (for safety)
+    allow delete: if false;
+  }
+  
+  // Calendar status collection (public read, admin write only)
+  // - Anyone can read calendar status (for checking if booking is available)
+  // - Only admins can update calendar status
+  // - This collection stores only safe, non-sensitive data
+  match /calendar_status/{statusId} {
+    // Allow anyone to read calendar status (for checking if booking is available)
+    allow read: if true;
+    
+    // Only admins can create/update calendar status
+    allow create, update: if isAuthenticated() && isAdmin();
+    
+    // Only admins can delete calendar status
+    allow delete: if isAuthenticated() && isAdmin();
   }
   
   // Default deny rule for any other collections

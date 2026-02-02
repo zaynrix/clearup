@@ -19,6 +19,10 @@ export interface BookingData extends BaseModel {
   cancelledAt?: Date | string
   cancelledBy?: string // User ID who cancelled
   cancellationReason?: string
+  // Google Calendar integration fields
+  adminId?: string // Admin who owns this booking
+  googleEventId?: string // Google Calendar event ID
+  calendarLink?: string // Google Calendar event link
 }
 
 export class Booking extends Model implements BookingData {
@@ -37,6 +41,10 @@ export class Booking extends Model implements BookingData {
   cancelledAt?: Date | string
   cancelledBy?: string
   cancellationReason?: string
+  // Google Calendar integration fields
+  adminId?: string
+  googleEventId?: string
+  calendarLink?: string
 
   constructor(data: Partial<BookingData> = {}) {
     super(data)
@@ -55,6 +63,9 @@ export class Booking extends Model implements BookingData {
     this.cancelledAt = data.cancelledAt ? new Date(data.cancelledAt) : undefined
     this.cancelledBy = data.cancelledBy
     this.cancellationReason = data.cancellationReason
+    this.adminId = data.adminId
+    this.googleEventId = data.googleEventId
+    this.calendarLink = data.calendarLink
   }
 
   /**

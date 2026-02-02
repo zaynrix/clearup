@@ -23,7 +23,14 @@ const router = createRouter({
     ...aboutRoutes,
     ...servicesRoutes,
     ...legalRoutes,
-    ...contactRoutes
+    ...contactRoutes,
+    // Google OAuth callback route
+    {
+      path: '/auth/google/callback',
+      name: 'google-oauth-callback',
+      component: () => import('@/features/admin/views/GoogleOAuthCallbackView.vue'),
+      meta: { requiresAuth: true, requiresAdmin: true }
+    }
   ],
   scrollBehavior(to, from, savedPosition) {
     // If there's a saved position (e.g., browser back/forward), use it

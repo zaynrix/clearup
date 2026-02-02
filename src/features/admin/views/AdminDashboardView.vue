@@ -4064,9 +4064,23 @@
                         <strong>{{ booking.userName }}</strong>
                         <span class="booking-email">{{ booking.userEmail }}</span>
                       </div>
-                      <span :class="['booking-status-badge', `status-${booking.status}`]">
-                        {{ booking.status }}
-                      </span>
+                      <div class="booking-actions">
+                        <span :class="['booking-status-badge', `status-${booking.status}`]">
+                          {{ booking.status }}
+                        </span>
+                        <button 
+                          v-if="booking.id"
+                          @click="deleteBooking(booking.id)" 
+                          class="btn-icon btn-icon-danger" 
+                          title="Delete booking"
+                          style="margin-left: 8px;"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
@@ -4142,6 +4156,68 @@
                   <div v-else class="select-date-message">
                     <p>Select a date from the calendar above to manage time slots</p>
                   </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Google Calendar Settings (Admin Only) -->
+          <div v-if="activeTab === 'google-calendar' && isAdmin && canAccessTab('google-calendar')" class="editor-section">
+            <div class="section-header">
+              <div class="section-title-group">
+                <div class="section-icon">📅</div>
+                <div>
+                  <h3>Google Calendar Integration</h3>
+                  <p class="section-description">Connect your Google Calendar to automatically create Google Meet links for bookings</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="admin-table-card">
+              <div v-if="isLoadingGoogleCalendar" class="loading-text">Loading...</div>
+              <div v-else>
+                <div v-if="isGoogleCalendarConnected" class="google-calendar-connected">
+                  <div class="connection-status success">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#28a745" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div>
+                      <h4>Google Calendar Connected</h4>
+                      <p>Your Google Calendar is connected. Google Meet links will be automatically created for new bookings.</p>
+                    </div>
+                  </div>
+                  <button @click="disconnectGoogleCalendar" class="btn-secondary" style="margin-top: 20px;">
+                    Disconnect Google Calendar
+                  </button>
+                </div>
+                <div v-else class="google-calendar-disconnected">
+                  <div class="connection-status">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div>
+                      <h4>Google Calendar Not Connected</h4>
+                      <p>Connect your Google Calendar to automatically create Google Meet events and send calendar invites when users book meetings.</p>
+                    </div>
+                  </div>
+                  <div class="connection-benefits">
+                    <h5>Benefits of connecting:</h5>
+                    <ul>
+                      <li>✅ Automatic Google Meet link generation for each booking</li>
+                      <li>✅ Calendar invites sent to both you and the user</li>
+                      <li>✅ Automatic event updates when bookings are rescheduled</li>
+                      <li>✅ Event cancellation when bookings are cancelled</li>
+                    </ul>
+                  </div>
+                  <button @click="connectGoogleCalendar" class="btn-primary" style="margin-top: 20px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                      <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.64 8.8C16.49 10.38 15.84 11.9 14.96 13.1C14.06 14.3 13.03 15.28 11.8 16.04C11.5 16.22 11.2 16.3 10.88 16.37C10.57 16.44 10.23 16.5 9.89 16.5H9.75C9.44 16.5 9.14 16.4 8.88 16.23C8.61 16.06 8.38 15.82 8.24 15.53L8.09 15.23C7.95 14.94 7.9 14.62 7.96 14.31C8.02 14 8.18 13.72 8.42 13.5C8.66 13.28 8.97 13.14 9.29 13.1H9.43C9.67 13.07 9.9 13.04 10.12 13C10.95 12.83 11.66 12.5 12.3 12.01C12.93 11.52 13.46 10.9 13.85 10.19C14.25 9.48 14.5 8.69 14.6 7.85C14.62 7.67 14.65 7.49 14.67 7.31C14.69 7.13 14.7 6.95 14.7 6.77C14.7 6.22 14.47 5.69 14.07 5.29C13.67 4.89 13.14 4.66 12.59 4.66C12.04 4.66 11.51 4.89 11.11 5.29C10.71 5.69 10.48 6.22 10.48 6.77H8.48C8.48 5.66 8.92 4.6 9.71 3.81C10.5 3.02 11.56 2.58 12.67 2.58C13.78 2.58 14.84 3.02 15.63 3.81C16.42 4.6 16.86 5.66 16.86 6.77C16.86 7.15 16.8 7.52 16.69 7.88C16.58 8.24 16.42 8.58 16.22 8.89L16.64 8.8Z" fill="currentColor"/>
+                    </svg>
+                    Connect Google Calendar
+                  </button>
+                </div>
+                <div v-if="googleCalendarError" class="error-message" style="margin-top: 20px;">
+                  {{ googleCalendarError }}
                 </div>
               </div>
             </div>
@@ -4557,6 +4633,7 @@ import type { ContactMessage, ContactContent, ContactInfo } from '@/features/con
 import { bookingController } from '@/features/booking/controllers/BookingController'
 import type { Booking, BookingData } from '@/features/booking/models/Booking'
 import { availabilityService } from '@/features/booking/services/AvailabilityService'
+import { googleCalendarController } from '../controllers/GoogleCalendarController'
 import { analyticsController } from '@/features/analytics/controllers/AnalyticsController'
 import AnalyticsChart from '@/shared/components/AnalyticsChart.vue'
 import type { SiteSettings } from '../models/SiteSettings'
@@ -4614,6 +4691,7 @@ const adminTabs = [
   { id: 'users', label: 'User Management' },
   { id: 'roles', label: 'Role Management' },
   { id: 'bookings', label: 'Bookings' },
+  { id: 'google-calendar', label: 'Google Calendar' },
   { id: 'site-settings', label: 'Site Settings' },
   { id: 'maintenance', label: 'Maintenance Mode' },
   { id: 'activity-logs', label: 'Activity Logs' }
@@ -4641,6 +4719,7 @@ const tabPermissionMap: Record<string, string> = {
   'roles': 'manage_roles',
   'analytics': 'view_analytics',
   'bookings': 'manage_bookings',
+  'google-calendar': 'manage_bookings',
   'site-settings': 'manage_site_settings',
   'maintenance': 'manage_maintenance',
   'activity-logs': 'view_activity_logs',
@@ -4855,6 +4934,11 @@ const hasPendingRequest = computed(() => {
 const bookings = ref<Booking[]>([])
 const isLoadingBookings = ref(false)
 const isSavingBooking = ref(false)
+
+// Google Calendar state
+const isGoogleCalendarConnected = ref(false)
+const isLoadingGoogleCalendar = ref(false)
+const googleCalendarError = ref('')
 const editingBookingId = ref<string | null>(null)
 const bookingViewMode = ref<'list' | 'calendar' | 'availability'>('list')
 const editBookingForm = ref<Partial<BookingData>>({
@@ -4955,6 +5039,62 @@ const refreshBookings = () => {
   loadBookings()
 }
 
+// Google Calendar functions
+const checkGoogleCalendarConnection = async () => {
+  isLoadingGoogleCalendar.value = true
+  googleCalendarError.value = ''
+  try {
+    const result = await googleCalendarController.isGoogleConnected()
+    if (result.success) {
+      isGoogleCalendarConnected.value = result.data || false
+    } else {
+      googleCalendarError.value = result.error || 'Failed to check connection status'
+    }
+  } catch (error) {
+    googleCalendarError.value = error instanceof Error ? error.message : 'Failed to check connection status'
+  } finally {
+    isLoadingGoogleCalendar.value = false
+  }
+}
+
+const connectGoogleCalendar = async () => {
+  try {
+    const result = googleCalendarController.getAuthorizationUrl()
+    if (result.success && result.data) {
+      // Redirect to Google OAuth
+      window.location.href = result.data
+    } else {
+      googleCalendarError.value = result.error || 'Failed to get authorization URL'
+    }
+  } catch (error) {
+    googleCalendarError.value = error instanceof Error ? error.message : 'Failed to connect Google Calendar'
+  }
+}
+
+const disconnectGoogleCalendar = async () => {
+  if (!confirm('Are you sure you want to disconnect your Google Calendar? This will prevent automatic Google Meet link generation for new bookings.')) {
+    return
+  }
+  
+  isLoadingGoogleCalendar.value = true
+  googleCalendarError.value = ''
+  try {
+    const result = await googleCalendarController.disconnectGoogleCalendar()
+    if (result.success) {
+      isGoogleCalendarConnected.value = false
+      saveMessage.value = 'Google Calendar disconnected successfully'
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 4000)
+    } else {
+      googleCalendarError.value = result.error || 'Failed to disconnect Google Calendar'
+    }
+  } catch (error) {
+    googleCalendarError.value = error instanceof Error ? error.message : 'Failed to disconnect Google Calendar'
+  } finally {
+    isLoadingGoogleCalendar.value = false
+  }
+}
+
 const startEditBooking = (booking: Booking) => {
   // Try multiple ways to get the ID
   const bookingId = booking.id || (booking as any).id || (booking as any)['id']
@@ -5051,15 +5191,23 @@ const deleteBooking = async (bookingId: string) => {
   if (!confirm('Are you sure you want to delete this booking? This action cannot be undone.')) return
   
   isLoadingBookings.value = true
+  saveMessage.value = ''
   try {
     const result = await bookingController.deleteBooking(bookingId)
     if (result.success) {
+      saveMessage.value = 'Booking deleted successfully'
+      saveMessageType.value = 'success'
       await loadBookings()
+      setTimeout(() => { saveMessage.value = '' }, 4000)
     } else {
-      console.error('Failed to delete booking:', result.error)
+      saveMessage.value = result.error || 'Failed to delete booking'
+      saveMessageType.value = 'error'
+      setTimeout(() => { saveMessage.value = '' }, 5000)
     }
   } catch (error) {
-    console.error('Error deleting booking:', error)
+    saveMessage.value = error instanceof Error ? error.message : 'Error deleting booking'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 5000)
   } finally {
     isLoadingBookings.value = false
   }
@@ -8466,6 +8614,9 @@ watch(activeTab, (newTab) => {
     loadBookings()
     initAvailabilityCalendar()
   }
+  if (newTab === 'google-calendar' && isAdmin.value) {
+    checkGoogleCalendarConnection()
+  }
   if (newTab === 'activity-logs' && isAdmin.value) {
     refreshActivityLogs()
   }
@@ -8631,25 +8782,47 @@ const handleLogout = async () => {
   }
 }
 
+// Function to set active tab from query parameter
+const setActiveTabFromQuery = () => {
+  if (route.query.tab && typeof route.query.tab === 'string') {
+    const tabExists = tabs.value.find(t => t.id === route.query.tab)
+    if (tabExists && canAccessTab(route.query.tab as string)) {
+      activeTab.value = route.query.tab as string
+      // If Google Calendar tab, check connection status
+      if (route.query.tab === 'google-calendar' && isAdmin.value) {
+        checkGoogleCalendarConnection()
+      }
+    }
+  }
+}
+
 // Watch for route query to set active tab
 watch(() => route.query.tab, (newTab) => {
   if (newTab && typeof newTab === 'string') {
     const tabExists = tabs.value.find(t => t.id === newTab)
     if (tabExists && canAccessTab(newTab)) {
       activeTab.value = newTab
+      // If Google Calendar tab, check connection status
+      if (newTab === 'google-calendar' && isAdmin.value) {
+        checkGoogleCalendarConnection()
+      }
     }
+  }
+}, { immediate: true })
+
+// Watch for isAdmin and tabs to be ready, then set tab from query
+watch([isAdmin, tabs], () => {
+  if (isAdmin.value && tabs.value.length > 0) {
+    setActiveTabFromQuery()
   }
 }, { immediate: true })
 
 onMounted(() => {
   loadContent()
-  // Check if tab query parameter exists
-  if (route.query.tab && typeof route.query.tab === 'string') {
-    const tabExists = tabs.value.find(t => t.id === route.query.tab)
-    if (tabExists && canAccessTab(route.query.tab as string)) {
-      activeTab.value = route.query.tab as string
-    }
-  }
+  // Set initial tab from query parameter after a short delay to ensure isAdmin is set
+  setTimeout(() => {
+    setActiveTabFromQuery()
+  }, 100)
 })
 </script>
 

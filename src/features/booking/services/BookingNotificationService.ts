@@ -1,6 +1,7 @@
 import { BaseService } from '@/shared/BaseService'
 import { emailService } from '@/features/home/services/EmailService'
 import { whatsAppService } from '@/features/home/services/WhatsAppService'
+import { generateICSFile, downloadICSFile } from '../utils/icsGenerator'
 import type { Booking } from '../models/Booking'
 
 /**
@@ -36,30 +37,65 @@ export class BookingNotificationService extends BaseService {
     meetingLink: string
   ): Promise<boolean> {
     try {
-      const subject = 'Meeting Booking Confirmation - ClearUP'
+      const subject = `Meeting Confirmed - ${this.formatDate(booking.meetingDate)} at ${this.formatTime(booking.meetingTime)}`
+      
+      // Generate .ics file content
+      const icsContent = generateICSFile(booking, 'ClearUP')
+      
       const body = `
-        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2 style="color: #5B2096;">Meeting Booking Confirmation</h2>
+        <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px;">
+          <h2 style="color: #5B2096; margin-top: 0;">Meeting Booking Confirmation</h2>
           <p>Dear ${booking.userName},</p>
-          <p>Your meeting has been successfully booked!</p>
+          <p>Your meeting has been confirmed!</p>
+          
           <div style="background: #f5f5f5; padding: 20px; border-radius: 8px; margin: 20px 0;">
             <h3 style="margin-top: 0; color: #5B2096;">Meeting Details:</h3>
-            <p><strong>Date & Time:</strong> ${meetingDateTime}</p>
-            <p><strong>Contact Email:</strong> ${booking.userEmail}</p>
-            ${booking.userPhone ? `<p><strong>Phone:</strong> ${booking.userPhone}</p>` : ''}
-            ${meetingLink ? `<p><strong>Meeting Link:</strong> <a href="${meetingLink}">${meetingLink}</a></p>` : ''}
-            ${booking.notes ? `<p><strong>Notes:</strong> ${booking.notes}</p>` : ''}
+            <p style="font-size: 16px;"><strong>📅 Date:</strong> ${this.formatDate(booking.meetingDate)}</p>
+            <p style="font-size: 16px;"><strong>🕐 Time:</strong> ${this.formatTime(booking.meetingTime)}</p>
+            <p style="font-size: 16px;"><strong>📍 Location:</strong> Online (Google Meet)</p>
+            ${booking.notes ? `<p style="font-size: 16px;"><strong>📝 Notes:</strong> ${booking.notes}</p>` : ''}
           </div>
-          <p>We look forward to meeting with you!</p>
-          <p>Best regards,<br>The ClearUP Team</p>
+          
+          ${meetingLink ? `
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${meetingLink}" 
+               style="display: inline-block; background-color: #5B2096; color: white; padding: 15px 30px; 
+                      text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">
+              Join Meeting
+            </a>
+          </div>
+          <div style="background: #e8f4f8; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px; color: #333;">
+              <strong>Or copy this link:</strong><br>
+              <a href="${meetingLink}" style="color: #5B2096; word-break: break-all;">${meetingLink}</a>
+            </p>
+          </div>
+          ` : ''}
+          
+          <div style="background: #fff3cd; padding: 15px; border-radius: 5px; margin: 20px 0; border-left: 4px solid #ffc107;">
+            <p style="margin: 0; font-size: 14px;">
+              <strong>📅 Add to Calendar:</strong> A calendar invite (.ics file) is attached to this email. 
+              You can also download it from your booking confirmation page.
+            </p>
+          </div>
+          
+          <p style="margin-top: 30px;">If you need to reschedule, please contact us.</p>
+          <p>Best regards,<br><strong>The ClearUP Team</strong></p>
         </div>
       `
 
-      // Note: In production, integrate with actual email service
-      await emailService.sendConfirmationEmail(booking.userEmail)
-      console.log('Booking update email would be sent to:', booking.userEmail)
-      console.log('Subject:', subject)
-      console.log('Body:', body)
+      // Send email with custom sender configuration
+      const emailResult = await emailService.sendBookingEmail(
+        booking.userEmail,
+        subject,
+        body,
+        icsContent
+      )
+
+      if (!emailResult.success) {
+        console.error('Failed to send booking confirmation email:', emailResult.error)
+        return false
+      }
 
       return true
     } catch (error) {
@@ -143,22 +179,42 @@ The ClearUP Team`
           <p>Dear ${booking.userName},</p>
           <p>Your meeting time has been updated.</p>
           <div style="background: #fff3cd; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #ffc107;">
-            <p><strong>Previous Time:</strong> ${oldDateTime}</p>
+            <p style="text-decoration: line-through; margin: 0;"><strong>Previous Time:</strong> ${oldDateTime}</p>
           </div>
           <div style="background: #d4edda; padding: 20px; border-radius: 8px; margin: 20px 0; border-left: 4px solid #28a745;">
-            <p><strong>New Time:</strong> ${newDateTime}</p>
+            <p style="margin: 0;"><strong>New Time:</strong> ${newDateTime}</p>
           </div>
-          ${booking.meetingLink ? `<p><strong>Meeting Link:</strong> <a href="${booking.meetingLink}">${booking.meetingLink}</a></p>` : ''}
-          <p>Please update your calendar accordingly.</p>
+          ${booking.meetingLink ? `
+          <div style="text-align: center; margin: 30px 0;">
+            <a href="${booking.meetingLink}" 
+               style="display: inline-block; background-color: #5B2096; color: white; padding: 15px 30px; 
+                      text-decoration: none; border-radius: 5px; font-weight: bold; font-size: 16px;">
+              Join Meeting
+            </a>
+          </div>
+          <div style="background: #e8f4f8; padding: 15px; border-radius: 5px; margin: 20px 0;">
+            <p style="margin: 0; font-size: 14px; color: #333;">
+              <strong>Meeting Link:</strong><br>
+              <a href="${booking.meetingLink}" style="color: #5B2096; word-break: break-all;">${booking.meetingLink}</a>
+            </p>
+          </div>
+          ` : ''}
+          <p>Please update your calendar accordingly. An updated calendar invite has been sent to your email.</p>
           <p>Best regards,<br>The ClearUP Team</p>
         </div>
       `
 
-      // Note: In production, integrate with actual email service
-      await emailService.sendConfirmationEmail(booking.userEmail)
-      console.log('Booking update email would be sent to:', booking.userEmail)
-      console.log('Subject:', subject)
-      console.log('Body:', body)
+      // Send email with custom sender configuration
+      const emailResult = await emailService.sendBookingEmail(
+        booking.userEmail,
+        subject,
+        body
+      )
+
+      if (!emailResult.success) {
+        console.error('Failed to send booking update email:', emailResult.error)
+        return false
+      }
 
       return true
     } catch (error) {
@@ -245,11 +301,17 @@ The ClearUP Team`
         </div>
       `
 
-      // Note: In production, integrate with actual email service
-      await emailService.sendConfirmationEmail(booking.userEmail)
-      console.log('Booking update email would be sent to:', booking.userEmail)
-      console.log('Subject:', subject)
-      console.log('Body:', body)
+      // Send email with custom sender configuration
+      const emailResult = await emailService.sendBookingEmail(
+        booking.userEmail,
+        subject,
+        body
+      )
+
+      if (!emailResult.success) {
+        console.error('Failed to send booking reminder email:', emailResult.error)
+        return false
+      }
 
       return true
     } catch (error) {
@@ -319,6 +381,47 @@ The ClearUP Team`
       hour12: true
     })
     return `${dateStr} at ${timeStr}`
+  }
+
+  /**
+   * Format date only
+   */
+  private formatDate(date: Date | string): string {
+    const dateObj = typeof date === 'string' ? new Date(date) : date
+    return dateObj.toLocaleDateString('en-US', {
+      weekday: 'long',
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    })
+  }
+
+  /**
+   * Format time only
+   */
+  private formatTime(time: string): string {
+    const timeParts = time.split(':')
+    const hours = timeParts[0] ? parseInt(timeParts[0]) : 0
+    const minutes = timeParts[1] ? parseInt(timeParts[1]) : 0
+    const timeDate = new Date(2000, 0, 1, hours, minutes)
+    return timeDate.toLocaleTimeString('en-US', {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    })
+  }
+
+  /**
+   * Download .ics file for booking (for user to download)
+   */
+  downloadICSFile(booking: Booking): void {
+    try {
+      const icsContent = generateICSFile(booking, 'ClearUP')
+      const filename = `meeting-${booking.id || Date.now()}.ics`
+      downloadICSFile(icsContent, filename)
+    } catch (error) {
+      this.handleError(error)
+    }
   }
 }
 

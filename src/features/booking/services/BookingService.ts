@@ -34,6 +34,11 @@ export class BookingService extends BaseService {
         firestoreData
       )
 
+      // Update the document to include the ID as a field
+      await firestoreService.updateDocument(COLLECTION_NAME, bookingId, {
+        id: bookingId
+      } as Partial<BookingData>)
+
       booking.id = bookingId
       return booking
     } catch (error) {
