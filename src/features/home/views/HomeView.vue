@@ -190,7 +190,7 @@
             </div>
           </div>
 
-          <!-- Our Services -->
+          <!-- Our Services - COMMENTED OUT
         <div v-if="!isSectionDisabled('services')" class="services-section">
           <div class="services-header">
             <h3 class="services-title">Our Services</h3>
@@ -274,6 +274,7 @@
             </div>
           </div>
         </div>
+        END Our Services COMMENT -->
 
         <!-- What We Do -->
         <div v-if="!isSectionDisabled('what-we-do') && homeContent?.steps && homeContent.steps.length > 0" class="what-we-do-section">
