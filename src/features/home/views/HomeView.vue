@@ -276,7 +276,7 @@
         </div>
         END Our Services COMMENT -->
 
-        <!-- What We Do -->
+        <!-- What We Do - COMMENTED OUT
         <div v-if="!isSectionDisabled('what-we-do') && homeContent?.steps && homeContent.steps.length > 0" class="what-we-do-section">
           <h3 class="what-we-do-title">{{ homeContent?.whatWeDoTitle || 'What We Do' }}</h3>
           <div class="steps-grid">
@@ -294,8 +294,9 @@
             </div>
           </div>
         </div>
+        END What We Do COMMENT -->
 
-        <!-- What You Get -->
+        <!-- What You Get - COMMENTED OUT
         <div v-if="!isSectionDisabled('what-you-get') && homeContent?.benefits && homeContent.benefits.length > 0" class="what-you-get-section">
           <h3 class="what-you-get-title">{{ homeContent?.whatYouGetTitle || 'What You Get' }}</h3>
           <div class="benefits-grid">
@@ -313,8 +314,9 @@
             </div>
           </div>
         </div>
+        END What You Get COMMENT -->
 
-          <!-- Bonuses Included Section -->
+        <!-- Bonuses Included Section - COMMENTED OUT
           <div v-if="!isSectionDisabled('bonuses')" class="bonuses-section">
             <div class="bonuses-container">
         <h2 class="bonuses-title">Bonuses Included</h2>
@@ -360,6 +362,7 @@
         </div>
             </div>
           </div>
+        END Bonuses Included COMMENT -->
         </div>
       </div>
     </div>
