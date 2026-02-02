@@ -83,8 +83,8 @@ export class AnalyticsService extends BaseService {
       const startDate = new Date()
       startDate.setDate(startDate.getDate() - days)
 
-      const startDateStr = startDate.toISOString().split('T')[0]
-      const endDateStr = endDate.toISOString().split('T')[0]
+      const startDateStr = startDate.toISOString().split('T')[0]!
+      const endDateStr = endDate.toISOString().split('T')[0]!
 
       const dailyCounts = await this.analyticsRepository.getDailyVisitCounts(startDateStr, endDateStr)
       
@@ -93,7 +93,7 @@ export class AnalyticsService extends BaseService {
       const currentDate = new Date(startDate)
       
       while (currentDate <= endDate) {
-        const dateStr = currentDate.toISOString().split('T')[0]
+        const dateStr = currentDate.toISOString().split('T')[0]!
         result.push({
           date: dateStr,
           count: dailyCounts.get(dateStr) || 0
@@ -172,7 +172,7 @@ export class AnalyticsService extends BaseService {
    */
   async getTodayVisits(): Promise<number> {
     try {
-      const today = new Date().toISOString().split('T')[0]
+      const today = new Date().toISOString().split('T')[0]!
       const visits = await this.analyticsRepository.getVisitsByDate(today)
       return visits.length
     } catch (error) {

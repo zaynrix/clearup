@@ -63,7 +63,7 @@ export class AnalyticsVisit extends Model implements AnalyticsVisitData {
   }
 
   private formatDate(date: Date): string {
-    return date.toISOString().split('T')[0] // YYYY-MM-DD
+    return date.toISOString().split('T')[0]! // YYYY-MM-DD
   }
 
   private formatMonth(date: Date): string {

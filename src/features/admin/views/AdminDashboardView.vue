@@ -3732,7 +3732,7 @@
                       </button>
                       <button 
                         v-if="request.requestedBy !== currentUserId"
-                        @click="showRejectModal(request)"
+                        @click="() => { rejectRequest = request; showRejectModal = true }"
                         class="btn-danger btn-small"
                         :disabled="processingRequest === request.id"
                       >
@@ -4288,7 +4288,7 @@
               <button 
                 v-for="period in analyticsPeriods" 
                 :key="period.value"
-                @click="selectedAnalyticsPeriod = period.value"
+                @click="selectedAnalyticsPeriod = period.value as 'daily' | 'monthly' | 'yearly'"
                 :class="['period-btn', { active: selectedAnalyticsPeriod === period.value }]"
               >
                 {{ period.label }}
@@ -4768,7 +4768,7 @@ const timeSeriesChartData = computed(() => {
     labels = monthlyStats.value.map(s => {
       const [year, month] = s.month.split('-')
       const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
-      return monthNames[parseInt(month) - 1]
+      return monthNames[parseInt(month || '1') - 1] || 'Unknown'
     })
     data = monthlyStats.value.map(s => s.count)
   } else {
@@ -7338,9 +7338,12 @@ const loadMaintenanceData = async () => {
   try {
     // Check if maintenance is active
     const activeResult = await maintenanceController.getActiveMaintenanceRequest()
-    if (activeResult.success) {
-      activeMaintenanceRequest.value = activeResult.data || null
-      isMaintenanceActive.value = activeResult.data !== null && activeResult.data.type === 'turn_off'
+    if (activeResult.success && activeResult.data) {
+      activeMaintenanceRequest.value = activeResult.data
+      isMaintenanceActive.value = activeResult.data.type === 'turn_off'
+    } else {
+      activeMaintenanceRequest.value = null
+      isMaintenanceActive.value = false
     }
 
     // Load pending requests
