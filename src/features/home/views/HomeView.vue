@@ -405,90 +405,110 @@
           <p class="real-results-subtitle">{{ homeContent?.realResultsSubtitle || 'We focus on measurable outcomes that help brands grow, scale, and stand out.' }}</p>
         </div>
 
-        <!-- Multiple Real Results Cases/Containers -->
-        <div v-if="homeContent?.realResultsCases && homeContent.realResultsCases.length > 0" class="real-results-cases">
-          <div 
-            v-for="(resultCase, caseIndex) in homeContent.realResultsCases" 
-            :key="resultCase.id || caseIndex"
-            class="real-results-case-container"
-            :data-card-id="`result-case-${caseIndex}`"
-            @mouseenter="handleHeadlineHover(resultCase.id)"
-            @mouseleave="handleHeadlineLeave"
+        <!-- Carousel Container -->
+        <div v-if="homeContent?.realResultsCases && homeContent.realResultsCases.length > 0" class="real-results-carousel">
+          <!-- Navigation Arrow - Left -->
+          <button 
+            v-if="totalCases > 1 && !showAllCases" 
+            class="carousel-nav-btn carousel-nav-prev"
+            @click="prevCase"
+            aria-label="Previous case"
           >
-            <!-- Company Logo - Top Right -->
-            <div v-if="resultCase.companyLogo || resultCase.companyLogoFileUrl" class="real-results-company-logo">
-              <img 
-                :src="resultCase.companyLogoFileUrl || resultCase.companyLogo" 
-                alt="Company Logo"
-                class="company-logo-img"
-                @error="handleImageError"
-              />
-            </div>
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
 
-            <!-- Main Heading - Centered -->
-            <div v-if="resultCase.headline" class="real-results-headline-wrapper">
-              <h2 class="real-results-headline">{{ resultCase.headline }}</h2>
-            </div>
-
-            <!-- Small Cards Grid - Inside Container -->
-            <div v-if="resultCase.cards && resultCase.cards.length > 0" class="real-results-cards">
-              <div 
-                v-for="card in resultCase.cards" 
-                :key="card.id" 
-                class="real-results-card"
-              >
-                <div class="card-content">
-                  <h3 class="card-title">{{ card.title }}</h3>
-                  <div class="card-metric">{{ card.metric }}</div>
-                  <p class="card-subtitle">{{ card.subtitle }}</p>
-                </div>
-              </div>
-            </div>
-
-            <!-- Action Button - Bottom Center -->
-            <div v-if="resultCase.ctaText" class="real-results-cta">
-              <a href="#" class="cta-link">
-                {{ resultCase.ctaText }}
-                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-              </a>
-            </div>
-
-            <!-- Company Images on Hover -->
+          <!-- Cases Display -->
+          <div class="real-results-cases" :class="{ 'show-all': showAllCases }">
             <div 
-              v-if="resultCase.companyImages && resultCase.companyImages.length > 0" 
-              class="headline-hover-images"
-              :class="{ 'show': hoveredCaseId === resultCase.id }"
+              v-for="(resultCase, caseIndex) in visibleCases" 
+              :key="resultCase.id || caseIndex"
+              class="real-results-case-container"
+              :data-card-id="`result-case-${caseIndex}`"
             >
-              <div class="company-images-grid">
+              <!-- Company Logo - Top Center -->
+              <div v-if="resultCase.companyLogo || resultCase.companyLogoFileUrl" class="real-results-company-logo">
+                <img 
+                  :src="resultCase.companyLogoFileUrl || resultCase.companyLogo" 
+                  alt="Company Logo"
+                  class="company-logo-img"
+                  @error="handleImageError"
+                />
+              </div>
+
+              <!-- Main Heading - Centered -->
+              <div v-if="resultCase.headline" class="real-results-headline-wrapper">
+                <h2 class="real-results-headline">{{ resultCase.headline }}</h2>
+              </div>
+
+              <!-- Small Cards Grid - Inside Container -->
+              <div v-if="resultCase.cards && resultCase.cards.length > 0" class="real-results-cards">
                 <div 
-                  v-for="(img, imgIndex) in resultCase.companyImages" 
-                  :key="img.id || imgIndex"
-                  class="company-image-item"
+                  v-for="card in resultCase.cards" 
+                  :key="card.id" 
+                  class="real-results-card"
                 >
-                  <img 
-                    v-if="img.imageFileUrl || img.imageUrl"
-                    :src="img.imageFileUrl || img.imageUrl" 
-                    :alt="`Company Image ${imgIndex + 1}`"
-                    class="company-img"
-                  />
+                  <div class="card-content">
+                    <h3 class="card-title">{{ card.title }}</h3>
+                    <div class="card-metric">{{ card.metric }}</div>
+                    <p class="card-subtitle">{{ card.subtitle }}</p>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div 
-              v-else
-              class="headline-hover-placeholder"
-              :class="{ 'show': hoveredCaseId === resultCase.id }"
-            >
-              <svg width="48" height="48" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                <path d="M21 19V5C21 4.46957 20.7893 3.96086 20.4142 3.58579C20.0391 3.21071 19.5304 3 19 3H5C4.46957 3 3.96086 3.21071 3.58579 3.58579C3.21071 3.96086 3 4.46957 3 5V19C3 19.5304 3.21071 20.0391 3.58579 20.4142C3.96086 20.7893 4.46957 21 5 21H19C19.5304 21 20.0391 20.7893 20.4142 20.4142C20.7893 20.0391 21 19.5304 21 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M8.5 10C9.32843 10 10 9.32843 10 8.5C10 7.67157 9.32843 7 8.5 7C7.67157 7 7 7.67157 7 8.5C7 9.32843 7.67157 10 8.5 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                <path d="M21 15L16 10L5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-              </svg>
-              <p>No images set</p>
+
+              <!-- Action Button - Bottom Center -->
+              <div v-if="resultCase.ctaText" class="real-results-cta">
+                <a href="#" class="cta-link">
+                  {{ resultCase.ctaText }}
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                </a>
+              </div>
             </div>
           </div>
+
+          <!-- Navigation Arrow - Right -->
+          <button 
+            v-if="totalCases > 1 && !showAllCases" 
+            class="carousel-nav-btn carousel-nav-next"
+            @click="nextCase"
+            aria-label="Next case"
+          >
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+
+        <!-- Carousel Indicators -->
+        <div v-if="totalCases > 1 && !showAllCases" class="carousel-indicators">
+          <button 
+            v-for="(_, index) in totalCases" 
+            :key="index"
+            class="carousel-indicator"
+            :class="{ 'active': index === currentCaseIndex }"
+            @click="currentCaseIndex = index"
+            :aria-label="`Go to case ${index + 1}`"
+          ></button>
+        </div>
+
+        <!-- Show More / Show Less Button -->
+        <div v-if="totalCases > 1" class="show-more-container">
+          <button class="show-more-btn" @click="toggleShowAllCases">
+            {{ showAllCases ? 'Show Less' : `Show All (${totalCases})` }}
+            <svg 
+              width="20" 
+              height="20" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              xmlns="http://www.w3.org/2000/svg"
+              :class="{ 'rotate': showAllCases }"
+            >
+              <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
         </div>
       </div>
     </div>
@@ -668,6 +688,44 @@ const handleHeadlineHover = (caseId: string) => {
 
 const handleHeadlineLeave = () => {
   hoveredCaseId.value = null
+}
+
+// Real Results Carousel State
+const currentCaseIndex = ref(0)
+const showAllCases = ref(false)
+
+const totalCases = computed(() => {
+  return homeContent.value?.realResultsCases?.length || 0
+})
+
+const visibleCases = computed(() => {
+  if (!homeContent.value?.realResultsCases || homeContent.value.realResultsCases.length === 0) return []
+  if (showAllCases.value) return homeContent.value.realResultsCases
+  const currentCase = homeContent.value.realResultsCases[currentCaseIndex.value]
+  return currentCase ? [currentCase] : []
+})
+
+const prevCase = () => {
+  if (currentCaseIndex.value > 0) {
+    currentCaseIndex.value--
+  } else {
+    currentCaseIndex.value = totalCases.value - 1
+  }
+}
+
+const nextCase = () => {
+  if (currentCaseIndex.value < totalCases.value - 1) {
+    currentCaseIndex.value++
+  } else {
+    currentCaseIndex.value = 0
+  }
+}
+
+const toggleShowAllCases = () => {
+  showAllCases.value = !showAllCases.value
+  if (!showAllCases.value) {
+    currentCaseIndex.value = 0
+  }
 }
 
 const navigateToAbout = () => {
@@ -2908,7 +2966,7 @@ const setupScrollAnimations = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 3rem;
+  gap: 2rem;
 }
 
 .real-results-header {
@@ -2934,35 +2992,144 @@ const setupScrollAnimations = () => {
   margin: 0;
 }
 
+/* Carousel Container */
+.real-results-carousel {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 1.5rem;
+  position: relative;
+}
+
+/* Carousel Navigation Buttons */
+.carousel-nav-btn {
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(91, 32, 150, 0.3);
+  border: 1px solid rgba(91, 32, 150, 0.5);
+  color: #F5F7FA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.carousel-nav-btn:hover {
+  background: rgba(91, 32, 150, 0.6);
+  border-color: rgba(91, 32, 150, 0.8);
+  transform: scale(1.1);
+}
+
+.carousel-nav-btn:active {
+  transform: scale(0.95);
+}
+
+.carousel-nav-btn svg {
+  width: 24px;
+  height: 24px;
+}
+
+/* Carousel Indicators */
+.carousel-indicators {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  margin-top: 1rem;
+}
+
+.carousel-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: rgba(91, 32, 150, 0.3);
+  border: 1px solid rgba(91, 32, 150, 0.5);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  padding: 0;
+}
+
+.carousel-indicator:hover {
+  background: rgba(91, 32, 150, 0.5);
+}
+
+.carousel-indicator.active {
+  background: #5B2096;
+  border-color: #8B5CF6;
+  transform: scale(1.2);
+}
+
+/* Show More Container */
+.show-more-container {
+  display: flex;
+  justify-content: center;
+  margin-top: 1.5rem;
+}
+
+.show-more-btn {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 24px;
+  background: transparent;
+  border: 1px solid rgba(91, 32, 150, 0.5);
+  border-radius: 30px;
+  color: #F5F7FA;
+  font-family: 'Roboto', sans-serif;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.show-more-btn:hover {
+  background: rgba(91, 32, 150, 0.2);
+  border-color: rgba(91, 32, 150, 0.8);
+}
+
+.show-more-btn svg {
+  transition: transform 0.3s ease;
+}
+
+.show-more-btn svg.rotate {
+  transform: rotate(180deg);
+}
+
 /* Real Results Cases Container */
 .real-results-cases {
   width: 100%;
+  max-width: 900px;
   display: flex;
   flex-direction: column;
-  gap: 4rem;
-  margin-top: 3rem;
+  gap: 2rem;
+}
+
+.real-results-cases.show-all {
+  max-width: 1200px;
 }
 
 .real-results-case-container {
   position: relative;
   width: 100%;
-  max-width: 1300px;
   margin: 0 auto;
-  padding: 4rem 4rem;
-  background: rgba(91, 32, 150, 0.15);
+  padding: 3rem 3rem 2.5rem;
+  background: #14141B;
   border: 1px solid rgba(91, 32, 150, 0.4);
-  border-radius: 16px;
+  border-radius: 20px;
   overflow: hidden;
-  cursor: pointer;
   transition: all 0.4s ease;
   display: flex;
   flex-direction: column;
+  align-items: center;
 }
 
 .real-results-case-container:hover {
   border-color: rgba(91, 32, 150, 0.7);
-  box-shadow: 0 8px 24px rgba(91, 32, 150, 0.5);
-  background: rgba(91, 32, 150, 0.2);
+  box-shadow: 0 8px 32px rgba(91, 32, 150, 0.3);
 }
 
 /* Company Logo - Top Center */
@@ -2973,12 +3140,12 @@ const setupScrollAnimations = () => {
   justify-content: center;
   align-items: center;
   z-index: 3;
-  margin-bottom: 3rem;
+  margin-bottom: 2rem;
 }
 
 .company-logo-img {
-  max-width: 200px;
-  max-height: 120px;
+  max-width: 120px;
+  max-height: 80px;
   width: auto;
   height: auto;
   object-fit: contain;
@@ -2990,100 +3157,23 @@ const setupScrollAnimations = () => {
   z-index: 2;
   width: 100%;
   text-align: center;
-  margin-bottom: 4rem;
-  transition: opacity 0.4s ease, visibility 0.4s ease;
-}
-
-.real-results-case-container:hover .real-results-headline-wrapper {
-  opacity: 0;
-  visibility: hidden;
+  margin-bottom: 2.5rem;
 }
 
 .real-results-headline {
-  color: #5B2096; /* Fallback color for browsers that don't support background-clip */
+  color: #5B2096;
   background: linear-gradient(135deg, #5B2096 0%, #8B5CF6 50%, #A78BFA 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
   font-family: 'Roboto', sans-serif;
-  font-size: 64px;
+  font-size: 42px;
   font-weight: 700;
   text-align: center;
   line-height: 1.2;
   margin: 0;
-  display: inline-block; /* Required for background-clip to work properly */
-}
-
-/* Company Images on Hover - Overlay entire container */
-.headline-hover-images,
-.headline-hover-placeholder {
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  opacity: 0;
-  visibility: hidden;
-  transition: opacity 0.4s ease, visibility 0.4s ease;
-  z-index: 10;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: rgba(20, 20, 27, 0.98);
-  border-radius: 16px;
-  padding: 4rem;
-  overflow-y: auto;
-  overflow-x: hidden;
-}
-
-.headline-hover-images.show,
-.headline-hover-placeholder.show {
-  opacity: 1;
-  visibility: visible;
-}
-
-.company-images-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-  gap: 1.5rem;
-  width: 100%;
-  max-width: 1000px;
-  align-content: start;
-}
-
-.company-image-item {
-  border-radius: 8px;
-  overflow: hidden;
-  background: rgba(91, 32, 150, 0.1);
-  border: 1px solid rgba(91, 32, 150, 0.2);
-  transition: transform 0.2s ease;
-}
-
-.company-image-item:hover {
-  transform: scale(1.02);
-  border-color: rgba(91, 32, 150, 0.5);
-}
-
-.company-img {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
-  display: block;
-}
-
-.headline-hover-placeholder {
-  flex-direction: column;
-  gap: 1rem;
-  color: rgba(245, 247, 250, 0.5);
-}
-
-.headline-hover-placeholder svg {
-  color: rgba(91, 32, 150, 0.5);
-}
-
-.headline-hover-placeholder p {
-  margin: 0;
-  font-size: 14px;
+  display: inline-block;
+  text-transform: uppercase;
 }
 
 /* Small Cards - Inside Container */
@@ -3092,24 +3182,12 @@ const setupScrollAnimations = () => {
   z-index: 2;
   display: grid;
   grid-template-columns: 1fr;
-  gap: 1.5rem;
+  gap: 1rem;
   width: 100%;
-  margin-bottom: 3rem;
-  transition: opacity 0.4s ease, visibility 0.4s ease;
-}
-
-.real-results-case-container:hover .real-results-cards {
-  opacity: 0;
-  visibility: hidden;
+  margin-bottom: 2rem;
 }
 
 @media (min-width: 768px) {
-  .real-results-cards {
-    grid-template-columns: repeat(2, 1fr);
-  }
-}
-
-@media (min-width: 1024px) {
   .real-results-cards {
     grid-template-columns: repeat(3, 1fr);
     gap: 1.5rem;
@@ -3117,8 +3195,8 @@ const setupScrollAnimations = () => {
 }
 
 .real-results-card {
-  background: rgba(91, 32, 150, 0.15);
-  border: 1px solid rgba(91, 32, 150, 0.4);
+  background: rgba(20, 20, 27, 0.8);
+  border: 1px solid rgba(91, 32, 150, 0.5);
   border-radius: 12px;
   padding: 2rem 1.5rem;
   min-height: 240px;
@@ -3184,12 +3262,6 @@ const setupScrollAnimations = () => {
   justify-content: center;
   align-items: center;
   margin-top: 0;
-  transition: opacity 0.4s ease, visibility 0.4s ease;
-}
-
-.real-results-case-container:hover .real-results-cta {
-  opacity: 0;
-  visibility: hidden;
 }
 
 .cta-link {
@@ -3198,15 +3270,21 @@ const setupScrollAnimations = () => {
   gap: 0.75rem;
   color: #F5F7FA;
   font-family: 'Roboto', sans-serif;
-  font-size: 18px;
+  font-size: 16px;
   font-weight: 500;
   text-decoration: none;
   transition: all 0.2s;
+  padding: 12px 24px;
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 30px;
+  background: transparent;
 }
 
 .cta-link:hover {
   color: #5B2096;
   gap: 1rem;
+  background: rgba(91, 32, 150, 0.1);
+  border-color: rgba(91, 32, 150, 0.5);
 }
 
 .cta-link svg {
@@ -3232,35 +3310,53 @@ const setupScrollAnimations = () => {
   }
 
   .real-results-headline {
-    font-size: 42px;
+    font-size: 28px;
+  }
+
+  .real-results-carousel {
+    gap: 0.5rem;
+  }
+
+  .carousel-nav-btn {
+    width: 40px;
+    height: 40px;
+  }
+
+  .carousel-nav-btn svg {
+    width: 20px;
+    height: 20px;
   }
 
   .real-results-case-container {
-    padding: 3rem 2rem;
+    padding: 2rem 1.5rem;
   }
 
   .real-results-company-logo {
-    margin-bottom: 2rem;
+    margin-bottom: 1.5rem;
   }
 
   .real-results-headline-wrapper {
-    margin-bottom: 3rem;
+    margin-bottom: 2rem;
   }
 
   .real-results-cards {
     grid-template-columns: 1fr;
-    gap: 1.5rem;
-    margin-bottom: 2rem;
-  }
-
-  .company-images-grid {
-    grid-template-columns: 1fr;
     gap: 1rem;
+    margin-bottom: 1.5rem;
   }
 
-  .headline-hover-images,
-  .headline-hover-placeholder {
-    padding: 2rem;
+  .real-results-card {
+    padding: 1.5rem 1rem;
+    min-height: 160px;
+  }
+
+  .card-metric {
+    font-size: 32px;
+  }
+
+  .show-more-btn {
+    font-size: 14px;
+    padding: 10px 20px;
   }
 }
 
@@ -3270,34 +3366,65 @@ const setupScrollAnimations = () => {
   }
 
   .real-results-title {
-    font-size: 28px;
+    font-size: 24px;
   }
 
   .real-results-headline {
-    font-size: 32px;
+    font-size: 22px;
+  }
+
+  .real-results-carousel {
+    gap: 0.25rem;
+  }
+
+  .carousel-nav-btn {
+    width: 36px;
+    height: 36px;
+  }
+
+  .carousel-nav-btn svg {
+    width: 18px;
+    height: 18px;
   }
 
   .real-results-case-container {
-    padding: 2rem 1.5rem;
+    padding: 1.5rem 1rem;
   }
 
   .real-results-card {
-    padding: 1.5rem 1rem;
-    min-height: 200px;
+    padding: 1.25rem 1rem;
+    min-height: 140px;
+  }
+
+  .card-title {
+    font-size: 12px;
   }
 
   .card-metric {
-    font-size: 32px;
+    font-size: 28px;
+  }
+
+  .card-subtitle {
+    font-size: 11px;
   }
 
   .company-logo-img {
-    max-width: 150px;
-    max-height: 90px;
+    max-width: 100px;
+    max-height: 60px;
   }
 
-  .headline-hover-images,
-  .headline-hover-placeholder {
-    padding: 1.5rem;
+  .cta-link {
+    font-size: 14px;
+    padding: 10px 18px;
+  }
+
+  .carousel-indicators {
+    gap: 8px;
+  }
+
+  .carousel-indicator {
+    width: 10px;
+    height: 10px;
   }
 }
 
