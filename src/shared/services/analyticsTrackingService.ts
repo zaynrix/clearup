@@ -6,7 +6,7 @@ import { analyticsController } from '@/features/analytics/controllers/AnalyticsC
  */
 export class AnalyticsTrackingService {
   private sessionId: string
-  private countryCache: { country?: string; countryName?: string } | null = null
+  private countryCache: { code?: string; name?: string; country?: string; countryName?: string } | null = null
 
   constructor() {
     // Generate or retrieve session ID
@@ -64,7 +64,13 @@ export class AnalyticsTrackingService {
       }
 
       if (timezoneToCountry[timezone]) {
-        this.countryCache = timezoneToCountry[timezone]
+        const country = timezoneToCountry[timezone]
+        this.countryCache = {
+          code: country.code,
+          name: country.name,
+          country: country.code,
+          countryName: country.name
+        }
         return
       }
 
@@ -94,7 +100,9 @@ export class AnalyticsTrackingService {
 
         this.countryCache = {
           code: countryCode,
-          name: countryNames[countryCode] || countryCode
+          name: countryNames[countryCode] || countryCode,
+          country: countryCode,
+          countryName: countryNames[countryCode] || countryCode
         }
       }
     } catch (error) {
@@ -165,8 +173,8 @@ export class AnalyticsTrackingService {
       await analyticsController.trackVisit({
         sessionId: this.sessionId,
         page,
-        country: this.countryCache?.code,
-        countryName: this.countryCache?.name,
+        country: this.countryCache?.country || this.countryCache?.code,
+        countryName: this.countryCache?.countryName || this.countryCache?.name,
         userAgent: navigator.userAgent,
         referrer: document.referrer || undefined,
         deviceType: this.detectDeviceType(),

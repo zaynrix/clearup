@@ -21,7 +21,7 @@ export class MaintenanceRequestRepository extends BaseRepository<MaintenanceRequ
         firestoreService.orderBy('createdAt', 'desc'),
         firestoreService.limitTo(1)
       )
-      return requests.length > 0 ? requests[0] : null
+      return requests.length > 0 ? (requests[0] ?? null) : null
     } catch (error) {
       // If index doesn't exist, fetch all and filter/sort in memory
       if (import.meta.env.DEV) {
@@ -35,7 +35,7 @@ export class MaintenanceRequestRepository extends BaseRepository<MaintenanceRequ
           const bTime = b.createdAt ? (b.createdAt instanceof Date ? b.createdAt.getTime() : new Date(b.createdAt).getTime()) : 0
           return bTime - aTime
         })
-      return activeRequests.length > 0 ? activeRequests[0] : null
+      return activeRequests.length > 0 ? (activeRequests[0] ?? null) : null
     }
   }
 
