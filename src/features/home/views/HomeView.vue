@@ -3102,19 +3102,22 @@ const setupScrollAnimations = () => {
 /* Real Results Cases Container */
 .real-results-cases {
   width: 100%;
-  max-width: 900px;
+  max-width: 1304px;
   display: flex;
   flex-direction: column;
   gap: 2rem;
 }
 
 .real-results-cases.show-all {
-  max-width: 1200px;
+  max-width: 1304px;
 }
 
 .real-results-case-container {
   position: relative;
   width: 100%;
+  max-width: 1304px;
+  min-height: 600px;
+  height: auto;
   margin: 0 auto;
   padding: 3rem 3rem 2.5rem;
   background: #14141B;
@@ -3125,6 +3128,7 @@ const setupScrollAnimations = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  justify-content: center;
 }
 
 .real-results-case-container:hover {
