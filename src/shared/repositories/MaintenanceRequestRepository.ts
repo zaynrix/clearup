@@ -24,7 +24,9 @@ export class MaintenanceRequestRepository extends BaseRepository<MaintenanceRequ
       return requests.length > 0 ? requests[0] : null
     } catch (error) {
       // If index doesn't exist, fetch all and filter/sort in memory
-      console.warn('Index not found, fetching all and filtering in memory:', error)
+      if (import.meta.env.DEV) {
+        console.warn('Index not found, fetching all and filtering in memory:', error)
+      }
       const allRequests = await this.findAll()
       const activeRequests = allRequests
         .filter(req => req.status === 'active')
@@ -48,7 +50,9 @@ export class MaintenanceRequestRepository extends BaseRepository<MaintenanceRequ
       )
     } catch (error) {
       // If index doesn't exist, fetch all and filter/sort in memory
-      console.warn('Index not found, fetching all and filtering in memory:', error)
+      if (import.meta.env.DEV) {
+        console.warn('Index not found, fetching all and filtering in memory:', error)
+      }
       const allRequests = await this.findAll()
       return allRequests
         .filter(req => req.status === 'pending')
@@ -70,7 +74,9 @@ export class MaintenanceRequestRepository extends BaseRepository<MaintenanceRequ
         firestoreService.limitTo(limit)
       )
     } catch (error) {
-      console.warn('Failed to order maintenance requests, fetching without order:', error)
+      if (import.meta.env.DEV) {
+        console.warn('Failed to order maintenance requests, fetching without order:', error)
+      }
       const allRequests = await this.findAll()
       return allRequests
         .sort((a, b) => {

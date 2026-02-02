@@ -2,6 +2,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { authService } from '@/features/auth/services/AuthService'
 import { userService } from '@/features/auth/services/UserService'
 import { maintenanceService } from '@/features/admin/services/MaintenanceService'
+import { analyticsTrackingService } from '@/shared/services/analyticsTrackingService'
 import { auth } from '@/shared/services/config'
 import { authRoutes } from '@/features/auth/routes'
 import { homeRoutes } from '@/features/home/routes'
@@ -148,6 +149,7 @@ router.beforeEach(async (to, from, next) => {
 })
 
 // Reset scroll position after navigation (backup in case scrollBehavior doesn't work)
+// Also track page visits for analytics
 router.afterEach((to, from) => {
   // Only reset scroll if navigating to a different route and not using hash
   if (to.path !== from.path && !to.hash) {
@@ -155,6 +157,13 @@ router.afterEach((to, from) => {
     setTimeout(() => {
       window.scrollTo(0, 0)
     }, 0)
+  }
+
+  // Track page visit for analytics (skip admin dashboard to avoid tracking admin activity)
+  if (to.path && !to.path.startsWith('/admin-dashboard')) {
+    analyticsTrackingService.trackPageVisit(to.path).catch(error => {
+      console.error('Failed to track page visit:', error)
+    })
   }
 })
 

@@ -4224,8 +4224,149 @@
             </div>
           </div>
 
+          <!-- Analytics Section -->
+          <div v-if="activeTab === 'analytics' && canAccessTab('analytics')" class="editor-section">
+            <div class="section-header">
+              <div class="section-title-group">
+                <div class="section-icon">📊</div>
+                <div>
+                  <h3>Website Analytics</h3>
+                  <p class="section-description">View visitor statistics, countries, and traffic trends</p>
+                </div>
+              </div>
+              <button @click="loadAnalytics" :disabled="loadingAnalytics" class="btn-secondary btn-small">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M23 20V14H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M20.49 9C19.95 5.95 17.42 3.42 14.37 2.88M3.51 15C4.05 18.05 6.58 20.58 9.63 21.12M14.37 2.88C13.69 2.95 13.02 3.11 12.37 3.37M9.63 21.12C10.31 21.05 10.98 20.89 11.63 20.63M14.37 2.88L17.37 5.88M9.63 21.12L6.63 18.12M17.37 5.88L20.37 2.88M6.63 18.12L3.63 21.12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Refresh
+              </button>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="analytics-stats-grid">
+              <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                  <div class="stat-label">Total Visits</div>
+                  <div class="stat-value">{{ analyticsStats.totalVisits.toLocaleString() }}</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">🆔</div>
+                <div class="stat-content">
+                  <div class="stat-label">Unique Visitors</div>
+                  <div class="stat-value">{{ analyticsStats.uniqueVisitors.toLocaleString() }}</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-content">
+                  <div class="stat-label">Today</div>
+                  <div class="stat-value">{{ analyticsStats.todayVisits.toLocaleString() }}</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">📆</div>
+                <div class="stat-content">
+                  <div class="stat-label">This Month</div>
+                  <div class="stat-value">{{ analyticsStats.thisMonthVisits.toLocaleString() }}</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">🗓️</div>
+                <div class="stat-content">
+                  <div class="stat-label">This Year</div>
+                  <div class="stat-value">{{ analyticsStats.thisYearVisits.toLocaleString() }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Time Period Selector -->
+            <div class="analytics-period-selector">
+              <button 
+                v-for="period in analyticsPeriods" 
+                :key="period.value"
+                @click="selectedAnalyticsPeriod = period.value"
+                :class="['period-btn', { active: selectedAnalyticsPeriod === period.value }]"
+              >
+                {{ period.label }}
+              </button>
+            </div>
+
+            <!-- Charts -->
+            <div class="analytics-charts-grid">
+              <!-- Daily/Monthly/Yearly Chart -->
+              <div class="chart-card">
+                <h4 class="chart-title">
+                  {{ selectedAnalyticsPeriod === 'daily' ? 'Daily' : selectedAnalyticsPeriod === 'monthly' ? 'Monthly' : 'Yearly' }} Visits
+                </h4>
+                <div class="chart-wrapper">
+                  <AnalyticsChart
+                    :type="selectedAnalyticsPeriod === 'yearly' ? 'bar' : 'line'"
+                    :data="timeSeriesChartData"
+                    :options="{
+                      plugins: {
+                        legend: { display: false }
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          ticks: {
+                            precision: 0
+                          }
+                        }
+                      }
+                    }"
+                  />
+                </div>
+              </div>
+
+              <!-- Country Chart -->
+              <div class="chart-card">
+                <h4 class="chart-title">Visits by Country</h4>
+                <div class="chart-wrapper">
+                  <AnalyticsChart
+                    type="doughnut"
+                    :data="countryChartData"
+                    :options="{
+                      plugins: {
+                        legend: {
+                          position: 'right'
+                        }
+                      }
+                    }"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Country List -->
+            <div class="analytics-country-list">
+              <h4 class="section-subtitle">Top Countries</h4>
+              <div class="country-list">
+                <div 
+                  v-for="(country, index) in topCountries" 
+                  :key="country.country"
+                  class="country-item"
+                >
+                  <div class="country-rank">{{ index + 1 }}</div>
+                  <div class="country-name">{{ country.country }}</div>
+                  <div class="country-count">{{ country.count.toLocaleString() }} visits</div>
+                  <div class="country-bar">
+                    <div 
+                      class="country-bar-fill" 
+                      :style="{ width: `${(country.count / (topCountries[0]?.count || 1)) * 100}%` }"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Fixed Action Bar -->
-          <div class="action-bar" v-if="!['users', 'roles', 'site-settings', 'activity-logs'].includes(activeTab)">
+          <div class="action-bar" v-if="!['users', 'roles', 'site-settings', 'activity-logs', 'analytics'].includes(activeTab)">
             <div class="action-bar-content">
               <div class="action-info">
                 <div v-if="saveMessage" :class="['status-message', saveMessageType]">
@@ -4416,6 +4557,8 @@ import type { ContactMessage, ContactContent, ContactInfo } from '@/features/con
 import { bookingController } from '@/features/booking/controllers/BookingController'
 import type { Booking, BookingData } from '@/features/booking/models/Booking'
 import { availabilityService } from '@/features/booking/services/AvailabilityService'
+import { analyticsController } from '@/features/analytics/controllers/AnalyticsController'
+import AnalyticsChart from '@/shared/components/AnalyticsChart.vue'
 import type { SiteSettings } from '../models/SiteSettings'
 import type { HomeContent } from '@/features/home/models/HomeContent'
 import type { AboutContent, TeamMember, FAQ, StatCard } from '@/features/about/models/AboutContent'
@@ -4467,6 +4610,7 @@ const baseTabs = [
   { id: 'contact-settings', label: 'Contact Settings' }
 ]
 const adminTabs = [
+  { id: 'analytics', label: 'Analytics' },
   { id: 'users', label: 'User Management' },
   { id: 'roles', label: 'Role Management' },
   { id: 'bookings', label: 'Bookings' },
@@ -4495,6 +4639,7 @@ const tabPermissionMap: Record<string, string> = {
   'contact-settings': 'edit_contact_settings',
   'users': 'manage_users',
   'roles': 'manage_roles',
+  'analytics': 'view_analytics',
   'bookings': 'manage_bookings',
   'site-settings': 'manage_site_settings',
   'maintenance': 'manage_maintenance',
@@ -4588,6 +4733,113 @@ const showTurnOffModal = ref(false)
 const showTurnOnModal = ref(false)
 const showRejectModal = ref(false)
 const rejectRequest = ref<MaintenanceRequest | null>(null)
+
+// Analytics state
+const loadingAnalytics = ref(false)
+const analyticsStats = ref({
+  totalVisits: 0,
+  uniqueVisitors: 0,
+  todayVisits: 0,
+  thisMonthVisits: 0,
+  thisYearVisits: 0
+})
+const selectedAnalyticsPeriod = ref<'daily' | 'monthly' | 'yearly'>('daily')
+const analyticsPeriods = [
+  { value: 'daily', label: 'Last 30 Days' },
+  { value: 'monthly', label: 'This Year' },
+  { value: 'yearly', label: 'All Time' }
+]
+const dailyStats = ref<{ date: string; count: number }[]>([])
+const monthlyStats = ref<{ month: string; count: number }[]>([])
+const yearlyStats = ref<{ year: string; count: number }[]>([])
+const countryStats = ref<{ country: string; count: number }[]>([])
+
+const timeSeriesChartData = computed(() => {
+  let labels: string[] = []
+  let data: number[] = []
+
+  if (selectedAnalyticsPeriod.value === 'daily') {
+    labels = dailyStats.value.map(s => {
+      const date = new Date(s.date)
+      return `${date.getMonth() + 1}/${date.getDate()}`
+    })
+    data = dailyStats.value.map(s => s.count)
+  } else if (selectedAnalyticsPeriod.value === 'monthly') {
+    labels = monthlyStats.value.map(s => {
+      const [year, month] = s.month.split('-')
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      return monthNames[parseInt(month) - 1]
+    })
+    data = monthlyStats.value.map(s => s.count)
+  } else {
+    labels = yearlyStats.value.map(s => s.year)
+    data = yearlyStats.value.map(s => s.count)
+  }
+
+  return {
+    labels,
+    datasets: [{
+      label: 'Visits',
+      data,
+      backgroundColor: 'rgba(91, 32, 150, 0.1)',
+      borderColor: 'rgba(91, 32, 150, 1)',
+      borderWidth: 2,
+      tension: 0.4,
+      fill: true
+    }]
+  }
+})
+
+const countryChartData = computed(() => {
+  const top10 = countryStats.value.slice(0, 10)
+  const colors = [
+    'rgba(91, 32, 150, 0.8)',
+    'rgba(138, 43, 226, 0.8)',
+    'rgba(186, 85, 211, 0.8)',
+    'rgba(221, 160, 221, 0.8)',
+    'rgba(230, 230, 250, 0.8)',
+    'rgba(147, 112, 219, 0.8)',
+    'rgba(123, 104, 238, 0.8)',
+    'rgba(106, 90, 205, 0.8)',
+    'rgba(72, 61, 139, 0.8)',
+    'rgba(75, 0, 130, 0.8)'
+  ]
+
+  return {
+    labels: top10.map(c => c.country),
+    datasets: [{
+      label: 'Visits',
+      data: top10.map(c => c.count),
+      backgroundColor: colors.slice(0, top10.length),
+      borderWidth: 2,
+      borderColor: '#fff'
+    }]
+  }
+})
+
+const topCountries = computed(() => countryStats.value.slice(0, 10))
+
+const loadAnalytics = async () => {
+  loadingAnalytics.value = true
+  try {
+    // Load statistics
+    const stats = await analyticsController.getStatistics()
+    analyticsStats.value = stats
+
+    // Load time series data
+    dailyStats.value = await analyticsController.getDailyStatistics(30)
+    monthlyStats.value = await analyticsController.getMonthlyStatistics()
+    yearlyStats.value = await analyticsController.getYearlyStatistics()
+
+    // Load country statistics
+    countryStats.value = await analyticsController.getCountryStatistics()
+  } catch (error) {
+    console.error('Failed to load analytics:', error)
+    errorMessage.value = 'Failed to load analytics data'
+  } finally {
+    loadingAnalytics.value = false
+  }
+}
 const maintenanceForm = ref({
   message: '',
   estimatedEndTime: ''
@@ -5406,6 +5658,7 @@ const getTabIcon = (tabId: string): string => {
     'services-page': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'footer': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     'legal-pages': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 18V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 15L12 12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    'analytics': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 16L12 11L16 15L21 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 10V3H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'email-submissions': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'contact-messages': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'contact-settings': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 16.92V19.92C22.0011 20.1985 21.9441 20.4742 21.8325 20.7293C21.7209 20.9845 21.5573 21.2136 21.3521 21.4019C21.1468 21.5901 20.9046 21.7335 20.6407 21.8227C20.3769 21.9119 20.0974 21.9451 19.82 21.92C16.7428 21.5856 13.787 20.5341 11.19 18.85C8.77382 17.3147 6.72533 15.2662 5.18999 12.85C3.49997 10.2412 2.44824 7.27099 2.11999 4.18C2.09501 3.90347 2.12787 3.62476 2.21649 3.36162C2.30512 3.09849 2.44756 2.85669 2.63476 2.65162C2.82196 2.44655 3.0498 2.28271 3.30379 2.17052C3.55777 2.05833 3.83233 2.00026 4.10999 2H7.10999C7.5953 1.99522 8.06579 2.16708 8.43376 2.48353C8.80173 2.79999 9.04207 3.23945 9.10999 3.72C9.23662 4.68007 9.47144 5.62273 9.80999 6.53C9.94454 6.88792 9.97366 7.27691 9.8939 7.65088C9.81415 8.02485 9.62886 8.36811 9.35999 8.64L8.08999 9.91C9.51355 12.4135 11.5765 14.4765 14.08 15.9L15.35 14.63C15.6219 14.3611 15.9651 14.1758 16.3391 14.0961C16.7131 14.0163 17.1021 14.0454 17.46 14.18C18.3673 14.5185 19.3099 14.7534 20.27 14.88C20.7558 14.9485 21.1996 15.1907 21.5177 15.5627C21.8359 15.9347 22.0058 16.4108 22 16.9V16.92Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -8203,6 +8456,9 @@ const refreshActivityLogs = async () => {
 
 // Watch for tab changes to refresh activity logs when viewing them
 watch(activeTab, (newTab) => {
+  if (newTab === 'analytics' && isAdmin.value) {
+    loadAnalytics()
+  }
   if (newTab === 'bookings' && isAdmin.value) {
     loadBookings()
     initAvailabilityCalendar()
@@ -13039,6 +13295,213 @@ onMounted(() => {
   
   .calendar-header-controls h4 {
     font-size: 0.9rem;
+  }
+}
+
+/* Analytics Styles */
+.analytics-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.analytics-stats-grid .stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.analytics-stats-grid .stat-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.analytics-stats-grid .stat-content {
+  flex: 1;
+}
+
+.analytics-stats-grid .stat-label {
+  font-size: 0.875rem;
+  color: rgba(245, 247, 250, 0.7);
+  margin-bottom: 0.5rem;
+}
+
+.analytics-stats-grid .stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #5B2096;
+  line-height: 1.2;
+}
+
+.analytics-period-selector {
+  display: flex;
+  gap: 0.75rem;
+  margin: 2rem 0;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.period-btn {
+  padding: 0.75rem 1.5rem;
+  background: rgba(91, 32, 150, 0.1);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 8px;
+  color: rgba(245, 247, 250, 0.8);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.period-btn:hover {
+  background: rgba(91, 32, 150, 0.15);
+  border-color: rgba(91, 32, 150, 0.3);
+}
+
+.period-btn.active {
+  background: rgba(91, 32, 150, 0.2);
+  border-color: #5B2096;
+  color: #F5F7FA;
+}
+
+.analytics-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.chart-card {
+  background: rgba(245, 247, 250, 0.03);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.chart-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #F5F7FA;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.chart-wrapper {
+  min-height: 300px;
+}
+
+.analytics-country-list {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.section-subtitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #F5F7FA;
+  margin-bottom: 1.5rem;
+}
+
+.country-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.country-item {
+  display: grid;
+  grid-template-columns: 40px 1fr auto 200px;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(245, 247, 250, 0.03);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.country-item:hover {
+  border-color: rgba(91, 32, 150, 0.4);
+  background: rgba(245, 247, 250, 0.05);
+}
+
+.country-rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(91, 32, 150, 0.2);
+  border-radius: 50%;
+  font-weight: 700;
+  color: #5B2096;
+  font-size: 0.875rem;
+}
+
+.country-name {
+  font-weight: 500;
+  color: #F5F7FA;
+}
+
+.country-count {
+  font-size: 0.875rem;
+  color: rgba(245, 247, 250, 0.7);
+  text-align: right;
+}
+
+.country-bar {
+  height: 8px;
+  background: rgba(91, 32, 150, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.country-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #5B2096, #8A2BE2);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .analytics-stats-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .analytics-charts-grid {
+    grid-template-columns: 1fr;
+  }
+  
+  .country-item {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+  
+  .country-rank {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+  
+  .country-count {
+    text-align: left;
+  }
+  
+  .country-bar {
+    grid-column: 1 / -1;
+  }
+  
+  .analytics-period-selector {
+    flex-wrap: wrap;
+  }
+  
+  .period-btn {
+    flex: 1;
+    min-width: 100px;
   }
   
   .selected-date-bookings {
