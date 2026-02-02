@@ -426,6 +426,8 @@
               :key="resultCase.id || caseIndex"
               class="real-results-case-container"
               :data-card-id="`result-case-${caseIndex}`"
+              @mouseenter="handleHeadlineHover(resultCase.id)"
+              @mouseleave="handleHeadlineLeave"
             >
               <!-- Company Logo - Top Center -->
               <div v-if="resultCase.companyLogo || resultCase.companyLogoFileUrl" class="real-results-company-logo">
@@ -465,6 +467,41 @@
                     <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   </svg>
                 </a>
+              </div>
+
+              <!-- Company Images on Hover -->
+              <div 
+                v-if="resultCase.companyImages && resultCase.companyImages.length > 0" 
+                class="hover-images-overlay"
+                :class="{ 'show': hoveredCaseId === resultCase.id }"
+              >
+                <div class="company-images-grid">
+                  <div 
+                    v-for="(img, imgIndex) in resultCase.companyImages" 
+                    :key="img.id || imgIndex"
+                    class="company-image-item"
+                  >
+                    <img 
+                      v-if="img.imageFileUrl || img.imageUrl"
+                      :src="img.imageFileUrl || img.imageUrl" 
+                      :alt="`Company Image ${imgIndex + 1}`"
+                      class="company-img"
+                    />
+                  </div>
+                </div>
+              </div>
+              <!-- Placeholder when no images -->
+              <div 
+                v-else
+                class="hover-images-overlay hover-placeholder"
+                :class="{ 'show': hoveredCaseId === resultCase.id }"
+              >
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M21 19V5C21 4.46957 20.7893 3.96086 20.4142 3.58579C20.0391 3.21071 19.5304 3 19 3H5C4.46957 3 3.96086 3.21071 3.58579 3.58579C3.21071 3.96086 3 4.46957 3 5V19C3 19.5304 3.21071 20.0391 3.58579 20.4142C3.96086 20.7893 4.46957 21 5 21H19C19.5304 21 20.0391 20.7893 20.4142 20.4142C20.7893 20.0391 21 19.5304 21 19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M8.5 10C9.32843 10 10 9.32843 10 8.5C10 7.67157 9.32843 7 8.5 7C7.67157 7 7 7.67157 7 8.5C7 9.32843 7.67157 10 8.5 10Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M21 15L16 10L5 21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <p>No images available</p>
               </div>
             </div>
           </div>
@@ -3136,6 +3173,86 @@ const setupScrollAnimations = () => {
   box-shadow: 0 8px 32px rgba(91, 32, 150, 0.3);
 }
 
+/* Hide content on hover */
+.real-results-case-container:hover .real-results-company-logo,
+.real-results-case-container:hover .real-results-headline-wrapper,
+.real-results-case-container:hover .real-results-cards,
+.real-results-case-container:hover .real-results-cta {
+  opacity: 0;
+  visibility: hidden;
+}
+
+/* Hover Images Overlay */
+.hover-images-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  opacity: 0;
+  visibility: hidden;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(20, 20, 27, 0.98);
+  border-radius: 20px;
+  padding: 2rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+}
+
+.hover-images-overlay.show {
+  opacity: 1;
+  visibility: visible;
+}
+
+.hover-placeholder {
+  flex-direction: column;
+  gap: 1rem;
+  color: rgba(245, 247, 250, 0.5);
+}
+
+.hover-placeholder svg {
+  color: rgba(91, 32, 150, 0.5);
+}
+
+.hover-placeholder p {
+  margin: 0;
+  font-size: 16px;
+  font-family: 'Roboto', sans-serif;
+}
+
+.company-images-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+  width: 100%;
+  max-width: 1200px;
+  align-content: center;
+}
+
+.company-image-item {
+  border-radius: 12px;
+  overflow: hidden;
+  background: rgba(91, 32, 150, 0.1);
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  transition: transform 0.3s ease, border-color 0.3s ease;
+}
+
+.company-image-item:hover {
+  transform: scale(1.02);
+  border-color: rgba(91, 32, 150, 0.6);
+}
+
+.company-img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+  display: block;
+}
+
 /* Company Logo - Top Center */
 .real-results-company-logo {
   position: relative;
@@ -3145,6 +3262,7 @@ const setupScrollAnimations = () => {
   align-items: center;
   z-index: 3;
   margin-bottom: 2rem;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
 }
 
 .company-logo-img {
@@ -3162,6 +3280,7 @@ const setupScrollAnimations = () => {
   width: 100%;
   text-align: center;
   margin-bottom: 2.5rem;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
 }
 
 .real-results-headline {
@@ -3189,6 +3308,7 @@ const setupScrollAnimations = () => {
   gap: 1rem;
   width: 100%;
   margin-bottom: 2rem;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
 }
 
 @media (min-width: 768px) {
@@ -3266,6 +3386,7 @@ const setupScrollAnimations = () => {
   justify-content: center;
   align-items: center;
   margin-top: 0;
+  transition: opacity 0.4s ease, visibility 0.4s ease;
 }
 
 .cta-link {
