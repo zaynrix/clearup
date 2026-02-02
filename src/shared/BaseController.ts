@@ -20,4 +20,11 @@ export abstract class BaseController {
   protected success<T>(data: T): { success: true; data: T } {
     return { success: true, data }
   }
+
+  /**
+   * Create error response
+   */
+  protected error(message: string): { success: false; error: string } {
+    return { success: false, error: message }
+  }
 }

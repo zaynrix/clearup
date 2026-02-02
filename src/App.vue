@@ -12,9 +12,9 @@ const showNavigationBar = computed(() => route.name !== 'admin-dashboard')
 
 // Hidden maintenance toggle functionality
 let logoClickCount = 0
-let logoClickTimeout: NodeJS.Timeout | null = null
+let logoClickTimeout: ReturnType<typeof setTimeout> | null = null
 let keyComboPressed = false
-let keyComboTimeout: NodeJS.Timeout | null = null
+let keyComboTimeout: ReturnType<typeof setTimeout> | null = null
 
 const handleKeyDown = (e: KeyboardEvent) => {
   // Check for Ctrl + Shift + M
