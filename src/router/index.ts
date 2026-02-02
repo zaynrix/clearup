@@ -12,6 +12,7 @@ import { aboutRoutes } from '@/features/about/routes'
 import { servicesRoutes } from '@/features/services/routes'
 import { legalRoutes } from '@/features/legal/routes'
 import { contactRoutes } from '@/features/contact/routes'
+import { worksRoutes } from '@/features/works/routes'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -24,6 +25,7 @@ const router = createRouter({
     ...servicesRoutes,
     ...legalRoutes,
     ...contactRoutes,
+    ...worksRoutes,
     // Google OAuth callback route
     {
       path: '/auth/google/callback',
@@ -57,13 +59,13 @@ const waitForAuth = (): Promise<void> => {
       resolve()
       return
     }
-    
+
     // Wait for auth state to be determined (either user or null)
     const unsubscribe = authService.onAuthStateChange(() => {
       unsubscribe()
       resolve()
     })
-    
+
     // Timeout after 2 seconds to prevent infinite waiting
     setTimeout(() => {
       unsubscribe()
@@ -77,20 +79,20 @@ router.beforeEach(async (to, from, next) => {
   const requiresAuth = to.matched.some(record => record.meta.requiresAuth)
   const requiresAdmin = to.matched.some(record => record.meta.requiresAdmin)
   const requiresGuest = to.matched.some(record => record.meta.requiresGuest)
-  
+
   // Skip maintenance check for maintenance page itself, login page, and secret maintenance toggle route
   const isMaintenanceRoute = to.name === 'maintenance' || to.name === 'secret-maintenance-toggle'
   const isLoginRoute = to.name === 'login'
   const isAdminRoute = to.path.startsWith('/admin-dashboard')
   const isDashboardRoute = to.path.startsWith('/dashboard')
-  
+
   // Wait for auth to be ready (needed to check if user is admin)
   // We need to wait for auth even for public routes to check admin status for maintenance bypass
   await waitForAuth()
-  
+
   const currentUser = authService.getCurrentUser()
   let isAdmin = false
-  
+
   // Check if user is admin (needed for maintenance bypass)
   if (currentUser) {
     try {
