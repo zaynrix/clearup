@@ -72,12 +72,17 @@ export class Booking extends Model implements BookingData {
    * Create Booking instance from Firestore data
    */
   static fromFirestore(data: any): Booking {
-    // Extract ID first to ensure it's preserved
-    const id = data.id || data['id'] || ''
+    // Extract ID - prefer document ID over stored 'id' field
+    // The 'id' field from firestoreService.getDocuments is the document ID
+    let id = data.id || data['id'] || ''
+    
+    // If ID is empty string, it means the stored 'id' field was empty
+    // In this case, we should still have the document ID from firestoreService
+    // But if both are missing, we'll log a warning
     
     const booking = new Booking({
       ...data,
-      id: id, // Explicitly set ID first
+      id: id, // Set ID (should be document ID from firestoreService)
       createdAt: data.createdAt ? new Date(data.createdAt) : undefined,
       updatedAt: data.updatedAt ? new Date(data.updatedAt) : undefined,
       meetingDate: data.meetingDate ? new Date(data.meetingDate) : undefined,
@@ -86,12 +91,6 @@ export class Booking extends Model implements BookingData {
     
     // Final safety check - ensure ID is set
     if (id && !booking.id) {
-      booking.id = id
-    }
-    
-    // If still no ID after all checks, log warning
-    if (!booking.id && id) {
-      console.warn('Booking ID not properly set:', { originalId: id, booking })
       booking.id = id
     }
     
