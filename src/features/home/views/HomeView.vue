@@ -537,17 +537,17 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { HomeViewController } from '../controllers/HomeViewController'
-import { HomeContentViewController } from '../controllers/HomeContentViewController'
 import { siteSettingsController } from '@/features/admin/controllers/SiteSettingsController'
-import { contactContentController } from '@/features/contact/controllers/ContactContentController'
 import type { SiteSettings } from '@/features/admin/models/SiteSettings'
-import type { ContactContent } from '@/features/contact/models/ContactMessage'
-import TestimonialsSection from '@/shared/components/TestimonialsSection.vue'
-import ClearUpSystemSection from '@/shared/components/ClearUpSystemSection.vue'
 import BookingPanel from '@/features/booking/components/BookingPanel.vue'
+import { contactContentController } from '@/features/contact/controllers/ContactContentController'
+import type { ContactContent } from '@/features/contact/models/ContactMessage'
+import ClearUpSystemSection from '@/shared/components/ClearUpSystemSection.vue'
+import TestimonialsSection from '@/shared/components/TestimonialsSection.vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { HomeContentViewController } from '../controllers/HomeContentViewController'
+import { HomeViewController } from '../controllers/HomeViewController'
 
 const router = useRouter()
 const route = useRoute()
