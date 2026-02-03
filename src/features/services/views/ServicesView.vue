@@ -397,7 +397,7 @@ onMounted(async () => {
 .services-view {
   position: relative;
   min-height: calc(100vh - 120px);
-  padding: 60px 20px 40px;
+  padding: 20px 20px 40px;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
@@ -433,11 +433,7 @@ onMounted(async () => {
   right: 0;
   width: 100%;
   height: 100%;
-  background: 
-    radial-gradient(ellipse at 20% 30%, rgba(91, 32, 150, 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 70%, rgba(193, 157, 230, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse at 50% 50%, rgba(67, 24, 111, 0.06) 0%, transparent 80%),
-    linear-gradient(180deg, #0A0A0E 0%, #121218 50%, #0F0F14 100%);
+  background: #0B0B0F;
   z-index: 1;
   pointer-events: none;
   animation: backgroundFadeIn 1.2s ease-out;
@@ -1318,7 +1314,7 @@ onMounted(async () => {
   position: relative;
   width: 100%;
   padding: 0;
-  margin-top: 80px;
+  margin-top: 20px;
   z-index: 3;
   display: flex;
   align-items: center;
@@ -1335,7 +1331,7 @@ onMounted(async () => {
   padding: 80px 60px;
   min-height: 100vh;
   overflow: hidden;
-  background: #14141B;
+  background: #14141B !important;
   box-sizing: border-box;
   isolation: isolate;
   /* Organic curved cutouts at top and bottom - smooth flowing curves */
@@ -3818,7 +3814,7 @@ onMounted(async () => {
   
   .third-section {
     padding: 60px 20px;
-    margin-top: 50px;
+    margin-top: 15px;
     min-height: auto;
   }
   
@@ -4445,7 +4441,7 @@ onMounted(async () => {
   
   .third-section {
     padding: 40px 15px;
-    margin-top: 40px;
+    margin-top: 10px;
     min-height: auto;
   }
   
