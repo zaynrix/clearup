@@ -120,7 +120,14 @@ VITE_FIREBASE_PROJECT_ID=...
 VITE_FIREBASE_STORAGE_BUCKET=...
 VITE_FIREBASE_MESSAGING_SENDER_ID=...
 VITE_FIREBASE_APP_ID=...
+
+# Google Calendar OAuth (Optional - for automatic Google Meet links)
+VITE_GOOGLE_CLIENT_ID=your-client-id.apps.googleusercontent.com
+VITE_GOOGLE_CLIENT_SECRET=your-client-secret
+VITE_GOOGLE_REDIRECT_URI=http://localhost:5173/auth/google/callback
 ```
+
+See `.env.example` for a complete template.
 
 4. Deploy `firestore.rules` and `storage.rules` to Firebase
 
@@ -135,6 +142,9 @@ Deploys to GitHub Pages via GitHub Actions. Configure these secrets in repositor
 - `VITE_FIREBASE_MESSAGING_SENDER_ID`
 - `VITE_FIREBASE_APP_ID`
 - `VITE_FIREBASE_MEASUREMENT_ID` (optional)
+- `VITE_GOOGLE_CLIENT_ID` (optional - for Google Calendar integration)
+- `VITE_GOOGLE_CLIENT_SECRET` (optional - for Google Calendar integration)
+- `VITE_GOOGLE_REDIRECT_URI` (optional - for Google Calendar integration)
 
 Add `zaynrix.github.io` to Firebase Authentication authorized domains.
 

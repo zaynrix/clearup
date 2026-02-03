@@ -39,3 +39,8 @@ __screenshots__/
 .env
 .env.local
 .env.*.local
+
+# Firebase Functions
+functions/lib
+functions/node_modules
+functions/.env

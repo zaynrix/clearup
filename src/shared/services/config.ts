@@ -82,6 +82,33 @@ try {
   throw error
 }
 
+// Google Calendar OAuth configuration
+export const googleCalendarConfig = {
+  clientId: import.meta.env.VITE_GOOGLE_CLIENT_ID || '',
+  clientSecret: import.meta.env.VITE_GOOGLE_CLIENT_SECRET || '',
+  redirectUri: import.meta.env.VITE_GOOGLE_REDIRECT_URI || 
+    (typeof window !== 'undefined' ? `${window.location.origin}${import.meta.env.BASE_URL || '/clearup/'}auth/google/callback` : '')
+}
+
+// Email SMTP configuration (Hostinger)
+export const emailConfig = {
+  // SMTP Server Settings (Hostinger)
+  host: import.meta.env.VITE_SMTP_HOST || 'smtp.hostinger.com',
+  port: parseInt(import.meta.env.VITE_SMTP_PORT || '465'),
+  secure: import.meta.env.VITE_SMTP_SECURE === 'true' || true, // true for 465, false for other ports
+  // Authentication
+  user: import.meta.env.VITE_SMTP_USER || '', // Your Hostinger email (e.g., meetings@yourdomain.com)
+  password: import.meta.env.VITE_SMTP_PASSWORD || '', // Your Hostinger email password
+  // Email sender configuration
+  from: {
+    name: 'ClearUP Agency Meetings',
+    email: import.meta.env.VITE_SMTP_FROM_EMAIL || 'meetings@clearupagency.com'
+  },
+  replyTo: import.meta.env.VITE_SMTP_REPLY_TO || 'info@clearupagency.com',
+  // API endpoint for sending emails (if using backend/Firebase Functions)
+  apiEndpoint: import.meta.env.VITE_EMAIL_API_ENDPOINT || ''
+}
+
 export { app, auth, db, storage, analytics }
 export type { FirebaseApp, Auth, Firestore, FirebaseStorage, Analytics }
 

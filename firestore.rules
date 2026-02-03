@@ -82,9 +82,11 @@ service cloud.firestore {
     }
     
     // Roles collection
-    // - Only admins can read/write roles
+    // - Authenticated users can read roles (to check their own permissions)
+    // - Only admins can write (create/update/delete) roles
     match /roles/{roleId} {
-      allow read, write: if isAdmin();
+      allow read: if isAuthenticated();
+      allow write: if isAdmin();
     }
     
     // Activity logs collection
@@ -129,12 +131,23 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
     
+    // Site content collection (legal pages, etc.)
+    // - Anyone can read (for displaying public pages like privacy policy, terms, cookies)
+    // - Only authenticated users can write (for admin dashboard)
+    match /site_content/{documentId} {
+      // Allow anyone to read site content (for public pages)
+      allow read: if true;
+      
+      // Allow authenticated users to create/update/delete
+      allow write: if isAuthenticated();
+    }
+    
     // Contact messages collection
-    // - Anyone can create messages (for contact form submissions from website)
+    // - Anyone can create messages (for public contact form submissions)
     // - Authenticated users can read all messages (for admin dashboard)
     // - Authenticated users can update/delete messages
     match /contactMessages/{messageId} {
-      // Allow anyone to create contact messages (for public contact form)
+      // Allow anyone to create contact messages (for public form submissions)
       allow create: if true;
       
       // Allow authenticated users to read messages
@@ -144,7 +157,7 @@ service cloud.firestore {
       allow update, delete: if isAuthenticated();
     }
     
-    // Contact content/settings collection
+    // Contact content collection
     // - Anyone can read (for displaying contact page)
     // - Only authenticated users can write (for admin dashboard)
     match /contactContent/{documentId} {
@@ -155,10 +168,124 @@ service cloud.firestore {
       allow write: if isAuthenticated();
     }
     
-    // Default deny rule for any other collections
-    match /{document=**} {
-      allow read, write: if false;
-    }
+  // Bookings collection
+  // - Anyone can create bookings (for public booking form)
+  // - Anyone can read bookings (to check availability - only meetingDate and meetingTime are needed)
+  // - Authenticated users can read their own bookings with full details
+  // - Admins can read/update/delete all bookings
+  match /bookings/{bookingId} {
+    // Allow anyone to create bookings (for public booking form)
+    allow create: if true;
+    
+    // Allow anyone to read bookings (for checking availability)
+    // This allows guests to see which time slots are booked
+    allow read: if true;
+    
+    // Allow updates:
+    // 1. Admins can update any booking
+    // 2. Authenticated users can update their own bookings (for cancellation)
+    // 3. Allow updates to guest bookings (no userId field) immediately after creation
+    //    This is needed because the booking controller updates the booking right after creation
+    //    to set the meeting link, status, googleEventId, calendarLink, adminId, and ID.
+    //    We verify by checking email/name match and that user-provided data hasn't changed.
+    allow update: if isAdmin() ||
+      (isAuthenticated() && resource.data.userEmail == request.auth.token.email && request.resource.data.status == 'cancelled') ||
+      (!isAuthenticated() && 
+       // Verify it's a guest booking (no userId field exists)
+       !('userId' in resource.data) &&
+       // Verify email and name match (same person) - these are the key identifiers
+       request.resource.data.userEmail == resource.data.userEmail &&
+       request.resource.data.userName == resource.data.userName &&
+       // Verify essential user-provided data hasn't changed
+       // Note: Date comparison works for both Timestamp and string formats in Firestore
+       request.resource.data.meetingDate == resource.data.meetingDate &&
+       request.resource.data.meetingTime == resource.data.meetingTime &&
+       // Allow optional user fields to match or be absent (phone, contactMethod, notes)
+       (!('userPhone' in request.resource.data) || !('userPhone' in resource.data) || request.resource.data.userPhone == resource.data.userPhone) &&
+       (!('contactMethod' in request.resource.data) || !('contactMethod' in resource.data) || request.resource.data.contactMethod == resource.data.contactMethod) &&
+       (!('notes' in request.resource.data) || !('notes' in resource.data) || request.resource.data.notes == resource.data.notes));
+    
+    // Allow deletes:
+    // 1. Admins can delete any booking
+    // 2. Authenticated users can delete their own bookings
+    allow delete: if isAdmin() ||
+      (isAuthenticated() && resource.data.userEmail == request.auth.token.email);
   }
+  
+  // Availability collection
+  // - Anyone can read (for guests to check availability when booking)
+  // - Only admins can write (block/unblock time slots)
+  match /availability/{availabilityId} {
+    // Allow anyone to read availability (for public booking form)
+    allow read: if true;
+    
+    // Only admins can create/update/delete availability
+    allow write: if isAdmin();
+  }
+  
+  // Maintenance requests collection
+  // - Anyone can read active maintenance requests (to check if site is in maintenance)
+  // - Only admins can create/update/delete maintenance requests
+  match /maintenance_requests/{requestId} {
+    // Allow anyone to read maintenance requests (to check if site is in maintenance mode)
+    allow read: if true;
+    
+    // Only admins can create/update/delete maintenance requests
+    allow write: if isAdmin();
+  }
+  
+  // Analytics visits collection
+  // - Anyone can create visits (for tracking page visits)
+  // - Only admins can read analytics data (for dashboard)
+  match /analytics_visits/{visitId} {
+    // Allow anyone to create visits (for tracking page visits)
+    allow create: if true;
+    
+    // Only admins can read analytics data
+    allow read: if isAdmin();
+    
+    // Only admins can update/delete analytics data
+    allow update, delete: if isAdmin();
+  }
+  
+  // Admins collection
+  // - Only admins can read/write their own admin document (for Google Calendar tokens)
+  // - Admins can only access their own document (by ID matching their user ID)
+  // - Tokens are private and should never be exposed to public
+  match /admins/{adminId} {
+    // Allow admins to create/update their own admin document
+    allow create, update: if isAuthenticated() && 
+                          isAdmin() && 
+                          request.auth.uid == adminId;
+    
+    // Allow admins to read their own admin document only
+    allow read: if isAuthenticated() && 
+                 isAdmin() && 
+                 request.auth.uid == adminId;
+    
+    // Admins cannot delete their own admin document (for safety)
+    allow delete: if false;
+  }
+  
+  // Calendar status collection (public read, admin write only)
+  // - Anyone can read calendar status (for checking if booking is available)
+  // - Only admins can update calendar status
+  // - This collection stores only safe, non-sensitive data
+  match /calendar_status/{statusId} {
+    // Allow anyone to read calendar status (for checking if booking is available)
+    allow read: if true;
+    
+    // Only admins can create/update calendar status
+    allow create, update: if isAuthenticated() && isAdmin();
+    
+    // Only admins can delete calendar status
+    allow delete: if isAuthenticated() && isAdmin();
+  }
+  
+  // Default deny rule for any other collections
+  match /{document=**} {
+    allow read, write: if false;
+  }
+}
 }
 

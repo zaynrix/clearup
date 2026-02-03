@@ -4,9 +4,9 @@
       <div class="footer-content">
         <div class="footer-brand">
           <div class="footer-logo">
-            <img 
-              src="/images/logos/logo-main.png" 
-              alt="ClearUp Logo" 
+            <img
+              src="/images/logos/logo-main.png"
+              alt="ClearUp Logo"
               class="footer-logo-image"
             />
           </div>
@@ -34,26 +34,26 @@
             </a>
           </div>
         </div>
-        
+
         <div class="footer-links">
           <h3 class="footer-links-title">Quick Links</h3>
           <ul class="footer-links-list">
             <li><router-link to="/about">About Us</router-link></li>
             <li><router-link to="/services">Our Service</router-link></li>
-            <li><router-link to="/#real-results-section">Our Work</router-link></li>
+            <li><router-link to="/works">Our Work</router-link></li>
             <li><router-link to="/contact">Contact Us</router-link></li>
           </ul>
         </div>
       </div>
-      
+
       <div class="footer-bottom">
         <p class="footer-copyright">{{ copyright }}</p>
         <div class="footer-policies">
-          <a href="#privacy">Privacy Policy</a>
+          <router-link to="/privacy-policy">Privacy Policy</router-link>
           <span class="footer-divider">|</span>
-          <a href="#terms">Terms of Service</a>
+          <router-link to="/terms-of-service">Terms of Service</router-link>
           <span class="footer-divider">|</span>
-          <a href="#cookies">Cookie Policy</a>
+          <router-link to="/cookie-policy">Cookie Policy</router-link>
         </div>
       </div>
     </div>
@@ -61,18 +61,50 @@
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { HomeContentController } from '@/features/home/controllers/HomeContentController'
+import type { HomeContent } from '@/features/home/models/HomeContent'
+
 interface Props {
   tagline?: string
   copyright?: string
 }
 
-withDefaults(defineProps<Props>(), {
-  tagline: 'Your creative digital partner for high-impact video ads and marketing content.',
-  copyright: 'Copyright © 2025 Trusted Valley LLC. All rights reserved'
+const props = withDefaults(defineProps<Props>(), {
+  tagline: '',
+  copyright: ''
+})
+
+const homeContentController = new HomeContentController()
+const homeContent = ref<HomeContent | null>(null)
+
+// Computed values that prioritize props, then homeContent, then defaults
+const tagline = computed(() => {
+  if (props.tagline) return props.tagline
+  if (homeContent.value?.footerTagline) return homeContent.value.footerTagline
+  return 'Your creative digital partner for high-impact video ads and marketing content.'
+})
+
+const copyright = computed(() => {
+  if (props.copyright) return props.copyright
+  if (homeContent.value?.footerAddress) return homeContent.value.footerAddress
+  return 'Copyright © 2025 Trusted Valley LLC. All rights reserved'
+})
+
+onMounted(async () => {
+  try {
+    const result = await homeContentController.getHomeContent()
+    if (result.success && result.data) {
+      homeContent.value = result.data
+    }
+  } catch (error) {
+    console.error('Failed to load footer content:', error)
+  }
 })
 </script>
 
 <style scoped>
+/* Footer/Bottom Section */
 .footer-section {
   position: relative;
   width: 100%;
@@ -233,34 +265,58 @@ withDefaults(defineProps<Props>(), {
 }
 
 .footer-divider {
-  color: rgba(245, 247, 250, 0.4);
+  color: rgba(245, 247, 250, 0.5);
   font-size: 14px;
 }
 
 /* Responsive Design */
+
+/* Large Tablets and Small Desktops (1024px and below) */
 @media (max-width: 1024px) {
+  .footer-section {
+    padding: 70px 20px 35px;
+  }
+
+  .footer-content {
+    gap: 70px;
+    margin-bottom: 40px;
+  }
+
+  .footer-tagline {
+    font-size: 15px;
+  }
+}
+
+/* Tablets (900px and below) */
+@media (max-width: 900px) {
   .footer-section {
     padding: 60px 20px 30px;
   }
 
   .footer-content {
     gap: 60px;
-  }
-}
-
-@media (max-width: 768px) {
-  .footer-section {
-    padding: 50px 20px 25px;
-  }
-
-  .footer-content {
-    grid-template-columns: 1fr;
-    gap: 40px;
     margin-bottom: 36px;
   }
 
   .footer-tagline {
     font-size: 15px;
+  }
+}
+
+/* Small Tablets / Large Mobile (768px and below) */
+@media (max-width: 768px) {
+  .footer-section {
+    padding: 60px 20px 30px;
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+    margin-bottom: 32px;
+  }
+
+  .footer-tagline {
+    font-size: 14px;
   }
 
   .footer-links-title {
@@ -276,14 +332,36 @@ withDefaults(defineProps<Props>(), {
   }
 }
 
+/* Mobile (640px and below) */
+@media (max-width: 640px) {
+  .footer-section {
+    padding: 60px 20px 30px;
+  }
+
+  .footer-content {
+    grid-template-columns: 1fr;
+    gap: 40px;
+  }
+
+  .footer-social {
+    flex-wrap: wrap;
+  }
+}
+
+/* Small Mobile (480px and below) */
 @media (max-width: 480px) {
   .footer-section {
     padding: 40px 15px 20px;
   }
 
+  .footer-container {
+    max-width: 100%;
+  }
+
   .footer-content {
+    grid-template-columns: 1fr;
     gap: 32px;
-    margin-bottom: 32px;
+    margin-bottom: 28px;
   }
 
   .footer-brand {
@@ -337,6 +415,8 @@ withDefaults(defineProps<Props>(), {
 
   .footer-policies {
     gap: 8px;
+    flex-wrap: wrap;
+    justify-content: center;
   }
 
   .footer-policies a {
@@ -347,5 +427,75 @@ withDefaults(defineProps<Props>(), {
     font-size: 12px;
   }
 }
-</style>
 
+/* Extra Small Mobile (360px and below) */
+@media (max-width: 360px) {
+  .footer-section {
+    padding: 35px 12px 18px;
+  }
+
+  .footer-content {
+    gap: 28px;
+    margin-bottom: 28px;
+  }
+
+  .footer-brand {
+    gap: 18px;
+  }
+
+  .footer-tagline {
+    font-size: 13px;
+  }
+
+  .footer-social {
+    gap: 10px;
+  }
+
+  .social-icon {
+    width: 38px;
+    height: 38px;
+  }
+
+  .social-icon svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .footer-links {
+    gap: 18px;
+  }
+
+  .footer-links-title {
+    font-size: 17px;
+  }
+
+  .footer-links-list {
+    gap: 12px;
+  }
+
+  .footer-links-list a {
+    font-size: 13px;
+  }
+
+  .footer-bottom {
+    gap: 12px;
+    padding-top: 24px;
+  }
+
+  .footer-copyright {
+    font-size: 11px;
+  }
+
+  .footer-policies {
+    gap: 6px;
+  }
+
+  .footer-policies a {
+    font-size: 11px;
+  }
+
+  .footer-divider {
+    font-size: 11px;
+  }
+}
+</style>

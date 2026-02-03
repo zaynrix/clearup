@@ -5,8 +5,15 @@
 <template>
   <div class="admin-dashboard">
     <div class="dashboard-content">
+      <!-- Mobile Overlay -->
+      <div
+        v-if="isSidebarOpen"
+        class="sidebar-overlay"
+        @click="closeSidebar"
+      ></div>
+
       <!-- Sidebar -->
-      <aside class="dashboard-sidebar">
+      <aside :class="['dashboard-sidebar', { 'sidebar-open': isSidebarOpen }]">
         <div class="sidebar-header">
           <div class="logo-section">
             <div class="logo-icon">
@@ -18,7 +25,7 @@
             </div>
             <h2>{{ isAdmin ? 'Admin Panel' : 'Content Manager' }}</h2>
           </div>
-          
+
           <div class="user-card">
             <div class="user-avatar">
               <span>{{ userInitials }}</span>
@@ -36,12 +43,12 @@
             </button>
           </div>
         </div>
-        
+
         <nav class="sidebar-nav">
-          <button 
-            v-for="tab in tabs" 
+          <button
+            v-for="tab in tabs"
             :key="tab.id"
-            @click="activeTab = tab.id"
+            @click="handleTabClick(tab.id)"
             :class="['nav-item', { active: activeTab === tab.id }]"
           >
             <span class="nav-icon" v-html="getTabIcon(tab.id)"></span>
@@ -56,12 +63,23 @@
         <!-- Header Bar -->
         <div class="main-header">
           <div class="header-content">
-            <div>
-              <h1 class="page-title">{{ getActiveTabLabel() }}</h1>
-              <p class="page-subtitle">Manage and edit your website content</p>
+            <div class="header-left">
+              <button
+                @click="toggleSidebar"
+                class="mobile-menu-toggle"
+                aria-label="Toggle menu"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div>
+                <h1 class="page-title">{{ getActiveTabLabel() }}</h1>
+                <p class="page-subtitle">Manage and edit your website content</p>
+              </div>
             </div>
             <div class="header-actions">
-              <a href="/" target="_blank" class="preview-btn-header">
+              <a :href="previewUrl" target="_blank" class="preview-btn-header">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M15 3H21V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -107,7 +125,7 @@
         <!-- Content Editor -->
         <div v-else class="content-editor">
           <!-- Hero Section Editor -->
-          <div v-if="activeTab === 'hero'" class="editor-section">
+          <div v-if="activeTab === 'hero' && canAccessTab('hero')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">🎯</div>
@@ -117,41 +135,41 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group">
                 <label>
                   <span class="label-text">Headline (White Text)</span>
                   <span class="label-hint">First part of the main headline</span>
                 </label>
-                <input 
-                  v-model="formData.heroHeadlineWhite" 
-                  type="text" 
+                <input
+                  v-model="formData.heroHeadlineWhite"
+                  type="text"
                   placeholder="Like Oxygen For"
                   class="form-input"
                 />
               </div>
-              
+
               <div class="form-group">
                 <label>
                   <span class="label-text">Headline (Purple Text)</span>
                   <span class="label-hint">Second part - appears in purple gradient</span>
                 </label>
-                <input 
-                  v-model="formData.heroHeadlinePurple" 
-                  type="text" 
+                <input
+                  v-model="formData.heroHeadlinePurple"
+                  type="text"
                   placeholder="Your Business"
                   class="form-input"
                 />
               </div>
-              
+
               <div class="form-group full-width">
                 <label>
                   <span class="label-text">Supporting Text</span>
                   <span class="label-hint">One line per paragraph (press Enter for new line)</span>
                 </label>
-                <textarea 
-                  v-model="supportingTextTextarea" 
+                <textarea
+                  v-model="supportingTextTextarea"
                   rows="4"
                   placeholder="Grow your business to new heights&#10;We make it easy for you.&#10;More customers, more profitable, more freedom, more life."
                   class="form-textarea"
@@ -164,7 +182,7 @@
           </div>
 
           <!-- CTA Section Editor -->
-          <div v-if="activeTab === 'cta'" class="editor-section">
+          <div v-if="activeTab === 'cta' && canAccessTab('cta')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">📞</div>
@@ -174,42 +192,42 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group">
                 <label>
                   <span class="label-text">Input Placeholder</span>
                   <span class="label-hint">Text shown in the input field</span>
                 </label>
-                <input 
-                  v-model="formData.ctaPlaceholder" 
-                  type="text" 
+                <input
+                  v-model="formData.ctaPlaceholder"
+                  type="text"
                   placeholder="Enter your email address to get started"
                   class="form-input"
                 />
               </div>
-              
+
               <div class="form-group">
                 <label>
                   <span class="label-text">Button Text</span>
                   <span class="label-hint">Text on the submit button</span>
                 </label>
-                <input 
-                  v-model="formData.ctaButtonText" 
-                  type="text" 
+                <input
+                  v-model="formData.ctaButtonText"
+                  type="text"
                   placeholder="Get Started"
                   class="form-input"
                 />
               </div>
-              
+
               <div class="form-group full-width">
                 <label>
                   <span class="label-text">Social Proof Text</span>
                   <span class="label-hint">Trust indicator below the form</span>
                 </label>
-                <input 
-                  v-model="formData.socialProofText" 
-                  type="text" 
+                <input
+                  v-model="formData.socialProofText"
+                  type="text"
                   placeholder="5-star rating with 200+ reviews"
                   class="form-input"
                 />
@@ -218,7 +236,7 @@
           </div>
 
           <!-- Who We Are Editor -->
-          <div v-if="activeTab === 'who-we-are'" class="editor-section">
+          <div v-if="activeTab === 'who-we-are' && canAccessTab('who-we-are')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">👥</div>
@@ -241,22 +259,22 @@
                   Basic Information
                 </h4>
                 <p class="content-section-description">Set the title and description for this section</p>
-            </div>
-            
-            <div class="form-grid">
-              <div class="form-group full-width">
-                <label>
-                  <span class="label-text">Section Title</span>
-                    <span class="label-hint">Main heading for the section</span>
-                </label>
-                <input v-model="formData.whoWeAreTitle" type="text" placeholder="Who We Are" class="form-input" />
               </div>
-              
-              <div class="form-group full-width">
-                <label>
-                  <span class="label-text">Description</span>
+
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label>
+                    <span class="label-text">Section Title</span>
+                    <span class="label-hint">Main heading for the section</span>
+                  </label>
+                  <input v-model="formData.whoWeAreTitle" type="text" placeholder="Who We Are" class="form-input" />
+                </div>
+
+                <div class="form-group full-width">
+                  <label>
+                    <span class="label-text">Description</span>
                     <span class="label-hint">Brief introduction about your company</span>
-                </label>
+                  </label>
                   <textarea v-model="formData.whoWeAreDescription" rows="4" placeholder="We are your marketing growth partner." class="form-textarea"></textarea>
                 </div>
               </div>
@@ -274,24 +292,24 @@
               </h4>
                 <p class="content-section-description">Add a video to showcase your company (optional)</p>
               </div>
-              
+
               <div class="video-manager">
                 <div class="video-options">
                   <label class="video-option-label">
-                    <input 
-                      type="radio" 
-                      name="videoType" 
-                      value="upload" 
+                    <input
+                      type="radio"
+                      name="videoType"
+                      value="upload"
                       v-model="formData.videoType"
                       @change="formData.videoUrl = ''"
                     />
                     <span>Upload Video File (Recommended)</span>
                   </label>
                   <label class="video-option-label">
-                    <input 
-                      type="radio" 
-                      name="videoType" 
-                      value="link" 
+                    <input
+                      type="radio"
+                      name="videoType"
+                      value="link"
                       v-model="formData.videoType"
                       @change="formData.videoFileUrl = ''"
                     />
@@ -306,9 +324,9 @@
                     <span class="label-hint">Upload your own video file (MP4, WebM, MOV, or AVI) - Recommended to avoid YouTube suggestions. Max size: 100MB</span>
                   </label>
                   <div class="video-upload-area">
-                    <input 
-                      type="file" 
-                      accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi" 
+                    <input
+                      type="file"
+                      accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi"
                       @change="handleVideoUpload"
                       ref="videoFileInput"
                       id="video-upload-input"
@@ -351,19 +369,19 @@
                     <span class="label-text">Video URL</span>
                     <span class="label-hint">YouTube or Vimeo link (Note: YouTube may show suggested videos. Upload your own video to avoid this.)</span>
                   </label>
-                  <input 
-                    v-model="formData.videoUrl" 
-                    type="url" 
-                    placeholder="https://www.youtube.com/watch?v=..." 
+                  <input
+                    v-model="formData.videoUrl"
+                    type="url"
+                    placeholder="https://www.youtube.com/watch?v=..."
                     class="form-input"
                   />
                   <div v-if="formData.videoUrl" class="video-preview">
                     <p class="preview-label">Preview:</p>
                     <div class="video-preview-container">
-                      <iframe 
-                        :src="getVideoEmbedUrl(formData.videoUrl)" 
-                        frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      <iframe
+                        :src="getVideoEmbedUrl(formData.videoUrl)"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowfullscreen
                       ></iframe>
                     </div>
@@ -371,7 +389,7 @@
                 </div>
               </div>
             </div>
-            
+
             <!-- Statistics Section -->
             <div class="content-section-card">
               <div class="content-section-header">
@@ -384,7 +402,7 @@
               </h4>
                 <p class="content-section-description">Showcase your achievements and key metrics</p>
               </div>
-              
+
               <div class="stats-grid">
                 <div class="stat-card-improved">
                   <div class="stat-card-header">
@@ -417,7 +435,7 @@
                     </div>
                   </div>
                 </div>
-                
+
                 <div class="stat-card-improved">
                   <div class="stat-card-header">
                     <div class="stat-icon-wrapper">
@@ -449,7 +467,7 @@
                     </div>
                   </div>
                 </div>
-                
+
                 <div class="stat-card-improved">
                   <div class="stat-card-header">
                     <div class="stat-icon-wrapper">
@@ -486,7 +504,7 @@
           </div>
 
           <!-- System Section Editor -->
-          <div v-if="activeTab === 'system'" class="editor-section">
+          <div v-if="activeTab === 'system' && canAccessTab('system')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">⚙️</div>
@@ -496,7 +514,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group">
                 <label>
@@ -504,21 +522,21 @@
                 </label>
                 <input v-model="formData.systemTitle" type="text" placeholder="The Clear up System™" class="form-input" />
               </div>
-              
+
               <div class="form-group">
                 <label>
                   <span class="label-text">Description</span>
                 </label>
                 <textarea v-model="formData.systemDescription" rows="2" placeholder="A done-for-you marketing system built for predictable growth." class="form-textarea"></textarea>
               </div>
-              
+
               <div class="form-group full-width">
                 <label>
                   <span class="label-text">Card Title</span>
                 </label>
                 <input v-model="formData.systemCardTitle" type="text" placeholder="Done-for-you Clear Up System" class="form-input" />
               </div>
-              
+
               <div class="form-group full-width">
                 <label>
                   <span class="label-text">Card Text</span>
@@ -526,7 +544,7 @@
                 </label>
                 <textarea v-model="systemCardTextTextarea" rows="4" class="form-textarea"></textarea>
               </div>
-              
+
               <div class="form-group full-width">
                 <label>
                   <span class="label-text">ROI Statement</span>
@@ -538,7 +556,7 @@
           </div>
 
           <!-- Services Editor -->
-          <div v-if="activeTab === 'services'" class="editor-section">
+          <div v-if="activeTab === 'services' && canAccessTab('services')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">🛠️</div>
@@ -548,7 +566,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group">
                 <label>
@@ -556,7 +574,7 @@
                 </label>
                 <input v-model="formData.servicesTitle" type="text" placeholder="Our Services" class="form-input" />
               </div>
-              
+
               <div class="form-group">
                 <label>
                   <span class="label-text">Description</span>
@@ -564,7 +582,7 @@
                 <input v-model="formData.servicesDescription" type="text" placeholder="We provide a wide range of services." class="form-input" />
               </div>
             </div>
-            
+
             <div class="subsection">
               <div class="subsection-header">
                 <h4 class="subsection-title">
@@ -580,7 +598,7 @@
                   Add Service
                 </button>
               </div>
-              
+
               <div class="services-list">
                 <div v-for="(service, index) in formData.services" :key="index" class="service-card">
                   <div class="service-card-header">
@@ -604,7 +622,7 @@
           </div>
 
           <!-- What We Do Editor -->
-          <div v-if="activeTab === 'what-we-do'" class="editor-section">
+          <div v-if="activeTab === 'what-we-do' && canAccessTab('what-we-do')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">📋</div>
@@ -614,7 +632,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group full-width">
                 <label>
@@ -623,7 +641,7 @@
                 <input v-model="formData.whatWeDoTitle" type="text" placeholder="What We Do" class="form-input" />
               </div>
             </div>
-            
+
             <div class="subsection">
               <div class="subsection-header">
               <h4 class="subsection-title">
@@ -642,9 +660,9 @@
                 </button>
               </div>
               <div class="steps-list">
-                <div 
-                  v-for="(step, index) in formData.steps" 
-                  :key="`step-${index}`" 
+                <div
+                  v-for="(step, index) in formData.steps"
+                  :key="`step-${index}`"
                   class="step-card"
                   :draggable="true"
                   @dragstart="handleStepDragStart($event, index)"
@@ -665,9 +683,9 @@
                     </div>
                   <div class="step-number">{{ step.number }}</div>
                     <div class="step-actions">
-                      <button 
-                        @click="moveStepUp(index)" 
-                        type="button" 
+                      <button
+                        @click="moveStepUp(index)"
+                        type="button"
                         class="btn-icon"
                         :disabled="index === 0"
                         title="Move Up"
@@ -676,9 +694,9 @@
                           <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </button>
-                      <button 
-                        @click="moveStepDown(index)" 
-                        type="button" 
+                      <button
+                        @click="moveStepDown(index)"
+                        type="button"
                         class="btn-icon"
                         :disabled="index === formData.steps.length - 1"
                         title="Move Down"
@@ -687,9 +705,9 @@
                           <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </button>
-                      <button 
-                        @click="removeStep(index)" 
-                        type="button" 
+                      <button
+                        @click="removeStep(index)"
+                        type="button"
                         class="btn-icon btn-danger-icon"
                         title="Delete Step"
                       >
@@ -700,10 +718,10 @@
                       </button>
                 </div>
               </div>
-                  <textarea 
-                    v-model="step.content" 
-                    rows="3" 
-                    :placeholder="`Step ${step.number} content`" 
+                  <textarea
+                    v-model="step.content"
+                    rows="3"
+                    :placeholder="`Step ${step.number} content`"
                     class="form-textarea step-content-input"
                   ></textarea>
                 </div>
@@ -715,7 +733,7 @@
           </div>
 
           <!-- What You Get Editor -->
-          <div v-if="activeTab === 'what-you-get'" class="editor-section">
+          <div v-if="activeTab === 'what-you-get' && canAccessTab('what-you-get')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">✅</div>
@@ -725,7 +743,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group full-width">
                 <label>
@@ -734,7 +752,7 @@
                 <input v-model="formData.whatYouGetTitle" type="text" placeholder="What You Get" class="form-input" />
               </div>
               </div>
-              
+
             <div class="subsection">
               <div class="subsection-header">
                 <h4 class="subsection-title">
@@ -753,9 +771,9 @@
                 </button>
                 </div>
               <div class="benefits-list">
-                <div 
-                  v-for="(benefit, index) in formData.benefits" 
-                  :key="`benefit-${index}`" 
+                <div
+                  v-for="(benefit, index) in formData.benefits"
+                  :key="`benefit-${index}`"
                   class="benefit-card"
                   :draggable="true"
                   @dragstart="handleBenefitDragStart($event, index)"
@@ -779,16 +797,16 @@
                       <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#5B2096" stroke-width="2"/>
                     </svg>
                   </div>
-                  <input 
-                    v-model="formData.benefits[index]" 
-                    type="text" 
-                    :placeholder="`Benefit ${index + 1}`" 
+                  <input
+                    v-model="formData.benefits[index]"
+                    type="text"
+                    :placeholder="`Benefit ${index + 1}`"
                     class="form-input benefit-input"
                   />
                   <div class="benefit-actions">
-                    <button 
-                      @click="moveBenefitUp(index)" 
-                      type="button" 
+                    <button
+                      @click="moveBenefitUp(index)"
+                      type="button"
                       class="btn-icon"
                       :disabled="index === 0"
                       title="Move Up"
@@ -797,9 +815,9 @@
                         <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </button>
-                    <button 
-                      @click="moveBenefitDown(index)" 
-                      type="button" 
+                    <button
+                      @click="moveBenefitDown(index)"
+                      type="button"
                       class="btn-icon"
                       :disabled="index === formData.benefits.length - 1"
                       title="Move Down"
@@ -808,9 +826,9 @@
                         <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </button>
-                    <button 
-                      @click="removeBenefit(index)" 
-                      type="button" 
+                    <button
+                      @click="removeBenefit(index)"
+                      type="button"
                       class="btn-icon btn-danger-icon"
                       title="Delete Benefit"
                     >
@@ -829,7 +847,7 @@
           </div>
 
           <!-- Bonuses Editor -->
-          <div v-if="activeTab === 'bonuses'" class="editor-section">
+          <div v-if="activeTab === 'bonuses' && canAccessTab('bonuses')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">🎁</div>
@@ -839,7 +857,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group full-width">
                 <label>
@@ -848,7 +866,7 @@
                 <input v-model="formData.bonusesTitle" type="text" placeholder="Bonuses Included" class="form-input" />
               </div>
               </div>
-              
+
             <div class="subsection">
               <div class="subsection-header">
                 <h4 class="subsection-title">
@@ -866,9 +884,9 @@
                 </button>
                 </div>
               <div class="benefits-list">
-                <div 
-                  v-for="(bonus, index) in formData.bonuses" 
-                  :key="`bonus-${index}`" 
+                <div
+                  v-for="(bonus, index) in formData.bonuses"
+                  :key="`bonus-${index}`"
                   class="benefit-card"
                   :draggable="true"
                   @dragstart="handleBonusDragStart($event, index)"
@@ -891,16 +909,16 @@
                       <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                   </div>
-                  <input 
-                    v-model="formData.bonuses[index]" 
-                    type="text" 
-                    :placeholder="`Bonus ${index + 1}`" 
+                  <input
+                    v-model="formData.bonuses[index]"
+                    type="text"
+                    :placeholder="`Bonus ${index + 1}`"
                     class="form-input benefit-input"
                   />
                   <div class="benefit-actions">
-                    <button 
-                      @click="moveBonusUp(index)" 
-                      type="button" 
+                    <button
+                      @click="moveBonusUp(index)"
+                      type="button"
                       class="btn-icon"
                       :disabled="index === 0"
                       title="Move Up"
@@ -909,9 +927,9 @@
                         <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </button>
-                    <button 
-                      @click="moveBonusDown(index)" 
-                      type="button" 
+                    <button
+                      @click="moveBonusDown(index)"
+                      type="button"
                       class="btn-icon"
                       :disabled="index === formData.bonuses.length - 1"
                       title="Move Down"
@@ -920,9 +938,9 @@
                         <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </button>
-                    <button 
-                      @click="removeBonus(index)" 
-                      type="button" 
+                    <button
+                      @click="removeBonus(index)"
+                      type="button"
                       class="btn-icon btn-danger-icon"
                       title="Delete Bonus"
                     >
@@ -941,7 +959,7 @@
           </div>
 
           <!-- Clients & Testimonials Editor -->
-          <div v-if="activeTab === 'clients'" class="editor-section">
+          <div v-if="activeTab === 'clients' && canAccessTab('clients')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">💼</div>
@@ -965,7 +983,7 @@
                 </h4>
                 <p class="content-section-description">Configure titles and subtitles for both sections</p>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group">
                 <label>
@@ -974,7 +992,7 @@
                 </label>
                 <input v-model="formData.clientsTitle" type="text" placeholder="Our Clients" class="form-input" />
               </div>
-              
+
               <div class="form-group">
                 <label>
                   <span class="label-text">Clients Subtitle</span>
@@ -982,7 +1000,7 @@
                 </label>
                 <input v-model="formData.clientsSubtitle" type="text" placeholder="We work with leading brands and businesses." class="form-input" />
               </div>
-              
+
               <div class="form-group">
                 <label>
                   <span class="label-text">Testimonials Title</span>
@@ -990,7 +1008,7 @@
                 </label>
                 <input v-model="formData.testimonialsTitle" type="text" placeholder="What Our Clients Say" class="form-input" />
               </div>
-              
+
               <div class="form-group">
                 <label>
                   <span class="label-text">Testimonials Subtitle</span>
@@ -1086,19 +1104,19 @@
                             </label>
                           </div>
 
-                          <input 
+                          <input
                             v-if="logo.logoType === 'url'"
-                            v-model="logo.logoUrl" 
-                            type="url" 
-                            placeholder="https://example.com/logo.png" 
+                            v-model="logo.logoUrl"
+                            type="url"
+                            placeholder="https://example.com/logo.png"
                             class="form-input"
                             style="margin-top: 0.5rem;"
                           />
 
                           <div v-if="logo.logoType === 'upload'" class="photo-upload-area">
-                            <input 
-                              type="file" 
-                              accept="image/png,image/jpeg,image/jpg,image/svg+xml,.png,.jpg,.jpeg,.svg" 
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg,image/jpg,image/svg+xml,.png,.jpg,.jpeg,.svg"
                               @change="handleClientLogoUpload($event, index)"
                               :id="`logo-upload-${index}`"
                               class="photo-file-input"
@@ -1257,19 +1275,19 @@
                             </label>
                           </div>
 
-                          <input 
+                          <input
                             v-if="testimonial.photoType === 'url'"
-                            v-model="testimonial.photoUrl" 
-                            type="url" 
-                            placeholder="https://example.com/photo.jpg" 
+                            v-model="testimonial.photoUrl"
+                            type="url"
+                            placeholder="https://example.com/photo.jpg"
                             class="form-input"
                             style="margin-top: 0.5rem;"
                           />
 
                           <div v-if="testimonial.photoType === 'upload'" class="photo-upload-area">
-                            <input 
-                              type="file" 
-                              accept="image/png,image/jpeg,image/jpg,image/webp,.png,.jpg,.jpeg,.webp" 
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg,image/jpg,image/webp,.png,.jpg,.jpeg,.webp"
                               @change="handlePhotoUpload($event, index)"
                               :id="`photo-upload-${index}`"
                               class="photo-file-input"
@@ -1314,19 +1332,19 @@
                             </label>
                           </div>
 
-                          <input 
+                          <input
                             v-if="testimonial.videoThumbnailType === 'url'"
-                            v-model="testimonial.videoThumbnailUrl" 
-                            type="url" 
-                            placeholder="https://example.com/thumbnail.jpg" 
+                            v-model="testimonial.videoThumbnailUrl"
+                            type="url"
+                            placeholder="https://example.com/thumbnail.jpg"
                             class="form-input"
                             style="margin-top: 0.5rem;"
                           />
 
                           <div v-if="testimonial.videoThumbnailType === 'upload'" class="photo-upload-area">
-                            <input 
-                              type="file" 
-                              accept="image/png,image/jpeg,image/jpg,image/webp,.png,.jpg,.jpeg,.webp" 
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg,image/jpg,image/webp,.png,.jpg,.jpeg,.webp"
                               @change="handleVideoThumbnailUpload($event, index)"
                               :id="`video-thumbnail-upload-${index}`"
                               class="photo-file-input"
@@ -1375,19 +1393,19 @@
                             </label>
                           </div>
 
-                          <input 
+                          <input
                             v-if="testimonial.videoType === 'link'"
-                            v-model="testimonial.videoUrl" 
-                            type="url" 
-                            placeholder="https://www.youtube.com/watch?v=..." 
+                            v-model="testimonial.videoUrl"
+                            type="url"
+                            placeholder="https://www.youtube.com/watch?v=..."
                             class="form-input"
                             style="margin-top: 0.5rem;"
                           />
 
                           <div v-if="testimonial.videoType === 'upload'" class="video-upload-area">
-                            <input 
-                              type="file" 
-                              accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi" 
+                            <input
+                              type="file"
+                              accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi"
                               @change="handleTestimonialVideoUpload($event, index)"
                               :id="`testimonial-video-upload-${index}`"
                               class="video-file-input"
@@ -1436,7 +1454,7 @@
           </div>
 
           <!-- Real Results Editor -->
-          <div v-if="activeTab === 'real-results'" class="editor-section">
+          <div v-if="activeTab === 'real-results' && canAccessTab('real-results')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">📊</div>
@@ -1460,7 +1478,7 @@
                 </h4>
                 <p class="content-section-description">Configure the main title and subtitle for this section</p>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group full-width">
                 <label>
@@ -1469,7 +1487,7 @@
                 </label>
                 <input v-model="formData.realResultsTitle" type="text" placeholder="Real Results, Real Impact." class="form-input" />
               </div>
-              
+
               <div class="form-group full-width">
                 <label>
                   <span class="label-text">Subtitle</span>
@@ -1559,44 +1577,44 @@
                           <span class="label-text">Company Logo</span>
                           <span class="label-hint">Logo displayed above the headline</span>
                         </label>
-                        
+
                         <div class="photo-upload-section">
                           <div class="photo-options">
                             <label class="photo-option-label">
-                              <input 
-                                type="radio" 
-                                :name="`case-logo-type-${caseIndex}`" 
-                                value="url" 
-                                v-model="resultCase.companyLogoType" 
-                                @change="resultCase.companyLogoFileUrl = ''" 
+                              <input
+                                type="radio"
+                                :name="`case-logo-type-${caseIndex}`"
+                                value="url"
+                                v-model="resultCase.companyLogoType"
+                                @change="resultCase.companyLogoFileUrl = ''"
                               />
                               <span>Logo URL</span>
                             </label>
                             <label class="photo-option-label">
-                              <input 
-                                type="radio" 
-                                :name="`case-logo-type-${caseIndex}`" 
-                                value="upload" 
-                                v-model="resultCase.companyLogoType" 
-                                @change="resultCase.companyLogo = ''" 
+                              <input
+                                type="radio"
+                                :name="`case-logo-type-${caseIndex}`"
+                                value="upload"
+                                v-model="resultCase.companyLogoType"
+                                @change="resultCase.companyLogo = ''"
                               />
                               <span>Upload Logo</span>
                             </label>
                           </div>
 
-                          <input 
+                          <input
                             v-if="resultCase.companyLogoType === 'url'"
-                            v-model="resultCase.companyLogo" 
-                            type="url" 
-                            placeholder="https://example.com/logo.png" 
+                            v-model="resultCase.companyLogo"
+                            type="url"
+                            placeholder="https://example.com/logo.png"
                             class="form-input"
                             style="margin-top: 0.5rem;"
                           />
 
                           <div v-if="resultCase.companyLogoType === 'upload'" class="photo-upload-area">
-                            <input 
-                              type="file" 
-                              accept="image/*" 
+                            <input
+                              type="file"
+                              accept="image/*"
                               @change="handleCaseLogoUpload($event, caseIndex)"
                               :id="`case-logo-upload-${caseIndex}`"
                               class="photo-file-input"
@@ -1632,11 +1650,11 @@
                           <span class="label-text">Company Images</span>
                           <span class="label-hint">Images shown when hovering over the headline card (you can add multiple images)</span>
                         </label>
-                        
+
                         <div class="multiple-images-manager">
-                          <button 
+                          <button
                             type="button"
-                            @click="addCaseCompanyImage(caseIndex)" 
+                            @click="addCaseCompanyImage(caseIndex)"
                             class="btn-secondary"
                             style="margin-bottom: 1rem; padding: 0.5rem 1rem;"
                           >
@@ -1651,15 +1669,15 @@
                           </div>
 
                           <div v-else class="hover-images-list">
-                            <div 
-                              v-for="(img, imgIndex) in resultCase.companyImages" 
+                            <div
+                              v-for="(img, imgIndex) in resultCase.companyImages"
                               :key="img.id || imgIndex"
                               class="hover-image-item"
                             >
                               <div class="image-item-header">
                                 <span class="image-item-number">Image {{ imgIndex + 1 }}</span>
-                                <button 
-                                  @click="removeCaseCompanyImage(caseIndex, imgIndex)" 
+                                <button
+                                  @click="removeCaseCompanyImage(caseIndex, imgIndex)"
                                   class="btn-danger"
                                   style="padding: 0.25rem 0.5rem; font-size: 0.75rem;"
                                 >
@@ -1670,40 +1688,40 @@
                               <div class="photo-upload-section" style="margin-top: 0.75rem;">
                                 <div class="photo-options">
                                   <label class="photo-option-label">
-                                    <input 
-                                      type="radio" 
-                                      :name="`case-company-image-type-${caseIndex}-${imgIndex}`" 
-                                      value="url" 
-                                      v-model="img.imageType" 
-                                      @change="img.imageFileUrl = ''" 
+                                    <input
+                                      type="radio"
+                                      :name="`case-company-image-type-${caseIndex}-${imgIndex}`"
+                                      value="url"
+                                      v-model="img.imageType"
+                                      @change="img.imageFileUrl = ''"
                                     />
                                     <span>Image URL</span>
                                   </label>
                                   <label class="photo-option-label">
-                                    <input 
-                                      type="radio" 
-                                      :name="`case-company-image-type-${caseIndex}-${imgIndex}`" 
-                                      value="upload" 
-                                      v-model="img.imageType" 
-                                      @change="img.imageUrl = ''" 
+                                    <input
+                                      type="radio"
+                                      :name="`case-company-image-type-${caseIndex}-${imgIndex}`"
+                                      value="upload"
+                                      v-model="img.imageType"
+                                      @change="img.imageUrl = ''"
                                     />
                                     <span>Upload Image</span>
                                   </label>
                                 </div>
 
-                                <input 
+                                <input
                                   v-if="img.imageType === 'url'"
-                                  v-model="img.imageUrl" 
-                                  type="url" 
-                                  placeholder="https://example.com/image.jpg" 
+                                  v-model="img.imageUrl"
+                                  type="url"
+                                  placeholder="https://example.com/image.jpg"
                                   class="form-input"
                                   style="margin-top: 0.5rem;"
                                 />
 
                                 <div v-if="img.imageType === 'upload'" class="photo-upload-area">
-                                  <input 
-                                    type="file" 
-                                    accept="image/*" 
+                                  <input
+                                    type="file"
+                                    accept="image/*"
                                     @change="handleCaseCompanyImageUpload($event, caseIndex, imgIndex)"
                                     :id="`case-company-image-upload-${caseIndex}-${imgIndex}`"
                                     class="photo-file-input"
@@ -1734,15 +1752,15 @@
                             <span class="label-text">Result Cards</span>
                             <span class="label-hint">Add cards showing specific metrics and results</span>
                         </label>
-                        
+
                           <div class="result-cards-manager">
                             <div class="section-action-bar" style="margin-bottom: 1rem;">
                               <div class="section-info">
                                 <span class="section-count">{{ resultCase.cards?.length || 0 }} card{{ (resultCase.cards?.length || 0) !== 1 ? 's' : '' }}</span>
                               </div>
-                          <button 
+                          <button
                             type="button"
-                            @click="addCaseCard(caseIndex)" 
+                            @click="addCaseCard(caseIndex)"
                             class="btn-secondary"
                                 style="padding: 0.5rem 1rem;"
                           >
@@ -1808,6 +1826,380 @@
                             <span class="label-hint">Call-to-action button text</span>
                         </label>
                         <input v-model="resultCase.ctaText" type="text" placeholder="Explore the Results" class="form-input" />
+                      </div>
+
+                      <!-- Detail Page Fields Section -->
+                      <div v-if="resultCase.heroImage || resultCase.beforeAfterSection || resultCase.ourApproach || resultCase.imageGallerySection" class="form-group full-width" style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid rgba(91, 32, 150, 0.3);">
+                        <h4 style="color: #F5F7FA; margin-bottom: 1.5rem; font-size: 18px;">Detail Page Settings</h4>
+
+                        <!-- Hero Image -->
+                        <div v-if="resultCase.heroImage" class="form-group full-width" style="margin-bottom: 2rem;">
+                          <label>
+                            <span class="label-text">Hero Image (Detail Page)</span>
+                            <span class="label-hint">Main image displayed at the top of the detail page</span>
+                          </label>
+                          <div class="photo-upload-section">
+                            <div class="photo-options">
+                              <label class="photo-option-label">
+                                <input
+                                  type="radio"
+                                  :name="`case-hero-image-type-${caseIndex}`"
+                                  value="url"
+                                  v-model="resultCase.heroImage.imageType"
+                                  @change="resultCase.heroImage.imageFileUrl = ''"
+                                />
+                                <span>Image URL</span>
+                              </label>
+                              <label class="photo-option-label">
+                                <input
+                                  type="radio"
+                                  :name="`case-hero-image-type-${caseIndex}`"
+                                  value="upload"
+                                  v-model="resultCase.heroImage.imageType"
+                                  @change="resultCase.heroImage.imageUrl = ''"
+                                />
+                                <span>Upload Image</span>
+                              </label>
+                            </div>
+                            <input
+                              v-if="resultCase.heroImage && resultCase.heroImage.imageType === 'url'"
+                              v-model="resultCase.heroImage.imageUrl"
+                              type="url"
+                              placeholder="https://example.com/hero.jpg"
+                              class="form-input"
+                              style="margin-top: 0.5rem;"
+                            />
+                            <div v-if="resultCase.heroImage && resultCase.heroImage.imageType === 'upload'" class="photo-upload-area">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                @change="handleCaseHeroImageUpload($event, caseIndex)"
+                                :id="`case-hero-image-upload-${caseIndex}`"
+                                class="photo-file-input"
+                              />
+                              <label :for="`case-hero-image-upload-${caseIndex}`" class="photo-upload-label">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                  <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                  <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>{{ resultCase.heroImage?.imageFileUrl ? 'Change Image' : 'Choose image file' }}</span>
+                              </label>
+                            </div>
+                            <div v-if="resultCase.heroImage?.imageUrl || resultCase.heroImage?.imageFileUrl" class="photo-preview">
+                              <p class="preview-label">Preview:</p>
+                              <img :src="resultCase.heroImage.imageFileUrl || resultCase.heroImage.imageUrl" alt="Hero Preview" class="photo-preview-img" />
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Before/After Section -->
+                        <div v-if="resultCase.beforeAfterSection" class="form-group full-width" style="margin-bottom: 2rem;">
+                          <label>
+                            <span class="label-text">Before/After Section</span>
+                            <span class="label-hint">Show campaign results comparison</span>
+                          </label>
+                          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
+                            <!-- Before -->
+                            <div>
+                              <label style="margin-bottom: 0.5rem; display: block;">
+                                <span class="label-text">Before Image</span>
+                              </label>
+                              <div class="photo-upload-section">
+                                <div class="photo-options">
+                                  <label class="photo-option-label">
+                                    <input
+                                      type="radio"
+                                      :name="`case-before-image-type-${caseIndex}`"
+                                      value="url"
+                                      v-model="resultCase.beforeAfterSection.beforeImageType"
+                                      @change="resultCase.beforeAfterSection.beforeImageFileUrl = ''"
+                                    />
+                                    <span>URL</span>
+                                  </label>
+                                  <label class="photo-option-label">
+                                    <input
+                                      type="radio"
+                                      :name="`case-before-image-type-${caseIndex}`"
+                                      value="upload"
+                                      v-model="resultCase.beforeAfterSection.beforeImageType"
+                                      @change="resultCase.beforeAfterSection.beforeImageUrl = ''"
+                                    />
+                                    <span>Upload</span>
+                                  </label>
+                                </div>
+                                <input
+                                  v-if="resultCase.beforeAfterSection && resultCase.beforeAfterSection.beforeImageType === 'url'"
+                                  v-model="resultCase.beforeAfterSection.beforeImageUrl"
+                                  type="url"
+                                  placeholder="Before image URL"
+                                  class="form-input"
+                                  style="margin-top: 0.5rem;"
+                                />
+                                <div v-if="resultCase.beforeAfterSection && resultCase.beforeAfterSection.beforeImageType === 'upload'" class="photo-upload-area">
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    @change="handleCaseBeforeImageUpload($event, caseIndex)"
+                                    :id="`case-before-image-upload-${caseIndex}`"
+                                    class="photo-file-input"
+                                  />
+                                  <label :for="`case-before-image-upload-${caseIndex}`" class="photo-upload-label">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                      <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                      <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span>{{ resultCase.beforeAfterSection?.beforeImageFileUrl ? 'Change' : 'Upload' }}</span>
+                                  </label>
+                                </div>
+                                <input
+                                  v-model="resultCase.beforeAfterSection.beforeCaption"
+                                  type="text"
+                                  placeholder="Before caption"
+                                  class="form-input"
+                                  style="margin-top: 0.5rem;"
+                                />
+                              </div>
+                            </div>
+                            <!-- After -->
+                            <div>
+                              <label style="margin-bottom: 0.5rem; display: block;">
+                                <span class="label-text">After Image</span>
+                              </label>
+                              <div class="photo-upload-section">
+                                <div class="photo-options">
+                                  <label class="photo-option-label">
+                                    <input
+                                      type="radio"
+                                      :name="`case-after-image-type-${caseIndex}`"
+                                      value="url"
+                                      v-model="resultCase.beforeAfterSection.afterImageType"
+                                      @change="resultCase.beforeAfterSection.afterImageFileUrl = ''"
+                                    />
+                                    <span>URL</span>
+                                  </label>
+                                  <label class="photo-option-label">
+                                    <input
+                                      type="radio"
+                                      :name="`case-after-image-type-${caseIndex}`"
+                                      value="upload"
+                                      v-model="resultCase.beforeAfterSection.afterImageType"
+                                      @change="resultCase.beforeAfterSection.afterImageUrl = ''"
+                                    />
+                                    <span>Upload</span>
+                                  </label>
+                                </div>
+                                <input
+                                  v-if="resultCase.beforeAfterSection && resultCase.beforeAfterSection.afterImageType === 'url'"
+                                  v-model="resultCase.beforeAfterSection.afterImageUrl"
+                                  type="url"
+                                  placeholder="After image URL"
+                                  class="form-input"
+                                  style="margin-top: 0.5rem;"
+                                />
+                                <div v-if="resultCase.beforeAfterSection && resultCase.beforeAfterSection.afterImageType === 'upload'" class="photo-upload-area">
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    @change="handleCaseAfterImageUpload($event, caseIndex)"
+                                    :id="`case-after-image-upload-${caseIndex}`"
+                                    class="photo-file-input"
+                                  />
+                                  <label :for="`case-after-image-upload-${caseIndex}`" class="photo-upload-label">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                      <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                      <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span>{{ resultCase.beforeAfterSection?.afterImageFileUrl ? 'Change' : 'Upload' }}</span>
+                                  </label>
+                                </div>
+                                <input
+                                  v-model="resultCase.beforeAfterSection.afterCaption"
+                                  type="text"
+                                  placeholder="After caption"
+                                  class="form-input"
+                                  style="margin-top: 0.5rem;"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Image Gallery Section -->
+                        <div class="form-group full-width" style="margin-bottom: 2rem;">
+                          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <label>
+                              <span class="label-text">Image Gallery Section</span>
+                              <span class="label-hint">Add images with titles and subtitles</span>
+                            </label>
+                            <button
+                              v-if="!resultCase.imageGallerySection"
+                              type="button"
+                              @click="resultCase.imageGallerySection = { images: [] }"
+                              class="btn-secondary"
+                              style="padding: 0.5rem 1rem;"
+                            >
+                              Enable Image Gallery
+                            </button>
+                          </div>
+                        </div>
+
+                        <!-- Our Approach Section -->
+                        <div v-if="resultCase.ourApproach" class="form-group full-width" style="margin-bottom: 2rem;">
+                          <label>
+                            <span class="label-text">Our Approach Title</span>
+                          </label>
+                          <input v-model="resultCase.ourApproach.title" type="text" placeholder="Our Approach" class="form-input" />
+                          <div style="margin-top: 1rem;">
+                            <div class="section-action-bar" style="margin-bottom: 1rem;">
+                              <span class="section-count">{{ resultCase.ourApproach?.steps?.length || 0 }} step{{ (resultCase.ourApproach?.steps?.length || 0) !== 1 ? 's' : '' }}</span>
+                              <button type="button" @click="addApproachStep(caseIndex)" class="btn-secondary" style="padding: 0.5rem 1rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                Add Step
+                              </button>
+                            </div>
+                            <div v-if="resultCase.ourApproach?.steps && resultCase.ourApproach.steps.length > 0">
+                              <div v-for="(step, stepIndex) in resultCase.ourApproach.steps" :key="step.id || stepIndex" style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(91, 32, 150, 0.1); border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                  <span style="color: #F5F7FA; font-weight: 500;">Step {{ stepIndex + 1 }}</span>
+                                  <button type="button" @click="removeApproachStep(caseIndex, stepIndex)" class="btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                    Remove
+                                  </button>
+                                </div>
+                                <div class="form-grid">
+                                  <div class="form-group">
+                                    <label>
+                                      <span class="label-text">Icon</span>
+                                      <span class="label-hint">Choose icon type</span>
+                                    </label>
+                                    <select v-model="step.icon" class="form-input">
+                                      <option value="magnifying-glass">Magnifying Glass</option>
+                                      <option value="target">Target</option>
+                                      <option value="lightbulb">Lightbulb</option>
+                                      <option value="gear">Gear</option>
+                                    </select>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>
+                                      <span class="label-text">Title</span>
+                                    </label>
+                                    <input v-model="step.title" type="text" placeholder="Step title" class="form-input" />
+                                  </div>
+                                  <div class="form-group full-width">
+                                    <label>
+                                      <span class="label-text">Description</span>
+                                    </label>
+                                    <textarea v-model="step.description" rows="2" placeholder="Step description" class="form-textarea"></textarea>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Image Gallery Section -->
+                        <div v-if="resultCase.imageGallerySection" class="form-group full-width" style="margin-bottom: 2rem;">
+                          <label>
+                            <span class="label-text">Image Gallery</span>
+                            <span class="label-hint">Add images with titles and subtitles</span>
+                          </label>
+                          <div style="margin-top: 1rem;">
+                            <div class="section-action-bar" style="margin-bottom: 1rem;">
+                              <span class="section-count">{{ resultCase.imageGallerySection?.images?.length || 0 }} image{{ (resultCase.imageGallerySection?.images?.length || 0) !== 1 ? 's' : '' }}</span>
+                              <button type="button" @click="addGalleryImage(caseIndex)" class="btn-secondary" style="padding: 0.5rem 1rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                Add Image
+                              </button>
+                            </div>
+                            <div v-if="resultCase.imageGallerySection?.images && resultCase.imageGallerySection.images.length > 0">
+                              <div v-for="(imageItem, imageIndex) in resultCase.imageGallerySection.images" :key="imageItem.id || imageIndex" style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(91, 32, 150, 0.1); border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                  <span style="color: #F5F7FA; font-weight: 500;">Image {{ imageIndex + 1 }}</span>
+                                  <button type="button" @click="removeGalleryImage(caseIndex, imageIndex)" class="btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                    Remove
+                                  </button>
+                                </div>
+                                <div class="form-grid">
+                                  <div class="form-group full-width">
+                                    <label>
+                                      <span class="label-text">Title</span>
+                                    </label>
+                                    <input v-model="imageItem.title" type="text" placeholder="Image title" class="form-input" />
+                                  </div>
+                                  <div class="form-group full-width">
+                                    <label>
+                                      <span class="label-text">Subtitle</span>
+                                    </label>
+                                    <input v-model="imageItem.subtitle" type="text" placeholder="Image subtitle" class="form-input" />
+                                  </div>
+                                  <div class="form-group full-width">
+                                    <label>
+                                      <span class="label-text">Image</span>
+                                    </label>
+                                    <div class="photo-upload-section">
+                                      <div class="photo-options">
+                                        <label class="photo-option-label">
+                                          <input
+                                            type="radio"
+                                            :name="`gallery-image-type-${caseIndex}-${imageIndex}`"
+                                            value="url"
+                                            v-model="imageItem.imageType"
+                                            @change="imageItem.imageFileUrl = ''"
+                                          />
+                                          <span>Image URL</span>
+                                        </label>
+                                        <label class="photo-option-label">
+                                          <input
+                                            type="radio"
+                                            :name="`gallery-image-type-${caseIndex}-${imageIndex}`"
+                                            value="upload"
+                                            v-model="imageItem.imageType"
+                                            @change="imageItem.imageUrl = ''"
+                                          />
+                                          <span>Upload Image</span>
+                                        </label>
+                                      </div>
+                                      <input
+                                        v-if="imageItem.imageType === 'url'"
+                                        v-model="imageItem.imageUrl"
+                                        type="url"
+                                        placeholder="https://example.com/image.jpg"
+                                        class="form-input"
+                                        style="margin-top: 0.5rem;"
+                                      />
+                                      <div v-if="imageItem.imageType === 'upload'" class="photo-upload-area">
+                                        <input
+                                          type="file"
+                                          accept="image/*"
+                                          @change="handleGalleryImageUpload($event, caseIndex, imageIndex)"
+                                          :id="`gallery-image-upload-${caseIndex}-${imageIndex}`"
+                                          class="photo-file-input"
+                                        />
+                                        <label :for="`gallery-image-upload-${caseIndex}-${imageIndex}`" class="photo-upload-label">
+                                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                          </svg>
+                                          <span>{{ imageItem.imageFileUrl ? 'Change Image' : 'Choose image file' }}</span>
+                                        </label>
+                                      </div>
+                                      <div v-if="imageItem.imageUrl || imageItem.imageFileUrl" class="photo-preview">
+                                        <p class="preview-label">Preview:</p>
+                                        <img :src="imageItem.imageFileUrl || imageItem.imageUrl" alt="Gallery Image Preview" class="photo-preview-img" />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1816,9 +2208,10 @@
               </div>
             </div>
           </div>
+        </div>
 
           <!-- About Page Editor -->
-          <div v-if="activeTab === 'about'" class="editor-section">
+          <div v-if="activeTab === 'about' && canAccessTab('about')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">ℹ️</div>
@@ -1840,7 +2233,7 @@
                 </h4>
                 <p class="content-section-description">Main title and description for the About page</p>
               </div>
-              
+
               <div class="form-grid">
                 <div class="form-group full-width">
                   <label>
@@ -1848,7 +2241,7 @@
                   </label>
                   <input v-model="aboutFormData.whoWeAreTitle" type="text" placeholder="Who We Are" class="form-input" />
                 </div>
-                
+
                 <div class="form-group full-width">
                   <label>
                     <span class="label-text">Description</span>
@@ -1962,30 +2355,30 @@
               <div class="video-manager">
                 <div class="video-options">
                   <label class="video-option-label">
-                    <input 
-                      type="radio" 
-                      name="aboutVideoType" 
-                      value="none" 
+                    <input
+                      type="radio"
+                      name="aboutVideoType"
+                      value="none"
                       v-model="aboutFormData.videoType"
                       @change="aboutFormData.videoUrl = ''; aboutFormData.videoFileUrl = ''"
                     />
                     <span>No Video</span>
                   </label>
                   <label class="video-option-label">
-                    <input 
-                      type="radio" 
-                      name="aboutVideoType" 
-                      value="upload" 
+                    <input
+                      type="radio"
+                      name="aboutVideoType"
+                      value="upload"
                       v-model="aboutFormData.videoType"
                       @change="aboutFormData.videoUrl = ''"
                     />
                     <span>Upload Video File</span>
                   </label>
                   <label class="video-option-label">
-                    <input 
-                      type="radio" 
-                      name="aboutVideoType" 
-                      value="link" 
+                    <input
+                      type="radio"
+                      name="aboutVideoType"
+                      value="link"
                       v-model="aboutFormData.videoType"
                       @change="aboutFormData.videoFileUrl = ''"
                     />
@@ -2000,9 +2393,9 @@
                     <span class="label-hint">Upload your own video file (MP4, WebM, MOV, or AVI). Max size: 100MB</span>
                   </label>
                   <div class="video-upload-area">
-                    <input 
-                      type="file" 
-                      accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi" 
+                    <input
+                      type="file"
+                      accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi"
                       @change="handleAboutVideoUpload"
                       ref="aboutVideoFileInput"
                       id="about-video-upload-input"
@@ -2043,19 +2436,19 @@
                     <span class="label-text">Video URL</span>
                     <span class="label-hint">YouTube or Vimeo link</span>
                   </label>
-                  <input 
-                    v-model="aboutFormData.videoUrl" 
-                    type="url" 
-                    placeholder="https://www.youtube.com/watch?v=..." 
+                  <input
+                    v-model="aboutFormData.videoUrl"
+                    type="url"
+                    placeholder="https://www.youtube.com/watch?v=..."
                     class="form-input"
                   />
                   <div v-if="aboutFormData.videoUrl" class="video-preview">
                     <p class="preview-label">Preview:</p>
                     <div class="video-preview-container">
-                      <iframe 
-                        :src="getVideoEmbedUrl(aboutFormData.videoUrl)" 
-                        frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      <iframe
+                        :src="getVideoEmbedUrl(aboutFormData.videoUrl)"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowfullscreen
                       ></iframe>
                     </div>
@@ -2070,7 +2463,7 @@
                 <h4 class="content-section-title">Call to Action Button</h4>
                 <p class="content-section-description">Button text and link</p>
               </div>
-              
+
               <div class="form-grid">
                 <div class="form-group">
                   <label>
@@ -2078,7 +2471,7 @@
                   </label>
                   <input v-model="aboutFormData.ctaButtonText" type="text" placeholder="Book a Meeting" class="form-input" />
                 </div>
-                
+
                 <div class="form-group">
                   <label>
                     <span class="label-text">Button Link (Optional)</span>
@@ -2128,17 +2521,39 @@
               </div>
 
               <div v-else class="team-grid-admin">
-                <div v-for="(member, index) in aboutFormData.teamMembers" :key="member.id || index" class="team-member-card-admin">
+                <div v-for="(member, index) in sortedTeamMembers" :key="member.id || index" class="team-member-card-admin">
                   <div class="team-member-header">
                     <div class="team-member-number">#{{ index + 1 }}</div>
                     <div class="team-member-actions">
-                      <button @click="startEditTeamMember(index)" class="btn-icon" title="Edit">
+                      <div class="reorder-buttons">
+                        <button
+                          @click="moveTeamMemberUp(index)"
+                          class="btn-icon btn-icon-reorder"
+                          title="Move Up"
+                          :disabled="index === 0"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </button>
+                        <button
+                          @click="moveTeamMemberDown(index)"
+                          class="btn-icon btn-icon-reorder"
+                          title="Move Down"
+                          :disabled="index === sortedTeamMembers.length - 1"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </button>
+                      </div>
+                      <button @click="startEditTeamMemberByOrder(member.order || index)" class="btn-icon" title="Edit">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </button>
-                      <button @click="deleteTeamMember(index)" class="btn-icon btn-icon-danger" title="Delete">
+                      <button @click="deleteTeamMemberByOrder(member.order || index)" class="btn-icon btn-icon-danger" title="Delete">
                         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2149,9 +2564,9 @@
 
                   <div v-if="editingTeamMemberId !== member.id" class="team-member-preview">
                     <div class="member-photo-preview">
-                      <img 
+                      <img
                         v-if="member.photoFileUrl || member.photoUrl"
-                        :src="member.photoFileUrl || member.photoUrl" 
+                        :src="member.photoFileUrl || member.photoUrl"
                         :alt="member.name"
                       />
                       <div v-else class="member-photo-placeholder-small">
@@ -2188,40 +2603,40 @@
                         <div class="photo-upload-section">
                           <div class="photo-options">
                             <label class="photo-option-label">
-                              <input 
-                                type="radio" 
-                                :name="`team-photo-type-${index}`" 
-                                value="url" 
-                                v-model="editTeamMemberForm.photoType" 
-                                @change="editTeamMemberForm.photoFileUrl = ''" 
+                              <input
+                                type="radio"
+                                :name="`team-photo-type-${index}`"
+                                value="url"
+                                v-model="editTeamMemberForm.photoType"
+                                @change="editTeamMemberForm.photoFileUrl = ''"
                               />
                               <span>Photo URL</span>
                             </label>
                             <label class="photo-option-label">
-                              <input 
-                                type="radio" 
-                                :name="`team-photo-type-${index}`" 
-                                value="upload" 
-                                v-model="editTeamMemberForm.photoType" 
-                                @change="editTeamMemberForm.photoUrl = ''" 
+                              <input
+                                type="radio"
+                                :name="`team-photo-type-${index}`"
+                                value="upload"
+                                v-model="editTeamMemberForm.photoType"
+                                @change="editTeamMemberForm.photoUrl = ''"
                               />
                               <span>Upload Photo</span>
                             </label>
                           </div>
 
-                          <input 
+                          <input
                             v-if="editTeamMemberForm.photoType === 'url'"
-                            v-model="editTeamMemberForm.photoUrl" 
-                            type="url" 
-                            placeholder="https://example.com/photo.jpg" 
+                            v-model="editTeamMemberForm.photoUrl"
+                            type="url"
+                            placeholder="https://example.com/photo.jpg"
                             class="form-input"
                             style="margin-top: 0.5rem;"
                           />
 
                           <div v-if="editTeamMemberForm.photoType === 'upload'" class="photo-upload-area">
-                            <input 
-                              type="file" 
-                              accept="image/png,image/jpeg,image/jpg,image/webp" 
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg,image/jpg,image/webp"
                               @change="handleTeamPhotoUpload($event, member.id || `temp-${index}`)"
                               :id="`team-photo-upload-${member.id || index}`"
                               class="photo-file-input"
@@ -2255,7 +2670,7 @@
 
                       <div class="form-group full-width">
                         <div class="form-actions">
-                          <button @click="saveTeamMemberEdit(index)" class="btn-primary">Save</button>
+                          <button @click="saveTeamMemberEditByOrder(member.order || index)" class="btn-primary">Save</button>
                           <button @click="cancelTeamMemberEdit" class="btn-secondary">Cancel</button>
                         </div>
                       </div>
@@ -2271,7 +2686,7 @@
                   </label>
                   <input v-model="aboutFormData.teamTitle" type="text" placeholder="Our Team" class="form-input" />
                 </div>
-                
+
                 <div class="form-group">
                   <label>
                     <span class="label-text">Team Section Subtitle</span>
@@ -2378,7 +2793,7 @@
           </div>
 
           <!-- Services Page Editor -->
-          <div v-if="activeTab === 'services-page'" class="editor-section">
+          <div v-if="activeTab === 'services-page' && canAccessTab('services-page')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">⚙️</div>
@@ -2412,7 +2827,7 @@
                   <textarea v-model="servicesFormData.whyChooseSubtitle" rows="2" placeholder="Creative thinking, fast execution, and results-driven content built for modern brands." class="form-textarea"></textarea>
                 </div>
               </div>
-              
+
               <div class="section-action-bar">
                 <div class="section-info">
                   <span class="section-count">{{ servicesFormData.whyChooseFeatures?.length || 0 }} feature{{ (servicesFormData.whyChooseFeatures?.length || 0) !== 1 ? 's' : '' }}</span>
@@ -2517,7 +2932,7 @@
           </div>
 
           <!-- Footer Editor -->
-          <div v-if="activeTab === 'footer'" class="editor-section">
+          <div v-if="activeTab === 'footer' && canAccessTab('footer')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">📄</div>
@@ -2527,7 +2942,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group full-width">
                 <label>
@@ -2535,7 +2950,7 @@
                 </label>
                 <textarea v-model="formData.footerTagline" rows="3" placeholder="Your creative digital partner for high-impact video ads and marketing content." class="form-textarea"></textarea>
               </div>
-              
+
               <div class="form-group full-width">
                 <label>
                   <span class="label-text">Address</span>
@@ -2546,8 +2961,239 @@
             </div>
           </div>
 
+          <!-- Legal Pages Editor -->
+          <div v-if="activeTab === 'legal-pages' && canAccessTab('legal-pages')" class="editor-section">
+            <div class="section-header">
+              <div class="section-title-group">
+                <div class="section-icon">⚖️</div>
+                <div>
+                  <h3>Legal Pages</h3>
+                  <p class="section-description">Manage Privacy Policy, Terms of Service, and Cookie Policy content</p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Privacy Policy Section -->
+            <div class="content-section-card">
+              <div class="content-section-header">
+                <div class="content-section-title-group">
+                  <div class="content-section-icon">🔒</div>
+                  <h3 class="content-section-title">Privacy Policy</h3>
+                </div>
+                <p class="content-section-description">Your website's privacy policy - explains how you collect and use user data</p>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Page Title</span>
+                  </label>
+                  <input v-model="legalFormData.privacyPolicy.title" type="text" placeholder="Privacy Policy" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Last Updated Date</span>
+                  </label>
+                  <input v-model="legalFormData.privacyPolicy.lastUpdated" type="text" placeholder="January 31, 2026" class="form-input" />
+                </div>
+              </div>
+
+              <div class="section-action-bar">
+                <div class="section-info">
+                  <span class="section-count">{{ legalFormData.privacyPolicy.sections?.length || 0 }} section{{ (legalFormData.privacyPolicy.sections?.length || 0) !== 1 ? 's' : '' }}</span>
+                </div>
+                <button @click="addLegalSection('privacy')" class="btn-primary">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  Add Section
+                </button>
+              </div>
+
+              <div v-if="legalFormData.privacyPolicy.sections && legalFormData.privacyPolicy.sections.length > 0" class="legal-sections-list">
+                <div v-for="(section, index) in legalFormData.privacyPolicy.sections" :key="section.id" class="legal-section-item">
+                  <div class="legal-section-header">
+                    <div class="legal-section-number">#{{ index + 1 }}</div>
+                    <div class="legal-section-title">{{ section.heading }}</div>
+                    <div class="legal-section-actions">
+                      <button @click="startEditLegalSection('privacy', index)" class="btn-icon btn-icon-warning" title="Edit section">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87866 20 1.87866C20.5626 1.87866 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10218 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                      <button @click="removeLegalSection('privacy', index)" class="btn-icon btn-icon-danger" title="Remove section">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="legal-section-preview">{{ section.content.substring(0, 150) }}{{ section.content.length > 150 ? '...' : '' }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Terms of Service Section -->
+            <div class="content-section-card">
+              <div class="content-section-header">
+                <div class="content-section-title-group">
+                  <div class="content-section-icon">📜</div>
+                  <h3 class="content-section-title">Terms of Service</h3>
+                </div>
+                <p class="content-section-description">Terms and conditions for using your website and services</p>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Page Title</span>
+                  </label>
+                  <input v-model="legalFormData.termsOfService.title" type="text" placeholder="Terms of Service" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Last Updated Date</span>
+                  </label>
+                  <input v-model="legalFormData.termsOfService.lastUpdated" type="text" placeholder="January 31, 2026" class="form-input" />
+                </div>
+              </div>
+
+              <div class="section-action-bar">
+                <div class="section-info">
+                  <span class="section-count">{{ legalFormData.termsOfService.sections?.length || 0 }} section{{ (legalFormData.termsOfService.sections?.length || 0) !== 1 ? 's' : '' }}</span>
+                </div>
+                <button @click="addLegalSection('terms')" class="btn-primary">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  Add Section
+                </button>
+              </div>
+
+              <div v-if="legalFormData.termsOfService.sections && legalFormData.termsOfService.sections.length > 0" class="legal-sections-list">
+                <div v-for="(section, index) in legalFormData.termsOfService.sections" :key="section.id" class="legal-section-item">
+                  <div class="legal-section-header">
+                    <div class="legal-section-number">#{{ index + 1 }}</div>
+                    <div class="legal-section-title">{{ section.heading }}</div>
+                    <div class="legal-section-actions">
+                      <button @click="startEditLegalSection('terms', index)" class="btn-icon btn-icon-warning" title="Edit section">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87866 20 1.87866C20.5626 1.87866 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10218 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                      <button @click="removeLegalSection('terms', index)" class="btn-icon btn-icon-danger" title="Remove section">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="legal-section-preview">{{ section.content.substring(0, 150) }}{{ section.content.length > 150 ? '...' : '' }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Cookie Policy Section -->
+            <div class="content-section-card">
+              <div class="content-section-header">
+                <div class="content-section-title-group">
+                  <div class="content-section-icon">🍪</div>
+                  <h3 class="content-section-title">Cookie Policy</h3>
+                </div>
+                <p class="content-section-description">Information about how your website uses cookies</p>
+              </div>
+
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Page Title</span>
+                  </label>
+                  <input v-model="legalFormData.cookiePolicy.title" type="text" placeholder="Cookie Policy" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Last Updated Date</span>
+                  </label>
+                  <input v-model="legalFormData.cookiePolicy.lastUpdated" type="text" placeholder="January 31, 2026" class="form-input" />
+                </div>
+              </div>
+
+              <div class="section-action-bar">
+                <div class="section-info">
+                  <span class="section-count">{{ legalFormData.cookiePolicy.sections?.length || 0 }} section{{ (legalFormData.cookiePolicy.sections?.length || 0) !== 1 ? 's' : '' }}</span>
+                </div>
+                <button @click="addLegalSection('cookies')" class="btn-primary">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                  </svg>
+                  Add Section
+                </button>
+              </div>
+
+              <div v-if="legalFormData.cookiePolicy.sections && legalFormData.cookiePolicy.sections.length > 0" class="legal-sections-list">
+                <div v-for="(section, index) in legalFormData.cookiePolicy.sections" :key="section.id" class="legal-section-item">
+                  <div class="legal-section-header">
+                    <div class="legal-section-number">#{{ index + 1 }}</div>
+                    <div class="legal-section-title">{{ section.heading }}</div>
+                    <div class="legal-section-actions">
+                      <button @click="startEditLegalSection('cookies', index)" class="btn-icon btn-icon-warning" title="Edit section">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87866 20 1.87866C20.5626 1.87866 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10218 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                      <button @click="removeLegalSection('cookies', index)" class="btn-icon btn-icon-danger" title="Remove section">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+                  <div class="legal-section-preview">{{ section.content.substring(0, 150) }}{{ section.content.length > 150 ? '...' : '' }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Edit Legal Section Modal -->
+            <div v-if="editingLegalPolicy !== null" class="modal-overlay" @click.self="cancelEditLegalSection">
+              <div class="modal-content">
+                <div class="modal-header">
+                  <h3>Edit {{ editingLegalPolicy === 'privacy' ? 'Privacy Policy' : editingLegalPolicy === 'terms' ? 'Terms of Service' : 'Cookie Policy' }} Section</h3>
+                  <button @click="cancelEditLegalSection" class="modal-close">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="modal-body">
+                  <div class="form-group">
+                    <label>
+                      <span class="label-text">Section Heading</span>
+                    </label>
+                    <input v-model="editLegalSectionForm.heading" type="text" placeholder="e.g., Information We Collect" class="form-input" />
+                  </div>
+                  <div class="form-group">
+                    <label>
+                      <span class="label-text">Section Content</span>
+                    </label>
+                    <textarea v-model="editLegalSectionForm.content" rows="8" placeholder="Enter the section content..." class="form-textarea"></textarea>
+                  </div>
+                </div>
+                <div class="modal-footer">
+                  <button @click="cancelEditLegalSection" class="btn-secondary">Cancel</button>
+                  <button @click="saveLegalSection" class="btn-primary">Save Section</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Email Submissions -->
-          <div v-if="activeTab === 'email-submissions'" class="editor-section">
+          <div v-if="activeTab === 'email-submissions' && canAccessTab('email-submissions')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">📧</div>
@@ -2565,38 +3211,38 @@
                 Refresh
               </button>
             </div>
-            
+
             <div v-if="loadingEmails" class="loading-state">
               <div class="upload-spinner"></div>
               <p>Loading email submissions...</p>
             </div>
-            
+
             <div v-else-if="emailSubmissions.length === 0" class="empty-state">
               <p>No email submissions yet.</p>
             </div>
-            
+
             <div v-else class="email-submissions-list">
               <div class="submissions-header">
                 <div class="submission-count">
                   <span>Total: {{ emailSubmissions.length }} submission{{ emailSubmissions.length !== 1 ? 's' : '' }}</span>
                 </div>
                 <div class="submission-filters">
-                  <button 
-                    @click="emailFilter = 'all'" 
+                  <button
+                    @click="emailFilter = 'all'"
                     class="filter-btn"
                     :class="{ 'active': emailFilter === 'all' }"
                   >
                     All
                   </button>
-                  <button 
-                    @click="emailFilter = 'confirmed'" 
+                  <button
+                    @click="emailFilter = 'confirmed'"
                     class="filter-btn"
                     :class="{ 'active': emailFilter === 'confirmed' }"
                   >
                     Confirmed
                   </button>
-                  <button 
-                    @click="emailFilter = 'pending'" 
+                  <button
+                    @click="emailFilter = 'pending'"
                     class="filter-btn"
                     :class="{ 'active': emailFilter === 'pending' }"
                   >
@@ -2604,7 +3250,7 @@
                   </button>
                 </div>
               </div>
-              
+
               <div class="submissions-table">
                 <div class="table-header">
                   <div class="table-cell">Email</div>
@@ -2613,10 +3259,10 @@
                   <div class="table-cell">Submitted At</div>
                   <div class="table-cell">Actions</div>
                 </div>
-                
-                <div 
-                  v-for="submission in filteredEmailSubmissions" 
-                  :key="submission.id" 
+
+                <div
+                  v-for="submission in filteredEmailSubmissions"
+                  :key="submission.id"
                   class="table-row"
                 >
                   <div class="table-cell">
@@ -2629,8 +3275,8 @@
                     </div>
                   </div>
                   <div class="table-cell">
-                    <span 
-                      class="status-badge" 
+                    <span
+                      class="status-badge"
                       :class="{
                         'status-pending': submission.status === 'pending',
                         'status-confirmed': submission.status === 'confirmed',
@@ -2648,8 +3294,8 @@
                     {{ formatDate(submission.createdAt) }}
                   </div>
                   <div class="table-cell">
-                    <button 
-                      @click="resendConfirmationEmail(submission)" 
+                    <button
+                      @click="resendConfirmationEmail(submission)"
                       class="btn-icon btn-small"
                       :disabled="submission.confirmationEmailSent"
                       title="Resend Confirmation Email"
@@ -2667,7 +3313,7 @@
           </div>
 
           <!-- Contact Messages -->
-          <div v-if="activeTab === 'contact-messages'" class="editor-section">
+          <div v-if="activeTab === 'contact-messages' && canAccessTab('contact-messages')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">💬</div>
@@ -2677,44 +3323,44 @@
                 </div>
               </div>
             </div>
-            
+
             <div v-if="loadingContactMessages" class="loading-state">
               <div class="loading-spinner"></div>
               <p>Loading messages...</p>
             </div>
-            
+
             <div v-else-if="contactMessages.length === 0" class="empty-state">
               <p>No contact messages yet.</p>
             </div>
-            
+
             <div v-else class="contact-messages-list">
               <div class="submissions-header">
                 <div class="submission-count">
                   <span>Total: {{ contactMessages.length }} message{{ contactMessages.length !== 1 ? 's' : '' }}</span>
                 </div>
                 <div class="submission-filters">
-                  <button 
+                  <button
                     :class="['filter-btn', { active: contactMessageFilter === 'all' }]"
                     @click="contactMessageFilter = 'all'"
                   >All</button>
-                  <button 
+                  <button
                     :class="['filter-btn', { active: contactMessageFilter === 'pending' }]"
                     @click="contactMessageFilter = 'pending'"
                   >Pending</button>
-                  <button 
+                  <button
                     :class="['filter-btn', { active: contactMessageFilter === 'read' }]"
                     @click="contactMessageFilter = 'read'"
                   >Read</button>
-                  <button 
+                  <button
                     :class="['filter-btn', { active: contactMessageFilter === 'replied' }]"
                     @click="contactMessageFilter = 'replied'"
                   >Replied</button>
                 </div>
               </div>
-              
+
               <div class="messages-grid">
-                <div 
-                  v-for="message in filteredContactMessages" 
+                <div
+                  v-for="message in filteredContactMessages"
                   :key="message.id"
                   class="message-card"
                   :class="{ 'message-unread': message.status === 'pending' }"
@@ -2738,7 +3384,7 @@
                     {{ message.message }}
                   </div>
                   <div class="message-actions">
-                    <select 
+                    <select
                       :value="message.status"
                       @change="updateContactMessageStatus(message.id!, ($event.target as HTMLSelectElement).value as ContactMessage['status'])"
                       class="status-select"
@@ -2753,7 +3399,11 @@
                       </svg>
                       Reply
                     </a>
-                    <button @click="deleteContactMessage(message.id!)" class="btn-delete">
+                    <button
+                      v-if="hasPermission('delete_contact_messages')"
+                      @click="deleteContactMessage(message.id!)"
+                      class="btn-delete"
+                    >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         <path d="M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -2766,7 +3416,7 @@
           </div>
 
           <!-- Contact Settings -->
-          <div v-if="activeTab === 'contact-settings'" class="editor-section">
+          <div v-if="activeTab === 'contact-settings' && canAccessTab('contact-settings')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">📞</div>
@@ -2776,7 +3426,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-section">
               <h4 class="subsection-title">Page Header</h4>
               <div class="form-group">
@@ -2805,7 +3455,7 @@
 
             <div class="form-section">
               <h4 class="subsection-title">Contact Information</h4>
-              
+
               <div class="contact-info-grid">
                 <!-- Instagram -->
                 <div class="contact-info-card">
@@ -2878,7 +3528,7 @@
           </div>
 
           <!-- User Management (Admin Only) -->
-          <div v-if="activeTab === 'users' && isAdmin" class="editor-section">
+          <div v-if="activeTab === 'users' && isAdmin && canAccessTab('users')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">👥</div>
@@ -2908,13 +3558,28 @@
                 <div class="form-group">
                   <label>Role</label>
                   <select v-model="newUserForm.role" class="form-input">
-                    <option value="user">User</option>
-                    <option value="admin">Admin</option>
+                    <option v-for="role in roles" :key="role.id" :value="role.name">
+                      {{ role.name }}
+                      <template v-if="role.description"> - {{ role.description }}</template>
+                    </option>
                   </select>
+                  <p v-if="getSelectedRolePermissions(newUserForm.role).length > 0" class="role-permissions-hint">
+                    <span class="hint-label">Permissions:</span>
+                    {{ getSelectedRolePermissions(newUserForm.role).slice(0, 3).map(p => getPermissionLabel(p)).join(', ') }}
+                    <span v-if="getSelectedRolePermissions(newUserForm.role).length > 3">
+                      +{{ getSelectedRolePermissions(newUserForm.role).length - 3 }} more
+                    </span>
+                  </p>
                 </div>
               </div>
-              <button @click="createUser" :disabled="isAdminLoading" class="btn-primary" style="margin-top: 1rem;">
-                Create User
+              <button @click="createUser" :disabled="isAdminLoading || !newUserForm.email || !newUserForm.password" class="btn-primary" style="margin-top: 1rem;">
+                <svg v-if="!isAdminLoading" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M16 21V19C16 17.9391 15.5786 16.9217 14.8284 16.1716C14.0783 15.4214 13.0609 15 12 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <circle cx="8.5" cy="7" r="4" stroke="currentColor" stroke-width="2"/>
+                  <path d="M20 8V14M17 11H23" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <div v-else class="btn-spinner"></div>
+                {{ isAdminLoading ? 'Creating...' : 'Create User' }}
               </button>
             </div>
 
@@ -2929,7 +3594,14 @@
                       <div class="user-main-info">
                         <h5>{{ u.email }}</h5>
                         <p>{{ u.displayName || 'No display name' }}</p>
-                        <span class="user-role-badge" :class="{ 'role-admin': u.role === 'admin', 'role-user': u.role === 'user' }">
+                        <span
+                          class="user-role-badge"
+                          :class="{
+                            'role-admin': u.role === 'admin',
+                            'role-user': u.role === 'user'
+                          }"
+                          :title="getRoleDescription(u.role || '')"
+                        >
                           {{ u.role }}
                         </span>
                       </div>
@@ -2941,9 +3613,9 @@
                           <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </button>
-                        <button 
-                          @click="resetUserPassword(u.email)" 
-                        class="btn-icon btn-icon-warning" 
+                        <button
+                          @click="resetUserPassword(u.email)"
+                        class="btn-icon btn-icon-warning"
                           title="Send password reset email"
                         >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2952,9 +3624,9 @@
                           <path d="M20.49 9C19.95 5.95 17.42 3.42 14.37 2.88M3.51 15C4.05 18.05 6.58 20.58 9.63 21.12M14.37 2.88C13.69 2.95 13.02 3.11 12.37 3.37M9.63 21.12C10.31 21.05 10.98 20.89 11.63 20.63M14.37 2.88L17.37 5.88M9.63 21.12L6.63 18.12M17.37 5.88L20.37 2.88M6.63 18.12L3.63 21.12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                         </button>
-                        <button 
-                          @click="deleteUser(u.id)" 
-                        class="btn-icon btn-icon-danger" 
+                        <button
+                          @click="deleteUser(u.id)"
+                        class="btn-icon btn-icon-danger"
                         title="Delete user"
                         >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2978,17 +3650,26 @@
                       <div class="form-group">
                         <label>Role</label>
                         <select v-model="editUserForm.role" class="form-input">
-                          <option value="user">User</option>
-                          <option value="admin">Admin</option>
+                          <option v-for="role in roles" :key="role.id" :value="role.name">
+                            {{ role.name }}
+                          </option>
                         </select>
+                        <p v-if="getSelectedRolePermissions(editUserForm.role).length > 0" class="role-permissions-hint">
+                          <span class="hint-label">Permissions:</span>
+                          {{ getSelectedRolePermissions(editUserForm.role).slice(0, 3).map(p => getPermissionLabel(p)).join(', ') }}
+                          <span v-if="getSelectedRolePermissions(editUserForm.role).length > 3">
+                            +{{ getSelectedRolePermissions(editUserForm.role).length - 3 }} more
+                          </span>
+                        </p>
                       </div>
                     </div>
                     <div class="user-edit-actions">
-                      <button @click="saveUserEdit(u.id)" :disabled="isAdminLoading" class="btn-primary">
-                        Save
-                      </button>
                       <button @click="cancelUserEdit" class="btn-secondary">
                         Cancel
+                      </button>
+                      <button @click="saveUserEdit(u.id)" :disabled="isAdminLoading" class="btn-primary">
+                        <div v-if="isAdminLoading" class="btn-spinner"></div>
+                        {{ isAdminLoading ? 'Saving...' : 'Save Changes' }}
                       </button>
                     </div>
                   </div>
@@ -2998,14 +3679,26 @@
           </div>
 
           <!-- Role Management (Admin Only) -->
-          <div v-if="activeTab === 'roles' && isAdmin" class="editor-section">
+          <div v-if="activeTab === 'roles' && isAdmin && canAccessTab('roles')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">🔐</div>
                 <div>
                   <h3>Role Management</h3>
-                  <p class="section-description">Create and manage roles</p>
+                  <p class="section-description">Create and manage roles with specific permissions</p>
                 </div>
+              </div>
+            </div>
+
+            <!-- Info Banner -->
+            <div class="info-banner">
+              <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                <path d="M12 16V12" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                <circle cx="12" cy="8" r="1" fill="currentColor"/>
+              </svg>
+              <div>
+                <strong>How permissions work:</strong> When you update a role's permissions, users with that role will see the changes when they refresh their page or log in again.
               </div>
             </div>
 
@@ -3015,42 +3708,137 @@
               <div class="form-grid">
                 <div class="form-group">
                   <label>Role Name</label>
-                  <input v-model="newRoleForm.name" type="text" placeholder="editor" class="form-input" />
+                  <input v-model="newRoleForm.name" type="text" placeholder="e.g., content_writer" class="form-input" />
                 </div>
                 <div class="form-group full-width">
                   <label>Description</label>
-                  <textarea v-model="newRoleForm.description" rows="2" placeholder="Role description" class="form-textarea"></textarea>
+                  <textarea v-model="newRoleForm.description" rows="2" placeholder="Describe what this role can do" class="form-textarea"></textarea>
                 </div>
               </div>
-              <button @click="createRole" :disabled="isAdminLoading" class="btn-primary" style="margin-top: 1rem;">
-                Create Role
+
+              <!-- Permissions Selection -->
+              <div class="permissions-section">
+                <h5 class="permissions-title">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+                    <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Permissions
+                </h5>
+                <p class="permissions-description">Select what this role can access and modify</p>
+
+                <div class="permissions-categories">
+                  <div v-for="(permissions, category) in permissionsByCategory" :key="category" class="permission-category">
+                    <div class="category-header">
+                      <h6 class="category-title">{{ category }}</h6>
+                      <div class="category-actions">
+                        <button
+                          type="button"
+                          @click="selectAllInCategory(newRoleForm, category)"
+                          class="category-btn"
+                          :class="{ 'active': allCategorySelected(newRoleForm, category) }"
+                        >
+                          Select All
+                        </button>
+                        <button
+                          type="button"
+                          @click="deselectAllInCategory(newRoleForm, category)"
+                          class="category-btn"
+                        >
+                          Clear
+                        </button>
+                      </div>
+                    </div>
+                    <div class="permission-checkboxes">
+                      <label
+                        v-for="permission in permissions"
+                        :key="permission.id"
+                        class="permission-checkbox"
+                        :class="{ 'checked': newRoleForm.permissions.includes(permission.id) }"
+                      >
+                        <input
+                          type="checkbox"
+                          :checked="newRoleForm.permissions.includes(permission.id)"
+                          @change="togglePermission(newRoleForm, permission.id)"
+                        />
+                        <span class="checkbox-custom"></span>
+                        <span class="checkbox-label">{{ permission.label }}</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <div class="selected-permissions-count">
+                  <span class="count-badge">{{ newRoleForm.permissions.length }}</span>
+                  permission{{ newRoleForm.permissions.length !== 1 ? 's' : '' }} selected
+                </div>
+              </div>
+
+              <button @click="createRole" :disabled="isAdminLoading || !newRoleForm.name" class="btn-primary" style="margin-top: 1.5rem;">
+                <svg v-if="!isAdminLoading" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                </svg>
+                <div v-else class="btn-spinner"></div>
+                {{ isAdminLoading ? 'Creating...' : 'Create Role' }}
               </button>
             </div>
 
             <!-- Roles List -->
             <div class="admin-table-card">
-              <h4>All Roles</h4>
-              <div v-if="isAdminLoading" class="loading-text">Loading roles...</div>
+              <h4>Existing Roles</h4>
+              <div v-if="isAdminLoading && roles.length === 0" class="loading-text">Loading roles...</div>
+              <div v-else-if="roles.length === 0" class="empty-state">
+                <p>No roles created yet. Create your first role above.</p>
+              </div>
               <div v-else class="roles-list">
                 <div v-for="role in roles" :key="role.id" class="role-card">
                   <div v-if="editingRoleId !== role.id" class="role-card-content">
-                  <div>
-                    <h5>{{ role.name }}</h5>
-                    <p>{{ role.description || 'No description' }}</p>
+                    <div class="role-info">
+                      <div class="role-header">
+                        <h5 class="role-name">
+                          {{ role.name }}
+                          <span v-if="role.name === 'admin'" class="role-badge admin-badge">System</span>
+                          <span v-else-if="role.name === 'user'" class="role-badge user-badge">Default</span>
+                        </h5>
+                        <p class="role-description">{{ role.description || 'No description provided' }}</p>
+                      </div>
                       <div v-if="role.permissions && role.permissions.length > 0" class="role-permissions">
-                        <span class="permission-badge" v-for="permission in role.permissions" :key="permission">
-                          {{ permission }}
-                        </span>
-                  </div>
-                </div>
+                        <span class="permissions-label">Permissions:</span>
+                        <div class="permission-badges">
+                          <span
+                            v-for="permission in role.permissions.slice(0, 5)"
+                            :key="permission"
+                            class="permission-badge"
+                            :title="getPermissionLabel(permission)"
+                          >
+                            {{ getPermissionLabel(permission) }}
+                          </span>
+                          <span
+                            v-if="role.permissions.length > 5"
+                            class="permission-badge more-badge"
+                            :title="role.permissions.slice(5).map(p => getPermissionLabel(p)).join(', ')"
+                          >
+                            +{{ role.permissions.length - 5 }} more
+                          </span>
+                        </div>
+                      </div>
+                      <div v-else class="role-no-permissions">
+                        <span>No permissions assigned</span>
+                      </div>
+                    </div>
                     <div class="role-actions">
-                      <button @click="startEditRole(role)" class="btn-icon" title="Edit role">
+                      <button @click="startEditRole(role)" class="btn-icon btn-icon-warning" title="Edit role">
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </button>
-                      <button @click="deleteRole(role.id)" class="btn-icon btn-icon-danger" title="Delete role" :disabled="role.name === 'admin' || role.name === 'user'">
+                      <button
+                        @click="deleteRole(role.id)"
+                        class="btn-icon btn-icon-danger"
+                        title="Delete role"
+                        :disabled="role.name === 'admin' || role.name === 'user'"
+                      >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -3058,24 +3846,89 @@
                       </button>
                     </div>
                   </div>
+
                   <!-- Edit Form -->
                   <div v-else class="role-edit-form">
                     <div class="form-grid">
                       <div class="form-group">
                         <label>Role Name</label>
-                        <input v-model="editRoleForm.name" type="text" class="form-input" />
+                        <input
+                          v-model="editRoleForm.name"
+                          type="text"
+                          class="form-input"
+                          :disabled="role.name === 'admin' || role.name === 'user'"
+                        />
                       </div>
                       <div class="form-group full-width">
                         <label>Description</label>
                         <textarea v-model="editRoleForm.description" rows="2" class="form-textarea"></textarea>
                       </div>
                     </div>
+
+                    <!-- Permissions Selection for Edit -->
+                    <div class="permissions-section">
+                      <h5 class="permissions-title">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/>
+                          <path d="M9 12L11 14L15 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Permissions
+                      </h5>
+
+                      <div class="permissions-categories">
+                        <div v-for="(permissions, category) in permissionsByCategory" :key="category" class="permission-category">
+                          <div class="category-header">
+                            <h6 class="category-title">{{ category }}</h6>
+                            <div class="category-actions">
+                              <button
+                                type="button"
+                                @click="selectAllInCategory(editRoleForm, category)"
+                                class="category-btn"
+                                :class="{ 'active': allCategorySelected(editRoleForm, category) }"
+                              >
+                                Select All
+                              </button>
+                              <button
+                                type="button"
+                                @click="deselectAllInCategory(editRoleForm, category)"
+                                class="category-btn"
+                              >
+                                Clear
+                              </button>
+                            </div>
+                          </div>
+                          <div class="permission-checkboxes">
+                            <label
+                              v-for="permission in permissions"
+                              :key="permission.id"
+                              class="permission-checkbox"
+                              :class="{ 'checked': editRoleForm.permissions.includes(permission.id) }"
+                            >
+                              <input
+                                type="checkbox"
+                                :checked="editRoleForm.permissions.includes(permission.id)"
+                                @change="togglePermission(editRoleForm, permission.id)"
+                              />
+                              <span class="checkbox-custom"></span>
+                              <span class="checkbox-label">{{ permission.label }}</span>
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+
+                      <div class="selected-permissions-count">
+                        <span class="count-badge">{{ editRoleForm.permissions.length }}</span>
+                        permission{{ editRoleForm.permissions.length !== 1 ? 's' : '' }} selected
+                      </div>
+                    </div>
+
                     <div class="role-edit-actions">
-                      <button @click="saveRoleEdit(role.id)" :disabled="isAdminLoading" class="btn-primary">
-                        Save
-                      </button>
                       <button @click="cancelRoleEdit" class="btn-secondary">
                         Cancel
+                      </button>
+                      <button @click="saveRoleEdit(role.id)" :disabled="isAdminLoading" class="btn-primary">
+                        <div v-if="isAdminLoading" class="btn-spinner"></div>
+                        {{ isAdminLoading ? 'Saving...' : 'Save Changes' }}
                       </button>
                     </div>
                   </div>
@@ -3085,45 +3938,861 @@
           </div>
 
           <!-- Site Settings (Admin Only) -->
-          <div v-if="activeTab === 'site-settings' && isAdmin" class="editor-section">
+          <div v-if="activeTab === 'site-settings' && isAdmin && canAccessTab('site-settings')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">⚙️</div>
                 <div>
                   <h3>Site Settings</h3>
-                  <p class="section-description">Enable or disable website sections</p>
+                  <p class="section-description">Manage all website settings and configurations</p>
+                </div>
+              </div>
+              <button @click="saveSiteSettings" :disabled="isSavingSiteSettings" class="btn-primary btn-small">
+                <svg v-if="!isSavingSiteSettings" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16L21 8V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M17 21V13H7V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M7 3V8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div v-else class="btn-spinner"></div>
+                {{ isSavingSiteSettings ? 'Saving...' : 'Save All Settings' }}
+              </button>
+            </div>
+
+            <!-- General Settings -->
+            <div class="admin-table-card" style="margin-bottom: 2rem;">
+              <h4>🌐 General Settings</h4>
+              <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Configure basic website information and branding
+              </p>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Site Name</span>
+                  </label>
+                  <input v-model="siteGeneralSettings.siteName" type="text" placeholder="Clear Up" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Site Tagline</span>
+                  </label>
+                  <input v-model="siteGeneralSettings.siteTagline" type="text" placeholder="Your creative digital partner" class="form-input" />
+                </div>
+                <div class="form-group full-width">
+                  <label>
+                    <span class="label-text">Site Description</span>
+                    <span class="label-hint">Brief description of your website</span>
+                  </label>
+                  <textarea v-model="siteGeneralSettings.siteDescription" rows="3" placeholder="A comprehensive marketing system..." class="form-textarea"></textarea>
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Site URL</span>
+                  </label>
+                  <input v-model="siteGeneralSettings.siteUrl" type="url" placeholder="https://yourdomain.com" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Contact Email</span>
+                  </label>
+                  <input v-model="siteGeneralSettings.contactEmail" type="email" placeholder="info@yourdomain.com" class="form-input" />
+                </div>
+              </div>
+            </div>
+
+            <!-- SEO Settings -->
+            <div class="admin-table-card" style="margin-bottom: 2rem;">
+              <h4>🔍 SEO Settings</h4>
+              <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Optimize your website for search engines
+              </p>
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label>
+                    <span class="label-text">Meta Title</span>
+                    <span class="label-hint">Appears in browser tabs and search results (50-60 characters)</span>
+                  </label>
+                  <input v-model="siteSEOSettings.metaTitle" type="text" placeholder="Clear Up - Marketing System" class="form-input" maxlength="60" />
+                  <span class="char-count">{{ siteSEOSettings.metaTitle?.length || 0 }}/60</span>
+                </div>
+                <div class="form-group full-width">
+                  <label>
+                    <span class="label-text">Meta Description</span>
+                    <span class="label-hint">Brief description for search engines (150-160 characters)</span>
+                  </label>
+                  <textarea v-model="siteSEOSettings.metaDescription" rows="3" placeholder="A done-for-you marketing system..." class="form-textarea" maxlength="160"></textarea>
+                  <span class="char-count">{{ siteSEOSettings.metaDescription?.length || 0 }}/160</span>
+                </div>
+                <div class="form-group full-width">
+                  <label>
+                    <span class="label-text">Meta Keywords</span>
+                    <span class="label-hint">Comma-separated keywords</span>
+                  </label>
+                  <input v-model="siteSEOSettings.metaKeywords" type="text" placeholder="marketing, digital, branding" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">OG Image URL</span>
+                    <span class="label-hint">Social media preview image (1200x630px)</span>
+                  </label>
+                  <input v-model="siteSEOSettings.ogImage" type="url" placeholder="https://yourdomain.com/og-image.jpg" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Twitter Handle</span>
+                    <span class="label-hint">@username</span>
+                  </label>
+                  <input v-model="siteSEOSettings.twitterHandle" type="text" placeholder="@yourhandle" class="form-input" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Social Media Links -->
+            <div class="admin-table-card" style="margin-bottom: 2rem;">
+              <h4>📱 Social Media Links</h4>
+              <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Add your social media profiles
+              </p>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Facebook URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.facebook" type="url" placeholder="https://facebook.com/yourpage" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Instagram URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.instagram" type="url" placeholder="https://instagram.com/yourprofile" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Twitter/X URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.twitter" type="url" placeholder="https://twitter.com/yourhandle" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">LinkedIn URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.linkedin" type="url" placeholder="https://linkedin.com/company/yourcompany" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">YouTube URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.youtube" type="url" placeholder="https://youtube.com/@yourchannel" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">TikTok URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.tiktok" type="url" placeholder="https://tiktok.com/@yourhandle" class="form-input" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Maintenance Mode Settings -->
+            <div class="admin-table-card" style="margin-bottom: 2rem;">
+              <h4>🔧 Maintenance Mode</h4>
+              <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Control website maintenance mode
+              </p>
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label class="toggle-switch-large">
+                    <input
+                      type="checkbox"
+                      v-model="siteSettings.maintenanceMode"
+                      @change="saveSiteSettings"
+                    />
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label-large">
+                      <strong>{{ siteSettings.maintenanceMode ? 'Maintenance Mode Active' : 'Website Online' }}</strong>
+                      <span class="toggle-description">{{ siteSettings.maintenanceMode ? 'Website is currently offline' : 'Website is accessible to visitors' }}</span>
+                    </span>
+                  </label>
+                </div>
+                <div v-if="siteSettings.maintenanceMode" class="form-group full-width">
+                  <label>
+                    <span class="label-text">Maintenance Message</span>
+                    <span class="label-hint">Message shown to visitors during maintenance</span>
+                  </label>
+                  <textarea v-model="siteSettings.maintenanceMessage" rows="3" placeholder="We're currently performing maintenance. Please check back soon." class="form-textarea"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Management -->
+            <div class="admin-table-card">
+              <h4>📋 Section Management</h4>
+              <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Enable or disable website sections. Disabled sections will be hidden from the website.
+              </p>
+              <div v-if="isAdminLoading" class="loading-text">Loading settings...</div>
+              <div v-else class="sections-groups">
+                <!-- Home Page Sections -->
+                <div class="section-group">
+                  <h5 class="section-group-title">🏠 Home Page</h5>
+                  <div class="sections-list">
+                    <div v-for="section in homeSections" :key="section.id" class="section-toggle-item">
+                      <div class="section-info">
+                        <h5>{{ section.label }}</h5>
+                        <span class="section-id">ID: {{ section.id }}</span>
+                      </div>
+                      <label class="toggle-switch">
+                        <input
+                          type="checkbox"
+                          :checked="!siteSettings.disabledSections?.includes(section.id)"
+                          @change="toggleSection(section.id, !($event.target as HTMLInputElement).checked)"
+                        />
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">{{ siteSettings.disabledSections?.includes(section.id) ? 'Disabled' : 'Enabled' }}</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- About Page Sections -->
+                <div class="section-group">
+                  <h5 class="section-group-title">ℹ️ About Page</h5>
+                  <div class="sections-list">
+                    <div v-for="section in aboutSections" :key="section.id" class="section-toggle-item">
+                      <div class="section-info">
+                        <h5>{{ section.label }}</h5>
+                        <span class="section-id">ID: {{ section.id }}</span>
+                      </div>
+                      <label class="toggle-switch">
+                        <input
+                          type="checkbox"
+                          :checked="!siteSettings.disabledSections?.includes(section.id)"
+                          @change="toggleSection(section.id, !($event.target as HTMLInputElement).checked)"
+                        />
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">{{ siteSettings.disabledSections?.includes(section.id) ? 'Disabled' : 'Enabled' }}</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Services Page Sections -->
+                <div class="section-group">
+                  <h5 class="section-group-title">🛠️ Services Page</h5>
+                  <div class="sections-list">
+                    <div v-for="section in servicesSections" :key="section.id" class="section-toggle-item">
+                      <div class="section-info">
+                        <h5>{{ section.label }}</h5>
+                        <span class="section-id">ID: {{ section.id }}</span>
+                      </div>
+                      <label class="toggle-switch">
+                        <input
+                          type="checkbox"
+                          :checked="!siteSettings.disabledSections?.includes(section.id)"
+                          @change="toggleSection(section.id, !($event.target as HTMLInputElement).checked)"
+                        />
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">{{ siteSettings.disabledSections?.includes(section.id) ? 'Disabled' : 'Enabled' }}</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Maintenance Mode (Admin Only) -->
+          <div v-if="activeTab === 'maintenance' && isAdmin && canAccessTab('maintenance')" class="editor-section">
+            <div class="section-header">
+              <div class="section-title-group">
+                <div class="section-icon">🔧</div>
+                <div>
+                  <h3>Maintenance Mode</h3>
+                  <p class="section-description">Control website maintenance with multi-admin approval</p>
+                </div>
+              </div>
+              <button @click="loadMaintenanceData" class="btn-secondary btn-small" :disabled="loadingMaintenance">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M23 20V14H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M20.49 9C19.95 5.95 17.42 3.42 14.37 2.88M3.51 15C4.05 18.05 6.58 20.58 9.63 21.12M14.37 2.88C13.69 2.95 13.02 3.11 12.37 3.37M9.63 21.12C10.31 21.05 10.98 20.89 11.63 20.63M14.37 2.88L17.37 5.88M9.63 21.12L6.63 18.12M17.37 5.88L20.37 2.88M6.63 18.12L3.63 21.12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Refresh
+              </button>
+            </div>
+
+            <div v-if="loadingMaintenance" class="loading-state">
+              <div class="upload-spinner"></div>
+              <p>Loading maintenance status...</p>
+            </div>
+
+            <div v-else class="maintenance-content">
+              <!-- Current Status -->
+              <div class="maintenance-status-card" :class="{ 'active': isMaintenanceActive }">
+                <div class="status-header">
+                  <div class="status-indicator" :class="{ 'active': isMaintenanceActive }"></div>
+                  <h4>{{ isMaintenanceActive ? 'Maintenance Mode Active' : 'Website Online' }}</h4>
+                </div>
+                <p v-if="activeMaintenanceRequest" class="status-details">
+                  {{ activeMaintenanceRequest.type === 'turn_off' ? 'Website is currently offline for maintenance.' : 'Website is online.' }}
+                </p>
+                <p v-else class="status-details">Website is currently online and accessible.</p>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="maintenance-actions">
+                <button
+                  v-if="!isMaintenanceActive"
+                  @click="showTurnOffModal = true"
+                  class="btn-danger btn-large"
+                  :disabled="hasPendingRequest"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Turn Off Website
+                </button>
+                <button
+                  v-else
+                  @click="showTurnOnModal = true"
+                  class="btn-success btn-large"
+                  :disabled="hasPendingRequest"
+                >
+                  <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Turn On Website
+                </button>
+              </div>
+
+              <!-- Pending Requests -->
+              <div v-if="pendingRequests.length > 0" class="pending-requests-section">
+                <h4 class="subsection-title">Pending Approval Requests</h4>
+                <div class="requests-list">
+                  <div v-for="request in pendingRequests" :key="request.id" class="request-card">
+                    <div class="request-header">
+                      <div class="request-info">
+                        <h5>{{ request.type === 'turn_off' ? 'Turn Off Website' : 'Turn On Website' }}</h5>
+                        <p class="request-meta">
+                          Requested by <strong>{{ request.requestedByName || request.requestedByEmail }}</strong>
+                          <span v-if="request.createdAt" class="request-time">
+                            on {{ formatMaintenanceDate(request.createdAt) }}
+                          </span>
+                        </p>
+                        <p v-if="request.message" class="request-message">{{ request.message }}</p>
+                        <p v-if="request.estimatedEndTime" class="request-time">
+                          Estimated end: {{ formatMaintenanceDate(request.estimatedEndTime) }}
+                        </p>
+                      </div>
+                      <div class="request-status-badge pending">Pending (1/2)</div>
+                    </div>
+                    <div class="request-actions">
+                      <button
+                        v-if="request.requestedBy !== currentUserId"
+                        @click="approveMaintenanceRequest(request.id!)"
+                        class="btn-success btn-small"
+                        :disabled="processingRequest === request.id"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M20 6L9 17L4 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Approve
+                      </button>
+                      <button
+                        v-if="request.requestedBy !== currentUserId"
+                        @click="() => { rejectRequest = request; showRejectModal = true }"
+                        class="btn-danger btn-small"
+                        :disabled="processingRequest === request.id"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Reject
+                      </button>
+                      <button
+                        v-if="request.requestedBy === currentUserId"
+                        @click="cancelMaintenanceRequest(request.id!)"
+                        class="btn-secondary btn-small"
+                        :disabled="processingRequest === request.id"
+                      >
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                        Cancel
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Request History -->
+              <div v-if="maintenanceHistory.length > 0" class="maintenance-history-section">
+                <h4 class="subsection-title">Request History</h4>
+                <div class="history-list">
+                  <div v-for="request in maintenanceHistory" :key="request.id" class="history-item">
+                    <div class="history-info">
+                      <div class="history-type">
+                        <span class="history-badge" :class="request.type">{{ request.type === 'turn_off' ? 'Turn Off' : 'Turn On' }}</span>
+                        <span class="history-status" :class="request.status">{{ request.status }}</span>
+                      </div>
+                      <p class="history-meta">
+                        Requested by <strong>{{ request.requestedByName || request.requestedByEmail }}</strong>
+                        <span v-if="request.approvedBy">, approved by <strong>{{ request.approvedByName || request.approvedByEmail }}</strong></span>
+                        <span v-if="request.createdAt" class="history-time"> on {{ formatMaintenanceDate(request.createdAt) }}</span>
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Bookings Management (Admin Only) -->
+          <div v-if="activeTab === 'bookings' && isAdmin && canAccessTab('bookings')" class="editor-section">
+            <div class="section-header">
+              <div class="section-title-group">
+                <div class="section-icon">📅</div>
+                <div>
+                  <h3>Meeting Bookings</h3>
+                  <p class="section-description">View and manage all meeting bookings</p>
+                </div>
+              </div>
+              <div class="section-header-actions">
+                <div v-if="upcomingBookingsCount > 0" class="reminder-badge">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
+                  </svg>
+                  {{ upcomingBookingsCount }} upcoming
+                </div>
+                <button @click="refreshBookings" class="btn-secondary">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M23 20V14H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <path d="M20.49 9C19.95 5.95 17.42 3.42 14.37 2.88M3.51 15C4.05 18.05 6.58 20.58 9.63 21.12M14.37 2.88C13.69 2.95 13.02 3.11 12.37 3.37M9.63 21.12C10.31 21.05 10.98 20.89 11.63 20.63M14.37 2.88L17.37 5.88M9.63 21.12L6.63 18.12M17.37 5.88L20.37 2.88M6.63 18.12L3.63 21.12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  </svg>
+                  Refresh
+                </button>
+              </div>
+            </div>
+
+            <!-- Upcoming Bookings Reminder -->
+            <div v-if="upcomingBookings.length > 0" class="reminder-section">
+              <div class="reminder-header">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
+                </svg>
+                <h4>Upcoming Meetings (Next 24 Hours)</h4>
+              </div>
+              <div class="reminder-list">
+                <div
+                  v-for="booking in upcomingBookings"
+                  :key="booking.id"
+                  class="reminder-item"
+                >
+                  <div class="reminder-time">{{ formatBookingDateTime(booking) }}</div>
+                  <div class="reminder-info">
+                    <strong>{{ booking.userName }}</strong>
+                    <span>{{ booking.userEmail }}</span>
+                  </div>
+                  <button @click="startEditBooking(booking)" class="btn-icon-small" title="View/Edit">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+
+            <!-- View Toggle -->
+            <div class="view-toggle">
+              <button
+                @click="bookingViewMode = 'list'"
+                :class="['view-toggle-btn', { active: bookingViewMode === 'list' }]"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 6H21M8 12H21M8 18H21M3 6H3.01M3 12H3.01M3 18H3.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                List View
+              </button>
+              <button
+                @click="bookingViewMode = 'calendar'"
+                :class="['view-toggle-btn', { active: bookingViewMode === 'calendar' }]"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M8 2V6M16 2V6M3 10H21M5 4H19C20.1046 4 21 4.89543 21 6V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V6C3 4.89543 3.89543 4 5 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Calendar View
+              </button>
+              <button
+                @click="bookingViewMode = 'availability'"
+                :class="['view-toggle-btn', { active: bookingViewMode === 'availability' }]"
+              >
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
+                </svg>
+                Manage Availability
+              </button>
+            </div>
+
+            <!-- List View -->
+            <div v-if="bookingViewMode === 'list'" class="admin-table-card">
+              <div v-if="isLoadingBookings && bookings.length === 0" class="loading-text">Loading bookings...</div>
+              <div v-else-if="bookings.length === 0" class="empty-state">
+                <p>No bookings found.</p>
+              </div>
+              <div v-else class="bookings-list">
+                <div v-for="booking in sortedBookings" :key="booking.id" class="booking-card">
+                  <div v-if="editingBookingId !== booking.id" class="booking-card-content">
+                    <div class="booking-info">
+                      <div class="booking-header">
+                        <h5 class="booking-user-name">{{ booking.userName }}</h5>
+                        <span :class="['booking-status-badge', `status-${booking.status}`]">
+                          {{ booking.status }}
+                        </span>
+                      </div>
+                      <div class="booking-details">
+                        <div class="booking-detail-item">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M4 4H20C21.1 4 22 4.9 22 6V20C22 21.1 21.1 22 20 22H4C2.9 22 2 21.1 2 20V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                          <span>{{ booking.userEmail }}</span>
+                        </div>
+                        <div class="booking-detail-item">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2"/>
+                            <path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                          </svg>
+                          <span>{{ formatBookingDateTime(booking) }}</span>
+                        </div>
+                        <div v-if="booking.userPhone" class="booking-detail-item">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M22 16.92V19.92C22.0011 20.1985 21.9441 20.4742 21.8325 20.7292C21.7209 20.9842 21.5573 21.2131 21.3522 21.4014C21.1472 21.5897 20.9053 21.7334 20.6391 21.8232C20.373 21.913 20.0882 21.9468 19.8052 21.9222C16.7427 21.5857 13.7862 20.5341 11.19 18.8522C8.77382 17.3147 6.72533 15.2662 5.18779 12.85C3.50589 10.2538 2.45428 7.29729 2.11779 4.23479C2.09319 3.9518 2.127 3.66898 2.2168 3.40285C2.30659 3.13672 2.45026 2.89479 2.63857 2.68975C2.82688 2.48471 3.05578 2.32115 3.31078 2.20955C3.56578 2.09795 3.84149 2.04095 4.11979 2.04192H7.11979C7.59722 2.04192 8.05553 2.23158 8.39379 2.56984C8.73205 2.9081 8.92171 3.36641 8.92171 3.84392C8.92171 4.32143 8.73205 4.77974 8.39379 5.118C8.05553 5.45626 7.59722 5.64592 7.11979 5.64592H5.11979C5.11979 7.92092 5.80979 10.1209 7.08979 11.9809L8.51979 10.5509C8.85979 10.2109 9.31979 10.0209 9.79979 10.0209C10.2798 10.0209 10.7398 10.2109 11.0798 10.5509L13.5198 12.9909C13.8598 13.3309 14.0498 13.7909 14.0498 14.2709C14.0498 14.7509 13.8598 15.2109 13.5198 15.5509L12.0898 16.9809C13.9498 18.2609 16.1498 18.9509 18.4248 18.9509H16.4248C15.9473 18.9509 15.489 19.1406 15.1507 19.4788C14.8125 19.8171 14.6228 20.2754 14.6228 20.7529C14.6228 21.2304 14.8125 21.6887 15.1507 22.027C15.489 22.3652 15.9473 22.5549 16.4248 22.5549H19.4248C19.9023 22.5549 20.3606 22.3652 20.6989 22.027C21.0371 21.6887 21.2268 21.2304 21.2268 20.7529C21.2268 20.2754 21.0371 19.8171 20.6989 19.4788C20.3606 19.1406 19.9023 18.9509 19.4248 18.9509V16.9509C19.9023 16.9509 20.3606 17.1406 20.6989 17.4788C21.0371 17.8171 21.2268 18.2754 21.2268 18.7529C21.2268 19.2304 21.0371 19.6887 20.6989 20.027C20.3606 20.3652 19.9023 20.5549 19.4248 20.5549Z" fill="currentColor"/>
+                          </svg>
+                          <span>{{ booking.userPhone }}</span>
+                        </div>
+                        <div class="booking-detail-item">
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/>
+                          </svg>
+                          <span>{{ booking.contactMethod === 'email' ? 'Email' : 'WhatsApp' }}</span>
+                        </div>
+                        <div v-if="booking.meetingLink" class="booking-detail-item">
+                          <a :href="booking.meetingLink" target="_blank" class="meeting-link">
+                            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                              <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                              <path d="M15 3H21M21 3V9M21 3L9 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                            Meeting Link
+                          </a>
+                        </div>
+                      </div>
+                      <div v-if="booking.notes" class="booking-notes">
+                        <strong>Notes:</strong> {{ booking.notes }}
+                      </div>
+                    </div>
+                    <div class="booking-actions">
+                      <button @click="startEditBooking(booking)" class="btn-icon" title="Edit booking">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M11 4H4C3.46957 4 2.96086 4.21071 2.58579 4.58579C2.21071 4.96086 2 5.46957 2 6V20C2 20.5304 2.21071 21.0391 2.58579 21.4142C2.96086 21.7893 3.46957 22 4 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                      <button
+                        v-if="booking.status !== 'cancelled'"
+                        @click="cancelBooking(booking.id!)"
+                        class="btn-icon btn-icon-danger"
+                        title="Cancel booking"
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                      <button
+                        @click="deleteBooking(booking.id!)"
+                        class="btn-icon btn-icon-danger"
+                        title="Delete booking"
+                      >
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                        </svg>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- Edit Booking Form -->
+                  <div v-else-if="editingBookingId === booking.id" class="booking-edit-form">
+                    <div class="form-grid">
+                      <div class="form-group">
+                        <label>User Name</label>
+                        <input v-model="editBookingForm.userName" type="text" class="form-input" />
+                      </div>
+                      <div class="form-group">
+                        <label>Email</label>
+                        <input v-model="editBookingForm.userEmail" type="email" class="form-input" />
+                      </div>
+                      <div class="form-group">
+                        <label>Phone</label>
+                        <input v-model="editBookingForm.userPhone" type="tel" class="form-input" />
+                      </div>
+                      <div class="form-group">
+                        <label>Date</label>
+                        <input v-model="editBookingForm.meetingDate" type="date" class="form-input" />
+                      </div>
+                      <div class="form-group">
+                        <label>Time</label>
+                        <input v-model="editBookingForm.meetingTime" type="time" class="form-input" />
+                      </div>
+                      <div class="form-group">
+                        <label>Status</label>
+                        <select v-model="editBookingForm.status" class="form-input">
+                          <option value="pending">Pending</option>
+                          <option value="confirmed">Confirmed</option>
+                          <option value="cancelled">Cancelled</option>
+                          <option value="completed">Completed</option>
+                        </select>
+                      </div>
+                      <div class="form-group full-width">
+                        <label>Notes</label>
+                        <textarea v-model="editBookingForm.notes" rows="3" class="form-textarea"></textarea>
+                      </div>
+                    </div>
+                    <div class="booking-edit-actions">
+                      <button @click="cancelBookingEdit" class="btn-secondary" :disabled="isSavingBooking">Cancel</button>
+                      <button @click="saveBookingEdit(booking.id!)" :disabled="isSavingBooking" class="btn-primary">
+                        <div v-if="isSavingBooking" class="btn-spinner"></div>
+                        {{ isSavingBooking ? 'Saving...' : 'Save Changes' }}
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Calendar View -->
+            <div v-if="bookingViewMode === 'calendar'" class="admin-table-card">
+              <div class="calendar-view-container">
+                <div class="calendar-header-controls">
+                  <button @click="previousMonth" class="calendar-nav-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                  <h4>{{ calendarMonthYear }}</h4>
+                  <button @click="nextMonth" class="calendar-nav-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                  </button>
+                </div>
+                <div class="admin-calendar-grid">
+                  <div class="calendar-day-header" v-for="day in dayHeaders" :key="day">
+                    {{ day }}
+                  </div>
+                  <div
+                    v-for="day in adminCalendarDays"
+                    :key="day.date.toISOString()"
+                    class="admin-calendar-day"
+                    :class="{
+                      'other-month': !day.isCurrentMonth,
+                      'has-booking': day.bookings.length > 0,
+                      'today': day.isToday
+                    }"
+                    @click="selectCalendarDate(day.date)"
+                  >
+                    <div class="calendar-day-number">{{ day.day }}</div>
+                    <div v-if="day.bookings.length > 0" class="calendar-day-bookings">
+                      <div
+                        v-for="booking in day.bookings"
+                        :key="booking.id"
+                        class="calendar-booking-dot"
+                        :class="`status-${booking.status}`"
+                        :title="`${booking.userName} - ${booking.meetingTime}`"
+                      ></div>
+                    </div>
+                  </div>
+                </div>
+                <div v-if="selectedCalendarDate" class="selected-date-bookings">
+                  <h5>Bookings on {{ formatSelectedDate(selectedCalendarDate) }}</h5>
+                  <div v-if="getBookingsForDate(selectedCalendarDate).length === 0" class="no-bookings">
+                    No bookings for this date
+                  </div>
+                  <div v-else class="date-bookings-list">
+                    <div
+                      v-for="booking in getBookingsForDate(selectedCalendarDate)"
+                      :key="booking.id"
+                      class="date-booking-item"
+                    >
+                      <div class="booking-time">{{ booking.meetingTime }}</div>
+                      <div class="booking-info">
+                        <strong>{{ booking.userName }}</strong>
+                        <span class="booking-email">{{ booking.userEmail }}</span>
+                      </div>
+                      <div class="booking-actions">
+                        <span :class="['booking-status-badge', `status-${booking.status}`]">
+                          {{ booking.status }}
+                        </span>
+                        <button
+                          v-if="booking.id"
+                          @click="deleteBooking(booking.id)"
+                          class="btn-icon btn-icon-danger"
+                          title="Delete booking"
+                          style="margin-left: 8px;"
+                        >
+                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M3 6H5H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                            <path d="M8 6V4C8 3.46957 8.21071 2.96086 8.58579 2.58579C8.96086 2.21071 9.46957 2 10 2H14C14.5304 2 15.0391 2.21071 15.4142 2.58579C15.7893 2.96086 16 3.46957 16 4V6M19 6V20C19 20.5304 18.7893 21.0391 18.4142 21.4142C18.0391 21.7893 17.5304 22 17 22H7C6.46957 22 5.96086 21.7893 5.58579 21.4142C5.21071 21.0391 5 20.5304 5 20V6H19Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                          </svg>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Availability Management View -->
+            <div v-if="bookingViewMode === 'availability'" class="admin-table-card">
+              <div class="availability-management">
+                <div class="availability-header">
+                  <h4>Manage Your Availability</h4>
+                  <p class="section-description">Block or unblock time slots to control when meetings can be booked</p>
+                </div>
+
+                <div class="availability-calendar-container">
+                  <div class="calendar-header-controls">
+                    <button @click="previousAvailabilityMonth" class="calendar-nav-btn">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M15 18L9 12L15 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                    <h4>{{ availabilityMonthYear }}</h4>
+                    <button @click="nextAvailabilityMonth" class="calendar-nav-btn">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <path d="M9 18L15 12L9 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                      </svg>
+                    </button>
+                  </div>
+
+                  <div class="admin-calendar-grid">
+                    <div class="calendar-day-header" v-for="day in dayHeaders" :key="day">
+                      {{ day }}
+                    </div>
+                    <div
+                      v-for="day in availabilityCalendarDays"
+                      :key="day.date.toISOString()"
+                      class="admin-calendar-day"
+                      :class="{
+                        'other-month': !day.isCurrentMonth,
+                        'selected': isSelectedAvailabilityDate(day.date),
+                        'today': day.isToday
+                      }"
+                      @click="selectAvailabilityDate(day.date)"
+                    >
+                      <div class="calendar-day-number">{{ day.day }}</div>
+                    </div>
+                  </div>
+
+                  <div v-if="selectedAvailabilityDate" class="availability-date-controls">
+                    <h5>Manage Time Slots for {{ formatSelectedDate(selectedAvailabilityDate) }}</h5>
+                    <div class="time-slots-management">
+                      <div
+                        v-for="slot in defaultTimeSlots"
+                        :key="slot"
+                        class="time-slot-control"
+                        :class="{ 'blocked': isTimeSlotBlocked(selectedAvailabilityDate, slot) }"
+                      >
+                        <div class="time-slot-info">
+                          <span class="time-slot-time">{{ formatTime(slot) }}</span>
+                          <span v-if="isTimeSlotBlocked(selectedAvailabilityDate, slot)" class="blocked-reason">
+                            {{ getBlockedReason(selectedAvailabilityDate, slot) }}
+                          </span>
+                        </div>
+                        <button
+                          @click="toggleTimeSlot(selectedAvailabilityDate, slot)"
+                          :class="['btn-toggle', isTimeSlotBlocked(selectedAvailabilityDate, slot) ? 'btn-unblock' : 'btn-block']"
+                        >
+                          {{ isTimeSlotBlocked(selectedAvailabilityDate, slot) ? 'Unblock' : 'Block' }}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                  <div v-else class="select-date-message">
+                    <p>Select a date from the calendar above to manage time slots</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Google Calendar Settings (Admin Only) -->
+          <div v-if="activeTab === 'google-calendar' && isAdmin && canAccessTab('google-calendar')" class="editor-section">
+            <div class="section-header">
+              <div class="section-title-group">
+                <div class="section-icon">📅</div>
+                <div>
+                  <h3>Google Calendar Integration</h3>
+                  <p class="section-description">Connect your Google Calendar to automatically create Google Meet links for bookings</p>
                 </div>
               </div>
             </div>
 
             <div class="admin-table-card">
-              <h4>Section Management</h4>
-              <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
-                Disable sections that need to be fixed or are experiencing errors. Disabled sections will be hidden from the website.
-              </p>
-              <div v-if="isAdminLoading" class="loading-text">Loading settings...</div>
-              <div v-else class="sections-list">
-                <div v-for="section in availableSections" :key="section.id" class="section-toggle-item">
-                  <div class="section-info">
-                    <h5>{{ section.label }}</h5>
-                    <span class="section-id">ID: {{ section.id }}</span>
+              <div v-if="isLoadingGoogleCalendar" class="loading-text">Loading...</div>
+              <div v-else>
+                <div v-if="isGoogleCalendarConnected" class="google-calendar-connected">
+                  <div class="connection-status success">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M9 12L11 14L15 10M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#28a745" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div>
+                      <h4>Google Calendar Connected</h4>
+                      <p>Your Google Calendar is connected. Google Meet links will be automatically created for new bookings.</p>
+                    </div>
                   </div>
-                  <label class="toggle-switch">
-                    <input 
-                      type="checkbox" 
-                      :checked="!siteSettings.disabledSections?.includes(section.id)"
-                      @change="toggleSection(section.id, !($event.target as HTMLInputElement).checked)"
-                    />
-                    <span class="toggle-slider"></span>
-                    <span class="toggle-label">{{ siteSettings.disabledSections?.includes(section.id) ? 'Disabled' : 'Enabled' }}</span>
-                  </label>
+                  <button @click="disconnectGoogleCalendar" class="btn-secondary" style="margin-top: 20px;">
+                    Disconnect Google Calendar
+                  </button>
+                </div>
+                <div v-else class="google-calendar-disconnected">
+                  <div class="connection-status">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <path d="M12 8V12M12 16H12.01M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <div>
+                      <h4>Google Calendar Not Connected</h4>
+                      <p>Connect your Google Calendar to automatically create Google Meet events and send calendar invites when users book meetings.</p>
+                    </div>
+                  </div>
+                  <div class="connection-benefits">
+                    <h5>Benefits of connecting:</h5>
+                    <ul>
+                      <li>✅ Automatic Google Meet link generation for each booking</li>
+                      <li>✅ Calendar invites sent to both you and the user</li>
+                      <li>✅ Automatic event updates when bookings are rescheduled</li>
+                      <li>✅ Event cancellation when bookings are cancelled</li>
+                    </ul>
+                  </div>
+                  <button @click="connectGoogleCalendar" class="btn-primary" style="margin-top: 20px;">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg" style="margin-right: 8px;">
+                      <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM16.64 8.8C16.49 10.38 15.84 11.9 14.96 13.1C14.06 14.3 13.03 15.28 11.8 16.04C11.5 16.22 11.2 16.3 10.88 16.37C10.57 16.44 10.23 16.5 9.89 16.5H9.75C9.44 16.5 9.14 16.4 8.88 16.23C8.61 16.06 8.38 15.82 8.24 15.53L8.09 15.23C7.95 14.94 7.9 14.62 7.96 14.31C8.02 14 8.18 13.72 8.42 13.5C8.66 13.28 8.97 13.14 9.29 13.1H9.43C9.67 13.07 9.9 13.04 10.12 13C10.95 12.83 11.66 12.5 12.3 12.01C12.93 11.52 13.46 10.9 13.85 10.19C14.25 9.48 14.5 8.69 14.6 7.85C14.62 7.67 14.65 7.49 14.67 7.31C14.69 7.13 14.7 6.95 14.7 6.77C14.7 6.22 14.47 5.69 14.07 5.29C13.67 4.89 13.14 4.66 12.59 4.66C12.04 4.66 11.51 4.89 11.11 5.29C10.71 5.69 10.48 6.22 10.48 6.77H8.48C8.48 5.66 8.92 4.6 9.71 3.81C10.5 3.02 11.56 2.58 12.67 2.58C13.78 2.58 14.84 3.02 15.63 3.81C16.42 4.6 16.86 5.66 16.86 6.77C16.86 7.15 16.8 7.52 16.69 7.88C16.58 8.24 16.42 8.58 16.22 8.89L16.64 8.8Z" fill="currentColor"/>
+                    </svg>
+                    Connect Google Calendar
+                  </button>
+                </div>
+                <div v-if="googleCalendarError" class="error-message" style="margin-top: 20px;">
+                  {{ googleCalendarError }}
                 </div>
               </div>
             </div>
           </div>
 
           <!-- Activity Logs (Admin Only) -->
-          <div v-if="activeTab === 'activity-logs' && isAdmin" class="editor-section">
+          <div v-if="activeTab === 'activity-logs' && isAdmin && canAccessTab('activity-logs')" class="editor-section">
             <div class="section-header">
               <div class="section-title-group">
                 <div class="section-icon">📋</div>
@@ -3199,8 +4868,149 @@
             </div>
           </div>
 
+          <!-- Analytics Section -->
+          <div v-if="activeTab === 'analytics' && canAccessTab('analytics')" class="editor-section">
+            <div class="section-header">
+              <div class="section-title-group">
+                <div class="section-icon">📊</div>
+                <div>
+                  <h3>Website Analytics</h3>
+                  <p class="section-description">View visitor statistics, countries, and traffic trends</p>
+                </div>
+              </div>
+              <button @click="loadAnalytics" :disabled="loadingAnalytics" class="btn-secondary btn-small">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M23 20V14H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M20.49 9C19.95 5.95 17.42 3.42 14.37 2.88M3.51 15C4.05 18.05 6.58 20.58 9.63 21.12M14.37 2.88C13.69 2.95 13.02 3.11 12.37 3.37M9.63 21.12C10.31 21.05 10.98 20.89 11.63 20.63M14.37 2.88L17.37 5.88M9.63 21.12L6.63 18.12M17.37 5.88L20.37 2.88M6.63 18.12L3.63 21.12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Refresh
+              </button>
+            </div>
+
+            <!-- Statistics Cards -->
+            <div class="analytics-stats-grid">
+              <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                  <div class="stat-label">Total Visits</div>
+                  <div class="stat-value">{{ analyticsStats.totalVisits.toLocaleString() }}</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">🆔</div>
+                <div class="stat-content">
+                  <div class="stat-label">Unique Visitors</div>
+                  <div class="stat-value">{{ analyticsStats.uniqueVisitors.toLocaleString() }}</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-content">
+                  <div class="stat-label">Today</div>
+                  <div class="stat-value">{{ analyticsStats.todayVisits.toLocaleString() }}</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">📆</div>
+                <div class="stat-content">
+                  <div class="stat-label">This Month</div>
+                  <div class="stat-value">{{ analyticsStats.thisMonthVisits.toLocaleString() }}</div>
+                </div>
+              </div>
+              <div class="stat-card">
+                <div class="stat-icon">🗓️</div>
+                <div class="stat-content">
+                  <div class="stat-label">This Year</div>
+                  <div class="stat-value">{{ analyticsStats.thisYearVisits.toLocaleString() }}</div>
+                </div>
+              </div>
+            </div>
+
+            <!-- Time Period Selector -->
+            <div class="analytics-period-selector">
+              <button
+                v-for="period in analyticsPeriods"
+                :key="period.value"
+                @click="selectedAnalyticsPeriod = period.value as 'daily' | 'monthly' | 'yearly'"
+                :class="['period-btn', { active: selectedAnalyticsPeriod === period.value }]"
+              >
+                {{ period.label }}
+              </button>
+            </div>
+
+            <!-- Charts -->
+            <div class="analytics-charts-grid">
+              <!-- Daily/Monthly/Yearly Chart -->
+              <div class="chart-card">
+                <h4 class="chart-title">
+                  {{ selectedAnalyticsPeriod === 'daily' ? 'Daily' : selectedAnalyticsPeriod === 'monthly' ? 'Monthly' : 'Yearly' }} Visits
+                </h4>
+                <div class="chart-wrapper">
+                  <AnalyticsChart
+                    :type="selectedAnalyticsPeriod === 'yearly' ? 'bar' : 'line'"
+                    :data="timeSeriesChartData"
+                    :options="{
+                      plugins: {
+                        legend: { display: false }
+                      },
+                      scales: {
+                        y: {
+                          beginAtZero: true,
+                          ticks: {
+                            precision: 0
+                          }
+                        }
+                      }
+                    }"
+                  />
+                </div>
+              </div>
+
+              <!-- Country Chart -->
+              <div class="chart-card">
+                <h4 class="chart-title">Visits by Country</h4>
+                <div class="chart-wrapper">
+                  <AnalyticsChart
+                    type="doughnut"
+                    :data="countryChartData"
+                    :options="{
+                      plugins: {
+                        legend: {
+                          position: 'right'
+                        }
+                      }
+                    }"
+                  />
+                </div>
+              </div>
+            </div>
+
+            <!-- Country List -->
+            <div class="analytics-country-list">
+              <h4 class="section-subtitle">Top Countries</h4>
+              <div class="country-list">
+                <div
+                  v-for="(country, index) in topCountries"
+                  :key="country.country"
+                  class="country-item"
+                >
+                  <div class="country-rank">{{ index + 1 }}</div>
+                  <div class="country-name">{{ country.country }}</div>
+                  <div class="country-count">{{ country.count.toLocaleString() }} visits</div>
+                  <div class="country-bar">
+                    <div
+                      class="country-bar-fill"
+                      :style="{ width: `${(country.count / (topCountries[0]?.count || 1)) * 100}%` }"
+                    ></div>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
           <!-- Fixed Action Bar -->
-          <div class="action-bar" v-if="!['users', 'roles', 'site-settings', 'activity-logs'].includes(activeTab)">
+          <div class="action-bar" v-if="!['users', 'roles', 'site-settings', 'activity-logs', 'analytics'].includes(activeTab)">
             <div class="action-bar-content">
               <div class="action-info">
                 <div v-if="saveMessage" :class="['status-message', saveMessageType]">
@@ -3223,7 +5033,7 @@
                   Make changes and click Save to update your website
                 </div>
               </div>
-              
+
               <div class="action-buttons">
                 <button v-if="isAdmin" @click="resetContent" :disabled="isSaving" class="btn-secondary">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3248,39 +5058,176 @@
         </div>
       </main>
     </div>
+
+    <!-- Maintenance Modals -->
+    <!-- Turn Off Modal -->
+    <div v-if="showTurnOffModal" class="modal-overlay" @click.self="showTurnOffModal = false">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Turn Off Website</h3>
+          <button @click="showTurnOffModal = false" class="modal-close">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-warning">
+            This will create a maintenance request that requires approval from another admin.
+            Once approved, the website will be turned off for all non-admin users.
+          </p>
+          <div class="form-group">
+            <label>Maintenance Message (Optional)</label>
+            <textarea
+              v-model="maintenanceForm.message"
+              rows="3"
+              class="form-textarea"
+              placeholder="Website is currently under maintenance. Please check back later."
+            ></textarea>
+          </div>
+          <div class="form-group">
+            <label>Estimated End Time (Optional)</label>
+            <input
+              v-model="maintenanceForm.estimatedEndTime"
+              type="datetime-local"
+              class="form-input"
+            />
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button @click="showTurnOffModal = false" class="btn-secondary">Cancel</button>
+          <button
+            @click="createMaintenanceRequest('turn_off')"
+            class="btn-danger"
+            :disabled="processingRequest === 'creating'"
+          >
+            {{ processingRequest === 'creating' ? 'Creating...' : 'Create Request' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Turn On Modal -->
+    <div v-if="showTurnOnModal" class="modal-overlay" @click.self="showTurnOnModal = false">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Turn On Website</h3>
+          <button @click="showTurnOnModal = false" class="modal-close">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-warning">
+            This will create a maintenance request that requires approval from another admin.
+            Once approved, the website will be turned back on for all users.
+          </p>
+        </div>
+        <div class="modal-footer">
+          <button @click="showTurnOnModal = false" class="btn-secondary">Cancel</button>
+          <button
+            @click="createMaintenanceRequest('turn_on')"
+            class="btn-success"
+            :disabled="processingRequest === 'creating'"
+          >
+            {{ processingRequest === 'creating' ? 'Creating...' : 'Create Request' }}
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Reject Modal -->
+    <div v-if="showRejectModal && rejectRequest" class="modal-overlay" @click.self="showRejectModal = false">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3>Reject Maintenance Request</h3>
+          <button @click="showRejectModal = false" class="modal-close">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M18 6L6 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p>Are you sure you want to reject this maintenance request?</p>
+          <div class="form-group">
+            <label>Rejection Reason (Optional)</label>
+            <textarea
+              v-model="rejectReason"
+              rows="3"
+              class="form-textarea"
+              placeholder="Reason for rejection..."
+            ></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button @click="showRejectModal = false" class="btn-secondary">Cancel</button>
+          <button
+            @click="rejectMaintenanceRequest(rejectRequest.id!, rejectReason || undefined)"
+            class="btn-danger"
+            :disabled="processingRequest === rejectRequest.id"
+          >
+            {{ processingRequest === rejectRequest.id ? 'Rejecting...' : 'Reject Request' }}
+          </button>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
-import { useRouter } from 'vue-router'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
+import { useRouter, useRoute } from 'vue-router'
 import { authService } from '@/features/auth/services/AuthService'
 import { storageService } from '@/shared/services'
 import { AuthViewController } from '@/features/auth/controllers/AuthViewController'
 import { homeContentController } from '@/features/home/controllers/HomeContentController'
 import { aboutContentController } from '@/features/about/controllers/AboutContentController'
 import { servicesContentController } from '@/features/services/controllers/ServicesContentController'
+import { legalContentController } from '@/features/legal/controllers/LegalContentController'
 import { adminUserController } from '../controllers/UserController'
 import { adminUserService } from '../services/UserService'
 import { roleController } from '../controllers/RoleController'
 import { activityLogController } from '../controllers/ActivityLogController'
 import { siteSettingsController } from '../controllers/SiteSettingsController'
+import { maintenanceController } from '../controllers/MaintenanceController'
 import { emailController } from '@/features/home/controllers/EmailController'
 import { contactContentController } from '@/features/contact/controllers/ContactContentController'
 import type { EmailSubmission } from '@/features/home/services/EmailService'
 import type { ContactMessage, ContactContent, ContactInfo } from '@/features/contact/models/ContactMessage'
+import { bookingController } from '@/features/booking/controllers/BookingController'
+import type { Booking, BookingData } from '@/features/booking/models/Booking'
+import { availabilityService } from '@/features/booking/services/AvailabilityService'
+import { googleCalendarController } from '../controllers/GoogleCalendarController'
+import { analyticsController } from '@/features/analytics/controllers/AnalyticsController'
+import AnalyticsChart from '@/shared/components/AnalyticsChart.vue'
 import type { SiteSettings } from '../models/SiteSettings'
 import type { HomeContent } from '@/features/home/models/HomeContent'
 import type { AboutContent, TeamMember, FAQ, StatCard } from '@/features/about/models/AboutContent'
 import type { ServicesContent, WhyChooseFeature } from '@/features/services/models/ServicesContent'
+import type { LegalContent } from '@/features/legal/models/LegalContent'
+import { defaultLegalContent } from '@/features/legal/models/LegalContent'
 import type { User } from '@/features/auth/models/User'
 import type { Role } from '../models/Role'
 import type { ActivityLog } from '../models/ActivityLog'
+import type { MaintenanceRequest } from '../models/MaintenanceRequest'
 
 const router = useRouter()
+const route = useRoute()
 const userViewController = new AuthViewController()
 
 const user = computed(() => userViewController.user)
+const previewUrl = computed(() => {
+  // Always use the base path from vite config (e.g., /clearup/)
+  const basePath = import.meta.env.BASE_URL || '/'
+  // Ensure base path ends with / and starts with /
+  const normalizedBase = basePath.endsWith('/') ? basePath : `${basePath}/`
+  // Construct absolute URL with base path
+  return `${window.location.origin}${normalizedBase}`
+})
 const isLoading = ref(true)
 const isSaving = ref(false)
 const errorMessage = ref('')
@@ -3289,13 +5236,45 @@ const saveMessageType = ref<'success' | 'error'>('success')
 
 const activeTab = ref('hero')
 const isAdmin = ref(false)
+const isSidebarOpen = ref(false)
+
+// Handle navigation click - close sidebar on mobile
+const handleNavClick = (tabId: string) => {
+  activeTab.value = tabId
+  // Close sidebar on mobile after selection
+  if (window.innerWidth <= 768) {
+    isSidebarOpen.value = false
+  }
+}
+
+// Toggle sidebar for mobile
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value
+}
+
+// Close sidebar
+const closeSidebar = () => {
+  isSidebarOpen.value = false
+}
+
+// Close sidebar on window resize if switching to desktop
+const handleResize = () => {
+  if (window.innerWidth > 768) {
+    isSidebarOpen.value = false
+  }
+}
+
+// Watch for window resize
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
 const uploadingLogos = ref<Record<number, boolean>>({})
 const uploadingPhotos = ref<Record<number, boolean>>({})
 const uploadingTestimonialVideos = ref<Record<number, boolean>>({})
-const uploadingThumbnails = ref<Record<number, boolean>>({})
+const uploadingThumbnails = ref<Record<string | number, boolean>>({})
 const uploadProgressPhotos = ref<Record<number, number>>({})
 const uploadProgressTestimonialVideos = ref<Record<number, number>>({})
-const uploadProgressThumbnails = ref<Record<number, number>>({})
+const uploadProgressThumbnails = ref<Record<string | number, number>>({})
 const baseTabs = [
   { id: 'hero', label: 'Hero Section' },
   { id: 'cta', label: 'CTA Section' },
@@ -3310,18 +5289,90 @@ const baseTabs = [
   { id: 'about', label: 'About Page' },
   { id: 'services-page', label: 'Services Page' },
   { id: 'footer', label: 'Footer' },
+  { id: 'legal-pages', label: 'Legal Pages' },
   { id: 'email-submissions', label: 'Email Submissions' },
   { id: 'contact-messages', label: 'Contact Messages' },
   { id: 'contact-settings', label: 'Contact Settings' }
 ]
 const adminTabs = [
+  { id: 'analytics', label: 'Analytics' },
   { id: 'users', label: 'User Management' },
   { id: 'roles', label: 'Role Management' },
+  { id: 'bookings', label: 'Bookings' },
+  { id: 'google-calendar', label: 'Google Calendar' },
   { id: 'site-settings', label: 'Site Settings' },
+  { id: 'maintenance', label: 'Maintenance Mode' },
   { id: 'activity-logs', label: 'Activity Logs' }
 ]
+// Map tabs to required permissions
+const tabPermissionMap: Record<string, string> = {
+  'hero': 'edit_hero',
+  'cta': 'edit_cta',
+  'who-we-are': 'edit_who_we_are',
+  'system': 'edit_system',
+  'services': 'edit_services',
+  'what-we-do': 'edit_what_we_do',
+  'what-you-get': 'edit_what_you_get',
+  'bonuses': 'edit_bonuses',
+  'clients': 'edit_clients',
+  'real-results': 'edit_real_results',
+  'footer': 'edit_footer',
+  'about': 'edit_about_page',
+  'services-page': 'edit_services_page',
+  'legal-pages': 'edit_legal_pages',
+  'email-submissions': 'view_email_submissions',
+  'contact-messages': 'view_contact_messages',
+  'contact-settings': 'edit_contact_settings',
+  'users': 'manage_users',
+  'roles': 'manage_roles',
+  'analytics': 'view_analytics',
+  'bookings': 'manage_bookings',
+  'google-calendar': 'manage_google_calendar',
+  'site-settings': 'manage_site_settings',
+  'maintenance': 'manage_maintenance',
+  'activity-logs': 'view_activity_logs',
+}
+
+// Get current user's permissions from their role
+const userPermissions = computed(() => {
+  if (isAdmin.value) {
+    // Admin has all permissions
+    return availablePermissions.map(p => p.id)
+  }
+
+  const userRole = user.value?.role
+  if (!userRole) return []
+
+  const role = roles.value.find(r => r.name === userRole)
+  return role?.permissions || []
+})
+
+// Check if user has a specific permission
+const hasPermission = (permissionId: string): boolean => {
+  if (isAdmin.value) return true
+  return userPermissions.value.includes(permissionId)
+}
+
+// Check if user can access a specific tab
+const canAccessTab = (tabId: string): boolean => {
+  if (isAdmin.value) return true
+
+  const requiredPermission = tabPermissionMap[tabId]
+  if (!requiredPermission) return true // Tab has no permission requirement
+
+  return hasPermission(requiredPermission)
+}
+
 const tabs = computed(() => {
-  return isAdmin.value ? [...baseTabs, ...adminTabs] : baseTabs
+  const allTabs = isAdmin.value ? [...baseTabs, ...adminTabs] : baseTabs
+
+  // For admin, show all tabs
+  if (isAdmin.value) {
+    return allTabs
+  }
+
+  // For other users, filter tabs based on permissions
+  return allTabs.filter(tab => canAccessTab(tab.id))
 })
 
 // Admin management state
@@ -3331,8 +5382,39 @@ const activityLogs = ref<ActivityLog[]>([])
 const isAdminLoading = ref(false)
 const siteSettings = ref<SiteSettings>({
   disabledSections: [],
-  maintenanceMode: false
+  maintenanceMode: false,
+  maintenanceMessage: 'We\'re currently performing maintenance. Please check back soon.'
 })
+
+// Site General Settings
+const siteGeneralSettings = ref({
+  siteName: '',
+  siteTagline: '',
+  siteDescription: '',
+  siteUrl: '',
+  contactEmail: ''
+})
+
+// Site SEO Settings
+const siteSEOSettings = ref({
+  metaTitle: '',
+  metaDescription: '',
+  metaKeywords: '',
+  ogImage: '',
+  twitterHandle: ''
+})
+
+// Site Social Media Settings
+const siteSocialSettings = ref({
+  facebook: '',
+  instagram: '',
+  twitter: '',
+  linkedin: '',
+  youtube: '',
+  tiktok: ''
+})
+
+const isSavingSiteSettings = ref(false)
 const emailSubmissions = ref<EmailSubmission[]>([])
 const loadingEmails = ref(false)
 const emailFilter = ref<'all' | 'pending' | 'confirmed'>('all')
@@ -3358,27 +5440,702 @@ const contactSettings = ref<ContactContent>({
 })
 const savingContactSettings = ref(false)
 
+// Maintenance management state
+const isMaintenanceActive = ref(false)
+const activeMaintenanceRequest = ref<MaintenanceRequest | null>(null)
+const pendingRequests = ref<MaintenanceRequest[]>([])
+const maintenanceHistory = ref<MaintenanceRequest[]>([])
+const loadingMaintenance = ref(false)
+const processingRequest = ref<string | null>(null)
+const showTurnOffModal = ref(false)
+const showTurnOnModal = ref(false)
+const showRejectModal = ref(false)
+const rejectRequest = ref<MaintenanceRequest | null>(null)
+
+// Analytics state
+const loadingAnalytics = ref(false)
+const analyticsStats = ref({
+  totalVisits: 0,
+  uniqueVisitors: 0,
+  todayVisits: 0,
+  thisMonthVisits: 0,
+  thisYearVisits: 0
+})
+const selectedAnalyticsPeriod = ref<'daily' | 'monthly' | 'yearly'>('daily')
+const analyticsPeriods = [
+  { value: 'daily', label: 'Last 30 Days' },
+  { value: 'monthly', label: 'This Year' },
+  { value: 'yearly', label: 'All Time' }
+]
+const dailyStats = ref<{ date: string; count: number }[]>([])
+const monthlyStats = ref<{ month: string; count: number }[]>([])
+const yearlyStats = ref<{ year: string; count: number }[]>([])
+const countryStats = ref<{ country: string; count: number }[]>([])
+
+const timeSeriesChartData = computed(() => {
+  let labels: string[] = []
+  let data: number[] = []
+
+  if (selectedAnalyticsPeriod.value === 'daily') {
+    labels = dailyStats.value.map(s => {
+      const date = new Date(s.date)
+      return `${date.getMonth() + 1}/${date.getDate()}`
+    })
+    data = dailyStats.value.map(s => s.count)
+  } else if (selectedAnalyticsPeriod.value === 'monthly') {
+    labels = monthlyStats.value.map(s => {
+      const [year, month] = s.month.split('-')
+      const monthNames = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+      return monthNames[parseInt(month || '1') - 1] || 'Unknown'
+    })
+    data = monthlyStats.value.map(s => s.count)
+  } else {
+    labels = yearlyStats.value.map(s => s.year)
+    data = yearlyStats.value.map(s => s.count)
+  }
+
+  return {
+    labels,
+    datasets: [{
+      label: 'Visits',
+      data,
+      backgroundColor: 'rgba(91, 32, 150, 0.1)',
+      borderColor: 'rgba(91, 32, 150, 1)',
+      borderWidth: 2,
+      tension: 0.4,
+      fill: true
+    }]
+  }
+})
+
+const countryChartData = computed(() => {
+  const top10 = countryStats.value.slice(0, 10)
+  const colors = [
+    'rgba(91, 32, 150, 0.8)',
+    'rgba(138, 43, 226, 0.8)',
+    'rgba(186, 85, 211, 0.8)',
+    'rgba(221, 160, 221, 0.8)',
+    'rgba(230, 230, 250, 0.8)',
+    'rgba(147, 112, 219, 0.8)',
+    'rgba(123, 104, 238, 0.8)',
+    'rgba(106, 90, 205, 0.8)',
+    'rgba(72, 61, 139, 0.8)',
+    'rgba(75, 0, 130, 0.8)'
+  ]
+
+  return {
+    labels: top10.map(c => c.country),
+    datasets: [{
+      label: 'Visits',
+      data: top10.map(c => c.count),
+      backgroundColor: colors.slice(0, top10.length),
+      borderWidth: 2,
+      borderColor: '#fff'
+    }]
+  }
+})
+
+const topCountries = computed(() => countryStats.value.slice(0, 10))
+
+const loadAnalytics = async () => {
+  loadingAnalytics.value = true
+  try {
+    // Load statistics
+    const stats = await analyticsController.getStatistics()
+    analyticsStats.value = stats
+
+    // Load time series data
+    dailyStats.value = await analyticsController.getDailyStatistics(30)
+    monthlyStats.value = await analyticsController.getMonthlyStatistics()
+    yearlyStats.value = await analyticsController.getYearlyStatistics()
+
+    // Load country statistics
+    countryStats.value = await analyticsController.getCountryStatistics()
+  } catch (error) {
+    console.error('Failed to load analytics:', error)
+    errorMessage.value = 'Failed to load analytics data'
+  } finally {
+    loadingAnalytics.value = false
+  }
+}
+const maintenanceForm = ref({
+  message: '',
+  estimatedEndTime: ''
+})
+const rejectReason = ref('')
+const currentUserId = computed(() => user.value?.id || authService.getCurrentUser()?.uid || '')
+
+const hasPendingRequest = computed(() => {
+  return pendingRequests.value.length > 0
+})
+
+// Booking management state
+const bookings = ref<Booking[]>([])
+const isLoadingBookings = ref(false)
+const isSavingBooking = ref(false)
+
+// Google Calendar state
+const isGoogleCalendarConnected = ref(false)
+const isLoadingGoogleCalendar = ref(false)
+const googleCalendarError = ref('')
+const editingBookingId = ref<string | null>(null)
+const bookingViewMode = ref<'list' | 'calendar' | 'availability'>('list')
+const editBookingForm = ref<Partial<BookingData>>({
+  userName: '',
+  userEmail: '',
+  userPhone: '',
+  meetingDate: undefined,
+  meetingTime: '',
+  status: 'pending',
+  notes: ''
+})
+
+// Calendar view state
+const calendarMonth = ref(new Date().getMonth())
+const calendarYear = ref(new Date().getFullYear())
+const selectedCalendarDate = ref<Date | null>(null)
+
+// Availability management state
+const availabilityMonth = ref(new Date().getMonth())
+const availabilityYear = ref(new Date().getFullYear())
+const selectedAvailabilityDate = ref<Date | null>(null)
+const blockedSlots = ref<Map<string, { reason?: string; blockedBy?: string }>>(new Map())
+const defaultTimeSlots = [
+  '09:00', '09:30', '10:00', '10:30', '11:00', '11:30',
+  '12:00', '12:30', '13:00', '13:30', '14:00', '14:30',
+  '15:00', '15:30', '16:00', '16:30', '17:00'
+]
+
+const sortedBookings = computed(() => {
+  // Filter out bookings without IDs and log warnings
+  const validBookings = bookings.value.filter(booking => {
+    if (!booking.id) {
+      console.warn('Booking without ID found:', booking)
+      return false
+    }
+    return true
+  })
+
+  return [...validBookings].sort((a, b) => {
+    const dateA = new Date(a.meetingDate).getTime()
+    const dateB = new Date(b.meetingDate).getTime()
+    if (dateA !== dateB) return dateA - dateB
+    return a.meetingTime.localeCompare(b.meetingTime)
+  })
+})
+
+const upcomingBookings = computed(() => {
+  const now = new Date()
+  const tomorrow = new Date(now)
+  tomorrow.setDate(tomorrow.getDate() + 1)
+
+  return sortedBookings.value.filter(booking => {
+    // Only include bookings with valid IDs
+    if (!booking.id) return false
+    if (booking.status === 'cancelled') return false
+    const bookingDate = booking.getFullDateTime()
+    return bookingDate >= now && bookingDate <= tomorrow
+  })
+})
+
+const upcomingBookingsCount = computed(() => {
+  return upcomingBookings.value.length
+})
+
+const formatBookingDateTime = (booking: Booking): string => {
+  const date = new Date(booking.meetingDate)
+  const dateStr = date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
+  })
+  const timeParts = booking.meetingTime.split(':')
+  const hours = timeParts[0] ? parseInt(timeParts[0]) : 0
+  const minutes = timeParts[1] ? parseInt(timeParts[1]) : 0
+  const timeStr = new Date(2000, 0, 1, hours, minutes)
+    .toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })
+  return `${dateStr} at ${timeStr}`
+}
+
+const loadBookings = async () => {
+  isLoadingBookings.value = true
+  try {
+    const result = await bookingController.getAllBookings()
+    if (result.success && result.data) {
+      bookings.value = result.data
+    } else {
+      console.error('Failed to load bookings:', result.error)
+    }
+  } catch (error) {
+    console.error('Error loading bookings:', error)
+  } finally {
+    isAdminLoading.value = false
+  }
+}
+
+const refreshBookings = () => {
+  loadBookings()
+}
+
+// Google Calendar functions
+const checkGoogleCalendarConnection = async () => {
+  isLoadingGoogleCalendar.value = true
+  googleCalendarError.value = ''
+  try {
+    const result = await googleCalendarController.isGoogleConnected()
+    if (result.success) {
+      isGoogleCalendarConnected.value = result.data || false
+    } else {
+      googleCalendarError.value = result.error || 'Failed to check connection status'
+    }
+  } catch (error) {
+    googleCalendarError.value = error instanceof Error ? error.message : 'Failed to check connection status'
+  } finally {
+    isLoadingGoogleCalendar.value = false
+  }
+}
+
+const connectGoogleCalendar = async () => {
+  try {
+    const result = googleCalendarController.getAuthorizationUrl()
+    if (result.success && result.data) {
+      // Redirect to Google OAuth
+      window.location.href = result.data
+    } else {
+      googleCalendarError.value = result.error || 'Failed to get authorization URL'
+    }
+  } catch (error) {
+    googleCalendarError.value = error instanceof Error ? error.message : 'Failed to connect Google Calendar'
+  }
+}
+
+const disconnectGoogleCalendar = async () => {
+  if (!confirm('Are you sure you want to disconnect your Google Calendar? This will prevent automatic Google Meet link generation for new bookings.')) {
+    return
+  }
+
+  isLoadingGoogleCalendar.value = true
+  googleCalendarError.value = ''
+  try {
+    const result = await googleCalendarController.disconnectGoogleCalendar()
+    if (result.success) {
+      isGoogleCalendarConnected.value = false
+      saveMessage.value = 'Google Calendar disconnected successfully'
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 4000)
+    } else {
+      googleCalendarError.value = result.error || 'Failed to disconnect Google Calendar'
+    }
+  } catch (error) {
+    googleCalendarError.value = error instanceof Error ? error.message : 'Failed to disconnect Google Calendar'
+  } finally {
+    isLoadingGoogleCalendar.value = false
+  }
+}
+
+const startEditBooking = (booking: Booking) => {
+  // Try multiple ways to get the ID
+  const bookingId = booking.id || (booking as any).id || (booking as any)['id']
+
+  if (!bookingId) {
+    console.error('Cannot edit booking: booking.id is undefined', {
+      booking,
+      hasId: 'id' in booking,
+      keys: Object.keys(booking),
+      bookingString: JSON.stringify(booking, null, 2)
+    })
+    alert('Error: Cannot edit this booking. The booking ID is missing. Please refresh the page and try again.')
+    return
+  }
+
+  // Set the editing ID to this specific booking
+  editingBookingId.value = bookingId
+  const date = new Date(booking.meetingDate)
+  editBookingForm.value = {
+    userName: booking.userName,
+    userEmail: booking.userEmail,
+    userPhone: booking.userPhone || '',
+    meetingDate: date.toISOString().split('T')[0],
+    meetingTime: booking.meetingTime,
+    status: booking.status,
+    notes: booking.notes || ''
+  }
+}
+
+const cancelBookingEdit = () => {
+  editingBookingId.value = null
+  editBookingForm.value = {
+    userName: '',
+    userEmail: '',
+    userPhone: '',
+    meetingDate: undefined,
+    meetingTime: '',
+    status: 'pending',
+    notes: ''
+  }
+}
+
+const saveBookingEdit = async (bookingId: string) => {
+  isSavingBooking.value = true
+  try {
+    const updateData: Partial<BookingData> = {
+      userName: editBookingForm.value.userName,
+      userEmail: editBookingForm.value.userEmail,
+      userPhone: editBookingForm.value.userPhone,
+      meetingDate: editBookingForm.value.meetingDate ? new Date(editBookingForm.value.meetingDate) : undefined,
+      meetingTime: editBookingForm.value.meetingTime,
+      status: editBookingForm.value.status as any,
+      notes: editBookingForm.value.notes
+    }
+
+    const result = await bookingController.updateBooking(bookingId, updateData)
+    if (result.success) {
+      await loadBookings()
+      editingBookingId.value = null
+      // TODO: Send notification email to user about the change
+    } else {
+      console.error('Failed to update booking:', result.error)
+      alert('Failed to update booking: ' + (result.error || 'Unknown error'))
+    }
+  } catch (error) {
+    console.error('Error updating booking:', error)
+    alert('Error updating booking: ' + (error instanceof Error ? error.message : 'Unknown error'))
+  } finally {
+    isSavingBooking.value = false
+  }
+}
+
+const cancelBooking = async (bookingId: string) => {
+  if (!confirm('Are you sure you want to cancel this booking?')) return
+
+  isLoadingBookings.value = true
+  try {
+    const userId = user.value?.id || 'admin'
+    const result = await bookingController.cancelBooking(bookingId, userId, 'Cancelled by admin')
+    if (result.success) {
+      await loadBookings()
+      // TODO: Send cancellation notification to user
+    } else {
+      console.error('Failed to cancel booking:', result.error)
+    }
+  } catch (error) {
+    console.error('Error cancelling booking:', error)
+  } finally {
+    isLoadingBookings.value = false
+  }
+}
+
+const deleteBooking = async (bookingId: string) => {
+  if (!confirm('Are you sure you want to delete this booking? This action cannot be undone.')) return
+
+  isLoadingBookings.value = true
+  saveMessage.value = ''
+  try {
+    const result = await bookingController.deleteBooking(bookingId)
+    if (result.success) {
+      saveMessage.value = 'Booking deleted successfully'
+      saveMessageType.value = 'success'
+      await loadBookings()
+      setTimeout(() => { saveMessage.value = '' }, 4000)
+    } else {
+      saveMessage.value = result.error || 'Failed to delete booking'
+      saveMessageType.value = 'error'
+      setTimeout(() => { saveMessage.value = '' }, 5000)
+    }
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Error deleting booking'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 5000)
+  } finally {
+    isLoadingBookings.value = false
+  }
+}
+
+// Calendar view functions
+const dayHeaders = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat']
+
+const calendarMonthYear = computed(() => {
+  const date = new Date(calendarYear.value, calendarMonth.value, 1)
+  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+})
+
+const adminCalendarDays = computed(() => {
+  const firstDay = new Date(calendarYear.value, calendarMonth.value, 1)
+  const startDate = new Date(firstDay)
+  startDate.setDate(startDate.getDate() - startDate.getDay())
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const days: Array<{
+    date: Date
+    day: number
+    isCurrentMonth: boolean
+    isToday: boolean
+    bookings: Booking[]
+  }> = []
+
+  for (let i = 0; i < 42; i++) {
+    const date = new Date(startDate)
+    date.setDate(startDate.getDate() + i)
+    const dateOnly = new Date(date)
+    dateOnly.setHours(0, 0, 0, 0)
+
+    const dateStr = dateOnly.toISOString().split('T')[0]
+    const dayBookings = bookings.value.filter(b => {
+      const bookingDate = new Date(b.meetingDate)
+      bookingDate.setHours(0, 0, 0, 0)
+      return bookingDate.getTime() === dateOnly.getTime()
+    })
+
+    days.push({
+      date,
+      day: date.getDate(),
+      isCurrentMonth: date.getMonth() === calendarMonth.value,
+      isToday: dateOnly.getTime() === today.getTime(),
+      bookings: dayBookings
+    })
+  }
+
+  return days
+})
+
+const previousMonth = () => {
+  if (calendarMonth.value === 0) {
+    calendarMonth.value = 11
+    calendarYear.value--
+  } else {
+    calendarMonth.value--
+  }
+}
+
+const nextMonth = () => {
+  if (calendarMonth.value === 11) {
+    calendarMonth.value = 0
+    calendarYear.value++
+  } else {
+    calendarMonth.value++
+  }
+}
+
+const selectCalendarDate = (date: Date) => {
+  selectedCalendarDate.value = date
+}
+
+const formatSelectedDate = (date: Date): string => {
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
+  })
+}
+
+const getBookingsForDate = (date: Date): Booking[] => {
+  const dateStr = date.toISOString().split('T')[0]
+  return bookings.value.filter(b => {
+    const bookingDate = new Date(b.meetingDate)
+    bookingDate.setHours(0, 0, 0, 0)
+    return bookingDate.toISOString().split('T')[0] === dateStr
+  }).sort((a, b) => a.meetingTime.localeCompare(b.meetingTime))
+}
+
+// Availability management functions
+const availabilityMonthYear = computed(() => {
+  const date = new Date(availabilityYear.value, availabilityMonth.value, 1)
+  return date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' })
+})
+
+const previousAvailabilityMonth = () => {
+  if (availabilityMonth.value === 0) {
+    availabilityMonth.value = 11
+    availabilityYear.value--
+  } else {
+    availabilityMonth.value--
+  }
+  loadBlockedSlots()
+}
+
+const nextAvailabilityMonth = () => {
+  if (availabilityMonth.value === 11) {
+    availabilityMonth.value = 0
+    availabilityYear.value++
+  } else {
+    availabilityMonth.value++
+  }
+  loadBlockedSlots()
+}
+
+const loadBlockedSlots = async () => {
+  try {
+    const startDate = new Date(availabilityYear.value, availabilityMonth.value, 1)
+    const endDate = new Date(availabilityYear.value, availabilityMonth.value + 1, 0)
+    const blocked = await availabilityService.getBlockedSlots(startDate, endDate)
+
+    blockedSlots.value.clear()
+    blocked.forEach(avail => {
+      const key = `${avail.date}-${avail.timeSlot}`
+      blockedSlots.value.set(key, {
+        reason: avail.reason,
+        blockedBy: avail.blockedBy
+      })
+    })
+  } catch (error) {
+    console.error('Error loading blocked slots:', error)
+  }
+}
+
+const isTimeSlotBlocked = (date: Date, timeSlot: string): boolean => {
+  const dateStr = date.toISOString().split('T')[0]
+  const key = `${dateStr}-${timeSlot}`
+  return blockedSlots.value.has(key)
+}
+
+const getBlockedReason = (date: Date, timeSlot: string): string => {
+  const dateStr = date.toISOString().split('T')[0]
+  const key = `${dateStr}-${timeSlot}`
+  const blocked = blockedSlots.value.get(key)
+  return blocked?.reason || 'Blocked'
+}
+
+const toggleTimeSlot = async (date: Date, timeSlot: string) => {
+  try {
+    const dateStr = date.toISOString().split('T')[0]
+    const key = `${dateStr}-${timeSlot}`
+    const isBlocked = blockedSlots.value.has(key)
+
+    if (isBlocked) {
+      await availabilityService.unblockTimeSlot(date, timeSlot)
+      blockedSlots.value.delete(key)
+    } else {
+      const reason = prompt('Reason for blocking this time slot (optional):') || undefined
+      const userId = user.value?.id || 'admin'
+      await availabilityService.blockTimeSlot(date, timeSlot, reason, userId)
+      blockedSlots.value.set(key, { reason, blockedBy: userId })
+    }
+
+    // Reload bookings to reflect availability changes
+    await loadBookings()
+  } catch (error) {
+    console.error('Error toggling time slot:', error)
+    alert('Failed to update availability. Please try again.')
+  }
+}
+
+const formatTime = (time: string): string => {
+  const [hours, minutes] = time.split(':').map(Number)
+  const date = new Date()
+  date.setHours(hours || 0, minutes || 0)
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true
+  })
+}
+
+// Availability calendar days
+const availabilityCalendarDays = computed(() => {
+  const firstDay = new Date(availabilityYear.value, availabilityMonth.value, 1)
+  const startDate = new Date(firstDay)
+  startDate.setDate(startDate.getDate() - startDate.getDay())
+
+  const today = new Date()
+  today.setHours(0, 0, 0, 0)
+
+  const days: Array<{
+    date: Date
+    day: number
+    isCurrentMonth: boolean
+    isToday: boolean
+  }> = []
+
+  for (let i = 0; i < 42; i++) {
+    const date = new Date(startDate)
+    date.setDate(startDate.getDate() + i)
+    const dateOnly = new Date(date)
+    dateOnly.setHours(0, 0, 0, 0)
+
+    days.push({
+      date,
+      day: date.getDate(),
+      isCurrentMonth: date.getMonth() === availabilityMonth.value,
+      isToday: dateOnly.getTime() === today.getTime()
+    })
+  }
+
+  return days
+})
+
+const isSelectedAvailabilityDate = (date: Date): boolean => {
+  if (!selectedAvailabilityDate.value) return false
+  const d1 = new Date(date)
+  const d2 = new Date(selectedAvailabilityDate.value)
+  d1.setHours(0, 0, 0, 0)
+  d2.setHours(0, 0, 0, 0)
+  return d1.getTime() === d2.getTime()
+}
+
+const selectAvailabilityDate = (date: Date) => {
+  selectedAvailabilityDate.value = date
+}
+
+// Initialize availability calendar
+const initAvailabilityCalendar = () => {
+  const today = new Date()
+  selectedAvailabilityDate.value = today
+  loadBlockedSlots()
+}
+
 const selectedVideoFile = ref<File | null>(null)
 const uploadingVideo = ref(false)
 const uploadProgress = ref(0)
 const videoFileInput = ref<HTMLInputElement | null>(null)
 const availableSections = [
-  { id: 'hero', label: 'Hero Section' },
-  { id: 'cta', label: 'CTA Section' },
-  { id: 'social-proof', label: 'Social Proof' },
-  { id: 'who-we-are', label: 'Who We Are' },
-  { id: 'stats', label: 'Statistics' },
-  { id: 'system', label: 'System Section' },
-  { id: 'services', label: 'Services' },
-  { id: 'what-we-do', label: 'What We Do' },
-  { id: 'what-you-get', label: 'What You Get' },
-  { id: 'bonuses', label: 'Bonuses' },
-  { id: 'clients', label: 'Clients' },
-  { id: 'real-results', label: 'Real Results' },
-  { id: 'testimonials', label: 'Testimonials' },
-  { id: 'about', label: 'About Page' },
-  { id: 'footer', label: 'Footer' }
+  // Home Page Sections
+  { id: 'hero', label: 'Hero Section (Home)' },
+  { id: 'cta', label: 'CTA Section (Home)' },
+  { id: 'social-proof', label: 'Social Proof (Home)' },
+  { id: 'who-we-are', label: 'Who We Are (Home)' },
+  { id: 'stats', label: 'Statistics (Home)' },
+  { id: 'system', label: 'System Section (Home)' },
+  { id: 'services', label: 'Services (Home)' },
+  { id: 'what-we-do', label: 'What We Do (Home)' },
+  { id: 'what-you-get', label: 'What You Get (Home)' },
+  { id: 'bonuses', label: 'Bonuses (Home)' },
+  { id: 'clients', label: 'Clients (Home)' },
+  { id: 'real-results', label: 'Real Results (Home)' },
+  { id: 'testimonials', label: 'Testimonials (Home)' },
+  { id: 'footer', label: 'Footer (Home)' },
+  // About Page Sections
+  { id: 'about-page', label: 'About Page (Entire Page)' },
+  { id: 'about-who-we-are', label: 'Who We Are (About)' },
+  { id: 'about-video', label: 'Video Section (About)' },
+  { id: 'about-cta', label: 'CTA Section (About)' },
+  { id: 'about-team', label: 'Our Team (About)' },
+  { id: 'about-faq', label: 'FAQ Section (About)' },
+  // Services Page Sections
+  { id: 'services-page', label: 'Services Page (Entire Page)' },
+  { id: 'services-hero', label: 'Hero Section (Services)' },
+  { id: 'services-system', label: 'System Section (Services)' },
+  { id: 'services-what-we-do', label: 'What We Do (Services)' },
+  { id: 'services-what-you-get', label: 'What You Get (Services)' },
+  { id: 'services-bonuses', label: 'Bonuses (Services)' },
+  { id: 'services-why-choose', label: 'Why Choose Us (Services)' },
+  { id: 'services-testimonials', label: 'Testimonials (Services)' }
 ]
+
+// Computed properties for section groups
+const homeSections = computed(() => availableSections.filter(s =>
+  !s.id.startsWith('about-') && !s.id.startsWith('services-')
+))
+const aboutSections = computed(() => availableSections.filter(s =>
+  s.id.startsWith('about-') || s.id === 'about-page'
+))
+const servicesSections = computed(() => availableSections.filter(s =>
+  s.id.startsWith('services-') || s.id === 'services-page'
+))
+
 const newUserForm = ref({
   email: '',
   password: '',
@@ -3401,6 +6158,135 @@ const editRoleForm = ref({
   name: '',
   description: '',
   permissions: [] as string[]
+})
+
+// Available permissions for roles
+const availablePermissions = [
+  // Home Page Sections
+  { id: 'edit_hero', label: 'Edit Hero Section', category: 'Home Page' },
+  { id: 'edit_cta', label: 'Edit CTA Section', category: 'Home Page' },
+  { id: 'edit_who_we_are', label: 'Edit Who We Are', category: 'Home Page' },
+  { id: 'edit_system', label: 'Edit System Section', category: 'Home Page' },
+  { id: 'edit_services', label: 'Edit Services Section', category: 'Home Page' },
+  { id: 'edit_what_we_do', label: 'Edit What We Do', category: 'Home Page' },
+  { id: 'edit_what_you_get', label: 'Edit What You Get', category: 'Home Page' },
+  { id: 'edit_bonuses', label: 'Edit Bonuses Section', category: 'Home Page' },
+  { id: 'edit_clients', label: 'Edit Clients & Testimonials', category: 'Home Page' },
+  { id: 'edit_real_results', label: 'Edit Real Results', category: 'Home Page' },
+  { id: 'edit_footer', label: 'Edit Footer', category: 'Home Page' },
+  // Other Pages
+  { id: 'edit_about_page', label: 'Edit About Page', category: 'Other Pages' },
+  { id: 'edit_services_page', label: 'Edit Services Page', category: 'Other Pages' },
+  { id: 'edit_legal_pages', label: 'Edit Legal Pages', category: 'Other Pages' },
+  // Content Management
+  { id: 'view_email_submissions', label: 'View Email Submissions', category: 'Content Management' },
+  { id: 'delete_email_submissions', label: 'Delete Email Submissions', category: 'Content Management' },
+  { id: 'view_contact_messages', label: 'View Contact Messages', category: 'Content Management' },
+  { id: 'delete_contact_messages', label: 'Delete Contact Messages', category: 'Content Management' },
+  { id: 'edit_contact_settings', label: 'Edit Contact Settings', category: 'Content Management' },
+  { id: 'manage_bookings', label: 'Manage Bookings', category: 'Content Management' },
+  // Analytics & Reports
+  { id: 'view_analytics', label: 'View Analytics', category: 'Analytics & Reports' },
+  // Admin Functions (only for admin role)
+  { id: 'manage_users', label: 'Manage Users', category: 'Administration' },
+  { id: 'manage_roles', label: 'Manage Roles', category: 'Administration' },
+  { id: 'manage_site_settings', label: 'Manage Site Settings', category: 'Administration' },
+  { id: 'manage_google_calendar', label: 'Manage Google Calendar', category: 'Administration' },
+  { id: 'manage_maintenance', label: 'Manage Maintenance Mode', category: 'Administration' },
+  { id: 'view_activity_logs', label: 'View Activity Logs', category: 'Administration' },
+]
+
+// Group permissions by category for display
+const permissionsByCategory = computed(() => {
+  const categories: Record<string, typeof availablePermissions> = {}
+  availablePermissions.forEach(permission => {
+    if (!categories[permission.category]) {
+      categories[permission.category] = []
+    }
+    categories[permission.category]!.push(permission)
+  })
+  return categories
+})
+
+// Toggle permission in form
+const togglePermission = (form: { permissions: string[] }, permissionId: string) => {
+  const index = form.permissions.indexOf(permissionId)
+  if (index === -1) {
+    form.permissions.push(permissionId)
+  } else {
+    form.permissions.splice(index, 1)
+  }
+}
+
+// Select all permissions in a category
+const selectAllInCategory = (form: { permissions: string[] }, category: string) => {
+  const categoryPermissions = availablePermissions.filter(p => p.category === category)
+  categoryPermissions.forEach(p => {
+    if (!form.permissions.includes(p.id)) {
+      form.permissions.push(p.id)
+    }
+  })
+}
+
+// Deselect all permissions in a category
+const deselectAllInCategory = (form: { permissions: string[] }, category: string) => {
+  const categoryPermissions = availablePermissions.filter(p => p.category === category)
+  categoryPermissions.forEach(p => {
+    const index = form.permissions.indexOf(p.id)
+    if (index !== -1) {
+      form.permissions.splice(index, 1)
+    }
+  })
+}
+
+// Check if all permissions in category are selected
+const allCategorySelected = (form: { permissions: string[] }, category: string) => {
+  const categoryPermissions = availablePermissions.filter(p => p.category === category)
+  return categoryPermissions.every(p => form.permissions.includes(p.id))
+}
+
+// Get permission label by id
+const getPermissionLabel = (permissionId: string): string => {
+  const permission = availablePermissions.find(p => p.id === permissionId)
+  return permission?.label || permissionId
+}
+
+// Get permissions for a selected role name
+const getSelectedRolePermissions = (roleName: string): string[] => {
+  const role = roles.value.find(r => r.name === roleName)
+  return role?.permissions || []
+}
+
+// Get role description by name
+const getRoleDescription = (roleName: string): string => {
+  const role = roles.value.find(r => r.name === roleName)
+  if (!role) return ''
+
+  const permCount = role.permissions?.length || 0
+  if (role.description) {
+    return `${role.description} (${permCount} permission${permCount !== 1 ? 's' : ''})`
+  }
+  return `${permCount} permission${permCount !== 1 ? 's' : ''}`
+}
+
+// Sorted team members by order
+const sortedTeamMembers = computed(() => {
+  const members = [...aboutFormData.value.teamMembers]
+  // Ensure all members have an order property
+  members.forEach((member, index) => {
+    if (member.order === undefined || member.order === null) {
+      member.order = index
+    }
+  })
+  // Sort by order, then by index if order is the same
+  return members.sort((a, b) => {
+    const orderA = a.order ?? 0
+    const orderB = b.order ?? 0
+    if (orderA !== orderB) {
+      return orderA - orderB
+    }
+    return 0
+  })
 })
 
 // About page form data
@@ -3450,6 +6336,17 @@ const servicesFormData = ref<ServicesContent>({
   whyChooseTitle: 'Why Choose Clear Up',
   whyChooseSubtitle: 'Creative thinking, fast execution, and results-driven content built for modern brands.',
   whyChooseFeatures: []
+})
+
+// Legal Pages form data
+const legalFormData = ref<LegalContent>({ ...defaultLegalContent })
+
+// Editing states for legal sections
+const editingLegalPolicy = ref<'privacy' | 'terms' | 'cookies' | null>(null)
+const editingLegalSectionIndex = ref<number | null>(null)
+const editLegalSectionForm = ref<{ heading: string; content: string }>({
+  heading: '',
+  content: ''
 })
 
 // Track original feature IDs from backend to detect new features
@@ -3551,6 +6448,8 @@ const getTabIcon = (tabId: string): string => {
     'about': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM13 17H11V15H13V17ZM13 13H11V7H13V13Z" fill="currentColor"/></svg>',
     'services-page': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'footer': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    'legal-pages': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 18V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 15L12 12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    'analytics': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 16L12 11L16 15L21 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 10V3H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'email-submissions': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'contact-messages': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'contact-settings': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 16.92V19.92C22.0011 20.1985 21.9441 20.4742 21.8325 20.7293C21.7209 20.9845 21.5573 21.2136 21.3521 21.4019C21.1468 21.5901 20.9046 21.7335 20.6407 21.8227C20.3769 21.9119 20.0974 21.9451 19.82 21.92C16.7428 21.5856 13.787 20.5341 11.19 18.85C8.77382 17.3147 6.72533 15.2662 5.18999 12.85C3.49997 10.2412 2.44824 7.27099 2.11999 4.18C2.09501 3.90347 2.12787 3.62476 2.21649 3.36162C2.30512 3.09849 2.44756 2.85669 2.63476 2.65162C2.82196 2.44655 3.0498 2.28271 3.30379 2.17052C3.55777 2.05833 3.83233 2.00026 4.10999 2H7.10999C7.5953 1.99522 8.06579 2.16708 8.43376 2.48353C8.80173 2.79999 9.04207 3.23945 9.10999 3.72C9.23662 4.68007 9.47144 5.62273 9.80999 6.53C9.94454 6.88792 9.97366 7.27691 9.8939 7.65088C9.81415 8.02485 9.62886 8.36811 9.35999 8.64L8.08999 9.91C9.51355 12.4135 11.5765 14.4765 14.08 15.9L15.35 14.63C15.6219 14.3611 15.9651 14.1758 16.3391 14.0961C16.7131 14.0163 17.1021 14.0454 17.46 14.18C18.3673 14.5185 19.3099 14.7534 20.27 14.88C20.7558 14.9485 21.1996 15.1907 21.5177 15.5627C21.8359 15.9347 22.0058 16.4108 22 16.9V16.92Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
@@ -3565,6 +6464,22 @@ const getTabIcon = (tabId: string): string => {
 const getActiveTabLabel = (): string => {
   const tab = tabs.value.find(t => t.id === activeTab.value)
   return tab?.label || 'Dashboard'
+}
+
+const handleTabClick = (tabId: string) => {
+  if (canAccessTab(tabId)) {
+    activeTab.value = tabId
+    // Scroll to top of main content area
+    nextTick(() => {
+      const mainContent = document.querySelector('.dashboard-main')
+      if (mainContent) {
+        mainContent.scrollTo({ top: 0, behavior: 'smooth' })
+      } else {
+        // Fallback: scroll window to top
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+    })
+  }
 }
 
 const formatAction = (action: string): string => {
@@ -3591,12 +6506,12 @@ const formatDate = (date: Date | string | undefined): string => {
     const diffMins = Math.floor(diffMs / 60000)
     const diffHours = Math.floor(diffMs / 3600000)
     const diffDays = Math.floor(diffMs / 86400000)
-    
+
     if (diffMins < 1) return 'Just now'
     if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`
     if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
     if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
-    
+
     return dateObj.toLocaleString()
   } catch {
     return '-'
@@ -3606,7 +6521,7 @@ const formatDate = (date: Date | string | undefined): string => {
 const getLogDescription = (log: ActivityLog): string => {
   const action = log.action
   const resource = log.resource
-  
+
   if (action === 'update_home_content' || action === 'save_home_content') {
     const changedFields = log.changes ? Object.keys(log.changes) : []
     if (changedFields.length > 0) {
@@ -3617,16 +6532,16 @@ const getLogDescription = (log: ActivityLog): string => {
     }
     return 'Updated home page content'
   }
-  
+
   if (action === 'reset_home_content') {
     return 'Reset home page content to default values'
   }
-  
+
   if (action === 'create_user') {
     const email = log.changes?.email?.after || log.changes?.email
     return `Created new user account${email ? `: ${email}` : ''}`
   }
-  
+
   if (action === 'update_user_role') {
     const email = log.changes?.userEmail || log.changes?.userEmail?.after
     const oldRole = log.changes?.oldRole
@@ -3636,12 +6551,12 @@ const getLogDescription = (log: ActivityLog): string => {
     }
     return 'Updated user role'
   }
-  
+
   if (action === 'delete_user') {
     const email = log.changes?.deletedUserEmail
     return `Deleted user account${email ? `: ${email}` : ''}`
   }
-  
+
   return `${formatAction(action)} on ${resource}`
 }
 
@@ -3710,7 +6625,7 @@ const getChangedFieldsCount = (changes: Record<string, any>): number => {
 
 const getVideoEmbedUrl = (url: string): string => {
   if (!url) return ''
-  
+
   // YouTube - Add parameters to disable suggestions and related videos
   const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
   const youtubeMatch = url.match(youtubeRegex)
@@ -3723,26 +6638,26 @@ const getVideoEmbedUrl = (url: string): string => {
     // fs=1 - Allow fullscreen
     return `https://www.youtube.com/embed/${youtubeMatch[1]}?rel=0&modestbranding=1&iv_load_policy=3&cc_load_policy=0&fs=1`
   }
-  
+
   // Vimeo
   const vimeoRegex = /(?:vimeo\.com\/)(?:.*\/)?(\d+)/
   const vimeoMatch = url.match(vimeoRegex)
   if (vimeoMatch) {
     return `https://player.vimeo.com/video/${vimeoMatch[1]}`
   }
-  
+
   // Direct video URL (MP4, WebM, etc.)
   if (url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i)) {
     return url
   }
-  
+
   return url
 }
 
 // Helper function to get image type from URL
 const getImageType = (url: string): string | null => {
   if (!url) return null
-  
+
   // Extract file extension from URL
   const urlLower = url.toLowerCase()
   if (urlLower.includes('.png')) return 'PNG'
@@ -3750,7 +6665,7 @@ const getImageType = (url: string): string | null => {
   if (urlLower.includes('.webp')) return 'WEBP'
   if (urlLower.includes('.gif')) return 'GIF'
   if (urlLower.includes('.svg')) return 'SVG'
-  
+
   // Try to get from query params or path
   try {
     const urlObj = new URL(url)
@@ -3763,21 +6678,21 @@ const getImageType = (url: string): string | null => {
   } catch {
     // If URL parsing fails, return null
   }
-  
+
   return null
 }
 
 const handleVideoUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   // Validate file type - only allow specific video formats
   const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo']
   const allowedExtensions = ['.mp4', '.webm', '.mov', '.avi']
   const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
-  
+
   if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
     saveMessage.value = 'Please select a valid video file (MP4, WebM, MOV, or AVI)'
     saveMessageType.value = 'error'
@@ -3788,7 +6703,7 @@ const handleVideoUpload = async (event: Event) => {
     }
     return
   }
-  
+
   // Validate file size (100MB max)
   const maxSize = 100 * 1024 * 1024 // 100MB
   if (file.size > maxSize) {
@@ -3801,16 +6716,16 @@ const handleVideoUpload = async (event: Event) => {
     }
     return
   }
-  
+
   selectedVideoFile.value = file
   uploadingVideo.value = true
   uploadProgress.value = 0
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `videos/${userId}/${timestamp}-${file.name}`
-    
+
     // Upload video to Firebase Storage with progress tracking
     const videoUrl = await storageService.uploadAndGetUrlWithProgress(
       fileName,
@@ -3827,16 +6742,16 @@ const handleVideoUpload = async (event: Event) => {
         }
       }
     )
-    
+
     formData.value.videoFileUrl = videoUrl
     formData.value.videoType = 'upload'
     selectedVideoFile.value = null
-    
+
     // Reset file input
     if (videoFileInput.value) {
       videoFileInput.value.value = ''
     }
-    
+
     saveMessage.value = 'Video uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 4000)
@@ -3874,10 +6789,10 @@ const extractFilePathFromUrl = (url: string): string | null => {
  */
 const deleteVideo = async () => {
   if (!formData.value.videoFileUrl) return
-  
+
   const videoUrl = formData.value.videoFileUrl
   const filePath = extractFilePathFromUrl(videoUrl)
-  
+
   // Clear form data first
   formData.value.videoFileUrl = ''
   formData.value.videoType = 'link'
@@ -3885,7 +6800,7 @@ const deleteVideo = async () => {
   if (videoFileInput.value) {
     videoFileInput.value.value = ''
   }
-  
+
   // Delete from Firebase Storage if we have the path
   if (filePath) {
     try {
@@ -3907,14 +6822,14 @@ const deleteVideo = async () => {
 const deleteTestimonialVideo = async (index: number) => {
   const testimonial = formData.value.testimonials[index]
   if (!testimonial?.videoFileUrl) return
-  
+
   const videoUrl = testimonial.videoFileUrl
   const filePath = extractFilePathFromUrl(videoUrl)
-  
+
   // Clear form data first
   testimonial.videoFileUrl = ''
   testimonial.videoType = 'none'
-  
+
   // Delete from Firebase Storage if we have the path
   if (filePath) {
     try {
@@ -3946,13 +6861,13 @@ const selectedAboutVideoFile = ref<File | null>(null)
 const handleAboutVideoUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo']
   const allowedExtensions = ['.mp4', '.webm', '.mov', '.avi']
   const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
-  
+
   if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
     saveMessage.value = 'Please select a valid video file (MP4, WebM, MOV, or AVI)'
     saveMessageType.value = 'error'
@@ -3962,7 +6877,7 @@ const handleAboutVideoUpload = async (event: Event) => {
     }
     return
   }
-  
+
   const maxSize = 100 * 1024 * 1024
   if (file.size > maxSize) {
     saveMessage.value = 'Video file is too large. Maximum size is 100MB'
@@ -3973,16 +6888,16 @@ const handleAboutVideoUpload = async (event: Event) => {
     }
     return
   }
-  
+
   selectedAboutVideoFile.value = file
   uploadingVideo.value = true
   uploadProgress.value = 0
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `about/videos/${userId}/${timestamp}-${file.name}`
-    
+
     const videoUrl = await storageService.uploadAndGetUrlWithProgress(
       fileName,
       file,
@@ -3998,11 +6913,11 @@ const handleAboutVideoUpload = async (event: Event) => {
         }
       }
     )
-    
+
     aboutFormData.value.videoFileUrl = videoUrl
     aboutFormData.value.videoType = 'upload'
     selectedAboutVideoFile.value = null
-    
+
     saveMessage.value = 'Video uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 3000)
@@ -4023,7 +6938,7 @@ const deleteAboutVideo = async () => {
   if (!confirm('Are you sure you want to delete this video?')) {
     return
   }
-  
+
   try {
     if (aboutFormData.value.videoFileUrl) {
       const filePath = extractFilePathFromUrl(aboutFormData.value.videoFileUrl)
@@ -4031,11 +6946,11 @@ const deleteAboutVideo = async () => {
         await storageService.deleteFile(filePath)
       }
     }
-    
+
     aboutFormData.value.videoFileUrl = ''
     aboutFormData.value.videoUrl = ''
     aboutFormData.value.videoType = 'none'
-    
+
     saveMessage.value = 'Video deleted successfully'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 3000)
@@ -4048,12 +6963,17 @@ const deleteAboutVideo = async () => {
 
 // Team member methods
 const addNewTeamMember = () => {
+  // Get the maximum order value or use length
+  const maxOrder = aboutFormData.value.teamMembers.length > 0
+    ? Math.max(...aboutFormData.value.teamMembers.map(m => m.order ?? 0))
+    : -1
+
   const newMember: TeamMember = {
     id: `temp-${Date.now()}`,
     name: '',
     role: '',
     photoType: 'url',
-    order: aboutFormData.value.teamMembers.length
+    order: maxOrder + 1
   }
   aboutFormData.value.teamMembers.push(newMember)
   startEditTeamMember(aboutFormData.value.teamMembers.length - 1)
@@ -4062,7 +6982,7 @@ const addNewTeamMember = () => {
 const startEditTeamMember = (index: number) => {
   const member = aboutFormData.value.teamMembers[index]
   if (!member) return
-  
+
   editingTeamMemberId.value = member.id || null
   editTeamMemberForm.value = {
     name: member.name,
@@ -4084,17 +7004,27 @@ const cancelTeamMemberEdit = () => {
   }
 }
 
+// Helper function to find member index by order
+const findMemberIndexByOrder = (order: number): number => {
+  return aboutFormData.value.teamMembers.findIndex(m => (m.order ?? 0) === order)
+}
+
+// Helper function to find member by order
+const findMemberByOrder = (order: number): TeamMember | undefined => {
+  return aboutFormData.value.teamMembers.find(m => (m.order ?? 0) === order)
+}
+
 const saveTeamMemberEdit = (index: number) => {
   const member = aboutFormData.value.teamMembers[index]
   if (!member) return
-  
+
   if (!editTeamMemberForm.value.name || !editTeamMemberForm.value.role) {
     saveMessage.value = 'Name and role are required'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 3000)
     return
   }
-  
+
   aboutFormData.value.teamMembers[index] = {
     ...member,
     name: editTeamMemberForm.value.name,
@@ -4103,18 +7033,24 @@ const saveTeamMemberEdit = (index: number) => {
     photoFileUrl: editTeamMemberForm.value.photoFileUrl,
     photoType: editTeamMemberForm.value.photoType || 'url'
   }
-  
+
   cancelTeamMemberEdit()
   saveMessage.value = 'Team member updated'
   saveMessageType.value = 'success'
   setTimeout(() => { saveMessage.value = '' }, 2000)
 }
 
+const saveTeamMemberEditByOrder = (order: number) => {
+  const index = findMemberIndexByOrder(order)
+  if (index === -1) return
+  saveTeamMemberEdit(index)
+}
+
 const deleteTeamMember = (index: number) => {
   if (!confirm('Are you sure you want to delete this team member?')) {
     return
   }
-  
+
   const member = aboutFormData.value.teamMembers[index]
   if (member?.photoFileUrl) {
     const filePath = extractFilePathFromUrl(member.photoFileUrl)
@@ -4124,9 +7060,63 @@ const deleteTeamMember = (index: number) => {
       })
     }
   }
-  
+
   aboutFormData.value.teamMembers.splice(index, 1)
+  // Reassign order values after deletion
+  aboutFormData.value.teamMembers.forEach((m, i) => {
+    m.order = i
+  })
   saveMessage.value = 'Team member deleted'
+  saveMessageType.value = 'success'
+  setTimeout(() => { saveMessage.value = '' }, 2000)
+}
+
+const deleteTeamMemberByOrder = (order: number) => {
+  const index = findMemberIndexByOrder(order)
+  if (index === -1) return
+  deleteTeamMember(index)
+}
+
+const startEditTeamMemberByOrder = (order: number) => {
+  const index = findMemberIndexByOrder(order)
+  if (index === -1) return
+  startEditTeamMember(index)
+}
+
+// Move team member up in the list
+const moveTeamMemberUp = (sortedIndex: number) => {
+  if (sortedIndex === 0) return
+
+  const member = sortedTeamMembers.value[sortedIndex]
+  const previousMember = sortedTeamMembers.value[sortedIndex - 1]
+
+  if (!member || !previousMember) return
+
+  // Swap orders
+  const tempOrder = member.order ?? sortedIndex
+  member.order = previousMember.order ?? sortedIndex - 1
+  previousMember.order = tempOrder
+
+  saveMessage.value = 'Team member order updated'
+  saveMessageType.value = 'success'
+  setTimeout(() => { saveMessage.value = '' }, 2000)
+}
+
+// Move team member down in the list
+const moveTeamMemberDown = (sortedIndex: number) => {
+  if (sortedIndex === sortedTeamMembers.value.length - 1) return
+
+  const member = sortedTeamMembers.value[sortedIndex]
+  const nextMember = sortedTeamMembers.value[sortedIndex + 1]
+
+  if (!member || !nextMember) return
+
+  // Swap orders
+  const tempOrder = member.order ?? sortedIndex
+  member.order = nextMember.order ?? sortedIndex + 1
+  nextMember.order = tempOrder
+
+  saveMessage.value = 'Team member order updated'
   saveMessageType.value = 'success'
   setTimeout(() => { saveMessage.value = '' }, 2000)
 }
@@ -4134,24 +7124,24 @@ const deleteTeamMember = (index: number) => {
 const handleTeamPhotoUpload = async (event: Event, memberId: string) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   if (!file.type.startsWith('image/')) {
     saveMessage.value = 'Please select a valid image file'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 3000)
     return
   }
-  
+
   uploadingTeamPhoto.value[memberId] = true
   uploadProgressTeamPhoto.value[memberId] = 0
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `about/team/${userId}/${timestamp}-${file.name}`
-    
+
     const photoUrl = await storageService.uploadAndGetUrlWithProgress(
       fileName,
       file,
@@ -4162,10 +7152,10 @@ const handleTeamPhotoUpload = async (event: Event, memberId: string) => {
         contentType: file.type
       }
     )
-    
+
     editTeamMemberForm.value.photoFileUrl = photoUrl
     editTeamMemberForm.value.photoType = 'upload'
-    
+
     saveMessage.value = 'Photo uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 2000)
@@ -4194,7 +7184,7 @@ const addNewFAQ = () => {
 const startEditFAQ = (index: number) => {
   const faq = aboutFormData.value.faqs[index]
   if (!faq) return
-  
+
   editingFAQId.value = faq.id || null
   editFAQForm.value = {
     question: faq.question,
@@ -4213,20 +7203,20 @@ const cancelFAQEdit = () => {
 const saveFAQEdit = (index: number) => {
   const faq = aboutFormData.value.faqs[index]
   if (!faq) return
-  
+
   if (!editFAQForm.value.question || !editFAQForm.value.answer) {
     saveMessage.value = 'Question and answer are required'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 3000)
     return
   }
-  
+
   aboutFormData.value.faqs[index] = {
     ...faq,
     question: editFAQForm.value.question,
     answer: editFAQForm.value.answer
   }
-  
+
   cancelFAQEdit()
   saveMessage.value = 'FAQ updated'
   saveMessageType.value = 'success'
@@ -4237,9 +7227,104 @@ const deleteFAQ = (index: number) => {
   if (!confirm('Are you sure you want to delete this FAQ?')) {
     return
   }
-  
+
   aboutFormData.value.faqs.splice(index, 1)
   saveMessage.value = 'FAQ deleted'
+  saveMessageType.value = 'success'
+  setTimeout(() => { saveMessage.value = '' }, 2000)
+}
+
+// Legal section methods
+const getLegalPolicySections = (policy: 'privacy' | 'terms' | 'cookies') => {
+  if (policy === 'privacy') return legalFormData.value.privacyPolicy.sections
+  if (policy === 'terms') return legalFormData.value.termsOfService.sections
+  return legalFormData.value.cookiePolicy.sections
+}
+
+const setLegalPolicySections = (policy: 'privacy' | 'terms' | 'cookies', sections: Array<{ id: string; heading: string; content: string }>) => {
+  if (policy === 'privacy') {
+    legalFormData.value.privacyPolicy.sections = sections
+  } else if (policy === 'terms') {
+    legalFormData.value.termsOfService.sections = sections
+  } else {
+    legalFormData.value.cookiePolicy.sections = sections
+  }
+}
+
+const addLegalSection = (policy: 'privacy' | 'terms' | 'cookies') => {
+  const sections = getLegalPolicySections(policy)
+  const newSection = {
+    id: `section-${Date.now()}`,
+    heading: '',
+    content: ''
+  }
+  sections.push(newSection)
+  startEditLegalSection(policy, sections.length - 1)
+}
+
+const startEditLegalSection = (policy: 'privacy' | 'terms' | 'cookies', index: number) => {
+  const sections = getLegalPolicySections(policy)
+  const section = sections[index]
+  if (!section) return
+
+  editingLegalPolicy.value = policy
+  editingLegalSectionIndex.value = index
+  editLegalSectionForm.value = {
+    heading: section.heading,
+    content: section.content
+  }
+}
+
+const cancelEditLegalSection = () => {
+  // If it's a new empty section, remove it
+  if (editingLegalPolicy.value !== null && editingLegalSectionIndex.value !== null) {
+    const sections = getLegalPolicySections(editingLegalPolicy.value)
+    const section = sections[editingLegalSectionIndex.value]
+    if (section && !section.heading && !section.content) {
+      sections.splice(editingLegalSectionIndex.value, 1)
+    }
+  }
+
+  editingLegalPolicy.value = null
+  editingLegalSectionIndex.value = null
+  editLegalSectionForm.value = { heading: '', content: '' }
+}
+
+const saveLegalSection = () => {
+  if (editingLegalPolicy.value === null || editingLegalSectionIndex.value === null) return
+
+  if (!editLegalSectionForm.value.heading || !editLegalSectionForm.value.content) {
+    saveMessage.value = 'Heading and content are required'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+    return
+  }
+
+  const sections = getLegalPolicySections(editingLegalPolicy.value)
+  const section = sections[editingLegalSectionIndex.value]
+  if (!section) return
+
+  section.heading = editLegalSectionForm.value.heading
+  section.content = editLegalSectionForm.value.content
+
+  saveMessage.value = 'Section updated'
+  saveMessageType.value = 'success'
+  setTimeout(() => { saveMessage.value = '' }, 2000)
+
+  editingLegalPolicy.value = null
+  editingLegalSectionIndex.value = null
+  editLegalSectionForm.value = { heading: '', content: '' }
+}
+
+const removeLegalSection = (policy: 'privacy' | 'terms' | 'cookies', index: number) => {
+  if (!confirm('Are you sure you want to delete this section?')) {
+    return
+  }
+
+  const sections = getLegalPolicySections(policy)
+  sections.splice(index, 1)
+
+  saveMessage.value = 'Section deleted'
   saveMessageType.value = 'success'
   setTimeout(() => { saveMessage.value = '' }, 2000)
 }
@@ -4250,7 +7335,7 @@ const addNewStatCard = () => {
   if (!aboutFormData.value.statCards) {
     aboutFormData.value.statCards = []
   }
-  
+
   const newStatCard: StatCard = {
     id: `temp-${Date.now()}`,
     title: '',
@@ -4264,7 +7349,7 @@ const addNewStatCard = () => {
 
 const startEditStatCard = (index: number) => {
   if (!aboutFormData.value.statCards || !aboutFormData.value.statCards[index]) return
-  
+
   const statCard = aboutFormData.value.statCards[index]
   editingStatCardId.value = statCard.id || null
   editStatCardForm.value = {
@@ -4285,31 +7370,31 @@ const cancelStatCardEdit = () => {
 
 const saveStatCardEdit = (statCardId: string | undefined) => {
   if (!statCardId) return
-  
+
   if (!aboutFormData.value.statCards) {
     aboutFormData.value.statCards = []
   }
-  
+
   const index = aboutFormData.value.statCards.findIndex(s => s.id === statCardId)
   if (index === -1) return
-  
+
   const statCard = aboutFormData.value.statCards[index]
   if (!statCard) return
-  
+
   if (!editStatCardForm.value.title || !editStatCardForm.value.value || !editStatCardForm.value.description) {
     saveMessage.value = 'Title, value, and description are required'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 3000)
     return
   }
-  
+
   aboutFormData.value.statCards[index] = {
     ...statCard,
     title: editStatCardForm.value.title,
     value: editStatCardForm.value.value,
     description: editStatCardForm.value.description
   }
-  
+
   cancelStatCardEdit()
   saveMessage.value = 'Stat card updated'
   saveMessageType.value = 'success'
@@ -4318,19 +7403,19 @@ const saveStatCardEdit = (statCardId: string | undefined) => {
 
 const deleteStatCard = (statCardId: string | undefined) => {
   if (!statCardId) return
-  
+
   if (!aboutFormData.value.statCards) {
     aboutFormData.value.statCards = []
     return
   }
-  
+
   if (!confirm('Are you sure you want to delete this stat card?')) {
     return
   }
-  
+
   const index = aboutFormData.value.statCards.findIndex(s => s.id === statCardId)
   if (index === -1) return
-  
+
   aboutFormData.value.statCards.splice(index, 1)
   saveMessage.value = 'Stat card deleted'
   saveMessageType.value = 'success'
@@ -4342,7 +7427,7 @@ const addNewWhyChooseFeature = () => {
   if (!servicesFormData.value.whyChooseFeatures) {
     servicesFormData.value.whyChooseFeatures = []
   }
-  
+
   const newFeature: WhyChooseFeature = {
     id: `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
     title: 'New Feature',
@@ -4350,7 +7435,7 @@ const addNewWhyChooseFeature = () => {
     icon: 'target',
     order: servicesFormData.value.whyChooseFeatures.length
   }
-  
+
   servicesFormData.value.whyChooseFeatures.push(newFeature)
   editingWhyChooseFeatureId.value = newFeature.id || null
   editWhyChooseFeatureForm.value = {
@@ -4362,10 +7447,10 @@ const addNewWhyChooseFeature = () => {
 
 const startEditWhyChooseFeature = (featureId: string | undefined) => {
   if (!featureId || !servicesFormData.value.whyChooseFeatures) return
-  
+
   const feature = servicesFormData.value.whyChooseFeatures.find(f => f.id === featureId)
   if (!feature) return
-  
+
   editingWhyChooseFeatureId.value = featureId || null
   editWhyChooseFeatureForm.value = {
     title: feature.title,
@@ -4385,23 +7470,23 @@ const cancelWhyChooseFeatureEdit = () => {
 
 const saveWhyChooseFeatureEdit = async (featureId: string | undefined) => {
   if (!featureId || !servicesFormData.value.whyChooseFeatures) return
-  
+
   if (!editWhyChooseFeatureForm.value.title || !editWhyChooseFeatureForm.value.description) {
     saveMessage.value = 'Title and description are required'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 3000)
     return
   }
-  
+
   const index = servicesFormData.value.whyChooseFeatures.findIndex(f => f.id === featureId)
   if (index === -1) return
-  
+
   const feature = servicesFormData.value.whyChooseFeatures[index]
   if (!feature) return
-  
+
   // Check if this is a new feature (not in original loaded features)
   const isNewFeature = !originalFeatureIds.value.has(featureId)
-  
+
   // Save to backend
   if (user.value?.id) {
     let result
@@ -4416,7 +7501,7 @@ const saveWhyChooseFeatureEdit = async (featureId: string | undefined) => {
         },
         user.value.id
       )
-      
+
       if (result.success && result.data) {
         // Update local feature with the ID from backend
         const newId = result.data.id
@@ -4442,7 +7527,7 @@ const saveWhyChooseFeatureEdit = async (featureId: string | undefined) => {
         },
         user.value.id
       )
-      
+
       if (result.success) {
         // Update local feature
         servicesFormData.value.whyChooseFeatures[index] = {
@@ -4453,7 +7538,7 @@ const saveWhyChooseFeatureEdit = async (featureId: string | undefined) => {
         }
       }
     }
-    
+
     if (result.success) {
       cancelWhyChooseFeatureEdit()
       // Reload services content to get the latest data
@@ -4480,20 +7565,20 @@ const saveWhyChooseFeatureEdit = async (featureId: string | undefined) => {
 
 const deleteWhyChooseFeature = async (featureId: string | undefined) => {
   if (!featureId || !servicesFormData.value.whyChooseFeatures) return
-  
+
   if (!confirm('Are you sure you want to delete this feature?')) {
     return
   }
-  
+
   const index = servicesFormData.value.whyChooseFeatures.findIndex(f => f.id === featureId)
   if (index === -1) return
-  
+
   const isNewFeature = !originalFeatureIds.value.has(featureId)
-  
+
   // Delete from backend if it's not a new feature
   if (!isNewFeature && user.value?.id) {
     const result = await servicesContentController.deleteWhyChooseFeature(featureId, user.value.id)
-    
+
     if (result.success) {
       servicesFormData.value.whyChooseFeatures.splice(index, 1)
       originalFeatureIds.value.delete(featureId)
@@ -4627,7 +7712,7 @@ const handleStepDrop = (event: DragEvent, index: number) => {
   event.preventDefault()
   const stepCard = event.currentTarget as HTMLElement
   stepCard.classList.remove('drag-over')
-  
+
   if (draggedStepIndex.value !== null && draggedStepIndex.value !== index && formData.value.steps) {
     const steps = formData.value.steps
     const draggedStep = steps[draggedStepIndex.value]
@@ -4742,7 +7827,7 @@ const handleBenefitDrop = (event: DragEvent, index: number) => {
   event.preventDefault()
   const benefitCard = event.currentTarget as HTMLElement
   benefitCard.classList.remove('drag-over')
-  
+
   if (draggedBenefitIndex.value !== null && draggedBenefitIndex.value !== index && formData.value.benefits) {
     const benefits = formData.value.benefits
     const draggedBenefit = benefits[draggedBenefitIndex.value]
@@ -4856,7 +7941,7 @@ const handleBonusDrop = (event: DragEvent, index: number) => {
   event.preventDefault()
   const bonusCard = event.currentTarget as HTMLElement
   bonusCard.classList.remove('drag-over')
-  
+
   if (draggedBonusIndex.value !== null && draggedBonusIndex.value !== index && formData.value.bonuses) {
     const bonuses = formData.value.bonuses
     const draggedBonus = bonuses[draggedBonusIndex.value]
@@ -4917,7 +8002,7 @@ const loadEmailSubmissions = async () => {
  */
 const resendConfirmationEmail = async (submission: EmailSubmission) => {
   if (!submission.id) return
-  
+
   try {
     const result = await emailController.submitEmail(submission.email)
     if (result.success) {
@@ -4988,7 +8073,7 @@ const updateContactMessageStatus = async (messageId: string, status: ContactMess
 
 const deleteContactMessage = async (messageId: string) => {
   if (!confirm('Are you sure you want to delete this message?')) return
-  
+
   try {
     const result = await contactContentController.deleteMessage(messageId)
     if (result.success) {
@@ -5054,6 +8139,170 @@ const saveContactSettings = async () => {
   }
 }
 
+// Maintenance Mode Management
+const loadMaintenanceData = async () => {
+  loadingMaintenance.value = true
+  try {
+    // Check if maintenance is active
+    const activeResult = await maintenanceController.getActiveMaintenanceRequest()
+    if (activeResult.success && activeResult.data) {
+      activeMaintenanceRequest.value = activeResult.data
+      isMaintenanceActive.value = activeResult.data.type === 'turn_off'
+    } else {
+      activeMaintenanceRequest.value = null
+      isMaintenanceActive.value = false
+    }
+
+    // Load pending requests
+    const pendingResult = await maintenanceController.getPendingRequests()
+    if (pendingResult.success && pendingResult.data) {
+      pendingRequests.value = pendingResult.data
+    }
+
+    // Load history
+    const historyResult = await maintenanceController.getAllRequests(20)
+    if (historyResult.success && historyResult.data) {
+      maintenanceHistory.value = historyResult.data.filter(r => r.status !== 'pending')
+    }
+  } catch (error) {
+    console.error('Failed to load maintenance data:', error)
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to load maintenance data'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } finally {
+    loadingMaintenance.value = false
+  }
+}
+
+const createMaintenanceRequest = async (type: 'turn_on' | 'turn_off') => {
+  processingRequest.value = 'creating'
+  try {
+    const estimatedEndTime = maintenanceForm.value.estimatedEndTime
+      ? new Date(maintenanceForm.value.estimatedEndTime)
+      : undefined
+
+    const result = await maintenanceController.createMaintenanceRequest(
+      type,
+      estimatedEndTime,
+      maintenanceForm.value.message || undefined
+    )
+
+    if (result.success) {
+      saveMessage.value = `Maintenance request created. Waiting for another admin's approval.`
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 5000)
+      showTurnOffModal.value = false
+      showTurnOnModal.value = false
+      maintenanceForm.value = { message: '', estimatedEndTime: '' }
+      await loadMaintenanceData()
+    } else {
+      saveMessage.value = result.error || 'Failed to create maintenance request'
+      saveMessageType.value = 'error'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+    }
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to create maintenance request'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } finally {
+    processingRequest.value = null
+  }
+}
+
+const approveMaintenanceRequest = async (requestId: string) => {
+  if (!confirm('Are you sure you want to approve this maintenance request? This will immediately ' +
+    (pendingRequests.value.find(r => r.id === requestId)?.type === 'turn_off' ? 'turn off' : 'turn on') +
+    ' the website.')) {
+    return
+  }
+
+  processingRequest.value = requestId
+  try {
+    const result = await maintenanceController.approveMaintenanceRequest(requestId)
+    if (result.success) {
+      saveMessage.value = 'Maintenance request approved. Website status updated.'
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 5000)
+      await loadMaintenanceData()
+    } else {
+      saveMessage.value = result.error || 'Failed to approve maintenance request'
+      saveMessageType.value = 'error'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+    }
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to approve maintenance request'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } finally {
+    processingRequest.value = null
+  }
+}
+
+const rejectMaintenanceRequest = async (requestId: string, reason?: string) => {
+  processingRequest.value = requestId
+  try {
+    const result = await maintenanceController.rejectMaintenanceRequest(requestId, reason)
+    if (result.success) {
+      saveMessage.value = 'Maintenance request rejected.'
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+      showRejectModal.value = false
+      rejectRequest.value = null
+      rejectReason.value = ''
+      await loadMaintenanceData()
+    } else {
+      saveMessage.value = result.error || 'Failed to reject maintenance request'
+      saveMessageType.value = 'error'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+    }
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to reject maintenance request'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } finally {
+    processingRequest.value = null
+  }
+}
+
+const cancelMaintenanceRequest = async (requestId: string) => {
+  if (!confirm('Are you sure you want to cancel this maintenance request?')) {
+    return
+  }
+
+  processingRequest.value = requestId
+  try {
+    const result = await maintenanceController.cancelMaintenanceRequest(requestId)
+    if (result.success) {
+      saveMessage.value = 'Maintenance request cancelled.'
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+      await loadMaintenanceData()
+    } else {
+      saveMessage.value = result.error || 'Failed to cancel maintenance request'
+      saveMessageType.value = 'error'
+      setTimeout(() => { saveMessage.value = '' }, 3000)
+    }
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to cancel maintenance request'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } finally {
+    processingRequest.value = null
+  }
+}
+
+const formatMaintenanceDate = (date: Date | string | undefined): string => {
+  if (!date) return ''
+  const d = date instanceof Date ? date : new Date(date)
+  return d.toLocaleString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: '2-digit',
+    minute: '2-digit'
+  })
+}
+
 // Real Results Cases Management
 const addNewRealResultsCase = () => {
   if (!formData.value.realResultsCases) {
@@ -5067,7 +8316,33 @@ const addNewRealResultsCase = () => {
     headline: '',
     cards: [],
     companyImages: [],
-    ctaText: ''
+    ctaText: '',
+    // Detail page fields
+    heroImage: {
+      imageUrl: '',
+      imageFileUrl: '',
+      imageType: 'url' as 'url' | 'upload'
+    },
+    chartSection: {
+      title: '',
+      chartImageUrl: '',
+      chartImageFileUrl: '',
+      chartImageType: 'url' as 'url' | 'upload'
+    },
+    beforeAfterSection: {
+      beforeImageUrl: '',
+      beforeImageFileUrl: '',
+      beforeImageType: 'url' as 'url' | 'upload',
+      beforeCaption: '',
+      afterImageUrl: '',
+      afterImageFileUrl: '',
+      afterImageType: 'url' as 'url' | 'upload',
+      afterCaption: ''
+    },
+    ourApproach: {
+      title: 'Our Approach',
+      steps: []
+    }
   })
 }
 
@@ -5080,16 +8355,16 @@ const removeRealResultsCase = (index: number) => {
 const handleCaseLogoUpload = async (event: Event, caseIndex: number) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   if (!file.type.startsWith('image/')) {
     saveMessage.value = 'Please select a valid image file'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 4000)
     return
   }
-  
+
   const maxSize = 5 * 1024 * 1024 // 5MB
   if (file.size > maxSize) {
     saveMessage.value = 'Image file is too large. Maximum size is 5MB'
@@ -5097,12 +8372,12 @@ const handleCaseLogoUpload = async (event: Event, caseIndex: number) => {
     setTimeout(() => { saveMessage.value = '' }, 4000)
     return
   }
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `real-results/logo/${userId}/${timestamp}-${file.name}`
-    
+
     const imageUrl = await storageService.uploadAndGetUrl(
       fileName,
       file,
@@ -5115,12 +8390,12 @@ const handleCaseLogoUpload = async (event: Event, caseIndex: number) => {
         }
       }
     )
-    
+
     if (formData.value.realResultsCases && formData.value.realResultsCases[caseIndex]) {
       formData.value.realResultsCases[caseIndex].companyLogoFileUrl = imageUrl
       formData.value.realResultsCases[caseIndex].companyLogoType = 'upload'
     }
-    
+
     saveMessage.value = 'Logo uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 3000)
@@ -5157,16 +8432,16 @@ const removeCaseCompanyImage = (caseIndex: number, imageIndex: number) => {
 const handleCaseCompanyImageUpload = async (event: Event, caseIndex: number, imageIndex: number) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   if (!file.type.startsWith('image/')) {
     saveMessage.value = 'Please select a valid image file'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 4000)
     return
   }
-  
+
   const maxSize = 5 * 1024 * 1024 // 5MB
   if (file.size > maxSize) {
     saveMessage.value = 'Image file is too large. Maximum size is 5MB'
@@ -5174,12 +8449,12 @@ const handleCaseCompanyImageUpload = async (event: Event, caseIndex: number, ima
     setTimeout(() => { saveMessage.value = '' }, 4000)
     return
   }
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `real-results/company/${userId}/${timestamp}-${file.name}`
-    
+
     const imageUrl = await storageService.uploadAndGetUrl(
       fileName,
       file,
@@ -5192,12 +8467,12 @@ const handleCaseCompanyImageUpload = async (event: Event, caseIndex: number, ima
         }
       }
     )
-    
+
     if (formData.value.realResultsCases && formData.value.realResultsCases[caseIndex]?.companyImages?.[imageIndex]) {
       formData.value.realResultsCases[caseIndex].companyImages[imageIndex].imageFileUrl = imageUrl
       formData.value.realResultsCases[caseIndex].companyImages[imageIndex].imageType = 'upload'
     }
-    
+
     saveMessage.value = 'Image uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 3000)
@@ -5228,6 +8503,252 @@ const removeCaseCard = (caseIndex: number, cardIndex: number) => {
     if (caseItem) {
       caseItem.cards.splice(cardIndex, 1)
     }
+  }
+}
+
+// Detail page upload handlers
+const handleCaseHeroImageUpload = async (event: Event, caseIndex: number) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  const caseItem = formData.value.realResultsCases[caseIndex]
+  if (!caseItem || !caseItem.heroImage) return
+
+  try {
+    const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
+    const timestamp = Date.now()
+    const fileName = `real-results/hero/${userId}/${timestamp}-${file.name}`
+
+    const imageUrl = await storageService.uploadAndGetUrl(fileName, file, {
+      contentType: file.type,
+      customMetadata: {
+        uploadedBy: userId,
+        uploadedAt: new Date().toISOString(),
+        originalName: file.name
+      }
+    })
+
+    caseItem.heroImage.imageFileUrl = imageUrl
+    caseItem.heroImage.imageType = 'upload'
+
+    saveMessage.value = 'Hero image uploaded successfully!'
+    saveMessageType.value = 'success'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to upload image'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 5000)
+  }
+}
+
+const handleCaseChartImageUpload = async (event: Event, caseIndex: number) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  const caseItem = formData.value.realResultsCases[caseIndex]
+  if (!caseItem || !caseItem.chartSection) return
+
+  try {
+    const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
+    const timestamp = Date.now()
+    const fileName = `real-results/chart/${userId}/${timestamp}-${file.name}`
+
+    const imageUrl = await storageService.uploadAndGetUrl(fileName, file, {
+      contentType: file.type,
+      customMetadata: {
+        uploadedBy: userId,
+        uploadedAt: new Date().toISOString(),
+        originalName: file.name
+      }
+    })
+
+    caseItem.chartSection.chartImageFileUrl = imageUrl
+    caseItem.chartSection.chartImageType = 'upload'
+
+    saveMessage.value = 'Chart image uploaded successfully!'
+    saveMessageType.value = 'success'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to upload image'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 5000)
+  }
+}
+
+const handleCaseBeforeImageUpload = async (event: Event, caseIndex: number) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  const caseItem = formData.value.realResultsCases[caseIndex]
+  if (!caseItem || !caseItem.beforeAfterSection) return
+
+  try {
+    const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
+    const timestamp = Date.now()
+    const fileName = `real-results/before/${userId}/${timestamp}-${file.name}`
+
+    const imageUrl = await storageService.uploadAndGetUrl(fileName, file, {
+      contentType: file.type,
+      customMetadata: {
+        uploadedBy: userId,
+        uploadedAt: new Date().toISOString(),
+        originalName: file.name
+      }
+    })
+
+    caseItem.beforeAfterSection.beforeImageFileUrl = imageUrl
+    caseItem.beforeAfterSection.beforeImageType = 'upload'
+
+    saveMessage.value = 'Before image uploaded successfully!'
+    saveMessageType.value = 'success'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to upload image'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 5000)
+  }
+}
+
+const handleCaseAfterImageUpload = async (event: Event, caseIndex: number) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  const caseItem = formData.value.realResultsCases[caseIndex]
+  if (!caseItem || !caseItem.beforeAfterSection) return
+
+  try {
+    const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
+    const timestamp = Date.now()
+    const fileName = `real-results/after/${userId}/${timestamp}-${file.name}`
+
+    const imageUrl = await storageService.uploadAndGetUrl(fileName, file, {
+      contentType: file.type,
+      customMetadata: {
+        uploadedBy: userId,
+        uploadedAt: new Date().toISOString(),
+        originalName: file.name
+      }
+    })
+
+    caseItem.beforeAfterSection.afterImageFileUrl = imageUrl
+    caseItem.beforeAfterSection.afterImageType = 'upload'
+
+    saveMessage.value = 'After image uploaded successfully!'
+    saveMessageType.value = 'success'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to upload image'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 5000)
+  }
+}
+
+const addApproachStep = (caseIndex: number) => {
+  const caseItem = formData.value.realResultsCases[caseIndex]
+  if (!caseItem) return
+  if (!caseItem.ourApproach) {
+    caseItem.ourApproach = {
+      title: 'Our Approach',
+      steps: []
+    }
+  }
+  if (!caseItem.ourApproach.steps) {
+    caseItem.ourApproach.steps = []
+  }
+  caseItem.ourApproach.steps.push({
+    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+    icon: 'magnifying-glass',
+    title: '',
+    description: ''
+  })
+}
+
+const removeApproachStep = (caseIndex: number, stepIndex: number) => {
+  if (confirm('Are you sure you want to delete this step?')) {
+    const caseItem = formData.value.realResultsCases[caseIndex]
+    if (caseItem?.ourApproach?.steps) {
+      caseItem.ourApproach.steps.splice(stepIndex, 1)
+    }
+  }
+}
+
+const addGalleryImage = (caseIndex: number) => {
+  const caseItem = formData.value.realResultsCases[caseIndex]
+  if (!caseItem) return
+  if (!caseItem.imageGallerySection) {
+    caseItem.imageGallerySection = {
+      images: []
+    }
+  }
+  if (!caseItem.imageGallerySection.images) {
+    caseItem.imageGallerySection.images = []
+  }
+  caseItem.imageGallerySection.images.push({
+    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+    title: '',
+    subtitle: '',
+    imageUrl: '',
+    imageFileUrl: '',
+    imageType: 'url' as 'url' | 'upload'
+  })
+}
+
+const removeGalleryImage = (caseIndex: number, imageIndex: number) => {
+  if (confirm('Are you sure you want to delete this image?')) {
+    const caseItem = formData.value.realResultsCases[caseIndex]
+    if (caseItem?.imageGallerySection?.images) {
+      caseItem.imageGallerySection.images.splice(imageIndex, 1)
+    }
+  }
+}
+
+const handleGalleryImageUpload = async (event: Event, caseIndex: number, imageIndex: number) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  const caseItem = formData.value.realResultsCases[caseIndex]
+  if (!caseItem?.imageGallerySection?.images?.[imageIndex]) return
+
+  const imageItem = caseItem.imageGallerySection.images[imageIndex]
+
+  try {
+    uploadingThumbnails.value[`${caseIndex}-${imageIndex}`] = true
+    uploadProgressThumbnails.value[`${caseIndex}-${imageIndex}`] = 0
+
+    const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
+    const timestamp = Date.now()
+    const fileName = `gallery-images/${userId}/${timestamp}-${file.name}`
+
+    const imageUrl = await storageService.uploadAndGetUrlWithProgress(
+      fileName,
+      file,
+      (progress: number) => {
+        uploadProgressThumbnails.value[`${caseIndex}-${imageIndex}`] = progress
+      },
+      {
+        contentType: file.type,
+        customMetadata: {
+          uploadedBy: userId,
+          uploadedAt: new Date().toISOString(),
+          originalName: file.name
+        }
+      }
+    )
+
+    imageItem.imageFileUrl = imageUrl
+    imageItem.imageType = 'upload'
+    imageItem.imageUrl = ''
+  } catch (error) {
+    console.error('Failed to upload gallery image:', error)
+    alert('Failed to upload image. Please try again.')
+  } finally {
+    uploadingThumbnails.value[`${caseIndex}-${imageIndex}`] = false
+    uploadProgressThumbnails.value[`${caseIndex}-${imageIndex}`] = 0
   }
 }
 
@@ -5281,21 +8802,21 @@ const removeClientLogo = (index: number) => {
 const handleClientLogoUpload = async (event: Event, index: number) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   // Validate file type - only allow PNG, JPG, or SVG
   const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml']
   const allowedExtensions = ['.png', '.jpg', '.jpeg', '.svg']
   const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
-  
+
   if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
     saveMessage.value = 'Please select a PNG, JPG, or SVG image file'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 3000)
     return
   }
-  
+
   // Validate file size (max 5MB)
   if (file.size > 5 * 1024 * 1024) {
     saveMessage.value = 'Image file size must be less than 5MB'
@@ -5303,21 +8824,21 @@ const handleClientLogoUpload = async (event: Event, index: number) => {
     setTimeout(() => { saveMessage.value = '' }, 3000)
     return
   }
-  
+
   // Set uploading state
   uploadingLogos.value[index] = true
-  
+
   try {
     const logo = formData.value.clientLogos[index]
     if (!logo) {
       uploadingLogos.value[index] = false
       return
     }
-    
+
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `client-logos/${userId}/${timestamp}-${file.name}`
-    
+
     // Upload image to Firebase Storage
     const imageUrl = await storageService.uploadAndGetUrl(
       fileName,
@@ -5331,12 +8852,12 @@ const handleClientLogoUpload = async (event: Event, index: number) => {
         }
       }
     )
-    
+
     if (imageUrl) {
       logo.logoFileUrl = imageUrl
       logo.logoType = 'upload'
     }
-    
+
     saveMessage.value = 'Logo uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 3000)
@@ -5354,14 +8875,14 @@ const handleClientLogoUpload = async (event: Event, index: number) => {
 const handlePhotoUpload = async (event: Event, index: number) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   // Validate file type - only allow PNG, JPG, or WebP
   const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
   const allowedExtensions = ['.png', '.jpg', '.jpeg', '.webp']
   const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
-  
+
   if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
     saveMessage.value = 'Please select a valid image file (PNG, JPG, or WebP)'
     saveMessageType.value = 'error'
@@ -5372,7 +8893,7 @@ const handlePhotoUpload = async (event: Event, index: number) => {
     }
     return
   }
-  
+
   // Validate file size (5MB max)
   const maxSize = 5 * 1024 * 1024 // 5MB
   if (file.size > maxSize) {
@@ -5385,15 +8906,15 @@ const handlePhotoUpload = async (event: Event, index: number) => {
     }
     return
   }
-  
+
   uploadingPhotos.value[index] = true
   uploadProgressPhotos.value[index] = 0
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `testimonials/${userId}/${timestamp}-${file.name}`
-    
+
     // Upload image to Firebase Storage with progress tracking
     const imageUrl = await storageService.uploadAndGetUrlWithProgress(
       fileName,
@@ -5410,13 +8931,13 @@ const handlePhotoUpload = async (event: Event, index: number) => {
         }
       }
     )
-    
+
     const testimonial = formData.value.testimonials[index]
     if (testimonial) {
       testimonial.photoFileUrl = imageUrl
       testimonial.photoType = 'upload'
     }
-    
+
     saveMessage.value = 'Photo uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 3000)
@@ -5433,14 +8954,14 @@ const handlePhotoUpload = async (event: Event, index: number) => {
 const handleTestimonialVideoUpload = async (event: Event, index: number) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   // Validate file type - only allow specific video formats
   const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo']
   const allowedExtensions = ['.mp4', '.webm', '.mov', '.avi']
   const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
-  
+
   if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
     saveMessage.value = 'Please select a valid video file (MP4, WebM, MOV, or AVI)'
     saveMessageType.value = 'error'
@@ -5451,7 +8972,7 @@ const handleTestimonialVideoUpload = async (event: Event, index: number) => {
     }
     return
   }
-  
+
   // Validate file size (100MB max)
   const maxSize = 100 * 1024 * 1024 // 100MB
   if (file.size > maxSize) {
@@ -5464,15 +8985,15 @@ const handleTestimonialVideoUpload = async (event: Event, index: number) => {
     }
     return
   }
-  
+
   uploadingTestimonialVideos.value[index] = true
   uploadProgressTestimonialVideos.value[index] = 0
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `testimonials/${userId}/${timestamp}-${file.name}`
-    
+
     // Upload video to Firebase Storage with progress tracking
     const videoUrl = await storageService.uploadAndGetUrlWithProgress(
       fileName,
@@ -5489,13 +9010,13 @@ const handleTestimonialVideoUpload = async (event: Event, index: number) => {
         }
       }
     )
-    
+
     const testimonial = formData.value.testimonials[index]
     if (testimonial) {
       testimonial.videoFileUrl = videoUrl
       testimonial.videoType = 'upload'
     }
-    
+
     saveMessage.value = 'Video uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 3000)
@@ -5512,14 +9033,14 @@ const handleTestimonialVideoUpload = async (event: Event, index: number) => {
 const handleVideoThumbnailUpload = async (event: Event, index: number) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   // Validate file type - only allow PNG, JPG, or WebP
   const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
   const allowedExtensions = ['.png', '.jpg', '.jpeg', '.webp']
   const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
-  
+
   if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
     saveMessage.value = 'Please select a valid image file (PNG, JPG, or WebP)'
     saveMessageType.value = 'error'
@@ -5530,7 +9051,7 @@ const handleVideoThumbnailUpload = async (event: Event, index: number) => {
     }
     return
   }
-  
+
   // Validate file size (5MB max)
   const maxSize = 5 * 1024 * 1024 // 5MB
   if (file.size > maxSize) {
@@ -5543,15 +9064,15 @@ const handleVideoThumbnailUpload = async (event: Event, index: number) => {
     }
     return
   }
-  
+
   uploadingThumbnails.value[index] = true
   uploadProgressThumbnails.value[index] = 0
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `testimonials/${userId}/thumbnails/${timestamp}-${file.name}`
-    
+
     // Upload image to Firebase Storage with progress tracking
     const imageUrl = await storageService.uploadAndGetUrlWithProgress(
       fileName,
@@ -5568,13 +9089,13 @@ const handleVideoThumbnailUpload = async (event: Event, index: number) => {
         }
       }
     )
-    
+
     const testimonial = formData.value.testimonials[index]
     if (testimonial) {
       testimonial.videoThumbnailFileUrl = imageUrl
       testimonial.videoThumbnailType = 'upload'
     }
-    
+
     saveMessage.value = 'Video thumbnail uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 3000)
@@ -5591,22 +9112,70 @@ const handleVideoThumbnailUpload = async (event: Event, index: number) => {
 const loadContent = async () => {
   isLoading.value = true
   errorMessage.value = ''
-  
+
   try {
     await userViewController.loadCurrentUser()
-    
+
     // Check if user is admin
     if (user.value?.id) {
       isAdmin.value = await adminUserService.isAdmin(user.value.id)
     }
-    
+
     const result = await homeContentController.getHomeContent()
-    
+
     if (result.success && result.data) {
       formData.value = result.data
       // Ensure step numbers are properly initialized
       if (formData.value.steps && formData.value.steps.length > 0) {
         updateStepNumbers()
+      }
+      // Initialize detail page fields for existing cases
+      if (formData.value.realResultsCases) {
+        formData.value.realResultsCases.forEach((resultCase) => {
+          // Initialize heroImage if missing
+          if (!resultCase.heroImage) {
+            resultCase.heroImage = {
+              imageUrl: '',
+              imageFileUrl: '',
+              imageType: 'url' as 'url' | 'upload'
+            }
+          }
+          // Initialize chartSection if missing
+          if (!resultCase.chartSection) {
+            resultCase.chartSection = {
+              title: '',
+              chartImageUrl: '',
+              chartImageFileUrl: '',
+              chartImageType: 'url' as 'url' | 'upload'
+            }
+          }
+          // Initialize beforeAfterSection if missing
+          if (!resultCase.beforeAfterSection) {
+            resultCase.beforeAfterSection = {
+              beforeImageUrl: '',
+              beforeImageFileUrl: '',
+              beforeImageType: 'url' as 'url' | 'upload',
+              beforeCaption: '',
+              afterImageUrl: '',
+              afterImageFileUrl: '',
+              afterImageType: 'url' as 'url' | 'upload',
+              afterCaption: ''
+            }
+          }
+          // Initialize ourApproach if missing
+          if (!resultCase.ourApproach) {
+            resultCase.ourApproach = {
+              title: 'Our Approach',
+              steps: []
+            }
+          }
+          // Initialize imageGallerySection if missing
+          if (!resultCase.imageGallerySection) {
+            resultCase.imageGallerySection = {
+              images: []
+            }
+          }
+        })
       }
     } else {
       errorMessage.value = result.error || 'Failed to load content'
@@ -5616,8 +9185,14 @@ const loadContent = async () => {
     const aboutResult = await aboutContentController.getAboutContent()
     if (aboutResult.success && aboutResult.data) {
       aboutFormData.value = aboutResult.data
+      // Ensure all team members have order values
+      aboutFormData.value.teamMembers.forEach((member, index) => {
+        if (member.order === undefined || member.order === null) {
+          member.order = index
+        }
+      })
     }
-    
+
     // Load services content
     const servicesResult = await servicesContentController.getServicesContent()
     if (servicesResult.success && servicesResult.data) {
@@ -5629,10 +9204,28 @@ const loadContent = async () => {
           .filter((id): id is string => !!id)
       )
     }
-    
+
+    // Load legal content
+    const legalResult = await legalContentController.getLegalContent()
+    if (legalResult.success && legalResult.data) {
+      legalFormData.value = legalResult.data
+    }
+
+    // Load roles for all users (needed for permission checking)
+    const rolesResult = await roleController.getAllRoles()
+    if (rolesResult.success && rolesResult.data) {
+      roles.value = rolesResult.data
+    }
+
     // Load admin data if admin
     if (isAdmin.value) {
       await loadAdminData()
+    }
+
+    // Set initial tab to first accessible tab
+    const accessibleTabs = tabs.value
+    if (accessibleTabs.length > 0 && !canAccessTab(activeTab.value) && accessibleTabs[0]) {
+      activeTab.value = accessibleTabs[0].id
     }
   } catch (error) {
     errorMessage.value = error instanceof Error ? error.message : 'Failed to load content'
@@ -5643,7 +9236,7 @@ const loadContent = async () => {
 
 const loadAdminData = async () => {
   if (!isAdmin.value) return
-  
+
   isAdminLoading.value = true
   try {
     // Load users
@@ -5651,19 +9244,19 @@ const loadAdminData = async () => {
     if (usersResult.success && usersResult.data) {
       users.value = usersResult.data
     }
-    
+
     // Load roles
     const rolesResult = await roleController.getAllRoles()
     if (rolesResult.success && rolesResult.data) {
       roles.value = rolesResult.data
     }
-    
+
     // Load activity logs
     const logsResult = await activityLogController.getRecentLogs(100)
     if (logsResult.success && logsResult.data) {
       activityLogs.value = logsResult.data
     }
-    
+
     // Load site settings
     const settingsResult = await siteSettingsController.getSiteSettings()
     if (settingsResult.success && settingsResult.data) {
@@ -5678,7 +9271,7 @@ const loadAdminData = async () => {
 
 const createUser = async () => {
   if (!user.value?.id) return
-  
+
   isAdminLoading.value = true
   try {
     const result = await adminUserController.createUser(
@@ -5688,22 +9281,22 @@ const createUser = async () => {
       newUserForm.value.role,
       user.value.id
     )
-    
+
     if (result.success) {
       // Clear form first
       newUserForm.value = { email: '', password: '', displayName: '', role: 'user' }
-      
+
       // Reload admin data to refresh the users list and activity logs
       await loadAdminData()
-      
+
       // Force Vue to recognize the change by creating a new array reference
       users.value = [...users.value]
-      
+
       // Refresh activity logs if currently viewing them
       if (activeTab.value === 'activity-logs') {
         await refreshActivityLogs()
       }
-      
+
       saveMessage.value = 'User created successfully!'
       saveMessageType.value = 'success'
       setTimeout(() => { saveMessage.value = '' }, 4000)
@@ -5735,7 +9328,7 @@ const cancelUserEdit = () => {
 
 const saveUserEdit = async (userId: string) => {
   if (!user.value?.id) return
-  
+
   isAdminLoading.value = true
   try {
     const result = await adminUserController.updateUser(userId, editUserForm.value, user.value.id)
@@ -5766,7 +9359,7 @@ const saveUserEdit = async (userId: string) => {
 
 const updateUserRole = async (userId: string, newRole: string) => {
   if (!user.value?.id) return
-  
+
   isAdminLoading.value = true
   try {
     const result = await adminUserController.updateUserRole(userId, newRole, user.value.id)
@@ -5795,7 +9388,7 @@ const updateUserRole = async (userId: string, newRole: string) => {
 
 const deleteUser = async (userId: string) => {
   if (!user.value?.id || !confirm('Are you sure you want to delete this user?')) return
-  
+
   isAdminLoading.value = true
   try {
     const result = await adminUserController.deleteUser(userId, user.value.id)
@@ -5828,7 +9421,11 @@ const createRole = async () => {
     const result = await roleController.createRole(newRoleForm.value)
     if (result.success) {
       newRoleForm.value = { name: '', description: '', permissions: [] }
+
+      // Reload roles to update the dropdown lists
+      await reloadRoles()
       await loadAdminData()
+
       saveMessage.value = 'Role created successfully!'
       saveMessageType.value = 'success'
       setTimeout(() => { saveMessage.value = '' }, 4000)
@@ -5860,15 +9457,19 @@ const cancelRoleEdit = () => {
 
 const saveRoleEdit = async (roleId: string) => {
   if (!user.value?.id) return
-  
+
   isAdminLoading.value = true
   try {
     const result = await roleController.updateRole(roleId, editRoleForm.value, user.value.id)
     if (result.success) {
       editingRoleId.value = null
       editRoleForm.value = { name: '', description: '', permissions: [] }
+
+      // Reload roles to update permissions across the app
+      await reloadRoles()
       await loadAdminData()
-      saveMessage.value = 'Role updated successfully!'
+
+      saveMessage.value = 'Role updated successfully! Users with this role will see updated permissions.'
       saveMessageType.value = 'success'
       setTimeout(() => { saveMessage.value = '' }, 4000)
     } else {
@@ -5883,14 +9484,26 @@ const saveRoleEdit = async (roleId: string) => {
   }
 }
 
+// Reload roles to refresh permissions
+const reloadRoles = async () => {
+  const rolesResult = await roleController.getAllRoles()
+  if (rolesResult.success && rolesResult.data) {
+    // Create a new array reference to ensure reactivity
+    roles.value = [...rolesResult.data]
+  }
+}
+
 const deleteRole = async (roleId: string) => {
-  if (!user.value?.id || !confirm('Are you sure you want to delete this role?')) return
-  
+  if (!user.value?.id || !confirm('Are you sure you want to delete this role? Users with this role may lose access.')) return
+
   isAdminLoading.value = true
   try {
     const result = await roleController.deleteRole(roleId, user.value.id)
     if (result.success) {
+      // Reload roles to update permissions
+      await reloadRoles()
       await loadAdminData()
+
       saveMessage.value = 'Role deleted successfully!'
       saveMessageType.value = 'success'
       setTimeout(() => { saveMessage.value = '' }, 4000)
@@ -5908,7 +9521,7 @@ const deleteRole = async (roleId: string) => {
 
 const resetUserPassword = async (userEmail: string) => {
   if (!user.value?.id || !confirm(`Send password reset email to ${userEmail}?`)) return
-  
+
   isAdminLoading.value = true
   try {
     const result = await adminUserController.resetUserPassword(userEmail, user.value.id)
@@ -5929,6 +9542,44 @@ const resetUserPassword = async (userEmail: string) => {
     saveMessageType.value = 'error'
   } finally {
     isAdminLoading.value = false
+  }
+}
+
+const saveSiteSettings = async () => {
+  isSavingSiteSettings.value = true
+  saveMessage.value = ''
+
+  try {
+    // Save all site settings - ensure we have all required fields
+    const settingsToSave: Partial<SiteSettings> = {
+      disabledSections: siteSettings.value.disabledSections || [],
+      maintenanceMode: siteSettings.value.maintenanceMode || false,
+      maintenanceMessage: siteSettings.value.maintenanceMessage || 'We\'re currently performing maintenance. Please check back soon.'
+    }
+
+    const result = await siteSettingsController.updateSiteSettings(settingsToSave)
+
+    if (result.success) {
+      // Reload settings to ensure they're synced
+      await loadAdminData()
+      saveMessage.value = 'Site settings saved successfully!'
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 4000)
+
+      // TODO: Save extended settings (general, SEO, social) to a separate collection
+      // or extend the SiteSettings interface to include them
+    } else {
+      saveMessage.value = result.error || 'Failed to save site settings'
+      saveMessageType.value = 'error'
+      console.error('Failed to save site settings:', result.error)
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to save site settings'
+    saveMessage.value = errorMessage
+    saveMessageType.value = 'error'
+    console.error('Error saving site settings:', error)
+  } finally {
+    isSavingSiteSettings.value = false
   }
 }
 
@@ -5955,7 +9606,7 @@ const toggleSection = async (sectionId: string, disabled: boolean) => {
 
 const refreshActivityLogs = async () => {
   if (!isAdmin.value) return
-  
+
   isAdminLoading.value = true
   try {
     const logsResult = await activityLogController.getRecentLogs(100)
@@ -5973,6 +9624,16 @@ const refreshActivityLogs = async () => {
 
 // Watch for tab changes to refresh activity logs when viewing them
 watch(activeTab, (newTab) => {
+  if (newTab === 'analytics' && isAdmin.value) {
+    loadAnalytics()
+  }
+  if (newTab === 'bookings' && isAdmin.value) {
+    loadBookings()
+    initAvailabilityCalendar()
+  }
+  if (newTab === 'google-calendar' && isAdmin.value) {
+    checkGoogleCalendarConnection()
+  }
   if (newTab === 'activity-logs' && isAdmin.value) {
     refreshActivityLogs()
   }
@@ -5985,17 +9646,45 @@ watch(activeTab, (newTab) => {
   if (newTab === 'contact-settings') {
     loadContactSettings()
   }
+  if (newTab === 'maintenance' && isAdmin.value) {
+    loadMaintenanceData()
+  }
 })
+
+// Watch for user changes to reload roles and update permissions
+watch(() => user.value?.id, async (newUserId, oldUserId) => {
+  if (newUserId && newUserId !== oldUserId) {
+    // User logged in or changed - reload roles to get latest permissions
+    const rolesResult = await roleController.getAllRoles()
+    if (rolesResult.success && rolesResult.data) {
+      roles.value = rolesResult.data
+    }
+  }
+})
+
+// Watch for role changes to ensure permissions are up to date
+watch(() => roles.value, () => {
+  // When roles change, permissions will automatically update via computed property
+  // This ensures UI reacts to role permission changes
+}, { deep: true })
 
 const saveContent = async () => {
   isSaving.value = true
   saveMessage.value = ''
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid
     if (!userId) {
       saveMessage.value = 'User ID is required'
       saveMessageType.value = 'error'
+      return
+    }
+
+    // Check if user has permission to save this content
+    if (!canAccessTab(activeTab.value)) {
+      saveMessage.value = 'You do not have permission to modify this content'
+      saveMessageType.value = 'error'
+      isSaving.value = false
       return
     }
 
@@ -6027,9 +9716,23 @@ const saveContent = async () => {
       return
     }
 
+    // Save legal content if on legal-pages tab
+    if (activeTab.value === 'legal-pages') {
+      const legalResult = await legalContentController.updateLegalContent(legalFormData.value)
+      if (legalResult.success) {
+        saveMessage.value = 'Legal content saved successfully!'
+        saveMessageType.value = 'success'
+        setTimeout(() => { saveMessage.value = '' }, 4000)
+      } else {
+        saveMessage.value = legalResult.error || 'Failed to save legal content'
+        saveMessageType.value = 'error'
+      }
+      return
+    }
+
     // Save home content for other tabs
     const result = await homeContentController.updateHomeContent(formData.value, userId)
-    
+
     if (result.success) {
       // Refresh activity logs if currently viewing them
       if (activeTab.value === 'activity-logs' && isAdmin.value) {
@@ -6054,14 +9757,14 @@ const resetContent = async () => {
   if (!confirm('Are you sure you want to reset all content to defaults? This action cannot be undone.')) {
     return
   }
-  
+
   isSaving.value = true
   saveMessage.value = ''
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid
     const result = await homeContentController.resetHomeContent(userId)
-    
+
     if (result.success) {
       await loadContent()
       saveMessage.value = 'Content reset to defaults successfully!'
@@ -6096,8 +9799,53 @@ const handleLogout = async () => {
   }
 }
 
+// Function to set active tab from query parameter
+const setActiveTabFromQuery = () => {
+  if (route.query.tab && typeof route.query.tab === 'string') {
+    const tabExists = tabs.value.find(t => t.id === route.query.tab)
+    if (tabExists && canAccessTab(route.query.tab as string)) {
+      activeTab.value = route.query.tab as string
+      // If Google Calendar tab, check connection status
+      if (route.query.tab === 'google-calendar' && isAdmin.value) {
+        checkGoogleCalendarConnection()
+      }
+    }
+  }
+}
+
+// Watch for route query to set active tab
+watch(() => route.query.tab, (newTab) => {
+  if (newTab && typeof newTab === 'string') {
+    const tabExists = tabs.value.find(t => t.id === newTab)
+    if (tabExists && canAccessTab(newTab)) {
+      activeTab.value = newTab
+      // If Google Calendar tab, check connection status
+      if (newTab === 'google-calendar' && isAdmin.value) {
+        checkGoogleCalendarConnection()
+      }
+    }
+  }
+}, { immediate: true })
+
+// Watch for isAdmin and tabs to be ready, then set tab from query
+watch([isAdmin, tabs], () => {
+  if (isAdmin.value && tabs.value.length > 0) {
+    setActiveTabFromQuery()
+  }
+}, { immediate: true })
+
 onMounted(() => {
   loadContent()
+  // Set initial tab from query parameter after a short delay to ensure isAdmin is set
+  setTimeout(() => {
+    setActiveTabFromQuery()
+  }, 100)
+  // Add resize listener for sidebar
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
 })
 </script>
 
@@ -6115,6 +9863,19 @@ onMounted(() => {
   margin-top: 0;
 }
 
+/* Sidebar Overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 99;
+  backdrop-filter: blur(4px);
+}
+
 /* Sidebar Styles */
 .dashboard-sidebar {
   width: 300px;
@@ -6126,6 +9887,8 @@ onMounted(() => {
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  z-index: 100;
 }
 
 .dashboard-sidebar::-webkit-scrollbar {
@@ -6341,6 +10104,34 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  background: rgba(91, 32, 150, 0.2);
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem;
+  color: #F5F7FA;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.mobile-menu-toggle:hover {
+  background: rgba(91, 32, 150, 0.3);
+  border-color: rgba(91, 32, 150, 0.5);
+}
+
+.mobile-menu-toggle svg {
+  width: 24px;
+  height: 24px;
 }
 
 .page-title {
@@ -6627,6 +10418,88 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   margin-top: 0.25rem;
+}
+
+.char-count {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: rgba(245, 247, 250, 0.5);
+  text-align: right;
+}
+
+.toggle-switch-large {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  cursor: pointer;
+  padding: 1rem;
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.toggle-switch-large:hover {
+  border-color: rgba(91, 32, 150, 0.4);
+  background: rgba(245, 247, 250, 0.08);
+}
+
+.toggle-switch-large input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-switch-large .toggle-slider {
+  position: relative;
+  width: 56px;
+  height: 32px;
+  background: rgba(245, 247, 250, 0.2);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.toggle-switch-large .toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #F5F7FA;
+  top: 4px;
+  left: 4px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch-large input[type="checkbox"]:checked + .toggle-slider {
+  background: linear-gradient(103deg, #5B2096 0.52%, #C19DE6 125.79%);
+}
+
+.toggle-switch-large input[type="checkbox"]:checked + .toggle-slider::before {
+  transform: translateX(24px);
+}
+
+.toggle-label-large {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.toggle-label-large strong {
+  color: #F5F7FA;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.toggle-description {
+  color: rgba(245, 247, 250, 0.6);
+  font-size: 0.875rem;
 }
 
 .char-count {
@@ -7109,6 +10982,9 @@ onMounted(() => {
   gap: 0.5rem;
   color: rgba(245, 247, 250, 0.5);
   font-size: 0.875rem;
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .status-message {
@@ -7148,12 +11024,14 @@ onMounted(() => {
 .action-buttons {
   display: flex;
   gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 .btn-primary,
 .btn-secondary {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.875rem 1.5rem;
   border-radius: 10px;
@@ -7163,6 +11041,8 @@ onMounted(() => {
   transition: all 0.2s ease;
   border: none;
   font-family: 'Roboto', sans-serif;
+  white-space: nowrap;
+  min-width: fit-content;
 }
 
 .btn-primary {
@@ -7210,141 +11090,355 @@ onMounted(() => {
   .dashboard-sidebar {
     width: 260px;
   }
-  
+
   .action-bar {
-    margin-left: 260px;
+    left: 260px;
+    padding: 1rem 1.5rem;
   }
-  
+
+  .action-bar-content {
+    gap: 1.5rem;
+  }
+
+  .action-hint {
+    font-size: 0.8125rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+  }
+
   .form-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .stats-editor {
     grid-template-columns: 1fr;
   }
-  
+
   .steps-list {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: block;
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
   .dashboard-content {
     flex-direction: column;
   }
-  
+
   .dashboard-sidebar {
-    width: 100%;
-    position: relative;
+    width: 280px;
+    max-width: 85vw;
+    position: fixed;
     top: 0;
-    height: auto;
-    max-height: none;
-    border-right: none;
-    border-bottom: 1px solid rgba(91, 32, 150, 0.2);
+    left: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    box-shadow: none;
+    z-index: 100;
+    border-right: 1px solid rgba(91, 32, 150, 0.2);
   }
-  
+
+  .dashboard-sidebar.sidebar-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+  }
+
+  .sidebar-header {
+    padding: 1.5rem 1rem;
+  }
+
+  .logo-section {
+    margin-bottom: 1rem;
+  }
+
+  .logo-section h2 {
+    font-size: 1.1rem;
+  }
+
+  .user-card {
+    padding: 0.875rem;
+  }
+
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.8125rem;
+  }
+
+  .user-name {
+    font-size: 0.8125rem;
+  }
+
+  .user-email {
+    font-size: 0.6875rem;
+  }
+
+  .logout-btn {
+    width: 32px;
+    height: 32px;
+  }
+
   .sidebar-nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 0.5rem;
+    flex-direction: column;
+    padding: 0.75rem 0.5rem;
   }
-  
+
   .nav-item {
-    flex: 1;
-    min-width: calc(50% - 0.5rem);
-    justify-content: center;
+    flex: none;
+    min-width: auto;
+    width: 100%;
+    justify-content: flex-start;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
   }
-  
+
   .nav-item.active {
-    border-left: none;
-    border-bottom: 3px solid #5B2096;
+    border-left: 3px solid #5B2096;
+    border-bottom: none;
   }
-  
+
   .nav-indicator {
-    display: none;
+    display: block;
   }
-  
+
   .main-header {
-    padding: 1rem 1.5rem;
+    padding: 1rem;
   }
-  
+
+  .header-left {
+    gap: 0.75rem;
+  }
+
   .page-title {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
-  
+
+  .page-subtitle {
+    font-size: 0.8125rem;
+  }
+
   .content-editor {
     padding: 1.5rem 1rem;
   }
-  
+
   .editor-section {
     padding: 1.5rem;
   }
-  
+
   .action-bar {
-    margin-left: 0;
+    left: 0;
     padding: 1rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
-  
+
   .action-bar-content {
     flex-direction: column;
     gap: 1rem;
+    align-items: stretch;
   }
-  
+
+  .action-info {
+    width: 100%;
+    text-align: center;
+  }
+
+  .action-hint {
+    justify-content: center;
+    font-size: 0.8125rem;
+    text-align: center;
+    flex-wrap: wrap;
+  }
+
+  .action-hint svg {
+    flex-shrink: 0;
+  }
+
+  .status-message {
+    justify-content: center;
+    text-align: center;
+    font-size: 0.875rem;
+  }
+
   .action-buttons {
     width: 100%;
+    display: flex;
+    gap: 0.75rem;
   }
-  
+
   .btn-primary,
   .btn-secondary {
     flex: 1;
     justify-content: center;
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+    min-width: 0;
+  }
+
+  .btn-primary svg,
+  .btn-secondary svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
   }
 }
 
 @media (max-width: 480px) {
-  .main-header {
-    padding: 1rem;
+  .dashboard-sidebar {
+    width: 260px;
+    max-width: 90vw;
   }
-  
+
+  .sidebar-header {
+    padding: 1.25rem 0.875rem;
+  }
+
+  .logo-section h2 {
+    font-size: 1rem;
+  }
+
+  .user-card {
+    padding: 0.75rem;
+  }
+
+  .nav-item {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+
+  .main-header {
+    padding: 0.875rem;
+  }
+
   .header-content {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
+    gap: 0.75rem;
   }
-  
+
+  .header-left {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .page-title {
+    font-size: 1.125rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.75rem;
+  }
+
   .preview-btn-header {
     width: 100%;
     justify-content: center;
+    font-size: 0.875rem;
+    padding: 0.625rem 1rem;
   }
-  
+
   .content-editor {
     padding: 1rem 0.75rem;
+    padding-bottom: calc(120px + env(safe-area-inset-bottom));
   }
-  
+
   .editor-section {
     padding: 1.25rem;
   }
-  
+
   .section-title-group {
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   .section-icon {
     font-size: 1.5rem;
   }
-  
+
   .admin-table {
     font-size: 0.875rem;
   }
-  
+
   .admin-table th,
   .admin-table td {
     padding: 0.5rem;
   }
-  
+
   .roles-list {
     grid-template-columns: 1fr;
+  }
+
+  .action-bar {
+    padding: 0.875rem 0.75rem;
+    padding-bottom: max(0.875rem, env(safe-area-inset-bottom));
+  }
+
+  .action-bar-content {
+    gap: 0.875rem;
+  }
+
+  .action-hint {
+    font-size: 0.75rem;
+    gap: 0.375rem;
+    line-height: 1.3;
+  }
+
+  .action-hint svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .status-message {
+    font-size: 0.8125rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .status-message svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .action-buttons {
+    gap: 0.5rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.8125rem;
+    gap: 0.375rem;
+  }
+
+  .btn-primary svg,
+  .btn-secondary svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .action-bar {
+    padding: 0.75rem 0.5rem;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .action-hint {
+    font-size: 0.6875rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.75rem;
   }
 }
 
@@ -7784,6 +11878,31 @@ onMounted(() => {
 .btn-warning:hover {
   background: rgba(255, 152, 0, 0.3);
   border-color: rgba(255, 152, 0, 0.5);
+}
+
+.sections-groups {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.section-group {
+  background: rgba(91, 32, 150, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.15);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.section-group-title {
+  color: #F5F7FA;
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin: 0 0 1rem 0;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(91, 32, 150, 0.2);
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
 }
 
 .sections-list {
@@ -8363,16 +12482,16 @@ onMounted(() => {
   .contact-info-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .message-header {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .message-actions {
     flex-wrap: wrap;
   }
@@ -9141,6 +13260,38 @@ onMounted(() => {
   font-size: 0.875rem;
 }
 
+.reorder-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-right: 0.5rem;
+}
+
+.btn-icon-reorder {
+  padding: 0.375rem;
+  background: rgba(91, 32, 150, 0.15);
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  color: rgba(245, 247, 250, 0.7);
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.btn-icon-reorder:hover:not(:disabled) {
+  background: rgba(91, 32, 150, 0.25);
+  border-color: rgba(91, 32, 150, 0.4);
+  color: rgba(245, 247, 250, 0.9);
+  transform: translateY(-1px);
+}
+
+.btn-icon-reorder:disabled {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.btn-icon-reorder:active:not(:disabled) {
+  transform: translateY(0);
+}
+
 .team-member-actions {
   display: flex;
   gap: 0.5rem;
@@ -9441,5 +13592,1697 @@ onMounted(() => {
   display: flex;
   gap: 1rem;
   justify-content: flex-end;
+}
+
+/* Legal Sections Styles */
+.legal-sections-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  margin-top: 1rem;
+}
+
+.legal-section-item {
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem;
+  transition: all 0.2s;
+}
+
+.legal-section-item:hover {
+  border-color: rgba(91, 32, 150, 0.4);
+}
+
+.legal-section-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.75rem;
+}
+
+.legal-section-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  background: rgba(91, 32, 150, 0.2);
+  border-radius: 6px;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #C19DE6;
+}
+
+.legal-section-title {
+  flex: 1;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #F5F7FA;
+}
+
+.legal-section-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.legal-section-preview {
+  font-size: 0.9rem;
+  color: rgba(245, 247, 250, 0.6);
+  line-height: 1.6;
+  padding-left: 2.75rem;
+}
+
+/* Modal Styles */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+  padding: 1rem;
+}
+
+.modal-content {
+  background: #1a1a2e;
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 600px;
+  max-height: 90vh;
+  overflow-y: auto;
+}
+
+.modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.5rem;
+  border-bottom: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.modal-header h3 {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #F5F7FA;
+  margin: 0;
+}
+
+.modal-close {
+  background: transparent;
+  border: none;
+  color: rgba(245, 247, 250, 0.6);
+  cursor: pointer;
+  padding: 0.5rem;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.modal-close:hover {
+  background: rgba(245, 247, 250, 0.1);
+  color: #F5F7FA;
+}
+
+.modal-body {
+  padding: 1.5rem;
+}
+
+.modal-body .form-group {
+  margin-bottom: 1.5rem;
+}
+
+.modal-body .form-group:last-child {
+  margin-bottom: 0;
+}
+
+.modal-footer {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding: 1.5rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+/* Permissions Section Styles */
+.permissions-section {
+  margin-top: 1.5rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.permissions-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #F5F7FA;
+  margin: 0 0 0.5rem 0;
+}
+
+.permissions-title svg {
+  color: #C19DE6;
+}
+
+.permissions-description {
+  font-size: 0.875rem;
+  color: rgba(245, 247, 250, 0.6);
+  margin: 0 0 1.25rem 0;
+}
+
+.permissions-categories {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.permission-category {
+  background: rgba(245, 247, 250, 0.03);
+  border: 1px solid rgba(91, 32, 150, 0.15);
+  border-radius: 12px;
+  padding: 1rem;
+}
+
+.category-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(91, 32, 150, 0.1);
+}
+
+.category-title {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #C19DE6;
+  margin: 0;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.category-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.category-btn {
+  padding: 0.25rem 0.75rem;
+  font-size: 0.75rem;
+  background: rgba(91, 32, 150, 0.2);
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 4px;
+  color: rgba(245, 247, 250, 0.7);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.category-btn:hover {
+  background: rgba(91, 32, 150, 0.3);
+  color: #F5F7FA;
+}
+
+.category-btn.active {
+  background: rgba(91, 32, 150, 0.4);
+  border-color: #5B2096;
+  color: #F5F7FA;
+}
+
+/* Booking Cards */
+.bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.booking-card {
+  background: rgba(245, 247, 250, 0.03);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+  transition: all 0.3s ease;
+}
+
+.booking-card:hover {
+  border-color: rgba(91, 32, 150, 0.4);
+  background: rgba(245, 247, 250, 0.05);
+}
+
+.booking-card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+}
+
+.booking-info {
+  flex: 1;
+}
+
+.booking-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 1rem;
+}
+
+.booking-user-name {
+  margin: 0;
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #F5F7FA;
+}
+
+.booking-status-badge {
+  padding: 0.25rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.status-pending {
+  background: rgba(255, 193, 7, 0.2);
+  color: #ffc107;
+  border: 1px solid rgba(255, 193, 7, 0.3);
+}
+
+.status-confirmed {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+  border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.status-cancelled {
+  background: rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+  border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.status-completed {
+  background: rgba(108, 117, 125, 0.2);
+  color: #6c757d;
+  border: 1px solid rgba(108, 117, 125, 0.3);
+}
+
+.booking-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.booking-detail-item {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  color: rgba(245, 247, 250, 0.7);
+  font-size: 0.9rem;
+}
+
+.booking-detail-item svg {
+  width: 16px;
+  height: 16px;
+  color: rgba(193, 157, 230, 0.7);
+  flex-shrink: 0;
+}
+
+.meeting-link {
+  color: #C19DE6;
+  text-decoration: none;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  transition: color 0.2s ease;
+}
+
+.meeting-link:hover {
+  color: #F5F7FA;
+}
+
+.booking-notes {
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.2);
+  color: rgba(245, 247, 250, 0.7);
+  font-size: 0.9rem;
+}
+
+.booking-notes strong {
+  color: #F5F7FA;
+}
+
+.booking-actions {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.booking-edit-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1rem;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.booking-edit-actions {
+  display: flex;
+  gap: 1rem;
+  justify-content: flex-end;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+/* View Toggle */
+.view-toggle {
+  display: flex;
+  gap: 0.5rem;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.view-toggle-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 8px;
+  color: rgba(245, 247, 250, 0.7);
+  font-size: 0.9rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.view-toggle-btn:hover {
+  background: rgba(91, 32, 150, 0.1);
+  border-color: rgba(91, 32, 150, 0.5);
+  color: #F5F7FA;
+}
+
+.view-toggle-btn.active {
+  background: linear-gradient(103deg, #5B2096 0.52%, #C19DE6 125.79%);
+  border-color: rgba(193, 157, 230, 0.5);
+  color: #F5F7FA;
+}
+
+/* Calendar View */
+.calendar-view-container {
+  padding: 1rem;
+}
+
+.calendar-header-controls {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1.5rem;
+}
+
+.calendar-header-controls h4 {
+  margin: 0;
+  color: #F5F7FA;
+  font-size: 1.25rem;
+  font-weight: 600;
+}
+
+.calendar-nav-btn {
+  background: rgba(91, 32, 150, 0.2);
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 8px;
+  color: #F5F7FA;
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.calendar-nav-btn:hover {
+  background: rgba(91, 32, 150, 0.3);
+  border-color: rgba(91, 32, 150, 0.5);
+}
+
+.admin-calendar-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 0.5rem;
+  margin-bottom: 2rem;
+}
+
+.admin-calendar-day {
+  aspect-ratio: 1;
+  background: rgba(245, 247, 250, 0.03);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 8px;
+  padding: 0.5rem;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+}
+
+.admin-calendar-day:hover {
+  border-color: rgba(91, 32, 150, 0.4);
+  background: rgba(245, 247, 250, 0.05);
+}
+
+.admin-calendar-day.other-month {
+  opacity: 0.3;
+  cursor: not-allowed;
+}
+
+.admin-calendar-day.today {
+  border-color: rgba(193, 157, 230, 0.5);
+  background: rgba(193, 157, 230, 0.1);
+}
+
+.admin-calendar-day.has-booking {
+  border-color: rgba(40, 167, 69, 0.5);
+}
+
+.admin-calendar-day.selected {
+  border-color: rgba(193, 157, 230, 0.8);
+  background: rgba(193, 157, 230, 0.2);
+  box-shadow: 0 0 0 2px rgba(193, 157, 230, 0.3);
+}
+
+.calendar-day-number {
+  font-size: 0.9rem;
+  font-weight: 600;
+  color: #F5F7FA;
+  margin-bottom: 0.25rem;
+}
+
+.calendar-day-bookings {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.25rem;
+  justify-content: center;
+  width: 100%;
+}
+
+.calendar-booking-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.calendar-booking-dot.status-pending {
+  background: #ffc107;
+}
+
+.calendar-booking-dot.status-confirmed {
+  background: #28a745;
+}
+
+.calendar-booking-dot.status-cancelled {
+  background: #dc3545;
+}
+
+.calendar-booking-dot.status-completed {
+  background: #6c757d;
+}
+
+.selected-date-bookings {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.selected-date-bookings h5 {
+  margin: 0 0 1rem 0;
+  color: #F5F7FA;
+  font-size: 1.125rem;
+}
+
+.date-bookings-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.date-booking-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 0.75rem 1rem;
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 8px;
+}
+
+.booking-time {
+  font-weight: 600;
+  color: #C19DE6;
+  min-width: 80px;
+}
+
+.booking-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.booking-info strong {
+  color: #F5F7FA;
+}
+
+.booking-email {
+  font-size: 0.85rem;
+  color: rgba(245, 247, 250, 0.6);
+}
+
+/* Availability Management */
+.availability-management {
+  padding: 1rem;
+}
+
+.availability-header {
+  margin-bottom: 2rem;
+}
+
+.availability-header h4 {
+  margin: 0 0 0.5rem 0;
+  color: #F5F7FA;
+  font-size: 1.25rem;
+}
+
+.availability-calendar-container {
+  margin-top: 1.5rem;
+}
+
+.select-date-message {
+  text-align: center;
+  padding: 3rem 1rem;
+  color: rgba(245, 247, 250, 0.6);
+  font-style: italic;
+}
+
+.availability-date-controls {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.availability-date-controls h5 {
+  margin: 0 0 1rem 0;
+  color: #F5F7FA;
+  font-size: 1.125rem;
+}
+
+.time-slots-management {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 0.75rem;
+}
+
+.time-slot-control {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.time-slot-control.blocked {
+  background: rgba(220, 53, 69, 0.1);
+  border-color: rgba(220, 53, 69, 0.3);
+}
+
+.time-slot-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.time-slot-time {
+  font-weight: 600;
+  color: #F5F7FA;
+}
+
+.blocked-reason {
+  font-size: 0.75rem;
+  color: rgba(245, 247, 250, 0.5);
+  font-style: italic;
+}
+
+.btn-toggle {
+  padding: 0.5rem 1rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 500;
+  cursor: pointer;
+  border: none;
+  transition: all 0.2s ease;
+}
+
+.btn-block {
+  background: rgba(220, 53, 69, 0.2);
+  color: #dc3545;
+  border: 1px solid rgba(220, 53, 69, 0.3);
+}
+
+.btn-block:hover {
+  background: rgba(220, 53, 69, 0.3);
+  border-color: rgba(220, 53, 69, 0.5);
+}
+
+.btn-unblock {
+  background: rgba(40, 167, 69, 0.2);
+  color: #28a745;
+  border: 1px solid rgba(40, 167, 69, 0.3);
+}
+
+.btn-unblock:hover {
+  background: rgba(40, 167, 69, 0.3);
+  border-color: rgba(40, 167, 69, 0.5);
+}
+
+/* Reminder Section */
+.section-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.reminder-badge {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 1rem;
+  background: rgba(255, 193, 7, 0.15);
+  border: 1px solid rgba(255, 193, 7, 0.3);
+  border-radius: 8px;
+  color: #ffc107;
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.reminder-section {
+  margin-bottom: 2rem;
+  padding: 1.5rem;
+  background: rgba(255, 193, 7, 0.05);
+  border: 1px solid rgba(255, 193, 7, 0.2);
+  border-radius: 12px;
+}
+
+.reminder-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  color: #ffc107;
+}
+
+.reminder-header h4 {
+  margin: 0;
+  color: #ffc107;
+  font-size: 1.125rem;
+}
+
+.reminder-list {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.reminder-item {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 8px;
+  transition: all 0.2s ease;
+}
+
+.reminder-item:hover {
+  border-color: rgba(255, 193, 7, 0.4);
+  background: rgba(255, 193, 7, 0.05);
+}
+
+.reminder-time {
+  font-weight: 600;
+  color: #ffc107;
+  min-width: 200px;
+}
+
+.reminder-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.reminder-info strong {
+  color: #F5F7FA;
+}
+
+.reminder-info span {
+  font-size: 0.85rem;
+  color: rgba(245, 247, 250, 0.6);
+}
+
+.btn-icon-small {
+  background: transparent;
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 6px;
+  color: rgba(245, 247, 250, 0.7);
+  padding: 0.5rem;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.btn-icon-small:hover {
+  background: rgba(91, 32, 150, 0.2);
+  border-color: rgba(91, 32, 150, 0.5);
+  color: #F5F7FA;
+}
+
+.permission-checkboxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+  gap: 0.5rem;
+}
+
+.permission-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.5rem 0.75rem;
+  background: rgba(245, 247, 250, 0.02);
+  border: 1px solid rgba(91, 32, 150, 0.1);
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.permission-checkbox:hover {
+  background: rgba(91, 32, 150, 0.1);
+  border-color: rgba(91, 32, 150, 0.3);
+}
+
+.permission-checkbox.checked {
+  background: rgba(91, 32, 150, 0.15);
+  border-color: rgba(91, 32, 150, 0.4);
+}
+
+.permission-checkbox input[type="checkbox"] {
+  display: none;
+}
+
+.checkbox-custom {
+  width: 18px;
+  height: 18px;
+  min-width: 18px;
+  border: 2px solid rgba(91, 32, 150, 0.4);
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.permission-checkbox.checked .checkbox-custom {
+  background: linear-gradient(135deg, #5B2096, #7B3DB8);
+  border-color: #5B2096;
+}
+
+.permission-checkbox.checked .checkbox-custom::after {
+  content: '';
+  width: 5px;
+  height: 9px;
+  border: solid white;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg);
+  margin-bottom: 2px;
+}
+
+.checkbox-label {
+  font-size: 0.875rem;
+  color: rgba(245, 247, 250, 0.85);
+  line-height: 1.3;
+}
+
+.selected-permissions-count {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.1);
+  font-size: 0.875rem;
+  color: rgba(245, 247, 250, 0.7);
+}
+
+.count-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 0.5rem;
+  background: linear-gradient(135deg, #5B2096, #7B3DB8);
+  border-radius: 12px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: #F5F7FA;
+}
+
+/* Role Card Improvements */
+.role-card {
+  background: rgba(245, 247, 250, 0.03);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 12px;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  transition: all 0.2s;
+}
+
+.role-card:hover {
+  border-color: rgba(91, 32, 150, 0.4);
+}
+
+.role-card-content {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1rem;
+}
+
+.role-info {
+  flex: 1;
+}
+
+.role-header {
+  margin-bottom: 0.75rem;
+}
+
+.role-name {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #F5F7FA;
+  margin: 0 0 0.25rem 0;
+}
+
+.role-badge {
+  font-size: 0.65rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.admin-badge {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.user-badge {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.role-description {
+  font-size: 0.9rem;
+  color: rgba(245, 247, 250, 0.6);
+  margin: 0;
+}
+
+.role-permissions {
+  margin-top: 0.75rem;
+}
+
+.permissions-label {
+  display: block;
+  font-size: 0.75rem;
+  color: rgba(245, 247, 250, 0.5);
+  margin-bottom: 0.5rem;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.permission-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.375rem;
+}
+
+.permission-badge {
+  font-size: 0.75rem;
+  padding: 0.25rem 0.5rem;
+  background: rgba(91, 32, 150, 0.2);
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 4px;
+  color: rgba(245, 247, 250, 0.85);
+}
+
+.permission-badge.more-badge {
+  background: rgba(245, 247, 250, 0.1);
+  border-color: rgba(245, 247, 250, 0.2);
+  color: rgba(245, 247, 250, 0.7);
+  cursor: help;
+}
+
+.role-no-permissions {
+  margin-top: 0.75rem;
+  font-size: 0.85rem;
+  color: rgba(245, 247, 250, 0.4);
+  font-style: italic;
+}
+
+.role-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-shrink: 0;
+}
+
+.role-edit-form {
+  padding-top: 0.5rem;
+}
+
+.role-edit-actions {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1.5rem;
+  padding-top: 1rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+/* Empty state for roles */
+.roles-list .empty-state {
+  text-align: center;
+  padding: 2rem;
+  color: rgba(245, 247, 250, 0.5);
+}
+
+/* Info banner */
+.info-banner {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: rgba(59, 130, 246, 0.1);
+  border: 1px solid rgba(59, 130, 246, 0.3);
+  border-radius: 10px;
+  margin-bottom: 1.5rem;
+  font-size: 0.9rem;
+  color: rgba(245, 247, 250, 0.85);
+  line-height: 1.5;
+}
+
+.info-banner svg {
+  color: #60a5fa;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.info-banner strong {
+  color: #60a5fa;
+}
+
+/* Role permissions hint in user form */
+.role-permissions-hint {
+  margin-top: 0.5rem;
+  font-size: 0.8rem;
+  color: rgba(245, 247, 250, 0.6);
+  line-height: 1.4;
+}
+
+.role-permissions-hint .hint-label {
+  color: #C19DE6;
+  font-weight: 500;
+}
+
+/* User role badge improvements */
+.user-role-badge {
+  display: inline-block;
+  padding: 0.25rem 0.6rem;
+  border-radius: 4px;
+  font-size: 0.75rem;
+  font-weight: 500;
+  text-transform: capitalize;
+  margin-top: 0.5rem;
+}
+
+.user-role-badge.role-admin {
+  background: rgba(239, 68, 68, 0.2);
+  color: #f87171;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+}
+
+.user-role-badge.role-user {
+  background: rgba(59, 130, 246, 0.2);
+  color: #60a5fa;
+  border: 1px solid rgba(59, 130, 246, 0.3);
+}
+
+.user-role-badge:not(.role-admin):not(.role-user) {
+  background: rgba(91, 32, 150, 0.2);
+  color: #C19DE6;
+  border: 1px solid rgba(91, 32, 150, 0.3);
+}
+
+@media (max-width: 768px) {
+  .permission-checkboxes {
+    grid-template-columns: 1fr;
+  }
+
+  .category-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .role-card-content {
+    flex-direction: column;
+  }
+
+  .role-actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+
+  /* Booking Section Responsive */
+  .bookings-list {
+    gap: 0.75rem;
+  }
+
+  .booking-card {
+    padding: 1rem;
+  }
+
+  .booking-card-content {
+    flex-direction: column;
+    gap: 1rem;
+  }
+
+  .booking-actions {
+    width: 100%;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+  }
+
+  .view-toggle {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .view-toggle-btn {
+    flex: 1;
+    min-width: 120px;
+    justify-content: center;
+  }
+
+  .calendar-header-controls {
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .calendar-header-controls h4 {
+    font-size: 1rem;
+    width: 100%;
+    text-align: center;
+  }
+
+  .admin-calendar-grid {
+    gap: 0.25rem;
+  }
+
+  .admin-calendar-day {
+    padding: 0.25rem;
+    font-size: 0.75rem;
+    min-height: 40px;
+  }
+
+  .calendar-day-header {
+    font-size: 0.7rem;
+    padding: 0.25rem;
+  }
+
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .booking-edit-actions {
+    flex-direction: column;
+  }
+
+  .booking-edit-actions button {
+    width: 100%;
+  }
+
+  .time-slots-management {
+    gap: 0.75rem;
+  }
+
+  .time-slot-control {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .time-slot-control .btn-toggle {
+    width: 100%;
+  }
+
+  .availability-calendar-container {
+    margin-top: 1rem;
+  }
+
+  .reminder-section {
+    padding: 1rem;
+  }
+
+  .upcoming-bookings-list {
+    gap: 0.5rem;
+  }
+
+  .upcoming-booking-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+    padding: 0.75rem;
+  }
+}
+
+@media (max-width: 480px) {
+  .admin-calendar-grid {
+    gap: 0.2rem;
+  }
+
+  .admin-calendar-day {
+    padding: 0.2rem;
+    font-size: 0.7rem;
+    min-height: 36px;
+  }
+
+  .calendar-day-header {
+    font-size: 0.65rem;
+    padding: 0.2rem;
+  }
+
+  .view-toggle-btn {
+    min-width: 100px;
+    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+  }
+
+  .booking-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .booking-details {
+    gap: 0.5rem;
+  }
+
+  .booking-detail-item {
+    font-size: 0.85rem;
+  }
+
+  .calendar-header-controls h4 {
+    font-size: 0.9rem;
+  }
+}
+
+/* Analytics Styles */
+.analytics-stats-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 1.5rem;
+  margin: 2rem 0;
+}
+
+.analytics-stats-grid .stat-card {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  padding: 1.5rem;
+}
+
+.analytics-stats-grid .stat-icon {
+  font-size: 2.5rem;
+  line-height: 1;
+}
+
+.analytics-stats-grid .stat-content {
+  flex: 1;
+}
+
+.analytics-stats-grid .stat-label {
+  font-size: 0.875rem;
+  color: rgba(245, 247, 250, 0.7);
+  margin-bottom: 0.5rem;
+}
+
+.analytics-stats-grid .stat-value {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #5B2096;
+  line-height: 1.2;
+}
+
+.analytics-period-selector {
+  display: flex;
+  gap: 0.75rem;
+  margin: 2rem 0;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.period-btn {
+  padding: 0.75rem 1.5rem;
+  background: rgba(91, 32, 150, 0.1);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 8px;
+  color: rgba(245, 247, 250, 0.8);
+  font-size: 0.875rem;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.period-btn:hover {
+  background: rgba(91, 32, 150, 0.15);
+  border-color: rgba(91, 32, 150, 0.3);
+}
+
+.period-btn.active {
+  background: rgba(91, 32, 150, 0.2);
+  border-color: #5B2096;
+  color: #F5F7FA;
+}
+
+.analytics-charts-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+  gap: 2rem;
+  margin: 2rem 0;
+}
+
+.chart-card {
+  background: rgba(245, 247, 250, 0.03);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.chart-title {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #F5F7FA;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.chart-wrapper {
+  min-height: 300px;
+}
+
+.analytics-country-list {
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid rgba(91, 32, 150, 0.2);
+}
+
+.section-subtitle {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #F5F7FA;
+  margin-bottom: 1.5rem;
+}
+
+.country-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.country-item {
+  display: grid;
+  grid-template-columns: 40px 1fr auto 200px;
+  align-items: center;
+  gap: 1rem;
+  padding: 1rem;
+  background: rgba(245, 247, 250, 0.03);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.country-item:hover {
+  border-color: rgba(91, 32, 150, 0.4);
+  background: rgba(245, 247, 250, 0.05);
+}
+
+.country-rank {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: rgba(91, 32, 150, 0.2);
+  border-radius: 50%;
+  font-weight: 700;
+  color: #5B2096;
+  font-size: 0.875rem;
+}
+
+.country-name {
+  font-weight: 500;
+  color: #F5F7FA;
+}
+
+.country-count {
+  font-size: 0.875rem;
+  color: rgba(245, 247, 250, 0.7);
+  text-align: right;
+}
+
+.country-bar {
+  height: 8px;
+  background: rgba(91, 32, 150, 0.1);
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.country-bar-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #5B2096, #8A2BE2);
+  border-radius: 4px;
+  transition: width 0.3s ease;
+}
+
+@media (max-width: 768px) {
+  .analytics-stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .analytics-charts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .country-item {
+    grid-template-columns: 1fr;
+    gap: 0.75rem;
+  }
+
+  .country-rank {
+    width: 28px;
+    height: 28px;
+    font-size: 0.75rem;
+  }
+
+  .country-count {
+    text-align: left;
+  }
+
+  .country-bar {
+    grid-column: 1 / -1;
+  }
+
+  .analytics-period-selector {
+    flex-wrap: wrap;
+  }
+
+  .period-btn {
+    flex: 1;
+    min-width: 100px;
+  }
+
+  .selected-date-bookings {
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+
+  .availability-date-controls {
+    margin-top: 1rem;
+    padding-top: 1rem;
+  }
+}
+
+/* Maintenance Mode Styles */
+.maintenance-content {
+  display: flex;
+  flex-direction: column;
+  gap: 2rem;
+}
+
+.maintenance-status-card {
+  background: rgba(34, 197, 94, 0.1);
+  border: 2px solid rgba(34, 197, 94, 0.3);
+  border-radius: 12px;
+  padding: 1.5rem;
+}
+
+.maintenance-status-card.active {
+  background: rgba(239, 68, 68, 0.1);
+  border-color: rgba(239, 68, 68, 0.3);
+}
+
+.status-header {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.status-indicator {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #22c55e;
+  animation: pulse 2s ease-in-out infinite;
+}
+
+.status-indicator.active {
+  background: #ef4444;
+}
+
+.status-header h4 {
+  margin: 0;
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #F5F7FA;
+}
+
+.status-details {
+  margin: 0;
+  color: rgba(245, 247, 250, 0.7);
+  font-size: 0.95rem;
+}
+
+.maintenance-actions {
+  display: flex;
+  gap: 1rem;
+}
+
+.btn-large {
+  padding: 0.875rem 1.5rem;
+  font-size: 1rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.btn-danger {
+  background: #ef4444;
+  color: white;
+  border: none;
+}
+
+.btn-danger:hover:not(:disabled) {
+  background: #dc2626;
+}
+
+.btn-success {
+  background: #22c55e;
+  color: white;
+  border: none;
+}
+
+.btn-success:hover:not(:disabled) {
+  background: #16a34a;
+}
+
+.pending-requests-section,
+.maintenance-history-section {
+  margin-top: 2rem;
+}
+
+.subsection-title {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #F5F7FA;
+  margin-bottom: 1rem;
+}
+
+.requests-list,
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.request-card,
+.history-item {
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 8px;
+  padding: 1.25rem;
+}
+
+.request-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 1rem;
+}
+
+.request-info h5 {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem;
+  font-weight: 600;
+  color: #F5F7FA;
+}
+
+.request-meta {
+  margin: 0.25rem 0;
+  font-size: 0.9rem;
+  color: rgba(245, 247, 250, 0.6);
+}
+
+.request-message {
+  margin: 0.5rem 0;
+  padding: 0.75rem;
+  background: rgba(91, 32, 150, 0.1);
+  border-radius: 6px;
+  color: rgba(245, 247, 250, 0.8);
+  font-size: 0.9rem;
+}
+
+.request-time {
+  font-size: 0.85rem;
+  color: rgba(245, 247, 250, 0.5);
+  margin-left: 0.5rem;
+}
+
+.request-status-badge {
+  padding: 0.375rem 0.75rem;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.request-status-badge.pending {
+  background: rgba(251, 191, 36, 0.2);
+  color: #fbbf24;
+  border: 1px solid rgba(251, 191, 36, 0.3);
+}
+
+.request-actions {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+}
+
+.history-type {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin-bottom: 0.5rem;
+}
+
+.history-badge {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.history-badge.turn_off {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.history-badge.turn_on {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.history-status {
+  padding: 0.25rem 0.5rem;
+  border-radius: 4px;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.history-status.active {
+  background: rgba(34, 197, 94, 0.2);
+  color: #22c55e;
+}
+
+.history-status.rejected {
+  background: rgba(239, 68, 68, 0.2);
+  color: #ef4444;
+}
+
+.history-meta {
+  margin: 0;
+  font-size: 0.9rem;
+  color: rgba(245, 247, 250, 0.6);
+}
+
+.history-time {
+  color: rgba(245, 247, 250, 0.5);
+}
+
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: 0.5;
+  }
 }
 </style>

@@ -15,13 +15,15 @@
         const originalWarn = console.warn;
         const originalError = console.error;
         
-        // Filter patterns for YouTube embed player violations
+        // Filter patterns for YouTube embed player violations and other third-party warnings
         const filterPatterns = [
           /\[Violation\].*non-passive event listener/i,
           /\[Violation\].*scroll-blocking/i,
           /www-embed-player.*Violation/i,
           /touchstart.*scroll-blocking/i,
-          /touchmove.*scroll-blocking/i
+          /touchmove.*scroll-blocking/i,
+          /\[Violation\].*'setTimeout' handler took/i,
+          /\[Violation\].*'requestIdleCallback' handler took/i
         ];
         
         const shouldFilter = (message) => {

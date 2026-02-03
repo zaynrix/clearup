@@ -2,10 +2,10 @@
   <nav class="navigation-bar">
     <div class="nav-container">
       <div class="nav-logo" @click="handleLogoClick">
-        <img 
+        <img
           v-if="!logoError"
-          src="/images/logos/logo-main.png" 
-          alt="ClearUp Logo" 
+          src="/images/logos/logo-main.png"
+          alt="ClearUp Logo"
           class="logo-image"
           @error="handleLogoError"
         />
@@ -13,9 +13,9 @@
           ClearUp
         </div>
       </div>
-      
+
       <div class="nav-actions">
-        <button 
+        <button
           class="menu-button"
           :class="{ 'menu-open': isMenuOpen }"
           @click="handleMenuClick"
@@ -23,25 +23,25 @@
         >
           <span class="menu-text">Menu</span>
         </button>
-        <button 
+        <button
           class="plus-button"
           @click="handleMenuClick"
           :aria-label="isMenuOpen ? 'Close menu' : 'Open menu'"
         >
-          <svg 
+          <svg
             class="plus-icon"
             :class="{ 'rotated': isMenuOpen }"
-            width="20" 
-            height="20" 
-            viewBox="0 0 20 20" 
-            fill="none" 
+            width="20"
+            height="20"
+            viewBox="0 0 20 20"
+            fill="none"
             xmlns="http://www.w3.org/2000/svg"
           >
-            <path 
-              d="M10 3V17M3 10H17" 
-              stroke="#F5F7FA" 
-              stroke-width="2" 
-              stroke-linecap="round" 
+            <path
+              d="M10 3V17M3 10H17"
+              stroke="#F5F7FA"
+              stroke-width="2"
+              stroke-linecap="round"
               stroke-linejoin="round"
             />
           </svg>
@@ -56,10 +56,10 @@
           <!-- Menu Header -->
           <div class="menu-header">
             <div class="menu-logo" @click="handleLogoClick">
-              <img 
+              <img
                 v-if="!logoError"
-                src="/images/logos/logo-main.png" 
-                alt="ClearUp Logo" 
+                src="/images/logos/logo-main.png"
+                alt="ClearUp Logo"
                 class="menu-logo-image"
                 @error="handleLogoError"
               />
@@ -67,7 +67,7 @@
                 CLEAR UP
               </div>
             </div>
-            <button 
+            <button
               class="menu-close-button"
               @click="handleMenuClick"
               aria-label="Close menu"
@@ -82,8 +82,8 @@
           <div class="menu-content">
             <!-- Menu Items (Left Side) -->
             <div class="menu-items">
-              <a 
-                v-for="item in menuItems" 
+              <a
+                v-for="item in menuItems"
                 :key="item.id"
                 :href="item.href"
                 @click.prevent="handleMenuItemClick(item)"
@@ -98,11 +98,11 @@
             <div class="menu-contact">
               <h3 class="contact-title">Contact Us</h3>
               <div class="social-icons">
-                <a 
-                  v-for="social in socialLinks" 
+                <a
+                  v-for="social in socialLinks"
                   :key="social.name"
-                  :href="social.url" 
-                  target="_blank" 
+                  :href="social.url"
+                  target="_blank"
                   rel="noopener noreferrer"
                   class="social-icon"
                   :aria-label="social.name"
@@ -131,7 +131,7 @@ const menuItems = [
   { id: 'home', number: '01', label: 'HOME', href: '/', scrollTo: 'top', route: 'home' },
   { id: 'about', number: '02', label: 'ABOUT', href: '/about', scrollTo: 'top', route: 'about' },
   { id: 'services', number: '03', label: 'SERVICES', href: '/services', scrollTo: 'top', route: 'services' },
-  { id: 'works', number: '04', label: 'WORKS', href: '#', scrollTo: 'real-results-section' },
+  { id: 'works', number: '04', label: 'WORKS', href: '/works', scrollTo: 'top', route: 'works' },
   { id: 'contact', number: '05', label: 'CONTACT', href: '/contact', scrollTo: 'top', route: 'contact' }
 ]
 
@@ -166,11 +166,11 @@ const socialLinks = [
     name: 'WhatsApp',
     url: 'https://wa.me/your-number',
     icon: () => h('svg', { width: '24', height: '24', viewBox: '0 0 24 24', fill: 'none', xmlns: 'http://www.w3.org/2000/svg' }, [
-      h('path', { 
-        'fill-rule': 'evenodd', 
-        'clip-rule': 'evenodd', 
-        d: 'M11.125 1.33325C5.7171 1.33325 1.33337 5.71698 1.33337 11.1249C1.33337 12.9755 1.84744 14.7087 2.74142 16.1853L1.868 19.1541C1.81785 19.3245 1.81455 19.5054 1.85845 19.6775C1.90234 19.8497 1.99181 20.0069 2.11745 20.1325C2.24309 20.2581 2.40026 20.3476 2.57243 20.3915C2.7446 20.4354 2.92542 20.4321 3.09587 20.382L6.06471 19.5085C7.59097 20.4318 9.34123 20.9189 11.125 20.9166C16.533 20.9166 20.9167 16.5329 20.9167 11.1249C20.9167 5.71698 16.533 1.33325 11.125 1.33325ZM8.91017 13.3408C10.891 15.3206 12.7818 15.5821 13.4496 15.6066C14.465 15.6438 15.4539 14.8683 15.8387 13.9684C15.8869 13.8564 15.9043 13.7335 15.8892 13.6125C15.874 13.4915 15.8269 13.3768 15.7526 13.2801C15.216 12.5946 14.4904 12.1021 13.7815 11.6125C13.6336 11.51 13.4516 11.4688 13.2739 11.4976C13.0962 11.5265 12.9367 11.6231 12.8288 11.7673L12.2413 12.6632C12.2102 12.7112 12.1621 12.7456 12.1067 12.7594C12.0512 12.7732 11.9926 12.7654 11.9426 12.7376C11.5441 12.5095 10.9635 12.1217 10.5464 11.7046C10.1292 11.2875 9.76498 10.7333 9.56033 10.3602C9.53558 10.3127 9.52858 10.2579 9.5406 10.2056C9.55263 10.1534 9.58289 10.1072 9.62594 10.0753L10.5307 9.40354C10.6602 9.29152 10.7438 9.13565 10.7655 8.96581C10.7871 8.79596 10.7454 8.62409 10.6482 8.48313C10.2095 7.84079 9.69839 7.02417 8.95717 6.48269C8.8613 6.41381 8.74928 6.37086 8.63194 6.358C8.5146 6.34513 8.39593 6.36279 8.28742 6.40925C7.38658 6.79504 6.60717 7.784 6.64437 8.80136C6.66885 9.46915 6.93029 11.3599 8.91017 13.3408Z', 
-        fill: 'currentColor' 
+      h('path', {
+        'fill-rule': 'evenodd',
+        'clip-rule': 'evenodd',
+        d: 'M11.125 1.33325C5.7171 1.33325 1.33337 5.71698 1.33337 11.1249C1.33337 12.9755 1.84744 14.7087 2.74142 16.1853L1.868 19.1541C1.81785 19.3245 1.81455 19.5054 1.85845 19.6775C1.90234 19.8497 1.99181 20.0069 2.11745 20.1325C2.24309 20.2581 2.40026 20.3476 2.57243 20.3915C2.7446 20.4354 2.92542 20.4321 3.09587 20.382L6.06471 19.5085C7.59097 20.4318 9.34123 20.9189 11.125 20.9166C16.533 20.9166 20.9167 16.5329 20.9167 11.1249C20.9167 5.71698 16.533 1.33325 11.125 1.33325ZM8.91017 13.3408C10.891 15.3206 12.7818 15.5821 13.4496 15.6066C14.465 15.6438 15.4539 14.8683 15.8387 13.9684C15.8869 13.8564 15.9043 13.7335 15.8892 13.6125C15.874 13.4915 15.8269 13.3768 15.7526 13.2801C15.216 12.5946 14.4904 12.1021 13.7815 11.6125C13.6336 11.51 13.4516 11.4688 13.2739 11.4976C13.0962 11.5265 12.9367 11.6231 12.8288 11.7673L12.2413 12.6632C12.2102 12.7112 12.1621 12.7456 12.1067 12.7594C12.0512 12.7732 11.9926 12.7654 11.9426 12.7376C11.5441 12.5095 10.9635 12.1217 10.5464 11.7046C10.1292 11.2875 9.76498 10.7333 9.56033 10.3602C9.53558 10.3127 9.52858 10.2579 9.5406 10.2056C9.55263 10.1534 9.58289 10.1072 9.62594 10.0753L10.5307 9.40354C10.6602 9.29152 10.7438 9.13565 10.7655 8.96581C10.7871 8.79596 10.7454 8.62409 10.6482 8.48313C10.2095 7.84079 9.69839 7.02417 8.95717 6.48269C8.8613 6.41381 8.74928 6.37086 8.63194 6.358C8.5146 6.34513 8.39593 6.36279 8.28742 6.40925C7.38658 6.79504 6.60717 7.784 6.64437 8.80136C6.66885 9.46915 6.93029 11.3599 8.91017 13.3408Z',
+        fill: 'currentColor'
       })
     ])
   }
@@ -189,7 +189,7 @@ const handleMenuClick = () => {
 const handleMenuItemClick = (item: typeof menuItems[0]) => {
   // Close menu first
   handleMenuClick()
-  
+
   // If item has a route, navigate to it
   if ('route' in item && item.route) {
     router.push(item.href).then(() => {
@@ -220,11 +220,11 @@ const scrollToSection = (sectionId: string) => {
   // Wait a bit for page to be ready
   setTimeout(() => {
     // Try multiple selectors to find the section
-    const element = document.querySelector(`[data-section-id="${sectionId}"]`) || 
+    const element = document.querySelector(`[data-section-id="${sectionId}"]`) ||
                    document.querySelector(`#${sectionId}`) ||
                    document.querySelector(`.${sectionId}`) ||
                    document.querySelector(`[class*="${sectionId}"]`)
-    
+
     if (element) {
       const headerOffset = 120 // Account for sticky navbar
       const elementPosition = element.getBoundingClientRect().top
@@ -608,7 +608,7 @@ const handleLogoClick = () => {
     padding: 12px 30px 12px 40px;
     min-height: 70px;
   }
-  
+
   .logo-image {
     width: 180px;
     height: auto;
@@ -639,36 +639,36 @@ const handleLogoClick = () => {
     padding: 10px 20px 10px 24px;
     min-height: 70px;
   }
-  
+
   .logo-image {
     width: 150px;
     height: auto;
   }
-  
+
   .menu-header {
     padding: 10px 20px 10px 24px;
   }
-  
+
   .menu-logo-image {
     width: 150px;
     height: auto;
   }
-  
+
   .menu-text {
     font-size: 14px;
   }
-  
+
   .plus-icon {
     width: 18px;
     height: 18px;
   }
-  
+
   .menu-button {
     padding: 10px 18px;
     height: 39px;
     min-width: 75px;
   }
-  
+
   .nav-actions {
     gap: 5px;
   }
@@ -709,25 +709,25 @@ const handleLogoClick = () => {
     padding: 12px 16px 14px 20px;
     min-height: 70px;
   }
-  
+
   .logo-image {
     width: 120px;
   }
-  
+
   .menu-text {
     font-size: 12px;
   }
-  
+
   .menu-button {
     padding: 10px 16px;
     height: 39px;
     min-width: 60px;
   }
-  
+
   .nav-actions {
     gap: 4px;
   }
-  
+
   .plus-icon {
     width: 16px;
     height: 16px;
@@ -781,21 +781,21 @@ const handleLogoClick = () => {
     padding: 10px 12px 12px 16px;
     min-height: 60px;
   }
-  
+
   .logo-image {
     width: 100px;
   }
-  
+
   .menu-button {
     padding: 8px 12px;
     height: 36px;
     min-width: 50px;
   }
-  
+
   .nav-actions {
     gap: 4px;
   }
-  
+
   .plus-icon {
     width: 14px;
     height: 14px;

@@ -25,7 +25,14 @@ export class FirestoreService {
     const docSnap = await getDoc(docRef)
     
     if (docSnap.exists()) {
-      return { id: docSnap.id, ...docSnap.data() } as T
+      const data = docSnap.data()
+      // Remove any existing 'id' field from data to avoid conflicts
+      const { id: _, ...dataWithoutId } = data
+      // Always use document ID from Firestore, never the stored field
+      return {
+        ...dataWithoutId,
+        id: docSnap.id // Document ID from Firestore (always valid)
+      } as T
     }
     return null
   }
@@ -38,10 +45,16 @@ export class FirestoreService {
     const q = constraints ? query(collectionRef, ...constraints) : collectionRef
     const querySnapshot = await getDocs(q)
     
-    return querySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data()
-    })) as T[]
+    return querySnapshot.docs.map((doc) => {
+      const data = doc.data()
+      // Remove any existing 'id' field from data to avoid conflicts
+      const { id: _, ...dataWithoutId } = data
+      // Always use document ID from Firestore, never the stored field
+      return {
+        ...dataWithoutId,
+        id: doc.id // Document ID from Firestore (always valid)
+      }
+    }) as T[]
   }
 
   /**

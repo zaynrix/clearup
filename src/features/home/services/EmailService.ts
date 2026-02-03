@@ -1,5 +1,6 @@
 import { BaseService } from '@/shared/BaseService'
 import { firestoreService } from '@/shared/services'
+import { emailConfig } from '@/shared/services/config'
 
 export interface EmailSubmission {
   id?: string
@@ -133,6 +134,102 @@ export class EmailService extends BaseService {
       // 1. Call Firebase Function or backend API
       // 2. Send email via SendGrid/Mailgun/etc.
       // 3. Return success/error
+      
+      return {
+        success: true
+      }
+    } catch (error) {
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : 'Failed to send email'
+      }
+    }
+  }
+
+  /**
+   * Send booking email with custom sender configuration using Hostinger SMTP
+   * @param to Recipient email address
+   * @param subject Email subject
+   * @param body HTML email body
+   * @param icsContent Optional .ics file content for calendar attachment
+   */
+  async sendBookingEmail(
+    to: string,
+    subject: string,
+    body: string,
+    icsContent?: string
+  ): Promise<{ success: boolean; error?: string }> {
+    try {
+      // Email payload with Hostinger SMTP configuration
+      const emailPayload = {
+        // SMTP Configuration (from config.ts)
+        smtp: {
+          host: emailConfig.host,
+          port: emailConfig.port,
+          secure: emailConfig.secure,
+          user: emailConfig.user,
+          password: emailConfig.password
+        },
+        // Email content
+        from: {
+          name: emailConfig.from.name,
+          email: emailConfig.from.email
+        },
+        replyTo: emailConfig.replyTo,
+        to: to,
+        subject: subject,
+        html: body,
+        attachments: icsContent ? [{
+          filename: 'meeting.ics',
+          content: icsContent,
+          contentType: 'text/calendar'
+        }] : []
+      }
+
+      // Check if API endpoint is configured (for backend/Firebase Functions)
+      if (emailConfig.apiEndpoint) {
+        try {
+          const response = await fetch(emailConfig.apiEndpoint, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(emailPayload)
+          })
+
+          if (!response.ok) {
+            const errorData = await response.json().catch(() => ({ error: 'Unknown error' }))
+            throw new Error(errorData.error || `HTTP ${response.status}: ${response.statusText}`)
+          }
+
+          const result = await response.json()
+          return {
+            success: result.success !== false,
+            error: result.error
+          }
+        } catch (apiError) {
+          console.error('Error calling email API:', apiError)
+          return {
+            success: false,
+            error: apiError instanceof Error ? apiError.message : 'Failed to send email via API'
+          }
+        }
+      }
+
+      // Fallback: Log email details (for development/testing)
+      // In production, you MUST configure emailConfig.apiEndpoint
+      console.warn('⚠️ Email API endpoint not configured. Email not sent.')
+      console.log('Email would be sent with configuration:')
+      console.log('SMTP Host:', emailPayload.smtp.host)
+      console.log('SMTP Port:', emailPayload.smtp.port)
+      console.log('From:', emailPayload.from.name, `<${emailPayload.from.email}>`)
+      console.log('Reply-To:', emailPayload.replyTo)
+      console.log('To:', emailPayload.to)
+      console.log('Subject:', emailPayload.subject)
+      console.log('Body length:', emailPayload.html.length, 'characters')
+      if (icsContent) {
+        console.log('ICS file attached, length:', icsContent.length, 'characters')
+      }
       
       return {
         success: true

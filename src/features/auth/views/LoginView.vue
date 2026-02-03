@@ -3,6 +3,17 @@
     <div class="login-container">
       <h2>Login</h2>
       
+      <div v-if="isMaintenanceMode" class="maintenance-notice">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M12 2L2 7L12 12L22 7L12 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 17L12 22L22 17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M2 12L12 17L22 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+        <p><strong>Maintenance Mode Active</strong></p>
+        <p v-if="maintenanceMessage">{{ maintenanceMessage }}</p>
+        <p v-else>Only administrators can log in during maintenance.</p>
+      </div>
+
       <form @submit.prevent="handleLogin" class="login-form">
         <div class="form-group">
           <label for="email">Email:</label>
@@ -58,10 +69,11 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { AuthViewController } from '../controllers/AuthViewController'
 import { userService } from '../services/UserService'
+import { maintenanceService } from '@/features/admin/services/MaintenanceService'
 
 const router = useRouter()
 const route = useRoute()
@@ -69,9 +81,28 @@ const viewController = new AuthViewController()
 
 const email = ref('')
 const password = ref('')
+const isMaintenanceMode = ref(false)
+const maintenanceMessage = ref('')
 
 const isLoading = computed(() => viewController.isLoading)
 const errorMessage = computed(() => viewController.errorMessage)
+
+// Check maintenance mode on mount
+onMounted(async () => {
+  try {
+    const isActive = await maintenanceService.isMaintenanceModeActive()
+    isMaintenanceMode.value = isActive
+    
+    if (isActive) {
+      const activeRequest = await maintenanceService.getActiveMaintenanceRequest()
+      if (activeRequest?.message) {
+        maintenanceMessage.value = activeRequest.message
+      }
+    }
+  } catch (error) {
+    console.error('Error checking maintenance mode:', error)
+  }
+})
 
 // Clear error when user starts typing
 const clearErrorOnInput = () => {
@@ -81,37 +112,78 @@ const clearErrorOnInput = () => {
 }
 
 const handleLogin = async () => {
+  // First, attempt login
   const success = await viewController.login(email.value, password.value)
-  if (success) {
-    // Wait a bit for user profile to be loaded
-    await new Promise(resolve => setTimeout(resolve, 100))
-    
-    // Get the redirect path from query params, or determine based on user role
-    const redirectPath = route.query.redirect as string | undefined
-    
-    if (redirectPath) {
-      // If there's a redirect query param, use it
-      router.push(redirectPath)
-    } else {
-      // Otherwise, check if user is admin and redirect accordingly
+  
+  if (!success) {
+    // Login failed, error message already set by viewController
+    return
+  }
+  
+  // Wait a bit for user profile to be loaded
+  await new Promise(resolve => setTimeout(resolve, 100))
+  
+  // Check if maintenance mode is active
+  try {
+    const isActive = await maintenanceService.isMaintenanceModeActive()
+    if (isActive) {
+      // Check if user is admin
       const currentUser = viewController.user
       if (currentUser?.id) {
         try {
           const isAdmin = await userService.isAdmin(currentUser.id)
-          if (isAdmin) {
-            router.push('/admin-dashboard')
-          } else {
-            router.push('/dashboard')
+          if (!isAdmin) {
+            // Non-admin users cannot login during maintenance
+            // Sign out the user since they shouldn't be logged in
+            await viewController.logout()
+            viewController.setError('Login is currently disabled due to maintenance. Only administrators can access the system during this time.')
+            return
           }
+          // Admin can proceed with login
         } catch (error) {
-          // If admin check fails, default to regular dashboard
           console.error('Error checking admin status:', error)
-          router.push('/dashboard')
+          await viewController.logout()
+          viewController.setError('Unable to verify user permissions. Please try again.')
+          return
         }
       } else {
-        // Fallback to dashboard if user info not available
+        // User profile not loaded, sign out and show error
+        await viewController.logout()
+        viewController.setError('Unable to verify user permissions. Please try again.')
+        return
+      }
+    }
+  } catch (error) {
+    console.error('Error checking maintenance mode:', error)
+    // Continue with normal flow if maintenance check fails
+  }
+  
+  // Proceed with normal login redirect flow
+  // Get the redirect path from query params, or determine based on user role
+  const redirectPath = route.query.redirect as string | undefined
+  
+  if (redirectPath) {
+    // If there's a redirect query param, use it
+    router.push(redirectPath)
+  } else {
+    // Otherwise, check if user is admin and redirect accordingly
+    const currentUser = viewController.user
+    if (currentUser?.id) {
+      try {
+        const isAdmin = await userService.isAdmin(currentUser.id)
+        if (isAdmin) {
+          router.push('/admin-dashboard')
+        } else {
+          router.push('/dashboard')
+        }
+      } catch (error) {
+        // If admin check fails, default to regular dashboard
+        console.error('Error checking admin status:', error)
         router.push('/dashboard')
       }
+    } else {
+      // Fallback to dashboard if user info not available
+      router.push('/dashboard')
     }
   }
 }
@@ -253,5 +325,35 @@ const handleLogin = async () => {
 
 .home-link:hover svg {
   transform: translateY(-2px);
+}
+
+.maintenance-notice {
+  padding: 1rem;
+  background-color: rgba(251, 191, 36, 0.15);
+  border: 1px solid rgba(251, 191, 36, 0.3);
+  border-radius: 6px;
+  margin-bottom: 1.5rem;
+  text-align: center;
+  color: #fbbf24;
+}
+
+.maintenance-notice svg {
+  margin-bottom: 0.5rem;
+  opacity: 0.8;
+}
+
+.maintenance-notice p {
+  margin: 0.5rem 0;
+  font-size: 0.9rem;
+  line-height: 1.5;
+}
+
+.maintenance-notice p:first-of-type {
+  margin-top: 0;
+}
+
+.maintenance-notice strong {
+  color: #fbbf24;
+  font-weight: 600;
 }
 </style>
