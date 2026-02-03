@@ -646,26 +646,17 @@ const handleImageError = (event: Event) => {
 /* Team Section */
 .team-section {
   margin-top: 100px;
+  margin-left: -40px;
+  margin-right: -40px;
+  padding-left: 10px;
+  padding-right: 10px;
 }
 
 .team-grid {
   display: grid;
-  grid-template-columns: repeat(12, 1fr);
-  gap: 2rem;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
   margin-top: 3rem;
-}
-
-/* First row: 4 cards (3 columns each = 12 total) */
-.team-member-card:nth-child(1),
-.team-member-card:nth-child(2),
-.team-member-card:nth-child(3),
-.team-member-card:nth-child(4) {
-  grid-column: span 3;
-}
-
-/* Other rows: 3 cards (4 columns each = 12 total) */
-.team-member-card:nth-child(n+5) {
-  grid-column: span 4;
 }
 
 .team-member-card {
@@ -685,7 +676,7 @@ const handleImageError = (event: Event) => {
 
 .member-photo {
   width: 100%;
-  height: 320px;
+  aspect-ratio: 3 / 4;
   margin: 0 0 1.5rem 0;
   border-radius: 12px;
   overflow: hidden;
@@ -863,43 +854,22 @@ const handleImageError = (event: Event) => {
 /* Responsive Design */
 @media (max-width: 1200px) {
   .team-grid {
-    grid-template-columns: repeat(12, 1fr);
-  }
-
-  /* First row: 4 cards */
-  .team-member-card:nth-child(1),
-  .team-member-card:nth-child(2),
-  .team-member-card:nth-child(3),
-  .team-member-card:nth-child(4) {
-    grid-column: span 3;
-  }
-
-  /* Other rows: 3 cards */
-  .team-member-card:nth-child(n+5) {
-    grid-column: span 4;
-  }
-
-  .member-photo {
-    height: 280px;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1rem;
   }
 }
 
 @media (max-width: 992px) {
+  .team-section {
+    margin-left: -20px;
+    margin-right: -20px;
+    padding-left: 5px;
+    padding-right: 5px;
+  }
+
   .team-grid {
-    grid-template-columns: repeat(6, 1fr);
-  }
-
-  /* All cards: 2 per row */
-  .team-member-card:nth-child(1),
-  .team-member-card:nth-child(2),
-  .team-member-card:nth-child(3),
-  .team-member-card:nth-child(4),
-  .team-member-card:nth-child(n+5) {
-    grid-column: span 3;
-  }
-
-  .member-photo {
-    height: 260px;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
   }
 }
 
@@ -922,21 +892,16 @@ const handleImageError = (event: Event) => {
     height: 400px;
   }
 
+  .team-section {
+    margin-left: -10px;
+    margin-right: -10px;
+    padding-left: 0;
+    padding-right: 0;
+  }
+
   .team-grid {
     grid-template-columns: repeat(2, 1fr);
-    gap: 1.5rem;
-  }
-
-  .team-member-card:nth-child(1),
-  .team-member-card:nth-child(2),
-  .team-member-card:nth-child(3),
-  .team-member-card:nth-child(4),
-  .team-member-card:nth-child(n+5) {
-    grid-column: span 1;
-  }
-
-  .member-photo {
-    height: 220px;
+    gap: 1rem;
   }
 
   .member-name {
