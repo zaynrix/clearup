@@ -161,7 +161,14 @@
 
     <!-- Third Section - Clear Up System -->
     <div v-if="!isSectionDisabled('system')" class="third-section" data-section-id="third-section">
-      <ClearUpSystemSection @cta-click="handleBookMeeting">
+      <ClearUpSystemSection 
+        :section-title="homeContent?.systemTitle"
+        :section-description="homeContent?.systemDescription"
+        :card-title="homeContent?.systemCardTitle"
+        :card-text="homeContent?.systemCardText"
+        :roi-text="homeContent?.systemCardROI"
+        @cta-click="handleBookMeeting"
+      >
         <!-- Our Services -->
         <div v-if="!isSectionDisabled('services')" class="services-section">
           <div class="services-header">
@@ -709,9 +716,27 @@ onMounted(async () => {
   // Load contact content to get WhatsApp URL
   await loadContactContent()
   // Load site settings to check for disabled sections
-  const settingsResult = await siteSettingsController.getSiteSettings()
-  if (settingsResult.success && settingsResult.data) {
-    siteSettings.value = settingsResult.data
+  try {
+    const settingsResult = await siteSettingsController.getSiteSettings()
+    if (settingsResult.success && settingsResult.data) {
+      siteSettings.value = settingsResult.data
+    } else {
+      console.warn('Failed to load site settings:', settingsResult.error)
+      // Use default settings if loading fails
+      siteSettings.value = {
+        disabledSections: [],
+        maintenanceMode: false,
+        maintenanceMessage: 'This section is temporarily unavailable.'
+      }
+    }
+  } catch (error) {
+    console.error('Error loading site settings:', error)
+    // Use default settings if there's an error
+    siteSettings.value = {
+      disabledSections: [],
+      maintenanceMode: false,
+      maintenanceMessage: 'This section is temporarily unavailable.'
+    }
   }
   // Trigger entrance animations immediately
   isLoaded.value = true
@@ -2456,6 +2481,11 @@ const setupScrollAnimations = () => {
   width: 100%;
 }
 
+.steps-grid .step-card {
+  flex: 0 0 calc(25% - 15px);
+  max-width: calc(25% - 15px);
+}
+
 /* Mobile responsive - 1 column */
 @media (max-width: 768px) {
   .what-we-do-section {
@@ -2541,7 +2571,6 @@ const setupScrollAnimations = () => {
 
 .step-card {
   width: 100%;
-  max-width: 275px;
   min-height: 210px;
   border-radius: 50px;
   background: #14141B;
@@ -3988,24 +4017,9 @@ const setupScrollAnimations = () => {
     font-size: 30px;
   }
   
-  .steps-grid {
-    grid-template-columns: repeat(2, 1fr);
-    gap: 20px;
-  }
-  
-  /* Reset grid positioning for 2-column layout */
-  .steps-grid .step-card:nth-child(1),
-  .steps-grid .step-card:nth-child(2),
-  .steps-grid .step-card:nth-child(3),
-  .steps-grid .step-card:nth-child(4),
-  .steps-grid .step-card:nth-child(5),
-  .steps-grid .step-card:nth-child(6),
-  .steps-grid .step-card:nth-child(7) {
-    grid-column: span 1;
-  }
-  
-  .step-card {
-    max-width: 100%;
+  .steps-grid .step-card {
+    flex: 0 0 calc(50% - 10px);
+    max-width: calc(50% - 10px);
     min-height: 190px;
     border-radius: 40px;
   }

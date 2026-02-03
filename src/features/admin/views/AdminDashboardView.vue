@@ -5,8 +5,15 @@
 <template>
   <div class="admin-dashboard">
     <div class="dashboard-content">
+      <!-- Mobile Overlay -->
+      <div 
+        v-if="isSidebarOpen" 
+        class="sidebar-overlay" 
+        @click="closeSidebar"
+      ></div>
+      
       <!-- Sidebar -->
-      <aside class="dashboard-sidebar">
+      <aside :class="['dashboard-sidebar', { 'sidebar-open': isSidebarOpen }]">
         <div class="sidebar-header">
           <div class="logo-section">
             <div class="logo-icon">
@@ -41,7 +48,7 @@
           <button 
             v-for="tab in tabs" 
             :key="tab.id"
-            @click="activeTab = tab.id"
+            @click="handleNavClick(tab.id)"
             :class="['nav-item', { active: activeTab === tab.id }]"
           >
             <span class="nav-icon" v-html="getTabIcon(tab.id)"></span>
@@ -56,12 +63,23 @@
         <!-- Header Bar -->
         <div class="main-header">
           <div class="header-content">
-            <div>
-              <h1 class="page-title">{{ getActiveTabLabel() }}</h1>
-              <p class="page-subtitle">Manage and edit your website content</p>
+            <div class="header-left">
+              <button 
+                @click="toggleSidebar" 
+                class="mobile-menu-toggle"
+                aria-label="Toggle menu"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div>
+                <h1 class="page-title">{{ getActiveTabLabel() }}</h1>
+                <p class="page-subtitle">Manage and edit your website content</p>
+              </div>
             </div>
             <div class="header-actions">
-              <a href="/" target="_blank" class="preview-btn-header">
+              <a :href="previewUrl" target="_blank" class="preview-btn-header">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M15 3H21V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -3551,15 +3569,190 @@
                 <div class="section-icon">⚙️</div>
                 <div>
                   <h3>Site Settings</h3>
-                  <p class="section-description">Enable or disable website sections</p>
+                  <p class="section-description">Manage all website settings and configurations</p>
+                </div>
+              </div>
+              <button @click="saveSiteSettings" :disabled="isSavingSiteSettings" class="btn-primary btn-small">
+                <svg v-if="!isSavingSiteSettings" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16L21 8V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M17 21V13H7V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M7 3V8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div v-else class="btn-spinner"></div>
+                {{ isSavingSiteSettings ? 'Saving...' : 'Save All Settings' }}
+              </button>
+            </div>
+
+            <!-- General Settings -->
+            <div class="admin-table-card" style="margin-bottom: 2rem;">
+              <h4>🌐 General Settings</h4>
+              <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Configure basic website information and branding
+              </p>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Site Name</span>
+                  </label>
+                  <input v-model="siteGeneralSettings.siteName" type="text" placeholder="Clear Up" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Site Tagline</span>
+                  </label>
+                  <input v-model="siteGeneralSettings.siteTagline" type="text" placeholder="Your creative digital partner" class="form-input" />
+                </div>
+                <div class="form-group full-width">
+                  <label>
+                    <span class="label-text">Site Description</span>
+                    <span class="label-hint">Brief description of your website</span>
+                  </label>
+                  <textarea v-model="siteGeneralSettings.siteDescription" rows="3" placeholder="A comprehensive marketing system..." class="form-textarea"></textarea>
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Site URL</span>
+                  </label>
+                  <input v-model="siteGeneralSettings.siteUrl" type="url" placeholder="https://yourdomain.com" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Contact Email</span>
+                  </label>
+                  <input v-model="siteGeneralSettings.contactEmail" type="email" placeholder="info@yourdomain.com" class="form-input" />
                 </div>
               </div>
             </div>
 
-            <div class="admin-table-card">
-              <h4>Section Management</h4>
+            <!-- SEO Settings -->
+            <div class="admin-table-card" style="margin-bottom: 2rem;">
+              <h4>🔍 SEO Settings</h4>
               <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
-                Disable sections that need to be fixed or are experiencing errors. Disabled sections will be hidden from the website.
+                Optimize your website for search engines
+              </p>
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label>
+                    <span class="label-text">Meta Title</span>
+                    <span class="label-hint">Appears in browser tabs and search results (50-60 characters)</span>
+                  </label>
+                  <input v-model="siteSEOSettings.metaTitle" type="text" placeholder="Clear Up - Marketing System" class="form-input" maxlength="60" />
+                  <span class="char-count">{{ siteSEOSettings.metaTitle?.length || 0 }}/60</span>
+                </div>
+                <div class="form-group full-width">
+                  <label>
+                    <span class="label-text">Meta Description</span>
+                    <span class="label-hint">Brief description for search engines (150-160 characters)</span>
+                  </label>
+                  <textarea v-model="siteSEOSettings.metaDescription" rows="3" placeholder="A done-for-you marketing system..." class="form-textarea" maxlength="160"></textarea>
+                  <span class="char-count">{{ siteSEOSettings.metaDescription?.length || 0 }}/160</span>
+                </div>
+                <div class="form-group full-width">
+                  <label>
+                    <span class="label-text">Meta Keywords</span>
+                    <span class="label-hint">Comma-separated keywords</span>
+                  </label>
+                  <input v-model="siteSEOSettings.metaKeywords" type="text" placeholder="marketing, digital, branding" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">OG Image URL</span>
+                    <span class="label-hint">Social media preview image (1200x630px)</span>
+                  </label>
+                  <input v-model="siteSEOSettings.ogImage" type="url" placeholder="https://yourdomain.com/og-image.jpg" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Twitter Handle</span>
+                    <span class="label-hint">@username</span>
+                  </label>
+                  <input v-model="siteSEOSettings.twitterHandle" type="text" placeholder="@yourhandle" class="form-input" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Social Media Links -->
+            <div class="admin-table-card" style="margin-bottom: 2rem;">
+              <h4>📱 Social Media Links</h4>
+              <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Add your social media profiles
+              </p>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Facebook URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.facebook" type="url" placeholder="https://facebook.com/yourpage" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Instagram URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.instagram" type="url" placeholder="https://instagram.com/yourprofile" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Twitter/X URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.twitter" type="url" placeholder="https://twitter.com/yourhandle" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">LinkedIn URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.linkedin" type="url" placeholder="https://linkedin.com/company/yourcompany" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">YouTube URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.youtube" type="url" placeholder="https://youtube.com/@yourchannel" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">TikTok URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.tiktok" type="url" placeholder="https://tiktok.com/@yourhandle" class="form-input" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Maintenance Mode Settings -->
+            <div class="admin-table-card" style="margin-bottom: 2rem;">
+              <h4>🔧 Maintenance Mode</h4>
+              <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Control website maintenance mode
+              </p>
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label class="toggle-switch-large">
+                    <input 
+                      type="checkbox" 
+                      v-model="siteSettings.maintenanceMode"
+                      @change="saveSiteSettings"
+                    />
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label-large">
+                      <strong>{{ siteSettings.maintenanceMode ? 'Maintenance Mode Active' : 'Website Online' }}</strong>
+                      <span class="toggle-description">{{ siteSettings.maintenanceMode ? 'Website is currently offline' : 'Website is accessible to visitors' }}</span>
+                    </span>
+                  </label>
+                </div>
+                <div v-if="siteSettings.maintenanceMode" class="form-group full-width">
+                  <label>
+                    <span class="label-text">Maintenance Message</span>
+                    <span class="label-hint">Message shown to visitors during maintenance</span>
+                  </label>
+                  <textarea v-model="siteSettings.maintenanceMessage" rows="3" placeholder="We're currently performing maintenance. Please check back soon." class="form-textarea"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Management -->
+            <div class="admin-table-card">
+              <h4>📋 Section Management</h4>
+              <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Enable or disable website sections. Disabled sections will be hidden from the website.
               </p>
               <div v-if="isAdminLoading" class="loading-text">Loading settings...</div>
               <div v-else class="sections-groups">
@@ -4611,7 +4804,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { authService } from '@/features/auth/services/AuthService'
 import { storageService } from '@/shared/services'
@@ -4652,6 +4845,14 @@ const route = useRoute()
 const userViewController = new AuthViewController()
 
 const user = computed(() => userViewController.user)
+const previewUrl = computed(() => {
+  // Always use the base path from vite config (e.g., /clearup/)
+  const basePath = import.meta.env.BASE_URL || '/'
+  // Ensure base path ends with / and starts with /
+  const normalizedBase = basePath.endsWith('/') ? basePath : `${basePath}/`
+  // Construct absolute URL with base path
+  return `${window.location.origin}${normalizedBase}`
+})
 const isLoading = ref(true)
 const isSaving = ref(false)
 const errorMessage = ref('')
@@ -4660,6 +4861,38 @@ const saveMessageType = ref<'success' | 'error'>('success')
 
 const activeTab = ref('hero')
 const isAdmin = ref(false)
+const isSidebarOpen = ref(false)
+
+// Handle navigation click - close sidebar on mobile
+const handleNavClick = (tabId: string) => {
+  activeTab.value = tabId
+  // Close sidebar on mobile after selection
+  if (window.innerWidth <= 768) {
+    isSidebarOpen.value = false
+  }
+}
+
+// Toggle sidebar for mobile
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value
+}
+
+// Close sidebar
+const closeSidebar = () => {
+  isSidebarOpen.value = false
+}
+
+// Close sidebar on window resize if switching to desktop
+const handleResize = () => {
+  if (window.innerWidth > 768) {
+    isSidebarOpen.value = false
+  }
+}
+
+// Watch for window resize
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
 const uploadingLogos = ref<Record<number, boolean>>({})
 const uploadingPhotos = ref<Record<number, boolean>>({})
 const uploadingTestimonialVideos = ref<Record<number, boolean>>({})
@@ -4774,8 +5007,39 @@ const activityLogs = ref<ActivityLog[]>([])
 const isAdminLoading = ref(false)
 const siteSettings = ref<SiteSettings>({
   disabledSections: [],
-  maintenanceMode: false
+  maintenanceMode: false,
+  maintenanceMessage: 'We\'re currently performing maintenance. Please check back soon.'
 })
+
+// Site General Settings
+const siteGeneralSettings = ref({
+  siteName: '',
+  siteTagline: '',
+  siteDescription: '',
+  siteUrl: '',
+  contactEmail: ''
+})
+
+// Site SEO Settings
+const siteSEOSettings = ref({
+  metaTitle: '',
+  metaDescription: '',
+  metaKeywords: '',
+  ogImage: '',
+  twitterHandle: ''
+})
+
+// Site Social Media Settings
+const siteSocialSettings = ref({
+  facebook: '',
+  instagram: '',
+  twitter: '',
+  linkedin: '',
+  youtube: '',
+  tiktok: ''
+})
+
+const isSavingSiteSettings = ref(false)
 const emailSubmissions = ref<EmailSubmission[]>([])
 const loadingEmails = ref(false)
 const emailFilter = ref<'all' | 'pending' | 'confirmed'>('all')
@@ -8570,6 +8834,44 @@ const resetUserPassword = async (userEmail: string) => {
   }
 }
 
+const saveSiteSettings = async () => {
+  isSavingSiteSettings.value = true
+  saveMessage.value = ''
+  
+  try {
+    // Save all site settings - ensure we have all required fields
+    const settingsToSave: Partial<SiteSettings> = {
+      disabledSections: siteSettings.value.disabledSections || [],
+      maintenanceMode: siteSettings.value.maintenanceMode || false,
+      maintenanceMessage: siteSettings.value.maintenanceMessage || 'We\'re currently performing maintenance. Please check back soon.'
+    }
+    
+    const result = await siteSettingsController.updateSiteSettings(settingsToSave)
+    
+    if (result.success) {
+      // Reload settings to ensure they're synced
+      await loadAdminData()
+      saveMessage.value = 'Site settings saved successfully!'
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 4000)
+      
+      // TODO: Save extended settings (general, SEO, social) to a separate collection
+      // or extend the SiteSettings interface to include them
+    } else {
+      saveMessage.value = result.error || 'Failed to save site settings'
+      saveMessageType.value = 'error'
+      console.error('Failed to save site settings:', result.error)
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to save site settings'
+    saveMessage.value = errorMessage
+    saveMessageType.value = 'error'
+    console.error('Error saving site settings:', error)
+  } finally {
+    isSavingSiteSettings.value = false
+  }
+}
+
 const toggleSection = async (sectionId: string, disabled: boolean) => {
   isAdminLoading.value = true
   try {
@@ -8827,6 +9129,12 @@ onMounted(() => {
   setTimeout(() => {
     setActiveTabFromQuery()
   }, 100)
+  // Add resize listener for sidebar
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
 })
 </script>
 
@@ -8844,6 +9152,19 @@ onMounted(() => {
   margin-top: 0;
 }
 
+/* Sidebar Overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 99;
+  backdrop-filter: blur(4px);
+}
+
 /* Sidebar Styles */
 .dashboard-sidebar {
   width: 300px;
@@ -8855,6 +9176,8 @@ onMounted(() => {
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  z-index: 100;
 }
 
 .dashboard-sidebar::-webkit-scrollbar {
@@ -9070,6 +9393,34 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  background: rgba(91, 32, 150, 0.2);
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem;
+  color: #F5F7FA;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.mobile-menu-toggle:hover {
+  background: rgba(91, 32, 150, 0.3);
+  border-color: rgba(91, 32, 150, 0.5);
+}
+
+.mobile-menu-toggle svg {
+  width: 24px;
+  height: 24px;
 }
 
 .page-title {
@@ -9356,6 +9707,88 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   margin-top: 0.25rem;
+}
+
+.char-count {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: rgba(245, 247, 250, 0.5);
+  text-align: right;
+}
+
+.toggle-switch-large {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  cursor: pointer;
+  padding: 1rem;
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.toggle-switch-large:hover {
+  border-color: rgba(91, 32, 150, 0.4);
+  background: rgba(245, 247, 250, 0.08);
+}
+
+.toggle-switch-large input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-switch-large .toggle-slider {
+  position: relative;
+  width: 56px;
+  height: 32px;
+  background: rgba(245, 247, 250, 0.2);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.toggle-switch-large .toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #F5F7FA;
+  top: 4px;
+  left: 4px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch-large input[type="checkbox"]:checked + .toggle-slider {
+  background: linear-gradient(103deg, #5B2096 0.52%, #C19DE6 125.79%);
+}
+
+.toggle-switch-large input[type="checkbox"]:checked + .toggle-slider::before {
+  transform: translateX(24px);
+}
+
+.toggle-label-large {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.toggle-label-large strong {
+  color: #F5F7FA;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.toggle-description {
+  color: rgba(245, 247, 250, 0.6);
+  font-size: 0.875rem;
 }
 
 .char-count {
@@ -9838,6 +10271,9 @@ onMounted(() => {
   gap: 0.5rem;
   color: rgba(245, 247, 250, 0.5);
   font-size: 0.875rem;
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .status-message {
@@ -9877,12 +10313,14 @@ onMounted(() => {
 .action-buttons {
   display: flex;
   gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 .btn-primary,
 .btn-secondary {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.875rem 1.5rem;
   border-radius: 10px;
@@ -9892,6 +10330,8 @@ onMounted(() => {
   transition: all 0.2s ease;
   border: none;
   font-family: 'Roboto', sans-serif;
+  white-space: nowrap;
+  min-width: fit-content;
 }
 
 .btn-primary {
@@ -9941,7 +10381,22 @@ onMounted(() => {
   }
   
   .action-bar {
-    margin-left: 260px;
+    left: 260px;
+    padding: 1rem 1.5rem;
+  }
+  
+  .action-bar-content {
+    gap: 1.5rem;
+  }
+  
+  .action-hint {
+    font-size: 0.8125rem;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
   }
   
   .form-grid {
@@ -9958,47 +10413,108 @@ onMounted(() => {
 }
 
 @media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: block;
+  }
+  
+  .sidebar-overlay {
+    display: block;
+  }
+  
   .dashboard-content {
     flex-direction: column;
   }
   
   .dashboard-sidebar {
-    width: 100%;
-    position: relative;
+    width: 280px;
+    max-width: 85vw;
+    position: fixed;
     top: 0;
-    height: auto;
-    max-height: none;
-    border-right: none;
-    border-bottom: 1px solid rgba(91, 32, 150, 0.2);
+    left: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    box-shadow: none;
+    z-index: 100;
+    border-right: 1px solid rgba(91, 32, 150, 0.2);
+  }
+  
+  .dashboard-sidebar.sidebar-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+  }
+  
+  .sidebar-header {
+    padding: 1.5rem 1rem;
+  }
+  
+  .logo-section {
+    margin-bottom: 1rem;
+  }
+  
+  .logo-section h2 {
+    font-size: 1.1rem;
+  }
+  
+  .user-card {
+    padding: 0.875rem;
+  }
+  
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.8125rem;
+  }
+  
+  .user-name {
+    font-size: 0.8125rem;
+  }
+  
+  .user-email {
+    font-size: 0.6875rem;
+  }
+  
+  .logout-btn {
+    width: 32px;
+    height: 32px;
   }
   
   .sidebar-nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 0.5rem;
+    flex-direction: column;
+    padding: 0.75rem 0.5rem;
   }
   
   .nav-item {
-    flex: 1;
-    min-width: calc(50% - 0.5rem);
-    justify-content: center;
+    flex: none;
+    min-width: auto;
+    width: 100%;
+    justify-content: flex-start;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
   }
   
   .nav-item.active {
-    border-left: none;
-    border-bottom: 3px solid #5B2096;
+    border-left: 3px solid #5B2096;
+    border-bottom: none;
   }
   
   .nav-indicator {
-    display: none;
+    display: block;
   }
   
   .main-header {
-    padding: 1rem 1.5rem;
+    padding: 1rem;
+  }
+  
+  .header-left {
+    gap: 0.75rem;
   }
   
   .page-title {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
+  }
+  
+  .page-subtitle {
+    font-size: 0.8125rem;
   }
   
   .content-editor {
@@ -10010,44 +10526,118 @@ onMounted(() => {
   }
   
   .action-bar {
-    margin-left: 0;
+    left: 0;
     padding: 1rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
   
   .action-bar-content {
     flex-direction: column;
     gap: 1rem;
+    align-items: stretch;
+  }
+  
+  .action-info {
+    width: 100%;
+    text-align: center;
+  }
+  
+  .action-hint {
+    justify-content: center;
+    font-size: 0.8125rem;
+    text-align: center;
+    flex-wrap: wrap;
+  }
+  
+  .action-hint svg {
+    flex-shrink: 0;
+  }
+  
+  .status-message {
+    justify-content: center;
+    text-align: center;
+    font-size: 0.875rem;
   }
   
   .action-buttons {
     width: 100%;
+    display: flex;
+    gap: 0.75rem;
   }
   
   .btn-primary,
   .btn-secondary {
     flex: 1;
     justify-content: center;
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+    min-width: 0;
+  }
+  
+  .btn-primary svg,
+  .btn-secondary svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
   }
 }
 
 @media (max-width: 480px) {
+  .dashboard-sidebar {
+    width: 260px;
+    max-width: 90vw;
+  }
+  
+  .sidebar-header {
+    padding: 1.25rem 0.875rem;
+  }
+  
+  .logo-section h2 {
+    font-size: 1rem;
+  }
+  
+  .user-card {
+    padding: 0.75rem;
+  }
+  
+  .nav-item {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+  
   .main-header {
-    padding: 1rem;
+    padding: 0.875rem;
   }
   
   .header-content {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
+    gap: 0.75rem;
+  }
+  
+  .header-left {
+    width: 100%;
+    justify-content: space-between;
+  }
+  
+  .page-title {
+    font-size: 1.125rem;
+  }
+  
+  .page-subtitle {
+    font-size: 0.75rem;
   }
   
   .preview-btn-header {
     width: 100%;
     justify-content: center;
+    font-size: 0.875rem;
+    padding: 0.625rem 1rem;
   }
   
   .content-editor {
     padding: 1rem 0.75rem;
+    padding-bottom: calc(120px + env(safe-area-inset-bottom));
   }
   
   .editor-section {
@@ -10074,6 +10664,70 @@ onMounted(() => {
   
   .roles-list {
     grid-template-columns: 1fr;
+  }
+  
+  .action-bar {
+    padding: 0.875rem 0.75rem;
+    padding-bottom: max(0.875rem, env(safe-area-inset-bottom));
+  }
+  
+  .action-bar-content {
+    gap: 0.875rem;
+  }
+  
+  .action-hint {
+    font-size: 0.75rem;
+    gap: 0.375rem;
+    line-height: 1.3;
+  }
+  
+  .action-hint svg {
+    width: 14px;
+    height: 14px;
+  }
+  
+  .status-message {
+    font-size: 0.8125rem;
+    padding: 0.5rem 0.75rem;
+  }
+  
+  .status-message svg {
+    width: 16px;
+    height: 16px;
+  }
+  
+  .action-buttons {
+    gap: 0.5rem;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.8125rem;
+    gap: 0.375rem;
+  }
+  
+  .btn-primary svg,
+  .btn-secondary svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .action-bar {
+    padding: 0.75rem 0.5rem;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+  
+  .action-hint {
+    font-size: 0.6875rem;
+  }
+  
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.75rem;
   }
 }
 
