@@ -5,8 +5,15 @@
 <template>
   <div class="admin-dashboard">
     <div class="dashboard-content">
+      <!-- Mobile Overlay -->
+      <div
+        v-if="isSidebarOpen"
+        class="sidebar-overlay"
+        @click="closeSidebar"
+      ></div>
+
       <!-- Sidebar -->
-      <aside class="dashboard-sidebar">
+      <aside :class="['dashboard-sidebar', { 'sidebar-open': isSidebarOpen }]">
         <div class="sidebar-header">
           <div class="logo-section">
             <div class="logo-icon">
@@ -18,7 +25,7 @@
             </div>
             <h2>{{ isAdmin ? 'Admin Panel' : 'Content Manager' }}</h2>
           </div>
-          
+
           <div class="user-card">
             <div class="user-avatar">
               <span>{{ userInitials }}</span>
@@ -36,12 +43,12 @@
             </button>
           </div>
         </div>
-        
+
         <nav class="sidebar-nav">
-          <button 
-            v-for="tab in tabs" 
+          <button
+            v-for="tab in tabs"
             :key="tab.id"
-            @click="activeTab = tab.id"
+            @click="handleTabClick(tab.id)"
             :class="['nav-item', { active: activeTab === tab.id }]"
           >
             <span class="nav-icon" v-html="getTabIcon(tab.id)"></span>
@@ -56,12 +63,23 @@
         <!-- Header Bar -->
         <div class="main-header">
           <div class="header-content">
-            <div>
-              <h1 class="page-title">{{ getActiveTabLabel() }}</h1>
-              <p class="page-subtitle">Manage and edit your website content</p>
+            <div class="header-left">
+              <button
+                @click="toggleSidebar"
+                class="mobile-menu-toggle"
+                aria-label="Toggle menu"
+              >
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M3 12H21M3 6H21M3 18H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+              </button>
+              <div>
+                <h1 class="page-title">{{ getActiveTabLabel() }}</h1>
+                <p class="page-subtitle">Manage and edit your website content</p>
+              </div>
             </div>
             <div class="header-actions">
-              <a href="/" target="_blank" class="preview-btn-header">
+              <a :href="previewUrl" target="_blank" class="preview-btn-header">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M18 13V19C18 19.5304 17.7893 20.0391 17.4142 20.4142C17.0391 20.7893 16.5304 21 16 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V8C3 7.46957 3.21071 6.96086 3.58579 6.58579C3.96086 6.21071 4.46957 6 5 6H11" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                   <path d="M15 3H21V9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -117,41 +135,41 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group">
                 <label>
                   <span class="label-text">Headline (White Text)</span>
                   <span class="label-hint">First part of the main headline</span>
                 </label>
-                <input 
-                  v-model="formData.heroHeadlineWhite" 
-                  type="text" 
+                <input
+                  v-model="formData.heroHeadlineWhite"
+                  type="text"
                   placeholder="Like Oxygen For"
                   class="form-input"
                 />
               </div>
-              
+
               <div class="form-group">
                 <label>
                   <span class="label-text">Headline (Purple Text)</span>
                   <span class="label-hint">Second part - appears in purple gradient</span>
                 </label>
-                <input 
-                  v-model="formData.heroHeadlinePurple" 
-                  type="text" 
+                <input
+                  v-model="formData.heroHeadlinePurple"
+                  type="text"
                   placeholder="Your Business"
                   class="form-input"
                 />
               </div>
-              
+
               <div class="form-group full-width">
                 <label>
                   <span class="label-text">Supporting Text</span>
                   <span class="label-hint">One line per paragraph (press Enter for new line)</span>
                 </label>
-                <textarea 
-                  v-model="supportingTextTextarea" 
+                <textarea
+                  v-model="supportingTextTextarea"
                   rows="4"
                   placeholder="Grow your business to new heights&#10;We make it easy for you.&#10;More customers, more profitable, more freedom, more life."
                   class="form-textarea"
@@ -174,42 +192,42 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group">
                 <label>
                   <span class="label-text">Input Placeholder</span>
                   <span class="label-hint">Text shown in the input field</span>
                 </label>
-                <input 
-                  v-model="formData.ctaPlaceholder" 
-                  type="text" 
+                <input
+                  v-model="formData.ctaPlaceholder"
+                  type="text"
                   placeholder="Enter your email address to get started"
                   class="form-input"
                 />
               </div>
-              
+
               <div class="form-group">
                 <label>
                   <span class="label-text">Button Text</span>
                   <span class="label-hint">Text on the submit button</span>
                 </label>
-                <input 
-                  v-model="formData.ctaButtonText" 
-                  type="text" 
+                <input
+                  v-model="formData.ctaButtonText"
+                  type="text"
                   placeholder="Get Started"
                   class="form-input"
                 />
               </div>
-              
+
               <div class="form-group full-width">
                 <label>
                   <span class="label-text">Social Proof Text</span>
                   <span class="label-hint">Trust indicator below the form</span>
                 </label>
-                <input 
-                  v-model="formData.socialProofText" 
-                  type="text" 
+                <input
+                  v-model="formData.socialProofText"
+                  type="text"
                   placeholder="5-star rating with 200+ reviews"
                   class="form-input"
                 />
@@ -242,7 +260,7 @@
                 </h4>
                 <p class="content-section-description">Set the title and description for this section</p>
               </div>
-            
+
               <div class="form-grid">
                 <div class="form-group full-width">
                   <label>
@@ -251,7 +269,7 @@
                   </label>
                   <input v-model="formData.whoWeAreTitle" type="text" placeholder="Who We Are" class="form-input" />
                 </div>
-              
+
                 <div class="form-group full-width">
                   <label>
                     <span class="label-text">Description</span>
@@ -274,24 +292,24 @@
               </h4>
                 <p class="content-section-description">Add a video to showcase your company (optional)</p>
               </div>
-              
+
               <div class="video-manager">
                 <div class="video-options">
                   <label class="video-option-label">
-                    <input 
-                      type="radio" 
-                      name="videoType" 
-                      value="upload" 
+                    <input
+                      type="radio"
+                      name="videoType"
+                      value="upload"
                       v-model="formData.videoType"
                       @change="formData.videoUrl = ''"
                     />
                     <span>Upload Video File (Recommended)</span>
                   </label>
                   <label class="video-option-label">
-                    <input 
-                      type="radio" 
-                      name="videoType" 
-                      value="link" 
+                    <input
+                      type="radio"
+                      name="videoType"
+                      value="link"
                       v-model="formData.videoType"
                       @change="formData.videoFileUrl = ''"
                     />
@@ -306,9 +324,9 @@
                     <span class="label-hint">Upload your own video file (MP4, WebM, MOV, or AVI) - Recommended to avoid YouTube suggestions. Max size: 100MB</span>
                   </label>
                   <div class="video-upload-area">
-                    <input 
-                      type="file" 
-                      accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi" 
+                    <input
+                      type="file"
+                      accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi"
                       @change="handleVideoUpload"
                       ref="videoFileInput"
                       id="video-upload-input"
@@ -351,19 +369,19 @@
                     <span class="label-text">Video URL</span>
                     <span class="label-hint">YouTube or Vimeo link (Note: YouTube may show suggested videos. Upload your own video to avoid this.)</span>
                   </label>
-                  <input 
-                    v-model="formData.videoUrl" 
-                    type="url" 
-                    placeholder="https://www.youtube.com/watch?v=..." 
+                  <input
+                    v-model="formData.videoUrl"
+                    type="url"
+                    placeholder="https://www.youtube.com/watch?v=..."
                     class="form-input"
                   />
                   <div v-if="formData.videoUrl" class="video-preview">
                     <p class="preview-label">Preview:</p>
                     <div class="video-preview-container">
-                      <iframe 
-                        :src="getVideoEmbedUrl(formData.videoUrl)" 
-                        frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      <iframe
+                        :src="getVideoEmbedUrl(formData.videoUrl)"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowfullscreen
                       ></iframe>
                     </div>
@@ -371,7 +389,7 @@
                 </div>
               </div>
             </div>
-            
+
             <!-- Statistics Section -->
             <div class="content-section-card">
               <div class="content-section-header">
@@ -384,7 +402,7 @@
               </h4>
                 <p class="content-section-description">Showcase your achievements and key metrics</p>
               </div>
-              
+
               <div class="stats-grid">
                 <div class="stat-card-improved">
                   <div class="stat-card-header">
@@ -417,7 +435,7 @@
                     </div>
                   </div>
                 </div>
-                
+
                 <div class="stat-card-improved">
                   <div class="stat-card-header">
                     <div class="stat-icon-wrapper">
@@ -449,7 +467,7 @@
                     </div>
                   </div>
                 </div>
-                
+
                 <div class="stat-card-improved">
                   <div class="stat-card-header">
                     <div class="stat-icon-wrapper">
@@ -496,7 +514,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group">
                 <label>
@@ -504,21 +522,21 @@
                 </label>
                 <input v-model="formData.systemTitle" type="text" placeholder="The Clear up System™" class="form-input" />
               </div>
-              
+
               <div class="form-group">
                 <label>
                   <span class="label-text">Description</span>
                 </label>
                 <textarea v-model="formData.systemDescription" rows="2" placeholder="A done-for-you marketing system built for predictable growth." class="form-textarea"></textarea>
               </div>
-              
+
               <div class="form-group full-width">
                 <label>
                   <span class="label-text">Card Title</span>
                 </label>
                 <input v-model="formData.systemCardTitle" type="text" placeholder="Done-for-you Clear Up System" class="form-input" />
               </div>
-              
+
               <div class="form-group full-width">
                 <label>
                   <span class="label-text">Card Text</span>
@@ -526,7 +544,7 @@
                 </label>
                 <textarea v-model="systemCardTextTextarea" rows="4" class="form-textarea"></textarea>
               </div>
-              
+
               <div class="form-group full-width">
                 <label>
                   <span class="label-text">ROI Statement</span>
@@ -548,7 +566,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group">
                 <label>
@@ -556,7 +574,7 @@
                 </label>
                 <input v-model="formData.servicesTitle" type="text" placeholder="Our Services" class="form-input" />
               </div>
-              
+
               <div class="form-group">
                 <label>
                   <span class="label-text">Description</span>
@@ -564,7 +582,7 @@
                 <input v-model="formData.servicesDescription" type="text" placeholder="We provide a wide range of services." class="form-input" />
               </div>
             </div>
-            
+
             <div class="subsection">
               <div class="subsection-header">
                 <h4 class="subsection-title">
@@ -580,7 +598,7 @@
                   Add Service
                 </button>
               </div>
-              
+
               <div class="services-list">
                 <div v-for="(service, index) in formData.services" :key="index" class="service-card">
                   <div class="service-card-header">
@@ -614,7 +632,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group full-width">
                 <label>
@@ -623,7 +641,7 @@
                 <input v-model="formData.whatWeDoTitle" type="text" placeholder="What We Do" class="form-input" />
               </div>
             </div>
-            
+
             <div class="subsection">
               <div class="subsection-header">
               <h4 class="subsection-title">
@@ -642,9 +660,9 @@
                 </button>
               </div>
               <div class="steps-list">
-                <div 
-                  v-for="(step, index) in formData.steps" 
-                  :key="`step-${index}`" 
+                <div
+                  v-for="(step, index) in formData.steps"
+                  :key="`step-${index}`"
                   class="step-card"
                   :draggable="true"
                   @dragstart="handleStepDragStart($event, index)"
@@ -665,9 +683,9 @@
                     </div>
                   <div class="step-number">{{ step.number }}</div>
                     <div class="step-actions">
-                      <button 
-                        @click="moveStepUp(index)" 
-                        type="button" 
+                      <button
+                        @click="moveStepUp(index)"
+                        type="button"
                         class="btn-icon"
                         :disabled="index === 0"
                         title="Move Up"
@@ -676,9 +694,9 @@
                           <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </button>
-                      <button 
-                        @click="moveStepDown(index)" 
-                        type="button" 
+                      <button
+                        @click="moveStepDown(index)"
+                        type="button"
                         class="btn-icon"
                         :disabled="index === formData.steps.length - 1"
                         title="Move Down"
@@ -687,9 +705,9 @@
                           <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </button>
-                      <button 
-                        @click="removeStep(index)" 
-                        type="button" 
+                      <button
+                        @click="removeStep(index)"
+                        type="button"
                         class="btn-icon btn-danger-icon"
                         title="Delete Step"
                       >
@@ -700,10 +718,10 @@
                       </button>
                 </div>
               </div>
-                  <textarea 
-                    v-model="step.content" 
-                    rows="3" 
-                    :placeholder="`Step ${step.number} content`" 
+                  <textarea
+                    v-model="step.content"
+                    rows="3"
+                    :placeholder="`Step ${step.number} content`"
                     class="form-textarea step-content-input"
                   ></textarea>
                 </div>
@@ -725,7 +743,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group full-width">
                 <label>
@@ -734,7 +752,7 @@
                 <input v-model="formData.whatYouGetTitle" type="text" placeholder="What You Get" class="form-input" />
               </div>
               </div>
-              
+
             <div class="subsection">
               <div class="subsection-header">
                 <h4 class="subsection-title">
@@ -753,9 +771,9 @@
                 </button>
                 </div>
               <div class="benefits-list">
-                <div 
-                  v-for="(benefit, index) in formData.benefits" 
-                  :key="`benefit-${index}`" 
+                <div
+                  v-for="(benefit, index) in formData.benefits"
+                  :key="`benefit-${index}`"
                   class="benefit-card"
                   :draggable="true"
                   @dragstart="handleBenefitDragStart($event, index)"
@@ -779,16 +797,16 @@
                       <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" stroke="#5B2096" stroke-width="2"/>
                     </svg>
                   </div>
-                  <input 
-                    v-model="formData.benefits[index]" 
-                    type="text" 
-                    :placeholder="`Benefit ${index + 1}`" 
+                  <input
+                    v-model="formData.benefits[index]"
+                    type="text"
+                    :placeholder="`Benefit ${index + 1}`"
                     class="form-input benefit-input"
                   />
                   <div class="benefit-actions">
-                    <button 
-                      @click="moveBenefitUp(index)" 
-                      type="button" 
+                    <button
+                      @click="moveBenefitUp(index)"
+                      type="button"
                       class="btn-icon"
                       :disabled="index === 0"
                       title="Move Up"
@@ -797,9 +815,9 @@
                         <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </button>
-                    <button 
-                      @click="moveBenefitDown(index)" 
-                      type="button" 
+                    <button
+                      @click="moveBenefitDown(index)"
+                      type="button"
                       class="btn-icon"
                       :disabled="index === formData.benefits.length - 1"
                       title="Move Down"
@@ -808,9 +826,9 @@
                         <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </button>
-                    <button 
-                      @click="removeBenefit(index)" 
-                      type="button" 
+                    <button
+                      @click="removeBenefit(index)"
+                      type="button"
                       class="btn-icon btn-danger-icon"
                       title="Delete Benefit"
                     >
@@ -839,7 +857,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group full-width">
                 <label>
@@ -848,7 +866,7 @@
                 <input v-model="formData.bonusesTitle" type="text" placeholder="Bonuses Included" class="form-input" />
               </div>
               </div>
-              
+
             <div class="subsection">
               <div class="subsection-header">
                 <h4 class="subsection-title">
@@ -866,9 +884,9 @@
                 </button>
                 </div>
               <div class="benefits-list">
-                <div 
-                  v-for="(bonus, index) in formData.bonuses" 
-                  :key="`bonus-${index}`" 
+                <div
+                  v-for="(bonus, index) in formData.bonuses"
+                  :key="`bonus-${index}`"
                   class="benefit-card"
                   :draggable="true"
                   @dragstart="handleBonusDragStart($event, index)"
@@ -891,16 +909,16 @@
                       <path d="M12 2L15.09 8.26L22 9.27L17 14.14L18.18 21.02L12 17.77L5.82 21.02L7 14.14L2 9.27L8.91 8.26L12 2Z" stroke="#5B2096" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
                   </div>
-                  <input 
-                    v-model="formData.bonuses[index]" 
-                    type="text" 
-                    :placeholder="`Bonus ${index + 1}`" 
+                  <input
+                    v-model="formData.bonuses[index]"
+                    type="text"
+                    :placeholder="`Bonus ${index + 1}`"
                     class="form-input benefit-input"
                   />
                   <div class="benefit-actions">
-                    <button 
-                      @click="moveBonusUp(index)" 
-                      type="button" 
+                    <button
+                      @click="moveBonusUp(index)"
+                      type="button"
                       class="btn-icon"
                       :disabled="index === 0"
                       title="Move Up"
@@ -909,9 +927,9 @@
                         <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </button>
-                    <button 
-                      @click="moveBonusDown(index)" 
-                      type="button" 
+                    <button
+                      @click="moveBonusDown(index)"
+                      type="button"
                       class="btn-icon"
                       :disabled="index === formData.bonuses.length - 1"
                       title="Move Down"
@@ -920,9 +938,9 @@
                         <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                       </svg>
                     </button>
-                    <button 
-                      @click="removeBonus(index)" 
-                      type="button" 
+                    <button
+                      @click="removeBonus(index)"
+                      type="button"
                       class="btn-icon btn-danger-icon"
                       title="Delete Bonus"
                     >
@@ -965,7 +983,7 @@
                 </h4>
                 <p class="content-section-description">Configure titles and subtitles for both sections</p>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group">
                 <label>
@@ -974,7 +992,7 @@
                 </label>
                 <input v-model="formData.clientsTitle" type="text" placeholder="Our Clients" class="form-input" />
               </div>
-              
+
               <div class="form-group">
                 <label>
                   <span class="label-text">Clients Subtitle</span>
@@ -982,7 +1000,7 @@
                 </label>
                 <input v-model="formData.clientsSubtitle" type="text" placeholder="We work with leading brands and businesses." class="form-input" />
               </div>
-              
+
               <div class="form-group">
                 <label>
                   <span class="label-text">Testimonials Title</span>
@@ -990,7 +1008,7 @@
                 </label>
                 <input v-model="formData.testimonialsTitle" type="text" placeholder="What Our Clients Say" class="form-input" />
               </div>
-              
+
               <div class="form-group">
                 <label>
                   <span class="label-text">Testimonials Subtitle</span>
@@ -1086,19 +1104,19 @@
                             </label>
                           </div>
 
-                          <input 
+                          <input
                             v-if="logo.logoType === 'url'"
-                            v-model="logo.logoUrl" 
-                            type="url" 
-                            placeholder="https://example.com/logo.png" 
+                            v-model="logo.logoUrl"
+                            type="url"
+                            placeholder="https://example.com/logo.png"
                             class="form-input"
                             style="margin-top: 0.5rem;"
                           />
 
                           <div v-if="logo.logoType === 'upload'" class="photo-upload-area">
-                            <input 
-                              type="file" 
-                              accept="image/png,image/jpeg,image/jpg,image/svg+xml,.png,.jpg,.jpeg,.svg" 
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg,image/jpg,image/svg+xml,.png,.jpg,.jpeg,.svg"
                               @change="handleClientLogoUpload($event, index)"
                               :id="`logo-upload-${index}`"
                               class="photo-file-input"
@@ -1257,19 +1275,19 @@
                             </label>
                           </div>
 
-                          <input 
+                          <input
                             v-if="testimonial.photoType === 'url'"
-                            v-model="testimonial.photoUrl" 
-                            type="url" 
-                            placeholder="https://example.com/photo.jpg" 
+                            v-model="testimonial.photoUrl"
+                            type="url"
+                            placeholder="https://example.com/photo.jpg"
                             class="form-input"
                             style="margin-top: 0.5rem;"
                           />
 
                           <div v-if="testimonial.photoType === 'upload'" class="photo-upload-area">
-                            <input 
-                              type="file" 
-                              accept="image/png,image/jpeg,image/jpg,image/webp,.png,.jpg,.jpeg,.webp" 
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg,image/jpg,image/webp,.png,.jpg,.jpeg,.webp"
                               @change="handlePhotoUpload($event, index)"
                               :id="`photo-upload-${index}`"
                               class="photo-file-input"
@@ -1314,19 +1332,19 @@
                             </label>
                           </div>
 
-                          <input 
+                          <input
                             v-if="testimonial.videoThumbnailType === 'url'"
-                            v-model="testimonial.videoThumbnailUrl" 
-                            type="url" 
-                            placeholder="https://example.com/thumbnail.jpg" 
+                            v-model="testimonial.videoThumbnailUrl"
+                            type="url"
+                            placeholder="https://example.com/thumbnail.jpg"
                             class="form-input"
                             style="margin-top: 0.5rem;"
                           />
 
                           <div v-if="testimonial.videoThumbnailType === 'upload'" class="photo-upload-area">
-                            <input 
-                              type="file" 
-                              accept="image/png,image/jpeg,image/jpg,image/webp,.png,.jpg,.jpeg,.webp" 
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg,image/jpg,image/webp,.png,.jpg,.jpeg,.webp"
                               @change="handleVideoThumbnailUpload($event, index)"
                               :id="`video-thumbnail-upload-${index}`"
                               class="photo-file-input"
@@ -1375,19 +1393,19 @@
                             </label>
                           </div>
 
-                          <input 
+                          <input
                             v-if="testimonial.videoType === 'link'"
-                            v-model="testimonial.videoUrl" 
-                            type="url" 
-                            placeholder="https://www.youtube.com/watch?v=..." 
+                            v-model="testimonial.videoUrl"
+                            type="url"
+                            placeholder="https://www.youtube.com/watch?v=..."
                             class="form-input"
                             style="margin-top: 0.5rem;"
                           />
 
                           <div v-if="testimonial.videoType === 'upload'" class="video-upload-area">
-                            <input 
-                              type="file" 
-                              accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi" 
+                            <input
+                              type="file"
+                              accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi"
                               @change="handleTestimonialVideoUpload($event, index)"
                               :id="`testimonial-video-upload-${index}`"
                               class="video-file-input"
@@ -1460,7 +1478,7 @@
                 </h4>
                 <p class="content-section-description">Configure the main title and subtitle for this section</p>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group full-width">
                 <label>
@@ -1469,7 +1487,7 @@
                 </label>
                 <input v-model="formData.realResultsTitle" type="text" placeholder="Real Results, Real Impact." class="form-input" />
               </div>
-              
+
               <div class="form-group full-width">
                 <label>
                   <span class="label-text">Subtitle</span>
@@ -1559,44 +1577,44 @@
                           <span class="label-text">Company Logo</span>
                           <span class="label-hint">Logo displayed above the headline</span>
                         </label>
-                        
+
                         <div class="photo-upload-section">
                           <div class="photo-options">
                             <label class="photo-option-label">
-                              <input 
-                                type="radio" 
-                                :name="`case-logo-type-${caseIndex}`" 
-                                value="url" 
-                                v-model="resultCase.companyLogoType" 
-                                @change="resultCase.companyLogoFileUrl = ''" 
+                              <input
+                                type="radio"
+                                :name="`case-logo-type-${caseIndex}`"
+                                value="url"
+                                v-model="resultCase.companyLogoType"
+                                @change="resultCase.companyLogoFileUrl = ''"
                               />
                               <span>Logo URL</span>
                             </label>
                             <label class="photo-option-label">
-                              <input 
-                                type="radio" 
-                                :name="`case-logo-type-${caseIndex}`" 
-                                value="upload" 
-                                v-model="resultCase.companyLogoType" 
-                                @change="resultCase.companyLogo = ''" 
+                              <input
+                                type="radio"
+                                :name="`case-logo-type-${caseIndex}`"
+                                value="upload"
+                                v-model="resultCase.companyLogoType"
+                                @change="resultCase.companyLogo = ''"
                               />
                               <span>Upload Logo</span>
                             </label>
                           </div>
 
-                          <input 
+                          <input
                             v-if="resultCase.companyLogoType === 'url'"
-                            v-model="resultCase.companyLogo" 
-                            type="url" 
-                            placeholder="https://example.com/logo.png" 
+                            v-model="resultCase.companyLogo"
+                            type="url"
+                            placeholder="https://example.com/logo.png"
                             class="form-input"
                             style="margin-top: 0.5rem;"
                           />
 
                           <div v-if="resultCase.companyLogoType === 'upload'" class="photo-upload-area">
-                            <input 
-                              type="file" 
-                              accept="image/*" 
+                            <input
+                              type="file"
+                              accept="image/*"
                               @change="handleCaseLogoUpload($event, caseIndex)"
                               :id="`case-logo-upload-${caseIndex}`"
                               class="photo-file-input"
@@ -1632,11 +1650,11 @@
                           <span class="label-text">Company Images</span>
                           <span class="label-hint">Images shown when hovering over the headline card (you can add multiple images)</span>
                         </label>
-                        
+
                         <div class="multiple-images-manager">
-                          <button 
+                          <button
                             type="button"
-                            @click="addCaseCompanyImage(caseIndex)" 
+                            @click="addCaseCompanyImage(caseIndex)"
                             class="btn-secondary"
                             style="margin-bottom: 1rem; padding: 0.5rem 1rem;"
                           >
@@ -1651,15 +1669,15 @@
                           </div>
 
                           <div v-else class="hover-images-list">
-                            <div 
-                              v-for="(img, imgIndex) in resultCase.companyImages" 
+                            <div
+                              v-for="(img, imgIndex) in resultCase.companyImages"
                               :key="img.id || imgIndex"
                               class="hover-image-item"
                             >
                               <div class="image-item-header">
                                 <span class="image-item-number">Image {{ imgIndex + 1 }}</span>
-                                <button 
-                                  @click="removeCaseCompanyImage(caseIndex, imgIndex)" 
+                                <button
+                                  @click="removeCaseCompanyImage(caseIndex, imgIndex)"
                                   class="btn-danger"
                                   style="padding: 0.25rem 0.5rem; font-size: 0.75rem;"
                                 >
@@ -1670,40 +1688,40 @@
                               <div class="photo-upload-section" style="margin-top: 0.75rem;">
                                 <div class="photo-options">
                                   <label class="photo-option-label">
-                                    <input 
-                                      type="radio" 
-                                      :name="`case-company-image-type-${caseIndex}-${imgIndex}`" 
-                                      value="url" 
-                                      v-model="img.imageType" 
-                                      @change="img.imageFileUrl = ''" 
+                                    <input
+                                      type="radio"
+                                      :name="`case-company-image-type-${caseIndex}-${imgIndex}`"
+                                      value="url"
+                                      v-model="img.imageType"
+                                      @change="img.imageFileUrl = ''"
                                     />
                                     <span>Image URL</span>
                                   </label>
                                   <label class="photo-option-label">
-                                    <input 
-                                      type="radio" 
-                                      :name="`case-company-image-type-${caseIndex}-${imgIndex}`" 
-                                      value="upload" 
-                                      v-model="img.imageType" 
-                                      @change="img.imageUrl = ''" 
+                                    <input
+                                      type="radio"
+                                      :name="`case-company-image-type-${caseIndex}-${imgIndex}`"
+                                      value="upload"
+                                      v-model="img.imageType"
+                                      @change="img.imageUrl = ''"
                                     />
                                     <span>Upload Image</span>
                                   </label>
                                 </div>
 
-                                <input 
+                                <input
                                   v-if="img.imageType === 'url'"
-                                  v-model="img.imageUrl" 
-                                  type="url" 
-                                  placeholder="https://example.com/image.jpg" 
+                                  v-model="img.imageUrl"
+                                  type="url"
+                                  placeholder="https://example.com/image.jpg"
                                   class="form-input"
                                   style="margin-top: 0.5rem;"
                                 />
 
                                 <div v-if="img.imageType === 'upload'" class="photo-upload-area">
-                                  <input 
-                                    type="file" 
-                                    accept="image/*" 
+                                  <input
+                                    type="file"
+                                    accept="image/*"
                                     @change="handleCaseCompanyImageUpload($event, caseIndex, imgIndex)"
                                     :id="`case-company-image-upload-${caseIndex}-${imgIndex}`"
                                     class="photo-file-input"
@@ -1734,15 +1752,15 @@
                             <span class="label-text">Result Cards</span>
                             <span class="label-hint">Add cards showing specific metrics and results</span>
                         </label>
-                        
+
                           <div class="result-cards-manager">
                             <div class="section-action-bar" style="margin-bottom: 1rem;">
                               <div class="section-info">
                                 <span class="section-count">{{ resultCase.cards?.length || 0 }} card{{ (resultCase.cards?.length || 0) !== 1 ? 's' : '' }}</span>
                               </div>
-                          <button 
+                          <button
                             type="button"
-                            @click="addCaseCard(caseIndex)" 
+                            @click="addCaseCard(caseIndex)"
                             class="btn-secondary"
                                 style="padding: 0.5rem 1rem;"
                           >
@@ -1808,6 +1826,380 @@
                             <span class="label-hint">Call-to-action button text</span>
                         </label>
                         <input v-model="resultCase.ctaText" type="text" placeholder="Explore the Results" class="form-input" />
+                      </div>
+
+                      <!-- Detail Page Fields Section -->
+                      <div v-if="resultCase.heroImage || resultCase.beforeAfterSection || resultCase.ourApproach || resultCase.imageGallerySection" class="form-group full-width" style="margin-top: 2rem; padding-top: 2rem; border-top: 2px solid rgba(91, 32, 150, 0.3);">
+                        <h4 style="color: #F5F7FA; margin-bottom: 1.5rem; font-size: 18px;">Detail Page Settings</h4>
+
+                        <!-- Hero Image -->
+                        <div v-if="resultCase.heroImage" class="form-group full-width" style="margin-bottom: 2rem;">
+                          <label>
+                            <span class="label-text">Hero Image (Detail Page)</span>
+                            <span class="label-hint">Main image displayed at the top of the detail page</span>
+                          </label>
+                          <div class="photo-upload-section">
+                            <div class="photo-options">
+                              <label class="photo-option-label">
+                                <input
+                                  type="radio"
+                                  :name="`case-hero-image-type-${caseIndex}`"
+                                  value="url"
+                                  v-model="resultCase.heroImage.imageType"
+                                  @change="resultCase.heroImage.imageFileUrl = ''"
+                                />
+                                <span>Image URL</span>
+                              </label>
+                              <label class="photo-option-label">
+                                <input
+                                  type="radio"
+                                  :name="`case-hero-image-type-${caseIndex}`"
+                                  value="upload"
+                                  v-model="resultCase.heroImage.imageType"
+                                  @change="resultCase.heroImage.imageUrl = ''"
+                                />
+                                <span>Upload Image</span>
+                              </label>
+                            </div>
+                            <input
+                              v-if="resultCase.heroImage && resultCase.heroImage.imageType === 'url'"
+                              v-model="resultCase.heroImage.imageUrl"
+                              type="url"
+                              placeholder="https://example.com/hero.jpg"
+                              class="form-input"
+                              style="margin-top: 0.5rem;"
+                            />
+                            <div v-if="resultCase.heroImage && resultCase.heroImage.imageType === 'upload'" class="photo-upload-area">
+                              <input
+                                type="file"
+                                accept="image/*"
+                                @change="handleCaseHeroImageUpload($event, caseIndex)"
+                                :id="`case-hero-image-upload-${caseIndex}`"
+                                class="photo-file-input"
+                              />
+                              <label :for="`case-hero-image-upload-${caseIndex}`" class="photo-upload-label">
+                                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                  <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                  <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                </svg>
+                                <span>{{ resultCase.heroImage?.imageFileUrl ? 'Change Image' : 'Choose image file' }}</span>
+                              </label>
+                            </div>
+                            <div v-if="resultCase.heroImage?.imageUrl || resultCase.heroImage?.imageFileUrl" class="photo-preview">
+                              <p class="preview-label">Preview:</p>
+                              <img :src="resultCase.heroImage.imageFileUrl || resultCase.heroImage.imageUrl" alt="Hero Preview" class="photo-preview-img" />
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Before/After Section -->
+                        <div v-if="resultCase.beforeAfterSection" class="form-group full-width" style="margin-bottom: 2rem;">
+                          <label>
+                            <span class="label-text">Before/After Section</span>
+                            <span class="label-hint">Show campaign results comparison</span>
+                          </label>
+                          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 1rem;">
+                            <!-- Before -->
+                            <div>
+                              <label style="margin-bottom: 0.5rem; display: block;">
+                                <span class="label-text">Before Image</span>
+                              </label>
+                              <div class="photo-upload-section">
+                                <div class="photo-options">
+                                  <label class="photo-option-label">
+                                    <input
+                                      type="radio"
+                                      :name="`case-before-image-type-${caseIndex}`"
+                                      value="url"
+                                      v-model="resultCase.beforeAfterSection.beforeImageType"
+                                      @change="resultCase.beforeAfterSection.beforeImageFileUrl = ''"
+                                    />
+                                    <span>URL</span>
+                                  </label>
+                                  <label class="photo-option-label">
+                                    <input
+                                      type="radio"
+                                      :name="`case-before-image-type-${caseIndex}`"
+                                      value="upload"
+                                      v-model="resultCase.beforeAfterSection.beforeImageType"
+                                      @change="resultCase.beforeAfterSection.beforeImageUrl = ''"
+                                    />
+                                    <span>Upload</span>
+                                  </label>
+                                </div>
+                                <input
+                                  v-if="resultCase.beforeAfterSection && resultCase.beforeAfterSection.beforeImageType === 'url'"
+                                  v-model="resultCase.beforeAfterSection.beforeImageUrl"
+                                  type="url"
+                                  placeholder="Before image URL"
+                                  class="form-input"
+                                  style="margin-top: 0.5rem;"
+                                />
+                                <div v-if="resultCase.beforeAfterSection && resultCase.beforeAfterSection.beforeImageType === 'upload'" class="photo-upload-area">
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    @change="handleCaseBeforeImageUpload($event, caseIndex)"
+                                    :id="`case-before-image-upload-${caseIndex}`"
+                                    class="photo-file-input"
+                                  />
+                                  <label :for="`case-before-image-upload-${caseIndex}`" class="photo-upload-label">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                      <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                      <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span>{{ resultCase.beforeAfterSection?.beforeImageFileUrl ? 'Change' : 'Upload' }}</span>
+                                  </label>
+                                </div>
+                                <input
+                                  v-model="resultCase.beforeAfterSection.beforeCaption"
+                                  type="text"
+                                  placeholder="Before caption"
+                                  class="form-input"
+                                  style="margin-top: 0.5rem;"
+                                />
+                              </div>
+                            </div>
+                            <!-- After -->
+                            <div>
+                              <label style="margin-bottom: 0.5rem; display: block;">
+                                <span class="label-text">After Image</span>
+                              </label>
+                              <div class="photo-upload-section">
+                                <div class="photo-options">
+                                  <label class="photo-option-label">
+                                    <input
+                                      type="radio"
+                                      :name="`case-after-image-type-${caseIndex}`"
+                                      value="url"
+                                      v-model="resultCase.beforeAfterSection.afterImageType"
+                                      @change="resultCase.beforeAfterSection.afterImageFileUrl = ''"
+                                    />
+                                    <span>URL</span>
+                                  </label>
+                                  <label class="photo-option-label">
+                                    <input
+                                      type="radio"
+                                      :name="`case-after-image-type-${caseIndex}`"
+                                      value="upload"
+                                      v-model="resultCase.beforeAfterSection.afterImageType"
+                                      @change="resultCase.beforeAfterSection.afterImageUrl = ''"
+                                    />
+                                    <span>Upload</span>
+                                  </label>
+                                </div>
+                                <input
+                                  v-if="resultCase.beforeAfterSection && resultCase.beforeAfterSection.afterImageType === 'url'"
+                                  v-model="resultCase.beforeAfterSection.afterImageUrl"
+                                  type="url"
+                                  placeholder="After image URL"
+                                  class="form-input"
+                                  style="margin-top: 0.5rem;"
+                                />
+                                <div v-if="resultCase.beforeAfterSection && resultCase.beforeAfterSection.afterImageType === 'upload'" class="photo-upload-area">
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    @change="handleCaseAfterImageUpload($event, caseIndex)"
+                                    :id="`case-after-image-upload-${caseIndex}`"
+                                    class="photo-file-input"
+                                  />
+                                  <label :for="`case-after-image-upload-${caseIndex}`" class="photo-upload-label">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                      <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                      <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                      <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                    </svg>
+                                    <span>{{ resultCase.beforeAfterSection?.afterImageFileUrl ? 'Change' : 'Upload' }}</span>
+                                  </label>
+                                </div>
+                                <input
+                                  v-model="resultCase.beforeAfterSection.afterCaption"
+                                  type="text"
+                                  placeholder="After caption"
+                                  class="form-input"
+                                  style="margin-top: 0.5rem;"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Image Gallery Section -->
+                        <div class="form-group full-width" style="margin-bottom: 2rem;">
+                          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                            <label>
+                              <span class="label-text">Image Gallery Section</span>
+                              <span class="label-hint">Add images with titles and subtitles</span>
+                            </label>
+                            <button
+                              v-if="!resultCase.imageGallerySection"
+                              type="button"
+                              @click="resultCase.imageGallerySection = { images: [] }"
+                              class="btn-secondary"
+                              style="padding: 0.5rem 1rem;"
+                            >
+                              Enable Image Gallery
+                            </button>
+                          </div>
+                        </div>
+
+                        <!-- Our Approach Section -->
+                        <div v-if="resultCase.ourApproach" class="form-group full-width" style="margin-bottom: 2rem;">
+                          <label>
+                            <span class="label-text">Our Approach Title</span>
+                          </label>
+                          <input v-model="resultCase.ourApproach.title" type="text" placeholder="Our Approach" class="form-input" />
+                          <div style="margin-top: 1rem;">
+                            <div class="section-action-bar" style="margin-bottom: 1rem;">
+                              <span class="section-count">{{ resultCase.ourApproach?.steps?.length || 0 }} step{{ (resultCase.ourApproach?.steps?.length || 0) !== 1 ? 's' : '' }}</span>
+                              <button type="button" @click="addApproachStep(caseIndex)" class="btn-secondary" style="padding: 0.5rem 1rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                Add Step
+                              </button>
+                            </div>
+                            <div v-if="resultCase.ourApproach?.steps && resultCase.ourApproach.steps.length > 0">
+                              <div v-for="(step, stepIndex) in resultCase.ourApproach.steps" :key="step.id || stepIndex" style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(91, 32, 150, 0.1); border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                  <span style="color: #F5F7FA; font-weight: 500;">Step {{ stepIndex + 1 }}</span>
+                                  <button type="button" @click="removeApproachStep(caseIndex, stepIndex)" class="btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                    Remove
+                                  </button>
+                                </div>
+                                <div class="form-grid">
+                                  <div class="form-group">
+                                    <label>
+                                      <span class="label-text">Icon</span>
+                                      <span class="label-hint">Choose icon type</span>
+                                    </label>
+                                    <select v-model="step.icon" class="form-input">
+                                      <option value="magnifying-glass">Magnifying Glass</option>
+                                      <option value="target">Target</option>
+                                      <option value="lightbulb">Lightbulb</option>
+                                      <option value="gear">Gear</option>
+                                    </select>
+                                  </div>
+                                  <div class="form-group">
+                                    <label>
+                                      <span class="label-text">Title</span>
+                                    </label>
+                                    <input v-model="step.title" type="text" placeholder="Step title" class="form-input" />
+                                  </div>
+                                  <div class="form-group full-width">
+                                    <label>
+                                      <span class="label-text">Description</span>
+                                    </label>
+                                    <textarea v-model="step.description" rows="2" placeholder="Step description" class="form-textarea"></textarea>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+
+                        <!-- Image Gallery Section -->
+                        <div v-if="resultCase.imageGallerySection" class="form-group full-width" style="margin-bottom: 2rem;">
+                          <label>
+                            <span class="label-text">Image Gallery</span>
+                            <span class="label-hint">Add images with titles and subtitles</span>
+                          </label>
+                          <div style="margin-top: 1rem;">
+                            <div class="section-action-bar" style="margin-bottom: 1rem;">
+                              <span class="section-count">{{ resultCase.imageGallerySection?.images?.length || 0 }} image{{ (resultCase.imageGallerySection?.images?.length || 0) !== 1 ? 's' : '' }}</span>
+                              <button type="button" @click="addGalleryImage(caseIndex)" class="btn-secondary" style="padding: 0.5rem 1rem;">
+                                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                  <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
+                                </svg>
+                                Add Image
+                              </button>
+                            </div>
+                            <div v-if="resultCase.imageGallerySection?.images && resultCase.imageGallerySection.images.length > 0">
+                              <div v-for="(imageItem, imageIndex) in resultCase.imageGallerySection.images" :key="imageItem.id || imageIndex" style="margin-bottom: 1.5rem; padding: 1rem; background: rgba(91, 32, 150, 0.1); border-radius: 8px;">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+                                  <span style="color: #F5F7FA; font-weight: 500;">Image {{ imageIndex + 1 }}</span>
+                                  <button type="button" @click="removeGalleryImage(caseIndex, imageIndex)" class="btn-danger" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">
+                                    Remove
+                                  </button>
+                                </div>
+                                <div class="form-grid">
+                                  <div class="form-group full-width">
+                                    <label>
+                                      <span class="label-text">Title</span>
+                                    </label>
+                                    <input v-model="imageItem.title" type="text" placeholder="Image title" class="form-input" />
+                                  </div>
+                                  <div class="form-group full-width">
+                                    <label>
+                                      <span class="label-text">Subtitle</span>
+                                    </label>
+                                    <input v-model="imageItem.subtitle" type="text" placeholder="Image subtitle" class="form-input" />
+                                  </div>
+                                  <div class="form-group full-width">
+                                    <label>
+                                      <span class="label-text">Image</span>
+                                    </label>
+                                    <div class="photo-upload-section">
+                                      <div class="photo-options">
+                                        <label class="photo-option-label">
+                                          <input
+                                            type="radio"
+                                            :name="`gallery-image-type-${caseIndex}-${imageIndex}`"
+                                            value="url"
+                                            v-model="imageItem.imageType"
+                                            @change="imageItem.imageFileUrl = ''"
+                                          />
+                                          <span>Image URL</span>
+                                        </label>
+                                        <label class="photo-option-label">
+                                          <input
+                                            type="radio"
+                                            :name="`gallery-image-type-${caseIndex}-${imageIndex}`"
+                                            value="upload"
+                                            v-model="imageItem.imageType"
+                                            @change="imageItem.imageUrl = ''"
+                                          />
+                                          <span>Upload Image</span>
+                                        </label>
+                                      </div>
+                                      <input
+                                        v-if="imageItem.imageType === 'url'"
+                                        v-model="imageItem.imageUrl"
+                                        type="url"
+                                        placeholder="https://example.com/image.jpg"
+                                        class="form-input"
+                                        style="margin-top: 0.5rem;"
+                                      />
+                                      <div v-if="imageItem.imageType === 'upload'" class="photo-upload-area">
+                                        <input
+                                          type="file"
+                                          accept="image/*"
+                                          @change="handleGalleryImageUpload($event, caseIndex, imageIndex)"
+                                          :id="`gallery-image-upload-${caseIndex}-${imageIndex}`"
+                                          class="photo-file-input"
+                                        />
+                                        <label :for="`gallery-image-upload-${caseIndex}-${imageIndex}`" class="photo-upload-label">
+                                          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                                            <path d="M21 15V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M17 8L12 3L7 8" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                            <path d="M12 3V15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                                          </svg>
+                                          <span>{{ imageItem.imageFileUrl ? 'Change Image' : 'Choose image file' }}</span>
+                                        </label>
+                                      </div>
+                                      <div v-if="imageItem.imageUrl || imageItem.imageFileUrl" class="photo-preview">
+                                        <p class="preview-label">Preview:</p>
+                                        <img :src="imageItem.imageFileUrl || imageItem.imageUrl" alt="Gallery Image Preview" class="photo-preview-img" />
+                                      </div>
+                                    </div>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1816,6 +2208,7 @@
               </div>
             </div>
           </div>
+        </div>
 
           <!-- About Page Editor -->
           <div v-if="activeTab === 'about' && canAccessTab('about')" class="editor-section">
@@ -1840,7 +2233,7 @@
                 </h4>
                 <p class="content-section-description">Main title and description for the About page</p>
               </div>
-              
+
               <div class="form-grid">
                 <div class="form-group full-width">
                   <label>
@@ -1848,7 +2241,7 @@
                   </label>
                   <input v-model="aboutFormData.whoWeAreTitle" type="text" placeholder="Who We Are" class="form-input" />
                 </div>
-                
+
                 <div class="form-group full-width">
                   <label>
                     <span class="label-text">Description</span>
@@ -1962,30 +2355,30 @@
               <div class="video-manager">
                 <div class="video-options">
                   <label class="video-option-label">
-                    <input 
-                      type="radio" 
-                      name="aboutVideoType" 
-                      value="none" 
+                    <input
+                      type="radio"
+                      name="aboutVideoType"
+                      value="none"
                       v-model="aboutFormData.videoType"
                       @change="aboutFormData.videoUrl = ''; aboutFormData.videoFileUrl = ''"
                     />
                     <span>No Video</span>
                   </label>
                   <label class="video-option-label">
-                    <input 
-                      type="radio" 
-                      name="aboutVideoType" 
-                      value="upload" 
+                    <input
+                      type="radio"
+                      name="aboutVideoType"
+                      value="upload"
                       v-model="aboutFormData.videoType"
                       @change="aboutFormData.videoUrl = ''"
                     />
                     <span>Upload Video File</span>
                   </label>
                   <label class="video-option-label">
-                    <input 
-                      type="radio" 
-                      name="aboutVideoType" 
-                      value="link" 
+                    <input
+                      type="radio"
+                      name="aboutVideoType"
+                      value="link"
                       v-model="aboutFormData.videoType"
                       @change="aboutFormData.videoFileUrl = ''"
                     />
@@ -2000,9 +2393,9 @@
                     <span class="label-hint">Upload your own video file (MP4, WebM, MOV, or AVI). Max size: 100MB</span>
                   </label>
                   <div class="video-upload-area">
-                    <input 
-                      type="file" 
-                      accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi" 
+                    <input
+                      type="file"
+                      accept="video/mp4,video/webm,video/quicktime,video/x-msvideo,.mp4,.webm,.mov,.avi"
                       @change="handleAboutVideoUpload"
                       ref="aboutVideoFileInput"
                       id="about-video-upload-input"
@@ -2043,19 +2436,19 @@
                     <span class="label-text">Video URL</span>
                     <span class="label-hint">YouTube or Vimeo link</span>
                   </label>
-                  <input 
-                    v-model="aboutFormData.videoUrl" 
-                    type="url" 
-                    placeholder="https://www.youtube.com/watch?v=..." 
+                  <input
+                    v-model="aboutFormData.videoUrl"
+                    type="url"
+                    placeholder="https://www.youtube.com/watch?v=..."
                     class="form-input"
                   />
                   <div v-if="aboutFormData.videoUrl" class="video-preview">
                     <p class="preview-label">Preview:</p>
                     <div class="video-preview-container">
-                      <iframe 
-                        :src="getVideoEmbedUrl(aboutFormData.videoUrl)" 
-                        frameborder="0" 
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+                      <iframe
+                        :src="getVideoEmbedUrl(aboutFormData.videoUrl)"
+                        frameborder="0"
+                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                         allowfullscreen
                       ></iframe>
                     </div>
@@ -2070,7 +2463,7 @@
                 <h4 class="content-section-title">Call to Action Button</h4>
                 <p class="content-section-description">Button text and link</p>
               </div>
-              
+
               <div class="form-grid">
                 <div class="form-group">
                   <label>
@@ -2078,7 +2471,7 @@
                   </label>
                   <input v-model="aboutFormData.ctaButtonText" type="text" placeholder="Book a Meeting" class="form-input" />
                 </div>
-                
+
                 <div class="form-group">
                   <label>
                     <span class="label-text">Button Link (Optional)</span>
@@ -2133,9 +2526,9 @@
                     <div class="team-member-number">#{{ index + 1 }}</div>
                     <div class="team-member-actions">
                       <div class="reorder-buttons">
-                        <button 
-                          @click="moveTeamMemberUp(index)" 
-                          class="btn-icon btn-icon-reorder" 
+                        <button
+                          @click="moveTeamMemberUp(index)"
+                          class="btn-icon btn-icon-reorder"
                           title="Move Up"
                           :disabled="index === 0"
                         >
@@ -2143,9 +2536,9 @@
                             <path d="M18 15L12 9L6 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                           </svg>
                         </button>
-                        <button 
-                          @click="moveTeamMemberDown(index)" 
-                          class="btn-icon btn-icon-reorder" 
+                        <button
+                          @click="moveTeamMemberDown(index)"
+                          class="btn-icon btn-icon-reorder"
                           title="Move Down"
                           :disabled="index === sortedTeamMembers.length - 1"
                         >
@@ -2171,9 +2564,9 @@
 
                   <div v-if="editingTeamMemberId !== member.id" class="team-member-preview">
                     <div class="member-photo-preview">
-                      <img 
+                      <img
                         v-if="member.photoFileUrl || member.photoUrl"
-                        :src="member.photoFileUrl || member.photoUrl" 
+                        :src="member.photoFileUrl || member.photoUrl"
                         :alt="member.name"
                       />
                       <div v-else class="member-photo-placeholder-small">
@@ -2210,40 +2603,40 @@
                         <div class="photo-upload-section">
                           <div class="photo-options">
                             <label class="photo-option-label">
-                              <input 
-                                type="radio" 
-                                :name="`team-photo-type-${index}`" 
-                                value="url" 
-                                v-model="editTeamMemberForm.photoType" 
-                                @change="editTeamMemberForm.photoFileUrl = ''" 
+                              <input
+                                type="radio"
+                                :name="`team-photo-type-${index}`"
+                                value="url"
+                                v-model="editTeamMemberForm.photoType"
+                                @change="editTeamMemberForm.photoFileUrl = ''"
                               />
                               <span>Photo URL</span>
                             </label>
                             <label class="photo-option-label">
-                              <input 
-                                type="radio" 
-                                :name="`team-photo-type-${index}`" 
-                                value="upload" 
-                                v-model="editTeamMemberForm.photoType" 
-                                @change="editTeamMemberForm.photoUrl = ''" 
+                              <input
+                                type="radio"
+                                :name="`team-photo-type-${index}`"
+                                value="upload"
+                                v-model="editTeamMemberForm.photoType"
+                                @change="editTeamMemberForm.photoUrl = ''"
                               />
                               <span>Upload Photo</span>
                             </label>
                           </div>
 
-                          <input 
+                          <input
                             v-if="editTeamMemberForm.photoType === 'url'"
-                            v-model="editTeamMemberForm.photoUrl" 
-                            type="url" 
-                            placeholder="https://example.com/photo.jpg" 
+                            v-model="editTeamMemberForm.photoUrl"
+                            type="url"
+                            placeholder="https://example.com/photo.jpg"
                             class="form-input"
                             style="margin-top: 0.5rem;"
                           />
 
                           <div v-if="editTeamMemberForm.photoType === 'upload'" class="photo-upload-area">
-                            <input 
-                              type="file" 
-                              accept="image/png,image/jpeg,image/jpg,image/webp" 
+                            <input
+                              type="file"
+                              accept="image/png,image/jpeg,image/jpg,image/webp"
                               @change="handleTeamPhotoUpload($event, member.id || `temp-${index}`)"
                               :id="`team-photo-upload-${member.id || index}`"
                               class="photo-file-input"
@@ -2293,7 +2686,7 @@
                   </label>
                   <input v-model="aboutFormData.teamTitle" type="text" placeholder="Our Team" class="form-input" />
                 </div>
-                
+
                 <div class="form-group">
                   <label>
                     <span class="label-text">Team Section Subtitle</span>
@@ -2434,7 +2827,7 @@
                   <textarea v-model="servicesFormData.whyChooseSubtitle" rows="2" placeholder="Creative thinking, fast execution, and results-driven content built for modern brands." class="form-textarea"></textarea>
                 </div>
               </div>
-              
+
               <div class="section-action-bar">
                 <div class="section-info">
                   <span class="section-count">{{ servicesFormData.whyChooseFeatures?.length || 0 }} feature{{ (servicesFormData.whyChooseFeatures?.length || 0) !== 1 ? 's' : '' }}</span>
@@ -2549,7 +2942,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-grid">
               <div class="form-group full-width">
                 <label>
@@ -2557,7 +2950,7 @@
                 </label>
                 <textarea v-model="formData.footerTagline" rows="3" placeholder="Your creative digital partner for high-impact video ads and marketing content." class="form-textarea"></textarea>
               </div>
-              
+
               <div class="form-group full-width">
                 <label>
                   <span class="label-text">Address</span>
@@ -2589,7 +2982,7 @@
                 </div>
                 <p class="content-section-description">Your website's privacy policy - explains how you collect and use user data</p>
               </div>
-              
+
               <div class="form-grid">
                 <div class="form-group">
                   <label>
@@ -2651,7 +3044,7 @@
                 </div>
                 <p class="content-section-description">Terms and conditions for using your website and services</p>
               </div>
-              
+
               <div class="form-grid">
                 <div class="form-group">
                   <label>
@@ -2713,7 +3106,7 @@
                 </div>
                 <p class="content-section-description">Information about how your website uses cookies</p>
               </div>
-              
+
               <div class="form-grid">
                 <div class="form-group">
                   <label>
@@ -2818,38 +3211,38 @@
                 Refresh
               </button>
             </div>
-            
+
             <div v-if="loadingEmails" class="loading-state">
               <div class="upload-spinner"></div>
               <p>Loading email submissions...</p>
             </div>
-            
+
             <div v-else-if="emailSubmissions.length === 0" class="empty-state">
               <p>No email submissions yet.</p>
             </div>
-            
+
             <div v-else class="email-submissions-list">
               <div class="submissions-header">
                 <div class="submission-count">
                   <span>Total: {{ emailSubmissions.length }} submission{{ emailSubmissions.length !== 1 ? 's' : '' }}</span>
                 </div>
                 <div class="submission-filters">
-                  <button 
-                    @click="emailFilter = 'all'" 
+                  <button
+                    @click="emailFilter = 'all'"
                     class="filter-btn"
                     :class="{ 'active': emailFilter === 'all' }"
                   >
                     All
                   </button>
-                  <button 
-                    @click="emailFilter = 'confirmed'" 
+                  <button
+                    @click="emailFilter = 'confirmed'"
                     class="filter-btn"
                     :class="{ 'active': emailFilter === 'confirmed' }"
                   >
                     Confirmed
                   </button>
-                  <button 
-                    @click="emailFilter = 'pending'" 
+                  <button
+                    @click="emailFilter = 'pending'"
                     class="filter-btn"
                     :class="{ 'active': emailFilter === 'pending' }"
                   >
@@ -2857,7 +3250,7 @@
                   </button>
                 </div>
               </div>
-              
+
               <div class="submissions-table">
                 <div class="table-header">
                   <div class="table-cell">Email</div>
@@ -2866,10 +3259,10 @@
                   <div class="table-cell">Submitted At</div>
                   <div class="table-cell">Actions</div>
                 </div>
-                
-                <div 
-                  v-for="submission in filteredEmailSubmissions" 
-                  :key="submission.id" 
+
+                <div
+                  v-for="submission in filteredEmailSubmissions"
+                  :key="submission.id"
                   class="table-row"
                 >
                   <div class="table-cell">
@@ -2882,8 +3275,8 @@
                     </div>
                   </div>
                   <div class="table-cell">
-                    <span 
-                      class="status-badge" 
+                    <span
+                      class="status-badge"
                       :class="{
                         'status-pending': submission.status === 'pending',
                         'status-confirmed': submission.status === 'confirmed',
@@ -2901,8 +3294,8 @@
                     {{ formatDate(submission.createdAt) }}
                   </div>
                   <div class="table-cell">
-                    <button 
-                      @click="resendConfirmationEmail(submission)" 
+                    <button
+                      @click="resendConfirmationEmail(submission)"
                       class="btn-icon btn-small"
                       :disabled="submission.confirmationEmailSent"
                       title="Resend Confirmation Email"
@@ -2930,44 +3323,44 @@
                 </div>
               </div>
             </div>
-            
+
             <div v-if="loadingContactMessages" class="loading-state">
               <div class="loading-spinner"></div>
               <p>Loading messages...</p>
             </div>
-            
+
             <div v-else-if="contactMessages.length === 0" class="empty-state">
               <p>No contact messages yet.</p>
             </div>
-            
+
             <div v-else class="contact-messages-list">
               <div class="submissions-header">
                 <div class="submission-count">
                   <span>Total: {{ contactMessages.length }} message{{ contactMessages.length !== 1 ? 's' : '' }}</span>
                 </div>
                 <div class="submission-filters">
-                  <button 
+                  <button
                     :class="['filter-btn', { active: contactMessageFilter === 'all' }]"
                     @click="contactMessageFilter = 'all'"
                   >All</button>
-                  <button 
+                  <button
                     :class="['filter-btn', { active: contactMessageFilter === 'pending' }]"
                     @click="contactMessageFilter = 'pending'"
                   >Pending</button>
-                  <button 
+                  <button
                     :class="['filter-btn', { active: contactMessageFilter === 'read' }]"
                     @click="contactMessageFilter = 'read'"
                   >Read</button>
-                  <button 
+                  <button
                     :class="['filter-btn', { active: contactMessageFilter === 'replied' }]"
                     @click="contactMessageFilter = 'replied'"
                   >Replied</button>
                 </div>
               </div>
-              
+
               <div class="messages-grid">
-                <div 
-                  v-for="message in filteredContactMessages" 
+                <div
+                  v-for="message in filteredContactMessages"
                   :key="message.id"
                   class="message-card"
                   :class="{ 'message-unread': message.status === 'pending' }"
@@ -2991,7 +3384,7 @@
                     {{ message.message }}
                   </div>
                   <div class="message-actions">
-                    <select 
+                    <select
                       :value="message.status"
                       @change="updateContactMessageStatus(message.id!, ($event.target as HTMLSelectElement).value as ContactMessage['status'])"
                       class="status-select"
@@ -3006,9 +3399,9 @@
                       </svg>
                       Reply
                     </a>
-                    <button 
+                    <button
                       v-if="hasPermission('delete_contact_messages')"
-                      @click="deleteContactMessage(message.id!)" 
+                      @click="deleteContactMessage(message.id!)"
                       class="btn-delete"
                     >
                       <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3033,7 +3426,7 @@
                 </div>
               </div>
             </div>
-            
+
             <div class="form-section">
               <h4 class="subsection-title">Page Header</h4>
               <div class="form-group">
@@ -3062,7 +3455,7 @@
 
             <div class="form-section">
               <h4 class="subsection-title">Contact Information</h4>
-              
+
               <div class="contact-info-grid">
                 <!-- Instagram -->
                 <div class="contact-info-card">
@@ -3201,11 +3594,11 @@
                       <div class="user-main-info">
                         <h5>{{ u.email }}</h5>
                         <p>{{ u.displayName || 'No display name' }}</p>
-                        <span 
-                          class="user-role-badge" 
-                          :class="{ 
-                            'role-admin': u.role === 'admin', 
-                            'role-user': u.role === 'user' 
+                        <span
+                          class="user-role-badge"
+                          :class="{
+                            'role-admin': u.role === 'admin',
+                            'role-user': u.role === 'user'
                           }"
                           :title="getRoleDescription(u.role || '')"
                         >
@@ -3220,9 +3613,9 @@
                           <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </button>
-                        <button 
-                          @click="resetUserPassword(u.email)" 
-                        class="btn-icon btn-icon-warning" 
+                        <button
+                          @click="resetUserPassword(u.email)"
+                        class="btn-icon btn-icon-warning"
                           title="Send password reset email"
                         >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3231,9 +3624,9 @@
                           <path d="M20.49 9C19.95 5.95 17.42 3.42 14.37 2.88M3.51 15C4.05 18.05 6.58 20.58 9.63 21.12M14.37 2.88C13.69 2.95 13.02 3.11 12.37 3.37M9.63 21.12C10.31 21.05 10.98 20.89 11.63 20.63M14.37 2.88L17.37 5.88M9.63 21.12L6.63 18.12M17.37 5.88L20.37 2.88M6.63 18.12L3.63 21.12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                         </button>
-                        <button 
-                          @click="deleteUser(u.id)" 
-                        class="btn-icon btn-icon-danger" 
+                        <button
+                          @click="deleteUser(u.id)"
+                        class="btn-icon btn-icon-danger"
                         title="Delete user"
                         >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3296,7 +3689,7 @@
                 </div>
               </div>
             </div>
-            
+
             <!-- Info Banner -->
             <div class="info-banner">
               <svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3322,7 +3715,7 @@
                   <textarea v-model="newRoleForm.description" rows="2" placeholder="Describe what this role can do" class="form-textarea"></textarea>
                 </div>
               </div>
-              
+
               <!-- Permissions Selection -->
               <div class="permissions-section">
                 <h5 class="permissions-title">
@@ -3333,23 +3726,23 @@
                   Permissions
                 </h5>
                 <p class="permissions-description">Select what this role can access and modify</p>
-                
+
                 <div class="permissions-categories">
                   <div v-for="(permissions, category) in permissionsByCategory" :key="category" class="permission-category">
                     <div class="category-header">
                       <h6 class="category-title">{{ category }}</h6>
                       <div class="category-actions">
-                        <button 
+                        <button
                           type="button"
-                          @click="selectAllInCategory(newRoleForm, category)" 
+                          @click="selectAllInCategory(newRoleForm, category)"
                           class="category-btn"
                           :class="{ 'active': allCategorySelected(newRoleForm, category) }"
                         >
                           Select All
                         </button>
-                        <button 
+                        <button
                           type="button"
-                          @click="deselectAllInCategory(newRoleForm, category)" 
+                          @click="deselectAllInCategory(newRoleForm, category)"
                           class="category-btn"
                         >
                           Clear
@@ -3357,14 +3750,14 @@
                       </div>
                     </div>
                     <div class="permission-checkboxes">
-                      <label 
-                        v-for="permission in permissions" 
-                        :key="permission.id" 
+                      <label
+                        v-for="permission in permissions"
+                        :key="permission.id"
                         class="permission-checkbox"
                         :class="{ 'checked': newRoleForm.permissions.includes(permission.id) }"
                       >
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
                           :checked="newRoleForm.permissions.includes(permission.id)"
                           @change="togglePermission(newRoleForm, permission.id)"
                         />
@@ -3374,13 +3767,13 @@
                     </div>
                   </div>
                 </div>
-                
+
                 <div class="selected-permissions-count">
                   <span class="count-badge">{{ newRoleForm.permissions.length }}</span>
                   permission{{ newRoleForm.permissions.length !== 1 ? 's' : '' }} selected
                 </div>
               </div>
-              
+
               <button @click="createRole" :disabled="isAdminLoading || !newRoleForm.name" class="btn-primary" style="margin-top: 1.5rem;">
                 <svg v-if="!isAdminLoading" width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                   <path d="M12 5V19M5 12H19" stroke="currentColor" stroke-width="2" stroke-linecap="round"/>
@@ -3412,16 +3805,16 @@
                       <div v-if="role.permissions && role.permissions.length > 0" class="role-permissions">
                         <span class="permissions-label">Permissions:</span>
                         <div class="permission-badges">
-                          <span 
-                            v-for="permission in role.permissions.slice(0, 5)" 
-                            :key="permission" 
+                          <span
+                            v-for="permission in role.permissions.slice(0, 5)"
+                            :key="permission"
                             class="permission-badge"
                             :title="getPermissionLabel(permission)"
                           >
                             {{ getPermissionLabel(permission) }}
                           </span>
-                          <span 
-                            v-if="role.permissions.length > 5" 
+                          <span
+                            v-if="role.permissions.length > 5"
                             class="permission-badge more-badge"
                             :title="role.permissions.slice(5).map(p => getPermissionLabel(p)).join(', ')"
                           >
@@ -3440,10 +3833,10 @@
                           <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </button>
-                      <button 
-                        @click="deleteRole(role.id)" 
-                        class="btn-icon btn-icon-danger" 
-                        title="Delete role" 
+                      <button
+                        @click="deleteRole(role.id)"
+                        class="btn-icon btn-icon-danger"
+                        title="Delete role"
                         :disabled="role.name === 'admin' || role.name === 'user'"
                       >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3453,16 +3846,16 @@
                       </button>
                     </div>
                   </div>
-                  
+
                   <!-- Edit Form -->
                   <div v-else class="role-edit-form">
                     <div class="form-grid">
                       <div class="form-group">
                         <label>Role Name</label>
-                        <input 
-                          v-model="editRoleForm.name" 
-                          type="text" 
-                          class="form-input" 
+                        <input
+                          v-model="editRoleForm.name"
+                          type="text"
+                          class="form-input"
                           :disabled="role.name === 'admin' || role.name === 'user'"
                         />
                       </div>
@@ -3471,7 +3864,7 @@
                         <textarea v-model="editRoleForm.description" rows="2" class="form-textarea"></textarea>
                       </div>
                     </div>
-                    
+
                     <!-- Permissions Selection for Edit -->
                     <div class="permissions-section">
                       <h5 class="permissions-title">
@@ -3481,23 +3874,23 @@
                         </svg>
                         Permissions
                       </h5>
-                      
+
                       <div class="permissions-categories">
                         <div v-for="(permissions, category) in permissionsByCategory" :key="category" class="permission-category">
                           <div class="category-header">
                             <h6 class="category-title">{{ category }}</h6>
                             <div class="category-actions">
-                              <button 
+                              <button
                                 type="button"
-                                @click="selectAllInCategory(editRoleForm, category)" 
+                                @click="selectAllInCategory(editRoleForm, category)"
                                 class="category-btn"
                                 :class="{ 'active': allCategorySelected(editRoleForm, category) }"
                               >
                                 Select All
                               </button>
-                              <button 
+                              <button
                                 type="button"
-                                @click="deselectAllInCategory(editRoleForm, category)" 
+                                @click="deselectAllInCategory(editRoleForm, category)"
                                 class="category-btn"
                               >
                                 Clear
@@ -3505,14 +3898,14 @@
                             </div>
                           </div>
                           <div class="permission-checkboxes">
-                            <label 
-                              v-for="permission in permissions" 
-                              :key="permission.id" 
+                            <label
+                              v-for="permission in permissions"
+                              :key="permission.id"
                               class="permission-checkbox"
                               :class="{ 'checked': editRoleForm.permissions.includes(permission.id) }"
                             >
-                              <input 
-                                type="checkbox" 
+                              <input
+                                type="checkbox"
                                 :checked="editRoleForm.permissions.includes(permission.id)"
                                 @change="togglePermission(editRoleForm, permission.id)"
                               />
@@ -3522,13 +3915,13 @@
                           </div>
                         </div>
                       </div>
-                      
+
                       <div class="selected-permissions-count">
                         <span class="count-badge">{{ editRoleForm.permissions.length }}</span>
                         permission{{ editRoleForm.permissions.length !== 1 ? 's' : '' }} selected
                       </div>
                     </div>
-                    
+
                     <div class="role-edit-actions">
                       <button @click="cancelRoleEdit" class="btn-secondary">
                         Cancel
@@ -3551,15 +3944,190 @@
                 <div class="section-icon">⚙️</div>
                 <div>
                   <h3>Site Settings</h3>
-                  <p class="section-description">Enable or disable website sections</p>
+                  <p class="section-description">Manage all website settings and configurations</p>
+                </div>
+              </div>
+              <button @click="saveSiteSettings" :disabled="isSavingSiteSettings" class="btn-primary btn-small">
+                <svg v-if="!isSavingSiteSettings" width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                  <path d="M19 21H5C4.46957 21 3.96086 20.7893 3.58579 20.4142C3.21071 20.0391 3 19.5304 3 19V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H16L21 8V19C21 19.5304 20.7893 20.0391 20.4142 20.4142C20.0391 20.7893 19.5304 21 19 21Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M17 21V13H7V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                  <path d="M7 3V8H15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                <div v-else class="btn-spinner"></div>
+                {{ isSavingSiteSettings ? 'Saving...' : 'Save All Settings' }}
+              </button>
+            </div>
+
+            <!-- General Settings -->
+            <div class="admin-table-card" style="margin-bottom: 2rem;">
+              <h4>🌐 General Settings</h4>
+              <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Configure basic website information and branding
+              </p>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Site Name</span>
+                  </label>
+                  <input v-model="siteGeneralSettings.siteName" type="text" placeholder="Clear Up" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Site Tagline</span>
+                  </label>
+                  <input v-model="siteGeneralSettings.siteTagline" type="text" placeholder="Your creative digital partner" class="form-input" />
+                </div>
+                <div class="form-group full-width">
+                  <label>
+                    <span class="label-text">Site Description</span>
+                    <span class="label-hint">Brief description of your website</span>
+                  </label>
+                  <textarea v-model="siteGeneralSettings.siteDescription" rows="3" placeholder="A comprehensive marketing system..." class="form-textarea"></textarea>
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Site URL</span>
+                  </label>
+                  <input v-model="siteGeneralSettings.siteUrl" type="url" placeholder="https://yourdomain.com" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Contact Email</span>
+                  </label>
+                  <input v-model="siteGeneralSettings.contactEmail" type="email" placeholder="info@yourdomain.com" class="form-input" />
                 </div>
               </div>
             </div>
 
-            <div class="admin-table-card">
-              <h4>Section Management</h4>
+            <!-- SEO Settings -->
+            <div class="admin-table-card" style="margin-bottom: 2rem;">
+              <h4>🔍 SEO Settings</h4>
               <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
-                Disable sections that need to be fixed or are experiencing errors. Disabled sections will be hidden from the website.
+                Optimize your website for search engines
+              </p>
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label>
+                    <span class="label-text">Meta Title</span>
+                    <span class="label-hint">Appears in browser tabs and search results (50-60 characters)</span>
+                  </label>
+                  <input v-model="siteSEOSettings.metaTitle" type="text" placeholder="Clear Up - Marketing System" class="form-input" maxlength="60" />
+                  <span class="char-count">{{ siteSEOSettings.metaTitle?.length || 0 }}/60</span>
+                </div>
+                <div class="form-group full-width">
+                  <label>
+                    <span class="label-text">Meta Description</span>
+                    <span class="label-hint">Brief description for search engines (150-160 characters)</span>
+                  </label>
+                  <textarea v-model="siteSEOSettings.metaDescription" rows="3" placeholder="A done-for-you marketing system..." class="form-textarea" maxlength="160"></textarea>
+                  <span class="char-count">{{ siteSEOSettings.metaDescription?.length || 0 }}/160</span>
+                </div>
+                <div class="form-group full-width">
+                  <label>
+                    <span class="label-text">Meta Keywords</span>
+                    <span class="label-hint">Comma-separated keywords</span>
+                  </label>
+                  <input v-model="siteSEOSettings.metaKeywords" type="text" placeholder="marketing, digital, branding" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">OG Image URL</span>
+                    <span class="label-hint">Social media preview image (1200x630px)</span>
+                  </label>
+                  <input v-model="siteSEOSettings.ogImage" type="url" placeholder="https://yourdomain.com/og-image.jpg" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Twitter Handle</span>
+                    <span class="label-hint">@username</span>
+                  </label>
+                  <input v-model="siteSEOSettings.twitterHandle" type="text" placeholder="@yourhandle" class="form-input" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Social Media Links -->
+            <div class="admin-table-card" style="margin-bottom: 2rem;">
+              <h4>📱 Social Media Links</h4>
+              <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Add your social media profiles
+              </p>
+              <div class="form-grid">
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Facebook URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.facebook" type="url" placeholder="https://facebook.com/yourpage" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Instagram URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.instagram" type="url" placeholder="https://instagram.com/yourprofile" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">Twitter/X URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.twitter" type="url" placeholder="https://twitter.com/yourhandle" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">LinkedIn URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.linkedin" type="url" placeholder="https://linkedin.com/company/yourcompany" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">YouTube URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.youtube" type="url" placeholder="https://youtube.com/@yourchannel" class="form-input" />
+                </div>
+                <div class="form-group">
+                  <label>
+                    <span class="label-text">TikTok URL</span>
+                  </label>
+                  <input v-model="siteSocialSettings.tiktok" type="url" placeholder="https://tiktok.com/@yourhandle" class="form-input" />
+                </div>
+              </div>
+            </div>
+
+            <!-- Maintenance Mode Settings -->
+            <div class="admin-table-card" style="margin-bottom: 2rem;">
+              <h4>🔧 Maintenance Mode</h4>
+              <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Control website maintenance mode
+              </p>
+              <div class="form-grid">
+                <div class="form-group full-width">
+                  <label class="toggle-switch-large">
+                    <input
+                      type="checkbox"
+                      v-model="siteSettings.maintenanceMode"
+                      @change="saveSiteSettings"
+                    />
+                    <span class="toggle-slider"></span>
+                    <span class="toggle-label-large">
+                      <strong>{{ siteSettings.maintenanceMode ? 'Maintenance Mode Active' : 'Website Online' }}</strong>
+                      <span class="toggle-description">{{ siteSettings.maintenanceMode ? 'Website is currently offline' : 'Website is accessible to visitors' }}</span>
+                    </span>
+                  </label>
+                </div>
+                <div v-if="siteSettings.maintenanceMode" class="form-group full-width">
+                  <label>
+                    <span class="label-text">Maintenance Message</span>
+                    <span class="label-hint">Message shown to visitors during maintenance</span>
+                  </label>
+                  <textarea v-model="siteSettings.maintenanceMessage" rows="3" placeholder="We're currently performing maintenance. Please check back soon." class="form-textarea"></textarea>
+                </div>
+              </div>
+            </div>
+
+            <!-- Section Management -->
+            <div class="admin-table-card">
+              <h4>📋 Section Management</h4>
+              <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
+                Enable or disable website sections. Disabled sections will be hidden from the website.
               </p>
               <div v-if="isAdminLoading" class="loading-text">Loading settings...</div>
               <div v-else class="sections-groups">
@@ -3573,8 +4141,8 @@
                         <span class="section-id">ID: {{ section.id }}</span>
                       </div>
                       <label class="toggle-switch">
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
                           :checked="!siteSettings.disabledSections?.includes(section.id)"
                           @change="toggleSection(section.id, !($event.target as HTMLInputElement).checked)"
                         />
@@ -3595,8 +4163,8 @@
                         <span class="section-id">ID: {{ section.id }}</span>
                       </div>
                       <label class="toggle-switch">
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
                           :checked="!siteSettings.disabledSections?.includes(section.id)"
                           @change="toggleSection(section.id, !($event.target as HTMLInputElement).checked)"
                         />
@@ -3617,8 +4185,8 @@
                         <span class="section-id">ID: {{ section.id }}</span>
                       </div>
                       <label class="toggle-switch">
-                        <input 
-                          type="checkbox" 
+                        <input
+                          type="checkbox"
                           :checked="!siteSettings.disabledSections?.includes(section.id)"
                           @change="toggleSection(section.id, !($event.target as HTMLInputElement).checked)"
                         />
@@ -3672,7 +4240,7 @@
 
               <!-- Action Buttons -->
               <div class="maintenance-actions">
-                <button 
+                <button
                   v-if="!isMaintenanceActive"
                   @click="showTurnOffModal = true"
                   class="btn-danger btn-large"
@@ -3684,7 +4252,7 @@
                   </svg>
                   Turn Off Website
                 </button>
-                <button 
+                <button
                   v-else
                   @click="showTurnOnModal = true"
                   class="btn-success btn-large"
@@ -3719,7 +4287,7 @@
                       <div class="request-status-badge pending">Pending (1/2)</div>
                     </div>
                     <div class="request-actions">
-                      <button 
+                      <button
                         v-if="request.requestedBy !== currentUserId"
                         @click="approveMaintenanceRequest(request.id!)"
                         class="btn-success btn-small"
@@ -3730,7 +4298,7 @@
                         </svg>
                         Approve
                       </button>
-                      <button 
+                      <button
                         v-if="request.requestedBy !== currentUserId"
                         @click="() => { rejectRequest = request; showRejectModal = true }"
                         class="btn-danger btn-small"
@@ -3742,7 +4310,7 @@
                         </svg>
                         Reject
                       </button>
-                      <button 
+                      <button
                         v-if="request.requestedBy === currentUserId"
                         @click="cancelMaintenanceRequest(request.id!)"
                         class="btn-secondary btn-small"
@@ -3818,8 +4386,8 @@
                 <h4>Upcoming Meetings (Next 24 Hours)</h4>
               </div>
               <div class="reminder-list">
-                <div 
-                  v-for="booking in upcomingBookings" 
+                <div
+                  v-for="booking in upcomingBookings"
                   :key="booking.id"
                   class="reminder-item"
                 >
@@ -3840,8 +4408,8 @@
 
             <!-- View Toggle -->
             <div class="view-toggle">
-              <button 
-                @click="bookingViewMode = 'list'" 
+              <button
+                @click="bookingViewMode = 'list'"
                 :class="['view-toggle-btn', { active: bookingViewMode === 'list' }]"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3849,8 +4417,8 @@
                 </svg>
                 List View
               </button>
-              <button 
-                @click="bookingViewMode = 'calendar'" 
+              <button
+                @click="bookingViewMode = 'calendar'"
                 :class="['view-toggle-btn', { active: bookingViewMode === 'calendar' }]"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3858,8 +4426,8 @@
                 </svg>
                 Calendar View
               </button>
-              <button 
-                @click="bookingViewMode = 'availability'" 
+              <button
+                @click="bookingViewMode = 'availability'"
                 :class="['view-toggle-btn', { active: bookingViewMode === 'availability' }]"
               >
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3933,19 +4501,19 @@
                           <path d="M18.5 2.5C18.8978 2.10217 19.4374 1.87868 20 1.87868C20.5626 1.87868 21.1022 2.10217 21.5 2.5C21.8978 2.89782 22.1213 3.43739 22.1213 4C22.1213 4.56261 21.8978 5.10217 21.5 5.5L12 15L8 16L9 12L18.5 2.5Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </button>
-                      <button 
+                      <button
                         v-if="booking.status !== 'cancelled'"
-                        @click="cancelBooking(booking.id!)" 
-                        class="btn-icon btn-icon-danger" 
+                        @click="cancelBooking(booking.id!)"
+                        class="btn-icon btn-icon-danger"
                         title="Cancel booking"
                       >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                           <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                         </svg>
                       </button>
-                      <button 
-                        @click="deleteBooking(booking.id!)" 
-                        class="btn-icon btn-icon-danger" 
+                      <button
+                        @click="deleteBooking(booking.id!)"
+                        class="btn-icon btn-icon-danger"
                         title="Delete booking"
                       >
                         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -3955,7 +4523,7 @@
                       </button>
                     </div>
                   </div>
-                  
+
                   <!-- Edit Booking Form -->
                   <div v-else-if="editingBookingId === booking.id" class="booking-edit-form">
                     <div class="form-grid">
@@ -4025,8 +4593,8 @@
                   <div class="calendar-day-header" v-for="day in dayHeaders" :key="day">
                     {{ day }}
                   </div>
-                  <div 
-                    v-for="day in adminCalendarDays" 
+                  <div
+                    v-for="day in adminCalendarDays"
                     :key="day.date.toISOString()"
                     class="admin-calendar-day"
                     :class="{
@@ -4038,8 +4606,8 @@
                   >
                     <div class="calendar-day-number">{{ day.day }}</div>
                     <div v-if="day.bookings.length > 0" class="calendar-day-bookings">
-                      <div 
-                        v-for="booking in day.bookings" 
+                      <div
+                        v-for="booking in day.bookings"
                         :key="booking.id"
                         class="calendar-booking-dot"
                         :class="`status-${booking.status}`"
@@ -4054,8 +4622,8 @@
                     No bookings for this date
                   </div>
                   <div v-else class="date-bookings-list">
-                    <div 
-                      v-for="booking in getBookingsForDate(selectedCalendarDate)" 
+                    <div
+                      v-for="booking in getBookingsForDate(selectedCalendarDate)"
                       :key="booking.id"
                       class="date-booking-item"
                     >
@@ -4068,10 +4636,10 @@
                         <span :class="['booking-status-badge', `status-${booking.status}`]">
                           {{ booking.status }}
                         </span>
-                        <button 
+                        <button
                           v-if="booking.id"
-                          @click="deleteBooking(booking.id)" 
-                          class="btn-icon btn-icon-danger" 
+                          @click="deleteBooking(booking.id)"
+                          class="btn-icon btn-icon-danger"
                           title="Delete booking"
                           style="margin-left: 8px;"
                         >
@@ -4094,7 +4662,7 @@
                   <h4>Manage Your Availability</h4>
                   <p class="section-description">Block or unblock time slots to control when meetings can be booked</p>
                 </div>
-                
+
                 <div class="availability-calendar-container">
                   <div class="calendar-header-controls">
                     <button @click="previousAvailabilityMonth" class="calendar-nav-btn">
@@ -4109,13 +4677,13 @@
                       </svg>
                     </button>
                   </div>
-                  
+
                   <div class="admin-calendar-grid">
                     <div class="calendar-day-header" v-for="day in dayHeaders" :key="day">
                       {{ day }}
                     </div>
-                    <div 
-                      v-for="day in availabilityCalendarDays" 
+                    <div
+                      v-for="day in availabilityCalendarDays"
                       :key="day.date.toISOString()"
                       class="admin-calendar-day"
                       :class="{
@@ -4128,12 +4696,12 @@
                       <div class="calendar-day-number">{{ day.day }}</div>
                     </div>
                   </div>
-                  
+
                   <div v-if="selectedAvailabilityDate" class="availability-date-controls">
                     <h5>Manage Time Slots for {{ formatSelectedDate(selectedAvailabilityDate) }}</h5>
                     <div class="time-slots-management">
-                      <div 
-                        v-for="slot in defaultTimeSlots" 
+                      <div
+                        v-for="slot in defaultTimeSlots"
                         :key="slot"
                         class="time-slot-control"
                         :class="{ 'blocked': isTimeSlotBlocked(selectedAvailabilityDate, slot) }"
@@ -4144,7 +4712,7 @@
                             {{ getBlockedReason(selectedAvailabilityDate, slot) }}
                           </span>
                         </div>
-                        <button 
+                        <button
                           @click="toggleTimeSlot(selectedAvailabilityDate, slot)"
                           :class="['btn-toggle', isTimeSlotBlocked(selectedAvailabilityDate, slot) ? 'btn-unblock' : 'btn-block']"
                         >
@@ -4361,8 +4929,8 @@
 
             <!-- Time Period Selector -->
             <div class="analytics-period-selector">
-              <button 
-                v-for="period in analyticsPeriods" 
+              <button
+                v-for="period in analyticsPeriods"
                 :key="period.value"
                 @click="selectedAnalyticsPeriod = period.value as 'daily' | 'monthly' | 'yearly'"
                 :class="['period-btn', { active: selectedAnalyticsPeriod === period.value }]"
@@ -4422,8 +4990,8 @@
             <div class="analytics-country-list">
               <h4 class="section-subtitle">Top Countries</h4>
               <div class="country-list">
-                <div 
-                  v-for="(country, index) in topCountries" 
+                <div
+                  v-for="(country, index) in topCountries"
                   :key="country.country"
                   class="country-item"
                 >
@@ -4431,8 +4999,8 @@
                   <div class="country-name">{{ country.country }}</div>
                   <div class="country-count">{{ country.count.toLocaleString() }} visits</div>
                   <div class="country-bar">
-                    <div 
-                      class="country-bar-fill" 
+                    <div
+                      class="country-bar-fill"
                       :style="{ width: `${(country.count / (topCountries[0]?.count || 1)) * 100}%` }"
                     ></div>
                   </div>
@@ -4465,7 +5033,7 @@
                   Make changes and click Save to update your website
                 </div>
               </div>
-              
+
               <div class="action-buttons">
                 <button v-if="isAdmin" @click="resetContent" :disabled="isSaving" class="btn-secondary">
                   <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -4506,31 +5074,31 @@
         </div>
         <div class="modal-body">
           <p class="modal-warning">
-            This will create a maintenance request that requires approval from another admin. 
+            This will create a maintenance request that requires approval from another admin.
             Once approved, the website will be turned off for all non-admin users.
           </p>
           <div class="form-group">
             <label>Maintenance Message (Optional)</label>
-            <textarea 
-              v-model="maintenanceForm.message" 
-              rows="3" 
+            <textarea
+              v-model="maintenanceForm.message"
+              rows="3"
               class="form-textarea"
               placeholder="Website is currently under maintenance. Please check back later."
             ></textarea>
           </div>
           <div class="form-group">
             <label>Estimated End Time (Optional)</label>
-            <input 
-              v-model="maintenanceForm.estimatedEndTime" 
-              type="datetime-local" 
+            <input
+              v-model="maintenanceForm.estimatedEndTime"
+              type="datetime-local"
               class="form-input"
             />
           </div>
         </div>
         <div class="modal-footer">
           <button @click="showTurnOffModal = false" class="btn-secondary">Cancel</button>
-          <button 
-            @click="createMaintenanceRequest('turn_off')" 
+          <button
+            @click="createMaintenanceRequest('turn_off')"
             class="btn-danger"
             :disabled="processingRequest === 'creating'"
           >
@@ -4554,14 +5122,14 @@
         </div>
         <div class="modal-body">
           <p class="modal-warning">
-            This will create a maintenance request that requires approval from another admin. 
+            This will create a maintenance request that requires approval from another admin.
             Once approved, the website will be turned back on for all users.
           </p>
         </div>
         <div class="modal-footer">
           <button @click="showTurnOnModal = false" class="btn-secondary">Cancel</button>
-          <button 
-            @click="createMaintenanceRequest('turn_on')" 
+          <button
+            @click="createMaintenanceRequest('turn_on')"
             class="btn-success"
             :disabled="processingRequest === 'creating'"
           >
@@ -4587,9 +5155,9 @@
           <p>Are you sure you want to reject this maintenance request?</p>
           <div class="form-group">
             <label>Rejection Reason (Optional)</label>
-            <textarea 
-              v-model="rejectReason" 
-              rows="3" 
+            <textarea
+              v-model="rejectReason"
+              rows="3"
               class="form-textarea"
               placeholder="Reason for rejection..."
             ></textarea>
@@ -4597,8 +5165,8 @@
         </div>
         <div class="modal-footer">
           <button @click="showRejectModal = false" class="btn-secondary">Cancel</button>
-          <button 
-            @click="rejectMaintenanceRequest(rejectRequest.id!, rejectReason || undefined)" 
+          <button
+            @click="rejectMaintenanceRequest(rejectRequest.id!, rejectReason || undefined)"
             class="btn-danger"
             :disabled="processingRequest === rejectRequest.id"
           >
@@ -4611,7 +5179,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { authService } from '@/features/auth/services/AuthService'
 import { storageService } from '@/shared/services'
@@ -4652,6 +5220,14 @@ const route = useRoute()
 const userViewController = new AuthViewController()
 
 const user = computed(() => userViewController.user)
+const previewUrl = computed(() => {
+  // Always use the base path from vite config (e.g., /clearup/)
+  const basePath = import.meta.env.BASE_URL || '/'
+  // Ensure base path ends with / and starts with /
+  const normalizedBase = basePath.endsWith('/') ? basePath : `${basePath}/`
+  // Construct absolute URL with base path
+  return `${window.location.origin}${normalizedBase}`
+})
 const isLoading = ref(true)
 const isSaving = ref(false)
 const errorMessage = ref('')
@@ -4660,13 +5236,45 @@ const saveMessageType = ref<'success' | 'error'>('success')
 
 const activeTab = ref('hero')
 const isAdmin = ref(false)
+const isSidebarOpen = ref(false)
+
+// Handle navigation click - close sidebar on mobile
+const handleNavClick = (tabId: string) => {
+  activeTab.value = tabId
+  // Close sidebar on mobile after selection
+  if (window.innerWidth <= 768) {
+    isSidebarOpen.value = false
+  }
+}
+
+// Toggle sidebar for mobile
+const toggleSidebar = () => {
+  isSidebarOpen.value = !isSidebarOpen.value
+}
+
+// Close sidebar
+const closeSidebar = () => {
+  isSidebarOpen.value = false
+}
+
+// Close sidebar on window resize if switching to desktop
+const handleResize = () => {
+  if (window.innerWidth > 768) {
+    isSidebarOpen.value = false
+  }
+}
+
+// Watch for window resize
+onMounted(() => {
+  window.addEventListener('resize', handleResize)
+})
 const uploadingLogos = ref<Record<number, boolean>>({})
 const uploadingPhotos = ref<Record<number, boolean>>({})
 const uploadingTestimonialVideos = ref<Record<number, boolean>>({})
-const uploadingThumbnails = ref<Record<number, boolean>>({})
+const uploadingThumbnails = ref<Record<string | number, boolean>>({})
 const uploadProgressPhotos = ref<Record<number, number>>({})
 const uploadProgressTestimonialVideos = ref<Record<number, number>>({})
-const uploadProgressThumbnails = ref<Record<number, number>>({})
+const uploadProgressThumbnails = ref<Record<string | number, number>>({})
 const baseTabs = [
   { id: 'hero', label: 'Hero Section' },
   { id: 'cta', label: 'CTA Section' },
@@ -4731,10 +5339,10 @@ const userPermissions = computed(() => {
     // Admin has all permissions
     return availablePermissions.map(p => p.id)
   }
-  
+
   const userRole = user.value?.role
   if (!userRole) return []
-  
+
   const role = roles.value.find(r => r.name === userRole)
   return role?.permissions || []
 })
@@ -4748,21 +5356,21 @@ const hasPermission = (permissionId: string): boolean => {
 // Check if user can access a specific tab
 const canAccessTab = (tabId: string): boolean => {
   if (isAdmin.value) return true
-  
+
   const requiredPermission = tabPermissionMap[tabId]
   if (!requiredPermission) return true // Tab has no permission requirement
-  
+
   return hasPermission(requiredPermission)
 }
 
 const tabs = computed(() => {
   const allTabs = isAdmin.value ? [...baseTabs, ...adminTabs] : baseTabs
-  
+
   // For admin, show all tabs
   if (isAdmin.value) {
     return allTabs
   }
-  
+
   // For other users, filter tabs based on permissions
   return allTabs.filter(tab => canAccessTab(tab.id))
 })
@@ -4774,8 +5382,39 @@ const activityLogs = ref<ActivityLog[]>([])
 const isAdminLoading = ref(false)
 const siteSettings = ref<SiteSettings>({
   disabledSections: [],
-  maintenanceMode: false
+  maintenanceMode: false,
+  maintenanceMessage: 'We\'re currently performing maintenance. Please check back soon.'
 })
+
+// Site General Settings
+const siteGeneralSettings = ref({
+  siteName: '',
+  siteTagline: '',
+  siteDescription: '',
+  siteUrl: '',
+  contactEmail: ''
+})
+
+// Site SEO Settings
+const siteSEOSettings = ref({
+  metaTitle: '',
+  metaDescription: '',
+  metaKeywords: '',
+  ogImage: '',
+  twitterHandle: ''
+})
+
+// Site Social Media Settings
+const siteSocialSettings = ref({
+  facebook: '',
+  instagram: '',
+  twitter: '',
+  linkedin: '',
+  youtube: '',
+  tiktok: ''
+})
+
+const isSavingSiteSettings = ref(false)
 const emailSubmissions = ref<EmailSubmission[]>([])
 const loadingEmails = ref(false)
 const emailFilter = ref<'all' | 'pending' | 'confirmed'>('all')
@@ -4976,7 +5615,7 @@ const sortedBookings = computed(() => {
     }
     return true
   })
-  
+
   return [...validBookings].sort((a, b) => {
     const dateA = new Date(a.meetingDate).getTime()
     const dateB = new Date(b.meetingDate).getTime()
@@ -4989,7 +5628,7 @@ const upcomingBookings = computed(() => {
   const now = new Date()
   const tomorrow = new Date(now)
   tomorrow.setDate(tomorrow.getDate() + 1)
-  
+
   return sortedBookings.value.filter(booking => {
     // Only include bookings with valid IDs
     if (!booking.id) return false
@@ -5005,11 +5644,11 @@ const upcomingBookingsCount = computed(() => {
 
 const formatBookingDateTime = (booking: Booking): string => {
   const date = new Date(booking.meetingDate)
-  const dateStr = date.toLocaleDateString('en-US', { 
-    weekday: 'short', 
-    year: 'numeric', 
-    month: 'short', 
-    day: 'numeric' 
+  const dateStr = date.toLocaleDateString('en-US', {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric'
   })
   const timeParts = booking.meetingTime.split(':')
   const hours = timeParts[0] ? parseInt(timeParts[0]) : 0
@@ -5075,7 +5714,7 @@ const disconnectGoogleCalendar = async () => {
   if (!confirm('Are you sure you want to disconnect your Google Calendar? This will prevent automatic Google Meet link generation for new bookings.')) {
     return
   }
-  
+
   isLoadingGoogleCalendar.value = true
   googleCalendarError.value = ''
   try {
@@ -5098,7 +5737,7 @@ const disconnectGoogleCalendar = async () => {
 const startEditBooking = (booking: Booking) => {
   // Try multiple ways to get the ID
   const bookingId = booking.id || (booking as any).id || (booking as any)['id']
-  
+
   if (!bookingId) {
     console.error('Cannot edit booking: booking.id is undefined', {
       booking,
@@ -5109,7 +5748,7 @@ const startEditBooking = (booking: Booking) => {
     alert('Error: Cannot edit this booking. The booking ID is missing. Please refresh the page and try again.')
     return
   }
-  
+
   // Set the editing ID to this specific booking
   editingBookingId.value = bookingId
   const date = new Date(booking.meetingDate)
@@ -5149,7 +5788,7 @@ const saveBookingEdit = async (bookingId: string) => {
       status: editBookingForm.value.status as any,
       notes: editBookingForm.value.notes
     }
-    
+
     const result = await bookingController.updateBooking(bookingId, updateData)
     if (result.success) {
       await loadBookings()
@@ -5169,7 +5808,7 @@ const saveBookingEdit = async (bookingId: string) => {
 
 const cancelBooking = async (bookingId: string) => {
   if (!confirm('Are you sure you want to cancel this booking?')) return
-  
+
   isLoadingBookings.value = true
   try {
     const userId = user.value?.id || 'admin'
@@ -5189,7 +5828,7 @@ const cancelBooking = async (bookingId: string) => {
 
 const deleteBooking = async (bookingId: string) => {
   if (!confirm('Are you sure you want to delete this booking? This action cannot be undone.')) return
-  
+
   isLoadingBookings.value = true
   saveMessage.value = ''
   try {
@@ -5225,10 +5864,10 @@ const adminCalendarDays = computed(() => {
   const firstDay = new Date(calendarYear.value, calendarMonth.value, 1)
   const startDate = new Date(firstDay)
   startDate.setDate(startDate.getDate() - startDate.getDay())
-  
+
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  
+
   const days: Array<{
     date: Date
     day: number
@@ -5236,20 +5875,20 @@ const adminCalendarDays = computed(() => {
     isToday: boolean
     bookings: Booking[]
   }> = []
-  
+
   for (let i = 0; i < 42; i++) {
     const date = new Date(startDate)
     date.setDate(startDate.getDate() + i)
     const dateOnly = new Date(date)
     dateOnly.setHours(0, 0, 0, 0)
-    
+
     const dateStr = dateOnly.toISOString().split('T')[0]
     const dayBookings = bookings.value.filter(b => {
       const bookingDate = new Date(b.meetingDate)
       bookingDate.setHours(0, 0, 0, 0)
       return bookingDate.getTime() === dateOnly.getTime()
     })
-    
+
     days.push({
       date,
       day: date.getDate(),
@@ -5258,7 +5897,7 @@ const adminCalendarDays = computed(() => {
       bookings: dayBookings
     })
   }
-  
+
   return days
 })
 
@@ -5285,11 +5924,11 @@ const selectCalendarDate = (date: Date) => {
 }
 
 const formatSelectedDate = (date: Date): string => {
-  return date.toLocaleDateString('en-US', { 
-    weekday: 'long', 
-    year: 'numeric', 
-    month: 'long', 
-    day: 'numeric' 
+  return date.toLocaleDateString('en-US', {
+    weekday: 'long',
+    year: 'numeric',
+    month: 'long',
+    day: 'numeric'
   })
 }
 
@@ -5333,7 +5972,7 @@ const loadBlockedSlots = async () => {
     const startDate = new Date(availabilityYear.value, availabilityMonth.value, 1)
     const endDate = new Date(availabilityYear.value, availabilityMonth.value + 1, 0)
     const blocked = await availabilityService.getBlockedSlots(startDate, endDate)
-    
+
     blockedSlots.value.clear()
     blocked.forEach(avail => {
       const key = `${avail.date}-${avail.timeSlot}`
@@ -5365,7 +6004,7 @@ const toggleTimeSlot = async (date: Date, timeSlot: string) => {
     const dateStr = date.toISOString().split('T')[0]
     const key = `${dateStr}-${timeSlot}`
     const isBlocked = blockedSlots.value.has(key)
-    
+
     if (isBlocked) {
       await availabilityService.unblockTimeSlot(date, timeSlot)
       blockedSlots.value.delete(key)
@@ -5375,7 +6014,7 @@ const toggleTimeSlot = async (date: Date, timeSlot: string) => {
       await availabilityService.blockTimeSlot(date, timeSlot, reason, userId)
       blockedSlots.value.set(key, { reason, blockedBy: userId })
     }
-    
+
     // Reload bookings to reflect availability changes
     await loadBookings()
   } catch (error) {
@@ -5388,10 +6027,10 @@ const formatTime = (time: string): string => {
   const [hours, minutes] = time.split(':').map(Number)
   const date = new Date()
   date.setHours(hours || 0, minutes || 0)
-  return date.toLocaleTimeString('en-US', { 
-    hour: 'numeric', 
+  return date.toLocaleTimeString('en-US', {
+    hour: 'numeric',
     minute: '2-digit',
-    hour12: true 
+    hour12: true
   })
 }
 
@@ -5400,23 +6039,23 @@ const availabilityCalendarDays = computed(() => {
   const firstDay = new Date(availabilityYear.value, availabilityMonth.value, 1)
   const startDate = new Date(firstDay)
   startDate.setDate(startDate.getDate() - startDate.getDay())
-  
+
   const today = new Date()
   today.setHours(0, 0, 0, 0)
-  
+
   const days: Array<{
     date: Date
     day: number
     isCurrentMonth: boolean
     isToday: boolean
   }> = []
-  
+
   for (let i = 0; i < 42; i++) {
     const date = new Date(startDate)
     date.setDate(startDate.getDate() + i)
     const dateOnly = new Date(date)
     dateOnly.setHours(0, 0, 0, 0)
-    
+
     days.push({
       date,
       day: date.getDate(),
@@ -5424,7 +6063,7 @@ const availabilityCalendarDays = computed(() => {
       isToday: dateOnly.getTime() === today.getTime()
     })
   }
-  
+
   return days
 })
 
@@ -5487,13 +6126,13 @@ const availableSections = [
 ]
 
 // Computed properties for section groups
-const homeSections = computed(() => availableSections.filter(s => 
+const homeSections = computed(() => availableSections.filter(s =>
   !s.id.startsWith('about-') && !s.id.startsWith('services-')
 ))
-const aboutSections = computed(() => availableSections.filter(s => 
+const aboutSections = computed(() => availableSections.filter(s =>
   s.id.startsWith('about-') || s.id === 'about-page'
 ))
-const servicesSections = computed(() => availableSections.filter(s => 
+const servicesSections = computed(() => availableSections.filter(s =>
   s.id.startsWith('services-') || s.id === 'services-page'
 ))
 
@@ -5622,7 +6261,7 @@ const getSelectedRolePermissions = (roleName: string): string[] => {
 const getRoleDescription = (roleName: string): string => {
   const role = roles.value.find(r => r.name === roleName)
   if (!role) return ''
-  
+
   const permCount = role.permissions?.length || 0
   if (role.description) {
     return `${role.description} (${permCount} permission${permCount !== 1 ? 's' : ''})`
@@ -5827,6 +6466,22 @@ const getActiveTabLabel = (): string => {
   return tab?.label || 'Dashboard'
 }
 
+const handleTabClick = (tabId: string) => {
+  if (canAccessTab(tabId)) {
+    activeTab.value = tabId
+    // Scroll to top of main content area
+    nextTick(() => {
+      const mainContent = document.querySelector('.dashboard-main')
+      if (mainContent) {
+        mainContent.scrollTo({ top: 0, behavior: 'smooth' })
+      } else {
+        // Fallback: scroll window to top
+        window.scrollTo({ top: 0, behavior: 'smooth' })
+      }
+    })
+  }
+}
+
 const formatAction = (action: string): string => {
   const actionMap: Record<string, string> = {
     'update_home_content': 'Updated Home Content',
@@ -5851,12 +6506,12 @@ const formatDate = (date: Date | string | undefined): string => {
     const diffMins = Math.floor(diffMs / 60000)
     const diffHours = Math.floor(diffMs / 3600000)
     const diffDays = Math.floor(diffMs / 86400000)
-    
+
     if (diffMins < 1) return 'Just now'
     if (diffMins < 60) return `${diffMins} minute${diffMins > 1 ? 's' : ''} ago`
     if (diffHours < 24) return `${diffHours} hour${diffHours > 1 ? 's' : ''} ago`
     if (diffDays < 7) return `${diffDays} day${diffDays > 1 ? 's' : ''} ago`
-    
+
     return dateObj.toLocaleString()
   } catch {
     return '-'
@@ -5866,7 +6521,7 @@ const formatDate = (date: Date | string | undefined): string => {
 const getLogDescription = (log: ActivityLog): string => {
   const action = log.action
   const resource = log.resource
-  
+
   if (action === 'update_home_content' || action === 'save_home_content') {
     const changedFields = log.changes ? Object.keys(log.changes) : []
     if (changedFields.length > 0) {
@@ -5877,16 +6532,16 @@ const getLogDescription = (log: ActivityLog): string => {
     }
     return 'Updated home page content'
   }
-  
+
   if (action === 'reset_home_content') {
     return 'Reset home page content to default values'
   }
-  
+
   if (action === 'create_user') {
     const email = log.changes?.email?.after || log.changes?.email
     return `Created new user account${email ? `: ${email}` : ''}`
   }
-  
+
   if (action === 'update_user_role') {
     const email = log.changes?.userEmail || log.changes?.userEmail?.after
     const oldRole = log.changes?.oldRole
@@ -5896,12 +6551,12 @@ const getLogDescription = (log: ActivityLog): string => {
     }
     return 'Updated user role'
   }
-  
+
   if (action === 'delete_user') {
     const email = log.changes?.deletedUserEmail
     return `Deleted user account${email ? `: ${email}` : ''}`
   }
-  
+
   return `${formatAction(action)} on ${resource}`
 }
 
@@ -5970,7 +6625,7 @@ const getChangedFieldsCount = (changes: Record<string, any>): number => {
 
 const getVideoEmbedUrl = (url: string): string => {
   if (!url) return ''
-  
+
   // YouTube - Add parameters to disable suggestions and related videos
   const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
   const youtubeMatch = url.match(youtubeRegex)
@@ -5983,26 +6638,26 @@ const getVideoEmbedUrl = (url: string): string => {
     // fs=1 - Allow fullscreen
     return `https://www.youtube.com/embed/${youtubeMatch[1]}?rel=0&modestbranding=1&iv_load_policy=3&cc_load_policy=0&fs=1`
   }
-  
+
   // Vimeo
   const vimeoRegex = /(?:vimeo\.com\/)(?:.*\/)?(\d+)/
   const vimeoMatch = url.match(vimeoRegex)
   if (vimeoMatch) {
     return `https://player.vimeo.com/video/${vimeoMatch[1]}`
   }
-  
+
   // Direct video URL (MP4, WebM, etc.)
   if (url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i)) {
     return url
   }
-  
+
   return url
 }
 
 // Helper function to get image type from URL
 const getImageType = (url: string): string | null => {
   if (!url) return null
-  
+
   // Extract file extension from URL
   const urlLower = url.toLowerCase()
   if (urlLower.includes('.png')) return 'PNG'
@@ -6010,7 +6665,7 @@ const getImageType = (url: string): string | null => {
   if (urlLower.includes('.webp')) return 'WEBP'
   if (urlLower.includes('.gif')) return 'GIF'
   if (urlLower.includes('.svg')) return 'SVG'
-  
+
   // Try to get from query params or path
   try {
     const urlObj = new URL(url)
@@ -6023,21 +6678,21 @@ const getImageType = (url: string): string | null => {
   } catch {
     // If URL parsing fails, return null
   }
-  
+
   return null
 }
 
 const handleVideoUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   // Validate file type - only allow specific video formats
   const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo']
   const allowedExtensions = ['.mp4', '.webm', '.mov', '.avi']
   const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
-  
+
   if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
     saveMessage.value = 'Please select a valid video file (MP4, WebM, MOV, or AVI)'
     saveMessageType.value = 'error'
@@ -6048,7 +6703,7 @@ const handleVideoUpload = async (event: Event) => {
     }
     return
   }
-  
+
   // Validate file size (100MB max)
   const maxSize = 100 * 1024 * 1024 // 100MB
   if (file.size > maxSize) {
@@ -6061,16 +6716,16 @@ const handleVideoUpload = async (event: Event) => {
     }
     return
   }
-  
+
   selectedVideoFile.value = file
   uploadingVideo.value = true
   uploadProgress.value = 0
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `videos/${userId}/${timestamp}-${file.name}`
-    
+
     // Upload video to Firebase Storage with progress tracking
     const videoUrl = await storageService.uploadAndGetUrlWithProgress(
       fileName,
@@ -6087,16 +6742,16 @@ const handleVideoUpload = async (event: Event) => {
         }
       }
     )
-    
+
     formData.value.videoFileUrl = videoUrl
     formData.value.videoType = 'upload'
     selectedVideoFile.value = null
-    
+
     // Reset file input
     if (videoFileInput.value) {
       videoFileInput.value.value = ''
     }
-    
+
     saveMessage.value = 'Video uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 4000)
@@ -6134,10 +6789,10 @@ const extractFilePathFromUrl = (url: string): string | null => {
  */
 const deleteVideo = async () => {
   if (!formData.value.videoFileUrl) return
-  
+
   const videoUrl = formData.value.videoFileUrl
   const filePath = extractFilePathFromUrl(videoUrl)
-  
+
   // Clear form data first
   formData.value.videoFileUrl = ''
   formData.value.videoType = 'link'
@@ -6145,7 +6800,7 @@ const deleteVideo = async () => {
   if (videoFileInput.value) {
     videoFileInput.value.value = ''
   }
-  
+
   // Delete from Firebase Storage if we have the path
   if (filePath) {
     try {
@@ -6167,14 +6822,14 @@ const deleteVideo = async () => {
 const deleteTestimonialVideo = async (index: number) => {
   const testimonial = formData.value.testimonials[index]
   if (!testimonial?.videoFileUrl) return
-  
+
   const videoUrl = testimonial.videoFileUrl
   const filePath = extractFilePathFromUrl(videoUrl)
-  
+
   // Clear form data first
   testimonial.videoFileUrl = ''
   testimonial.videoType = 'none'
-  
+
   // Delete from Firebase Storage if we have the path
   if (filePath) {
     try {
@@ -6206,13 +6861,13 @@ const selectedAboutVideoFile = ref<File | null>(null)
 const handleAboutVideoUpload = async (event: Event) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo']
   const allowedExtensions = ['.mp4', '.webm', '.mov', '.avi']
   const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
-  
+
   if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
     saveMessage.value = 'Please select a valid video file (MP4, WebM, MOV, or AVI)'
     saveMessageType.value = 'error'
@@ -6222,7 +6877,7 @@ const handleAboutVideoUpload = async (event: Event) => {
     }
     return
   }
-  
+
   const maxSize = 100 * 1024 * 1024
   if (file.size > maxSize) {
     saveMessage.value = 'Video file is too large. Maximum size is 100MB'
@@ -6233,16 +6888,16 @@ const handleAboutVideoUpload = async (event: Event) => {
     }
     return
   }
-  
+
   selectedAboutVideoFile.value = file
   uploadingVideo.value = true
   uploadProgress.value = 0
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `about/videos/${userId}/${timestamp}-${file.name}`
-    
+
     const videoUrl = await storageService.uploadAndGetUrlWithProgress(
       fileName,
       file,
@@ -6258,11 +6913,11 @@ const handleAboutVideoUpload = async (event: Event) => {
         }
       }
     )
-    
+
     aboutFormData.value.videoFileUrl = videoUrl
     aboutFormData.value.videoType = 'upload'
     selectedAboutVideoFile.value = null
-    
+
     saveMessage.value = 'Video uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 3000)
@@ -6283,7 +6938,7 @@ const deleteAboutVideo = async () => {
   if (!confirm('Are you sure you want to delete this video?')) {
     return
   }
-  
+
   try {
     if (aboutFormData.value.videoFileUrl) {
       const filePath = extractFilePathFromUrl(aboutFormData.value.videoFileUrl)
@@ -6291,11 +6946,11 @@ const deleteAboutVideo = async () => {
         await storageService.deleteFile(filePath)
       }
     }
-    
+
     aboutFormData.value.videoFileUrl = ''
     aboutFormData.value.videoUrl = ''
     aboutFormData.value.videoType = 'none'
-    
+
     saveMessage.value = 'Video deleted successfully'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 3000)
@@ -6312,7 +6967,7 @@ const addNewTeamMember = () => {
   const maxOrder = aboutFormData.value.teamMembers.length > 0
     ? Math.max(...aboutFormData.value.teamMembers.map(m => m.order ?? 0))
     : -1
-  
+
   const newMember: TeamMember = {
     id: `temp-${Date.now()}`,
     name: '',
@@ -6327,7 +6982,7 @@ const addNewTeamMember = () => {
 const startEditTeamMember = (index: number) => {
   const member = aboutFormData.value.teamMembers[index]
   if (!member) return
-  
+
   editingTeamMemberId.value = member.id || null
   editTeamMemberForm.value = {
     name: member.name,
@@ -6362,14 +7017,14 @@ const findMemberByOrder = (order: number): TeamMember | undefined => {
 const saveTeamMemberEdit = (index: number) => {
   const member = aboutFormData.value.teamMembers[index]
   if (!member) return
-  
+
   if (!editTeamMemberForm.value.name || !editTeamMemberForm.value.role) {
     saveMessage.value = 'Name and role are required'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 3000)
     return
   }
-  
+
   aboutFormData.value.teamMembers[index] = {
     ...member,
     name: editTeamMemberForm.value.name,
@@ -6378,7 +7033,7 @@ const saveTeamMemberEdit = (index: number) => {
     photoFileUrl: editTeamMemberForm.value.photoFileUrl,
     photoType: editTeamMemberForm.value.photoType || 'url'
   }
-  
+
   cancelTeamMemberEdit()
   saveMessage.value = 'Team member updated'
   saveMessageType.value = 'success'
@@ -6395,7 +7050,7 @@ const deleteTeamMember = (index: number) => {
   if (!confirm('Are you sure you want to delete this team member?')) {
     return
   }
-  
+
   const member = aboutFormData.value.teamMembers[index]
   if (member?.photoFileUrl) {
     const filePath = extractFilePathFromUrl(member.photoFileUrl)
@@ -6405,7 +7060,7 @@ const deleteTeamMember = (index: number) => {
       })
     }
   }
-  
+
   aboutFormData.value.teamMembers.splice(index, 1)
   // Reassign order values after deletion
   aboutFormData.value.teamMembers.forEach((m, i) => {
@@ -6431,17 +7086,17 @@ const startEditTeamMemberByOrder = (order: number) => {
 // Move team member up in the list
 const moveTeamMemberUp = (sortedIndex: number) => {
   if (sortedIndex === 0) return
-  
+
   const member = sortedTeamMembers.value[sortedIndex]
   const previousMember = sortedTeamMembers.value[sortedIndex - 1]
-  
+
   if (!member || !previousMember) return
-  
+
   // Swap orders
   const tempOrder = member.order ?? sortedIndex
   member.order = previousMember.order ?? sortedIndex - 1
   previousMember.order = tempOrder
-  
+
   saveMessage.value = 'Team member order updated'
   saveMessageType.value = 'success'
   setTimeout(() => { saveMessage.value = '' }, 2000)
@@ -6450,17 +7105,17 @@ const moveTeamMemberUp = (sortedIndex: number) => {
 // Move team member down in the list
 const moveTeamMemberDown = (sortedIndex: number) => {
   if (sortedIndex === sortedTeamMembers.value.length - 1) return
-  
+
   const member = sortedTeamMembers.value[sortedIndex]
   const nextMember = sortedTeamMembers.value[sortedIndex + 1]
-  
+
   if (!member || !nextMember) return
-  
+
   // Swap orders
   const tempOrder = member.order ?? sortedIndex
   member.order = nextMember.order ?? sortedIndex + 1
   nextMember.order = tempOrder
-  
+
   saveMessage.value = 'Team member order updated'
   saveMessageType.value = 'success'
   setTimeout(() => { saveMessage.value = '' }, 2000)
@@ -6469,24 +7124,24 @@ const moveTeamMemberDown = (sortedIndex: number) => {
 const handleTeamPhotoUpload = async (event: Event, memberId: string) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   if (!file.type.startsWith('image/')) {
     saveMessage.value = 'Please select a valid image file'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 3000)
     return
   }
-  
+
   uploadingTeamPhoto.value[memberId] = true
   uploadProgressTeamPhoto.value[memberId] = 0
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `about/team/${userId}/${timestamp}-${file.name}`
-    
+
     const photoUrl = await storageService.uploadAndGetUrlWithProgress(
       fileName,
       file,
@@ -6497,10 +7152,10 @@ const handleTeamPhotoUpload = async (event: Event, memberId: string) => {
         contentType: file.type
       }
     )
-    
+
     editTeamMemberForm.value.photoFileUrl = photoUrl
     editTeamMemberForm.value.photoType = 'upload'
-    
+
     saveMessage.value = 'Photo uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 2000)
@@ -6529,7 +7184,7 @@ const addNewFAQ = () => {
 const startEditFAQ = (index: number) => {
   const faq = aboutFormData.value.faqs[index]
   if (!faq) return
-  
+
   editingFAQId.value = faq.id || null
   editFAQForm.value = {
     question: faq.question,
@@ -6548,20 +7203,20 @@ const cancelFAQEdit = () => {
 const saveFAQEdit = (index: number) => {
   const faq = aboutFormData.value.faqs[index]
   if (!faq) return
-  
+
   if (!editFAQForm.value.question || !editFAQForm.value.answer) {
     saveMessage.value = 'Question and answer are required'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 3000)
     return
   }
-  
+
   aboutFormData.value.faqs[index] = {
     ...faq,
     question: editFAQForm.value.question,
     answer: editFAQForm.value.answer
   }
-  
+
   cancelFAQEdit()
   saveMessage.value = 'FAQ updated'
   saveMessageType.value = 'success'
@@ -6572,7 +7227,7 @@ const deleteFAQ = (index: number) => {
   if (!confirm('Are you sure you want to delete this FAQ?')) {
     return
   }
-  
+
   aboutFormData.value.faqs.splice(index, 1)
   saveMessage.value = 'FAQ deleted'
   saveMessageType.value = 'success'
@@ -6611,7 +7266,7 @@ const startEditLegalSection = (policy: 'privacy' | 'terms' | 'cookies', index: n
   const sections = getLegalPolicySections(policy)
   const section = sections[index]
   if (!section) return
-  
+
   editingLegalPolicy.value = policy
   editingLegalSectionIndex.value = index
   editLegalSectionForm.value = {
@@ -6629,7 +7284,7 @@ const cancelEditLegalSection = () => {
       sections.splice(editingLegalSectionIndex.value, 1)
     }
   }
-  
+
   editingLegalPolicy.value = null
   editingLegalSectionIndex.value = null
   editLegalSectionForm.value = { heading: '', content: '' }
@@ -6637,25 +7292,25 @@ const cancelEditLegalSection = () => {
 
 const saveLegalSection = () => {
   if (editingLegalPolicy.value === null || editingLegalSectionIndex.value === null) return
-  
+
   if (!editLegalSectionForm.value.heading || !editLegalSectionForm.value.content) {
     saveMessage.value = 'Heading and content are required'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 3000)
     return
   }
-  
+
   const sections = getLegalPolicySections(editingLegalPolicy.value)
   const section = sections[editingLegalSectionIndex.value]
   if (!section) return
-  
+
   section.heading = editLegalSectionForm.value.heading
   section.content = editLegalSectionForm.value.content
-  
+
   saveMessage.value = 'Section updated'
   saveMessageType.value = 'success'
   setTimeout(() => { saveMessage.value = '' }, 2000)
-  
+
   editingLegalPolicy.value = null
   editingLegalSectionIndex.value = null
   editLegalSectionForm.value = { heading: '', content: '' }
@@ -6665,10 +7320,10 @@ const removeLegalSection = (policy: 'privacy' | 'terms' | 'cookies', index: numb
   if (!confirm('Are you sure you want to delete this section?')) {
     return
   }
-  
+
   const sections = getLegalPolicySections(policy)
   sections.splice(index, 1)
-  
+
   saveMessage.value = 'Section deleted'
   saveMessageType.value = 'success'
   setTimeout(() => { saveMessage.value = '' }, 2000)
@@ -6680,7 +7335,7 @@ const addNewStatCard = () => {
   if (!aboutFormData.value.statCards) {
     aboutFormData.value.statCards = []
   }
-  
+
   const newStatCard: StatCard = {
     id: `temp-${Date.now()}`,
     title: '',
@@ -6694,7 +7349,7 @@ const addNewStatCard = () => {
 
 const startEditStatCard = (index: number) => {
   if (!aboutFormData.value.statCards || !aboutFormData.value.statCards[index]) return
-  
+
   const statCard = aboutFormData.value.statCards[index]
   editingStatCardId.value = statCard.id || null
   editStatCardForm.value = {
@@ -6715,31 +7370,31 @@ const cancelStatCardEdit = () => {
 
 const saveStatCardEdit = (statCardId: string | undefined) => {
   if (!statCardId) return
-  
+
   if (!aboutFormData.value.statCards) {
     aboutFormData.value.statCards = []
   }
-  
+
   const index = aboutFormData.value.statCards.findIndex(s => s.id === statCardId)
   if (index === -1) return
-  
+
   const statCard = aboutFormData.value.statCards[index]
   if (!statCard) return
-  
+
   if (!editStatCardForm.value.title || !editStatCardForm.value.value || !editStatCardForm.value.description) {
     saveMessage.value = 'Title, value, and description are required'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 3000)
     return
   }
-  
+
   aboutFormData.value.statCards[index] = {
     ...statCard,
     title: editStatCardForm.value.title,
     value: editStatCardForm.value.value,
     description: editStatCardForm.value.description
   }
-  
+
   cancelStatCardEdit()
   saveMessage.value = 'Stat card updated'
   saveMessageType.value = 'success'
@@ -6748,19 +7403,19 @@ const saveStatCardEdit = (statCardId: string | undefined) => {
 
 const deleteStatCard = (statCardId: string | undefined) => {
   if (!statCardId) return
-  
+
   if (!aboutFormData.value.statCards) {
     aboutFormData.value.statCards = []
     return
   }
-  
+
   if (!confirm('Are you sure you want to delete this stat card?')) {
     return
   }
-  
+
   const index = aboutFormData.value.statCards.findIndex(s => s.id === statCardId)
   if (index === -1) return
-  
+
   aboutFormData.value.statCards.splice(index, 1)
   saveMessage.value = 'Stat card deleted'
   saveMessageType.value = 'success'
@@ -6772,7 +7427,7 @@ const addNewWhyChooseFeature = () => {
   if (!servicesFormData.value.whyChooseFeatures) {
     servicesFormData.value.whyChooseFeatures = []
   }
-  
+
   const newFeature: WhyChooseFeature = {
     id: `${Date.now()}-${Math.random().toString(36).substring(2, 11)}`,
     title: 'New Feature',
@@ -6780,7 +7435,7 @@ const addNewWhyChooseFeature = () => {
     icon: 'target',
     order: servicesFormData.value.whyChooseFeatures.length
   }
-  
+
   servicesFormData.value.whyChooseFeatures.push(newFeature)
   editingWhyChooseFeatureId.value = newFeature.id || null
   editWhyChooseFeatureForm.value = {
@@ -6792,10 +7447,10 @@ const addNewWhyChooseFeature = () => {
 
 const startEditWhyChooseFeature = (featureId: string | undefined) => {
   if (!featureId || !servicesFormData.value.whyChooseFeatures) return
-  
+
   const feature = servicesFormData.value.whyChooseFeatures.find(f => f.id === featureId)
   if (!feature) return
-  
+
   editingWhyChooseFeatureId.value = featureId || null
   editWhyChooseFeatureForm.value = {
     title: feature.title,
@@ -6815,23 +7470,23 @@ const cancelWhyChooseFeatureEdit = () => {
 
 const saveWhyChooseFeatureEdit = async (featureId: string | undefined) => {
   if (!featureId || !servicesFormData.value.whyChooseFeatures) return
-  
+
   if (!editWhyChooseFeatureForm.value.title || !editWhyChooseFeatureForm.value.description) {
     saveMessage.value = 'Title and description are required'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 3000)
     return
   }
-  
+
   const index = servicesFormData.value.whyChooseFeatures.findIndex(f => f.id === featureId)
   if (index === -1) return
-  
+
   const feature = servicesFormData.value.whyChooseFeatures[index]
   if (!feature) return
-  
+
   // Check if this is a new feature (not in original loaded features)
   const isNewFeature = !originalFeatureIds.value.has(featureId)
-  
+
   // Save to backend
   if (user.value?.id) {
     let result
@@ -6846,7 +7501,7 @@ const saveWhyChooseFeatureEdit = async (featureId: string | undefined) => {
         },
         user.value.id
       )
-      
+
       if (result.success && result.data) {
         // Update local feature with the ID from backend
         const newId = result.data.id
@@ -6872,7 +7527,7 @@ const saveWhyChooseFeatureEdit = async (featureId: string | undefined) => {
         },
         user.value.id
       )
-      
+
       if (result.success) {
         // Update local feature
         servicesFormData.value.whyChooseFeatures[index] = {
@@ -6883,7 +7538,7 @@ const saveWhyChooseFeatureEdit = async (featureId: string | undefined) => {
         }
       }
     }
-    
+
     if (result.success) {
       cancelWhyChooseFeatureEdit()
       // Reload services content to get the latest data
@@ -6910,20 +7565,20 @@ const saveWhyChooseFeatureEdit = async (featureId: string | undefined) => {
 
 const deleteWhyChooseFeature = async (featureId: string | undefined) => {
   if (!featureId || !servicesFormData.value.whyChooseFeatures) return
-  
+
   if (!confirm('Are you sure you want to delete this feature?')) {
     return
   }
-  
+
   const index = servicesFormData.value.whyChooseFeatures.findIndex(f => f.id === featureId)
   if (index === -1) return
-  
+
   const isNewFeature = !originalFeatureIds.value.has(featureId)
-  
+
   // Delete from backend if it's not a new feature
   if (!isNewFeature && user.value?.id) {
     const result = await servicesContentController.deleteWhyChooseFeature(featureId, user.value.id)
-    
+
     if (result.success) {
       servicesFormData.value.whyChooseFeatures.splice(index, 1)
       originalFeatureIds.value.delete(featureId)
@@ -7057,7 +7712,7 @@ const handleStepDrop = (event: DragEvent, index: number) => {
   event.preventDefault()
   const stepCard = event.currentTarget as HTMLElement
   stepCard.classList.remove('drag-over')
-  
+
   if (draggedStepIndex.value !== null && draggedStepIndex.value !== index && formData.value.steps) {
     const steps = formData.value.steps
     const draggedStep = steps[draggedStepIndex.value]
@@ -7172,7 +7827,7 @@ const handleBenefitDrop = (event: DragEvent, index: number) => {
   event.preventDefault()
   const benefitCard = event.currentTarget as HTMLElement
   benefitCard.classList.remove('drag-over')
-  
+
   if (draggedBenefitIndex.value !== null && draggedBenefitIndex.value !== index && formData.value.benefits) {
     const benefits = formData.value.benefits
     const draggedBenefit = benefits[draggedBenefitIndex.value]
@@ -7286,7 +7941,7 @@ const handleBonusDrop = (event: DragEvent, index: number) => {
   event.preventDefault()
   const bonusCard = event.currentTarget as HTMLElement
   bonusCard.classList.remove('drag-over')
-  
+
   if (draggedBonusIndex.value !== null && draggedBonusIndex.value !== index && formData.value.bonuses) {
     const bonuses = formData.value.bonuses
     const draggedBonus = bonuses[draggedBonusIndex.value]
@@ -7347,7 +8002,7 @@ const loadEmailSubmissions = async () => {
  */
 const resendConfirmationEmail = async (submission: EmailSubmission) => {
   if (!submission.id) return
-  
+
   try {
     const result = await emailController.submitEmail(submission.email)
     if (result.success) {
@@ -7418,7 +8073,7 @@ const updateContactMessageStatus = async (messageId: string, status: ContactMess
 
 const deleteContactMessage = async (messageId: string) => {
   if (!confirm('Are you sure you want to delete this message?')) return
-  
+
   try {
     const result = await contactContentController.deleteMessage(messageId)
     if (result.success) {
@@ -7522,7 +8177,7 @@ const loadMaintenanceData = async () => {
 const createMaintenanceRequest = async (type: 'turn_on' | 'turn_off') => {
   processingRequest.value = 'creating'
   try {
-    const estimatedEndTime = maintenanceForm.value.estimatedEndTime 
+    const estimatedEndTime = maintenanceForm.value.estimatedEndTime
       ? new Date(maintenanceForm.value.estimatedEndTime)
       : undefined
 
@@ -7555,8 +8210,8 @@ const createMaintenanceRequest = async (type: 'turn_on' | 'turn_off') => {
 }
 
 const approveMaintenanceRequest = async (requestId: string) => {
-  if (!confirm('Are you sure you want to approve this maintenance request? This will immediately ' + 
-    (pendingRequests.value.find(r => r.id === requestId)?.type === 'turn_off' ? 'turn off' : 'turn on') + 
+  if (!confirm('Are you sure you want to approve this maintenance request? This will immediately ' +
+    (pendingRequests.value.find(r => r.id === requestId)?.type === 'turn_off' ? 'turn off' : 'turn on') +
     ' the website.')) {
     return
   }
@@ -7661,7 +8316,33 @@ const addNewRealResultsCase = () => {
     headline: '',
     cards: [],
     companyImages: [],
-    ctaText: ''
+    ctaText: '',
+    // Detail page fields
+    heroImage: {
+      imageUrl: '',
+      imageFileUrl: '',
+      imageType: 'url' as 'url' | 'upload'
+    },
+    chartSection: {
+      title: '',
+      chartImageUrl: '',
+      chartImageFileUrl: '',
+      chartImageType: 'url' as 'url' | 'upload'
+    },
+    beforeAfterSection: {
+      beforeImageUrl: '',
+      beforeImageFileUrl: '',
+      beforeImageType: 'url' as 'url' | 'upload',
+      beforeCaption: '',
+      afterImageUrl: '',
+      afterImageFileUrl: '',
+      afterImageType: 'url' as 'url' | 'upload',
+      afterCaption: ''
+    },
+    ourApproach: {
+      title: 'Our Approach',
+      steps: []
+    }
   })
 }
 
@@ -7674,16 +8355,16 @@ const removeRealResultsCase = (index: number) => {
 const handleCaseLogoUpload = async (event: Event, caseIndex: number) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   if (!file.type.startsWith('image/')) {
     saveMessage.value = 'Please select a valid image file'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 4000)
     return
   }
-  
+
   const maxSize = 5 * 1024 * 1024 // 5MB
   if (file.size > maxSize) {
     saveMessage.value = 'Image file is too large. Maximum size is 5MB'
@@ -7691,12 +8372,12 @@ const handleCaseLogoUpload = async (event: Event, caseIndex: number) => {
     setTimeout(() => { saveMessage.value = '' }, 4000)
     return
   }
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `real-results/logo/${userId}/${timestamp}-${file.name}`
-    
+
     const imageUrl = await storageService.uploadAndGetUrl(
       fileName,
       file,
@@ -7709,12 +8390,12 @@ const handleCaseLogoUpload = async (event: Event, caseIndex: number) => {
         }
       }
     )
-    
+
     if (formData.value.realResultsCases && formData.value.realResultsCases[caseIndex]) {
       formData.value.realResultsCases[caseIndex].companyLogoFileUrl = imageUrl
       formData.value.realResultsCases[caseIndex].companyLogoType = 'upload'
     }
-    
+
     saveMessage.value = 'Logo uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 3000)
@@ -7751,16 +8432,16 @@ const removeCaseCompanyImage = (caseIndex: number, imageIndex: number) => {
 const handleCaseCompanyImageUpload = async (event: Event, caseIndex: number, imageIndex: number) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   if (!file.type.startsWith('image/')) {
     saveMessage.value = 'Please select a valid image file'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 4000)
     return
   }
-  
+
   const maxSize = 5 * 1024 * 1024 // 5MB
   if (file.size > maxSize) {
     saveMessage.value = 'Image file is too large. Maximum size is 5MB'
@@ -7768,12 +8449,12 @@ const handleCaseCompanyImageUpload = async (event: Event, caseIndex: number, ima
     setTimeout(() => { saveMessage.value = '' }, 4000)
     return
   }
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `real-results/company/${userId}/${timestamp}-${file.name}`
-    
+
     const imageUrl = await storageService.uploadAndGetUrl(
       fileName,
       file,
@@ -7786,12 +8467,12 @@ const handleCaseCompanyImageUpload = async (event: Event, caseIndex: number, ima
         }
       }
     )
-    
+
     if (formData.value.realResultsCases && formData.value.realResultsCases[caseIndex]?.companyImages?.[imageIndex]) {
       formData.value.realResultsCases[caseIndex].companyImages[imageIndex].imageFileUrl = imageUrl
       formData.value.realResultsCases[caseIndex].companyImages[imageIndex].imageType = 'upload'
     }
-    
+
     saveMessage.value = 'Image uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 3000)
@@ -7822,6 +8503,252 @@ const removeCaseCard = (caseIndex: number, cardIndex: number) => {
     if (caseItem) {
       caseItem.cards.splice(cardIndex, 1)
     }
+  }
+}
+
+// Detail page upload handlers
+const handleCaseHeroImageUpload = async (event: Event, caseIndex: number) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  const caseItem = formData.value.realResultsCases[caseIndex]
+  if (!caseItem || !caseItem.heroImage) return
+
+  try {
+    const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
+    const timestamp = Date.now()
+    const fileName = `real-results/hero/${userId}/${timestamp}-${file.name}`
+
+    const imageUrl = await storageService.uploadAndGetUrl(fileName, file, {
+      contentType: file.type,
+      customMetadata: {
+        uploadedBy: userId,
+        uploadedAt: new Date().toISOString(),
+        originalName: file.name
+      }
+    })
+
+    caseItem.heroImage.imageFileUrl = imageUrl
+    caseItem.heroImage.imageType = 'upload'
+
+    saveMessage.value = 'Hero image uploaded successfully!'
+    saveMessageType.value = 'success'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to upload image'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 5000)
+  }
+}
+
+const handleCaseChartImageUpload = async (event: Event, caseIndex: number) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  const caseItem = formData.value.realResultsCases[caseIndex]
+  if (!caseItem || !caseItem.chartSection) return
+
+  try {
+    const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
+    const timestamp = Date.now()
+    const fileName = `real-results/chart/${userId}/${timestamp}-${file.name}`
+
+    const imageUrl = await storageService.uploadAndGetUrl(fileName, file, {
+      contentType: file.type,
+      customMetadata: {
+        uploadedBy: userId,
+        uploadedAt: new Date().toISOString(),
+        originalName: file.name
+      }
+    })
+
+    caseItem.chartSection.chartImageFileUrl = imageUrl
+    caseItem.chartSection.chartImageType = 'upload'
+
+    saveMessage.value = 'Chart image uploaded successfully!'
+    saveMessageType.value = 'success'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to upload image'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 5000)
+  }
+}
+
+const handleCaseBeforeImageUpload = async (event: Event, caseIndex: number) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  const caseItem = formData.value.realResultsCases[caseIndex]
+  if (!caseItem || !caseItem.beforeAfterSection) return
+
+  try {
+    const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
+    const timestamp = Date.now()
+    const fileName = `real-results/before/${userId}/${timestamp}-${file.name}`
+
+    const imageUrl = await storageService.uploadAndGetUrl(fileName, file, {
+      contentType: file.type,
+      customMetadata: {
+        uploadedBy: userId,
+        uploadedAt: new Date().toISOString(),
+        originalName: file.name
+      }
+    })
+
+    caseItem.beforeAfterSection.beforeImageFileUrl = imageUrl
+    caseItem.beforeAfterSection.beforeImageType = 'upload'
+
+    saveMessage.value = 'Before image uploaded successfully!'
+    saveMessageType.value = 'success'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to upload image'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 5000)
+  }
+}
+
+const handleCaseAfterImageUpload = async (event: Event, caseIndex: number) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  const caseItem = formData.value.realResultsCases[caseIndex]
+  if (!caseItem || !caseItem.beforeAfterSection) return
+
+  try {
+    const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
+    const timestamp = Date.now()
+    const fileName = `real-results/after/${userId}/${timestamp}-${file.name}`
+
+    const imageUrl = await storageService.uploadAndGetUrl(fileName, file, {
+      contentType: file.type,
+      customMetadata: {
+        uploadedBy: userId,
+        uploadedAt: new Date().toISOString(),
+        originalName: file.name
+      }
+    })
+
+    caseItem.beforeAfterSection.afterImageFileUrl = imageUrl
+    caseItem.beforeAfterSection.afterImageType = 'upload'
+
+    saveMessage.value = 'After image uploaded successfully!'
+    saveMessageType.value = 'success'
+    setTimeout(() => { saveMessage.value = '' }, 3000)
+  } catch (error) {
+    saveMessage.value = error instanceof Error ? error.message : 'Failed to upload image'
+    saveMessageType.value = 'error'
+    setTimeout(() => { saveMessage.value = '' }, 5000)
+  }
+}
+
+const addApproachStep = (caseIndex: number) => {
+  const caseItem = formData.value.realResultsCases[caseIndex]
+  if (!caseItem) return
+  if (!caseItem.ourApproach) {
+    caseItem.ourApproach = {
+      title: 'Our Approach',
+      steps: []
+    }
+  }
+  if (!caseItem.ourApproach.steps) {
+    caseItem.ourApproach.steps = []
+  }
+  caseItem.ourApproach.steps.push({
+    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+    icon: 'magnifying-glass',
+    title: '',
+    description: ''
+  })
+}
+
+const removeApproachStep = (caseIndex: number, stepIndex: number) => {
+  if (confirm('Are you sure you want to delete this step?')) {
+    const caseItem = formData.value.realResultsCases[caseIndex]
+    if (caseItem?.ourApproach?.steps) {
+      caseItem.ourApproach.steps.splice(stepIndex, 1)
+    }
+  }
+}
+
+const addGalleryImage = (caseIndex: number) => {
+  const caseItem = formData.value.realResultsCases[caseIndex]
+  if (!caseItem) return
+  if (!caseItem.imageGallerySection) {
+    caseItem.imageGallerySection = {
+      images: []
+    }
+  }
+  if (!caseItem.imageGallerySection.images) {
+    caseItem.imageGallerySection.images = []
+  }
+  caseItem.imageGallerySection.images.push({
+    id: Date.now().toString() + Math.random().toString(36).substr(2, 9),
+    title: '',
+    subtitle: '',
+    imageUrl: '',
+    imageFileUrl: '',
+    imageType: 'url' as 'url' | 'upload'
+  })
+}
+
+const removeGalleryImage = (caseIndex: number, imageIndex: number) => {
+  if (confirm('Are you sure you want to delete this image?')) {
+    const caseItem = formData.value.realResultsCases[caseIndex]
+    if (caseItem?.imageGallerySection?.images) {
+      caseItem.imageGallerySection.images.splice(imageIndex, 1)
+    }
+  }
+}
+
+const handleGalleryImageUpload = async (event: Event, caseIndex: number, imageIndex: number) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (!file) return
+
+  const caseItem = formData.value.realResultsCases[caseIndex]
+  if (!caseItem?.imageGallerySection?.images?.[imageIndex]) return
+
+  const imageItem = caseItem.imageGallerySection.images[imageIndex]
+
+  try {
+    uploadingThumbnails.value[`${caseIndex}-${imageIndex}`] = true
+    uploadProgressThumbnails.value[`${caseIndex}-${imageIndex}`] = 0
+
+    const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
+    const timestamp = Date.now()
+    const fileName = `gallery-images/${userId}/${timestamp}-${file.name}`
+
+    const imageUrl = await storageService.uploadAndGetUrlWithProgress(
+      fileName,
+      file,
+      (progress: number) => {
+        uploadProgressThumbnails.value[`${caseIndex}-${imageIndex}`] = progress
+      },
+      {
+        contentType: file.type,
+        customMetadata: {
+          uploadedBy: userId,
+          uploadedAt: new Date().toISOString(),
+          originalName: file.name
+        }
+      }
+    )
+
+    imageItem.imageFileUrl = imageUrl
+    imageItem.imageType = 'upload'
+    imageItem.imageUrl = ''
+  } catch (error) {
+    console.error('Failed to upload gallery image:', error)
+    alert('Failed to upload image. Please try again.')
+  } finally {
+    uploadingThumbnails.value[`${caseIndex}-${imageIndex}`] = false
+    uploadProgressThumbnails.value[`${caseIndex}-${imageIndex}`] = 0
   }
 }
 
@@ -7875,21 +8802,21 @@ const removeClientLogo = (index: number) => {
 const handleClientLogoUpload = async (event: Event, index: number) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   // Validate file type - only allow PNG, JPG, or SVG
   const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/svg+xml']
   const allowedExtensions = ['.png', '.jpg', '.jpeg', '.svg']
   const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
-  
+
   if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
     saveMessage.value = 'Please select a PNG, JPG, or SVG image file'
     saveMessageType.value = 'error'
     setTimeout(() => { saveMessage.value = '' }, 3000)
     return
   }
-  
+
   // Validate file size (max 5MB)
   if (file.size > 5 * 1024 * 1024) {
     saveMessage.value = 'Image file size must be less than 5MB'
@@ -7897,21 +8824,21 @@ const handleClientLogoUpload = async (event: Event, index: number) => {
     setTimeout(() => { saveMessage.value = '' }, 3000)
     return
   }
-  
+
   // Set uploading state
   uploadingLogos.value[index] = true
-  
+
   try {
     const logo = formData.value.clientLogos[index]
     if (!logo) {
       uploadingLogos.value[index] = false
       return
     }
-    
+
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `client-logos/${userId}/${timestamp}-${file.name}`
-    
+
     // Upload image to Firebase Storage
     const imageUrl = await storageService.uploadAndGetUrl(
       fileName,
@@ -7925,12 +8852,12 @@ const handleClientLogoUpload = async (event: Event, index: number) => {
         }
       }
     )
-    
+
     if (imageUrl) {
       logo.logoFileUrl = imageUrl
       logo.logoType = 'upload'
     }
-    
+
     saveMessage.value = 'Logo uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 3000)
@@ -7948,14 +8875,14 @@ const handleClientLogoUpload = async (event: Event, index: number) => {
 const handlePhotoUpload = async (event: Event, index: number) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   // Validate file type - only allow PNG, JPG, or WebP
   const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
   const allowedExtensions = ['.png', '.jpg', '.jpeg', '.webp']
   const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
-  
+
   if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
     saveMessage.value = 'Please select a valid image file (PNG, JPG, or WebP)'
     saveMessageType.value = 'error'
@@ -7966,7 +8893,7 @@ const handlePhotoUpload = async (event: Event, index: number) => {
     }
     return
   }
-  
+
   // Validate file size (5MB max)
   const maxSize = 5 * 1024 * 1024 // 5MB
   if (file.size > maxSize) {
@@ -7979,15 +8906,15 @@ const handlePhotoUpload = async (event: Event, index: number) => {
     }
     return
   }
-  
+
   uploadingPhotos.value[index] = true
   uploadProgressPhotos.value[index] = 0
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `testimonials/${userId}/${timestamp}-${file.name}`
-    
+
     // Upload image to Firebase Storage with progress tracking
     const imageUrl = await storageService.uploadAndGetUrlWithProgress(
       fileName,
@@ -8004,13 +8931,13 @@ const handlePhotoUpload = async (event: Event, index: number) => {
         }
       }
     )
-    
+
     const testimonial = formData.value.testimonials[index]
     if (testimonial) {
       testimonial.photoFileUrl = imageUrl
       testimonial.photoType = 'upload'
     }
-    
+
     saveMessage.value = 'Photo uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 3000)
@@ -8027,14 +8954,14 @@ const handlePhotoUpload = async (event: Event, index: number) => {
 const handleTestimonialVideoUpload = async (event: Event, index: number) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   // Validate file type - only allow specific video formats
   const allowedTypes = ['video/mp4', 'video/webm', 'video/quicktime', 'video/x-msvideo']
   const allowedExtensions = ['.mp4', '.webm', '.mov', '.avi']
   const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
-  
+
   if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
     saveMessage.value = 'Please select a valid video file (MP4, WebM, MOV, or AVI)'
     saveMessageType.value = 'error'
@@ -8045,7 +8972,7 @@ const handleTestimonialVideoUpload = async (event: Event, index: number) => {
     }
     return
   }
-  
+
   // Validate file size (100MB max)
   const maxSize = 100 * 1024 * 1024 // 100MB
   if (file.size > maxSize) {
@@ -8058,15 +8985,15 @@ const handleTestimonialVideoUpload = async (event: Event, index: number) => {
     }
     return
   }
-  
+
   uploadingTestimonialVideos.value[index] = true
   uploadProgressTestimonialVideos.value[index] = 0
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `testimonials/${userId}/${timestamp}-${file.name}`
-    
+
     // Upload video to Firebase Storage with progress tracking
     const videoUrl = await storageService.uploadAndGetUrlWithProgress(
       fileName,
@@ -8083,13 +9010,13 @@ const handleTestimonialVideoUpload = async (event: Event, index: number) => {
         }
       }
     )
-    
+
     const testimonial = formData.value.testimonials[index]
     if (testimonial) {
       testimonial.videoFileUrl = videoUrl
       testimonial.videoType = 'upload'
     }
-    
+
     saveMessage.value = 'Video uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 3000)
@@ -8106,14 +9033,14 @@ const handleTestimonialVideoUpload = async (event: Event, index: number) => {
 const handleVideoThumbnailUpload = async (event: Event, index: number) => {
   const target = event.target as HTMLInputElement
   const file = target.files?.[0]
-  
+
   if (!file) return
-  
+
   // Validate file type - only allow PNG, JPG, or WebP
   const allowedTypes = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp']
   const allowedExtensions = ['.png', '.jpg', '.jpeg', '.webp']
   const fileExtension = file.name.toLowerCase().substring(file.name.lastIndexOf('.'))
-  
+
   if (!allowedTypes.includes(file.type) && !allowedExtensions.includes(fileExtension)) {
     saveMessage.value = 'Please select a valid image file (PNG, JPG, or WebP)'
     saveMessageType.value = 'error'
@@ -8124,7 +9051,7 @@ const handleVideoThumbnailUpload = async (event: Event, index: number) => {
     }
     return
   }
-  
+
   // Validate file size (5MB max)
   const maxSize = 5 * 1024 * 1024 // 5MB
   if (file.size > maxSize) {
@@ -8137,15 +9064,15 @@ const handleVideoThumbnailUpload = async (event: Event, index: number) => {
     }
     return
   }
-  
+
   uploadingThumbnails.value[index] = true
   uploadProgressThumbnails.value[index] = 0
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
     const timestamp = Date.now()
     const fileName = `testimonials/${userId}/thumbnails/${timestamp}-${file.name}`
-    
+
     // Upload image to Firebase Storage with progress tracking
     const imageUrl = await storageService.uploadAndGetUrlWithProgress(
       fileName,
@@ -8162,13 +9089,13 @@ const handleVideoThumbnailUpload = async (event: Event, index: number) => {
         }
       }
     )
-    
+
     const testimonial = formData.value.testimonials[index]
     if (testimonial) {
       testimonial.videoThumbnailFileUrl = imageUrl
       testimonial.videoThumbnailType = 'upload'
     }
-    
+
     saveMessage.value = 'Video thumbnail uploaded successfully!'
     saveMessageType.value = 'success'
     setTimeout(() => { saveMessage.value = '' }, 3000)
@@ -8185,22 +9112,70 @@ const handleVideoThumbnailUpload = async (event: Event, index: number) => {
 const loadContent = async () => {
   isLoading.value = true
   errorMessage.value = ''
-  
+
   try {
     await userViewController.loadCurrentUser()
-    
+
     // Check if user is admin
     if (user.value?.id) {
       isAdmin.value = await adminUserService.isAdmin(user.value.id)
     }
-    
+
     const result = await homeContentController.getHomeContent()
-    
+
     if (result.success && result.data) {
       formData.value = result.data
       // Ensure step numbers are properly initialized
       if (formData.value.steps && formData.value.steps.length > 0) {
         updateStepNumbers()
+      }
+      // Initialize detail page fields for existing cases
+      if (formData.value.realResultsCases) {
+        formData.value.realResultsCases.forEach((resultCase) => {
+          // Initialize heroImage if missing
+          if (!resultCase.heroImage) {
+            resultCase.heroImage = {
+              imageUrl: '',
+              imageFileUrl: '',
+              imageType: 'url' as 'url' | 'upload'
+            }
+          }
+          // Initialize chartSection if missing
+          if (!resultCase.chartSection) {
+            resultCase.chartSection = {
+              title: '',
+              chartImageUrl: '',
+              chartImageFileUrl: '',
+              chartImageType: 'url' as 'url' | 'upload'
+            }
+          }
+          // Initialize beforeAfterSection if missing
+          if (!resultCase.beforeAfterSection) {
+            resultCase.beforeAfterSection = {
+              beforeImageUrl: '',
+              beforeImageFileUrl: '',
+              beforeImageType: 'url' as 'url' | 'upload',
+              beforeCaption: '',
+              afterImageUrl: '',
+              afterImageFileUrl: '',
+              afterImageType: 'url' as 'url' | 'upload',
+              afterCaption: ''
+            }
+          }
+          // Initialize ourApproach if missing
+          if (!resultCase.ourApproach) {
+            resultCase.ourApproach = {
+              title: 'Our Approach',
+              steps: []
+            }
+          }
+          // Initialize imageGallerySection if missing
+          if (!resultCase.imageGallerySection) {
+            resultCase.imageGallerySection = {
+              images: []
+            }
+          }
+        })
       }
     } else {
       errorMessage.value = result.error || 'Failed to load content'
@@ -8217,7 +9192,7 @@ const loadContent = async () => {
         }
       })
     }
-    
+
     // Load services content
     const servicesResult = await servicesContentController.getServicesContent()
     if (servicesResult.success && servicesResult.data) {
@@ -8229,24 +9204,24 @@ const loadContent = async () => {
           .filter((id): id is string => !!id)
       )
     }
-    
+
     // Load legal content
     const legalResult = await legalContentController.getLegalContent()
     if (legalResult.success && legalResult.data) {
       legalFormData.value = legalResult.data
     }
-    
+
     // Load roles for all users (needed for permission checking)
     const rolesResult = await roleController.getAllRoles()
     if (rolesResult.success && rolesResult.data) {
       roles.value = rolesResult.data
     }
-    
+
     // Load admin data if admin
     if (isAdmin.value) {
       await loadAdminData()
     }
-    
+
     // Set initial tab to first accessible tab
     const accessibleTabs = tabs.value
     if (accessibleTabs.length > 0 && !canAccessTab(activeTab.value) && accessibleTabs[0]) {
@@ -8261,7 +9236,7 @@ const loadContent = async () => {
 
 const loadAdminData = async () => {
   if (!isAdmin.value) return
-  
+
   isAdminLoading.value = true
   try {
     // Load users
@@ -8269,19 +9244,19 @@ const loadAdminData = async () => {
     if (usersResult.success && usersResult.data) {
       users.value = usersResult.data
     }
-    
+
     // Load roles
     const rolesResult = await roleController.getAllRoles()
     if (rolesResult.success && rolesResult.data) {
       roles.value = rolesResult.data
     }
-    
+
     // Load activity logs
     const logsResult = await activityLogController.getRecentLogs(100)
     if (logsResult.success && logsResult.data) {
       activityLogs.value = logsResult.data
     }
-    
+
     // Load site settings
     const settingsResult = await siteSettingsController.getSiteSettings()
     if (settingsResult.success && settingsResult.data) {
@@ -8296,7 +9271,7 @@ const loadAdminData = async () => {
 
 const createUser = async () => {
   if (!user.value?.id) return
-  
+
   isAdminLoading.value = true
   try {
     const result = await adminUserController.createUser(
@@ -8306,22 +9281,22 @@ const createUser = async () => {
       newUserForm.value.role,
       user.value.id
     )
-    
+
     if (result.success) {
       // Clear form first
       newUserForm.value = { email: '', password: '', displayName: '', role: 'user' }
-      
+
       // Reload admin data to refresh the users list and activity logs
       await loadAdminData()
-      
+
       // Force Vue to recognize the change by creating a new array reference
       users.value = [...users.value]
-      
+
       // Refresh activity logs if currently viewing them
       if (activeTab.value === 'activity-logs') {
         await refreshActivityLogs()
       }
-      
+
       saveMessage.value = 'User created successfully!'
       saveMessageType.value = 'success'
       setTimeout(() => { saveMessage.value = '' }, 4000)
@@ -8353,7 +9328,7 @@ const cancelUserEdit = () => {
 
 const saveUserEdit = async (userId: string) => {
   if (!user.value?.id) return
-  
+
   isAdminLoading.value = true
   try {
     const result = await adminUserController.updateUser(userId, editUserForm.value, user.value.id)
@@ -8384,7 +9359,7 @@ const saveUserEdit = async (userId: string) => {
 
 const updateUserRole = async (userId: string, newRole: string) => {
   if (!user.value?.id) return
-  
+
   isAdminLoading.value = true
   try {
     const result = await adminUserController.updateUserRole(userId, newRole, user.value.id)
@@ -8413,7 +9388,7 @@ const updateUserRole = async (userId: string, newRole: string) => {
 
 const deleteUser = async (userId: string) => {
   if (!user.value?.id || !confirm('Are you sure you want to delete this user?')) return
-  
+
   isAdminLoading.value = true
   try {
     const result = await adminUserController.deleteUser(userId, user.value.id)
@@ -8446,11 +9421,11 @@ const createRole = async () => {
     const result = await roleController.createRole(newRoleForm.value)
     if (result.success) {
       newRoleForm.value = { name: '', description: '', permissions: [] }
-      
+
       // Reload roles to update the dropdown lists
       await reloadRoles()
       await loadAdminData()
-      
+
       saveMessage.value = 'Role created successfully!'
       saveMessageType.value = 'success'
       setTimeout(() => { saveMessage.value = '' }, 4000)
@@ -8482,18 +9457,18 @@ const cancelRoleEdit = () => {
 
 const saveRoleEdit = async (roleId: string) => {
   if (!user.value?.id) return
-  
+
   isAdminLoading.value = true
   try {
     const result = await roleController.updateRole(roleId, editRoleForm.value, user.value.id)
     if (result.success) {
       editingRoleId.value = null
       editRoleForm.value = { name: '', description: '', permissions: [] }
-      
+
       // Reload roles to update permissions across the app
       await reloadRoles()
       await loadAdminData()
-      
+
       saveMessage.value = 'Role updated successfully! Users with this role will see updated permissions.'
       saveMessageType.value = 'success'
       setTimeout(() => { saveMessage.value = '' }, 4000)
@@ -8520,7 +9495,7 @@ const reloadRoles = async () => {
 
 const deleteRole = async (roleId: string) => {
   if (!user.value?.id || !confirm('Are you sure you want to delete this role? Users with this role may lose access.')) return
-  
+
   isAdminLoading.value = true
   try {
     const result = await roleController.deleteRole(roleId, user.value.id)
@@ -8528,7 +9503,7 @@ const deleteRole = async (roleId: string) => {
       // Reload roles to update permissions
       await reloadRoles()
       await loadAdminData()
-      
+
       saveMessage.value = 'Role deleted successfully!'
       saveMessageType.value = 'success'
       setTimeout(() => { saveMessage.value = '' }, 4000)
@@ -8546,7 +9521,7 @@ const deleteRole = async (roleId: string) => {
 
 const resetUserPassword = async (userEmail: string) => {
   if (!user.value?.id || !confirm(`Send password reset email to ${userEmail}?`)) return
-  
+
   isAdminLoading.value = true
   try {
     const result = await adminUserController.resetUserPassword(userEmail, user.value.id)
@@ -8567,6 +9542,44 @@ const resetUserPassword = async (userEmail: string) => {
     saveMessageType.value = 'error'
   } finally {
     isAdminLoading.value = false
+  }
+}
+
+const saveSiteSettings = async () => {
+  isSavingSiteSettings.value = true
+  saveMessage.value = ''
+
+  try {
+    // Save all site settings - ensure we have all required fields
+    const settingsToSave: Partial<SiteSettings> = {
+      disabledSections: siteSettings.value.disabledSections || [],
+      maintenanceMode: siteSettings.value.maintenanceMode || false,
+      maintenanceMessage: siteSettings.value.maintenanceMessage || 'We\'re currently performing maintenance. Please check back soon.'
+    }
+
+    const result = await siteSettingsController.updateSiteSettings(settingsToSave)
+
+    if (result.success) {
+      // Reload settings to ensure they're synced
+      await loadAdminData()
+      saveMessage.value = 'Site settings saved successfully!'
+      saveMessageType.value = 'success'
+      setTimeout(() => { saveMessage.value = '' }, 4000)
+
+      // TODO: Save extended settings (general, SEO, social) to a separate collection
+      // or extend the SiteSettings interface to include them
+    } else {
+      saveMessage.value = result.error || 'Failed to save site settings'
+      saveMessageType.value = 'error'
+      console.error('Failed to save site settings:', result.error)
+    }
+  } catch (error) {
+    const errorMessage = error instanceof Error ? error.message : 'Failed to save site settings'
+    saveMessage.value = errorMessage
+    saveMessageType.value = 'error'
+    console.error('Error saving site settings:', error)
+  } finally {
+    isSavingSiteSettings.value = false
   }
 }
 
@@ -8593,7 +9606,7 @@ const toggleSection = async (sectionId: string, disabled: boolean) => {
 
 const refreshActivityLogs = async () => {
   if (!isAdmin.value) return
-  
+
   isAdminLoading.value = true
   try {
     const logsResult = await activityLogController.getRecentLogs(100)
@@ -8658,7 +9671,7 @@ watch(() => roles.value, () => {
 const saveContent = async () => {
   isSaving.value = true
   saveMessage.value = ''
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid
     if (!userId) {
@@ -8719,7 +9732,7 @@ const saveContent = async () => {
 
     // Save home content for other tabs
     const result = await homeContentController.updateHomeContent(formData.value, userId)
-    
+
     if (result.success) {
       // Refresh activity logs if currently viewing them
       if (activeTab.value === 'activity-logs' && isAdmin.value) {
@@ -8744,14 +9757,14 @@ const resetContent = async () => {
   if (!confirm('Are you sure you want to reset all content to defaults? This action cannot be undone.')) {
     return
   }
-  
+
   isSaving.value = true
   saveMessage.value = ''
-  
+
   try {
     const userId = user.value?.id || authService.getCurrentUser()?.uid
     const result = await homeContentController.resetHomeContent(userId)
-    
+
     if (result.success) {
       await loadContent()
       saveMessage.value = 'Content reset to defaults successfully!'
@@ -8827,6 +9840,12 @@ onMounted(() => {
   setTimeout(() => {
     setActiveTabFromQuery()
   }, 100)
+  // Add resize listener for sidebar
+  window.addEventListener('resize', handleResize)
+})
+
+onUnmounted(() => {
+  window.removeEventListener('resize', handleResize)
 })
 </script>
 
@@ -8844,6 +9863,19 @@ onMounted(() => {
   margin-top: 0;
 }
 
+/* Sidebar Overlay */
+.sidebar-overlay {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.6);
+  z-index: 99;
+  backdrop-filter: blur(4px);
+}
+
 /* Sidebar Styles */
 .dashboard-sidebar {
   width: 300px;
@@ -8855,6 +9887,8 @@ onMounted(() => {
   height: 100vh;
   overflow-y: auto;
   overflow-x: hidden;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+  z-index: 100;
 }
 
 .dashboard-sidebar::-webkit-scrollbar {
@@ -9070,6 +10104,34 @@ onMounted(() => {
   display: flex;
   justify-content: space-between;
   align-items: center;
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.mobile-menu-toggle {
+  display: none;
+  background: rgba(91, 32, 150, 0.2);
+  border: 1px solid rgba(91, 32, 150, 0.3);
+  border-radius: 8px;
+  padding: 0.5rem;
+  color: #F5F7FA;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.mobile-menu-toggle:hover {
+  background: rgba(91, 32, 150, 0.3);
+  border-color: rgba(91, 32, 150, 0.5);
+}
+
+.mobile-menu-toggle svg {
+  width: 24px;
+  height: 24px;
 }
 
 .page-title {
@@ -9356,6 +10418,88 @@ onMounted(() => {
   display: flex;
   justify-content: flex-end;
   margin-top: 0.25rem;
+}
+
+.char-count {
+  display: block;
+  margin-top: 0.25rem;
+  font-size: 0.75rem;
+  color: rgba(245, 247, 250, 0.5);
+  text-align: right;
+}
+
+.toggle-switch-large {
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  cursor: pointer;
+  padding: 1rem;
+  background: rgba(245, 247, 250, 0.05);
+  border: 1px solid rgba(91, 32, 150, 0.2);
+  border-radius: 12px;
+  transition: all 0.2s ease;
+}
+
+.toggle-switch-large:hover {
+  border-color: rgba(91, 32, 150, 0.4);
+  background: rgba(245, 247, 250, 0.08);
+}
+
+.toggle-switch-large input[type="checkbox"] {
+  position: absolute;
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-switch-large .toggle-slider {
+  position: relative;
+  width: 56px;
+  height: 32px;
+  background: rgba(245, 247, 250, 0.2);
+  border-radius: 16px;
+  transition: all 0.3s ease;
+  flex-shrink: 0;
+  margin-top: 0.25rem;
+}
+
+.toggle-switch-large .toggle-slider::before {
+  content: '';
+  position: absolute;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #F5F7FA;
+  top: 4px;
+  left: 4px;
+  transition: all 0.3s ease;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.toggle-switch-large input[type="checkbox"]:checked + .toggle-slider {
+  background: linear-gradient(103deg, #5B2096 0.52%, #C19DE6 125.79%);
+}
+
+.toggle-switch-large input[type="checkbox"]:checked + .toggle-slider::before {
+  transform: translateX(24px);
+}
+
+.toggle-label-large {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+}
+
+.toggle-label-large strong {
+  color: #F5F7FA;
+  font-size: 1rem;
+  font-weight: 600;
+}
+
+.toggle-description {
+  color: rgba(245, 247, 250, 0.6);
+  font-size: 0.875rem;
 }
 
 .char-count {
@@ -9838,6 +10982,9 @@ onMounted(() => {
   gap: 0.5rem;
   color: rgba(245, 247, 250, 0.5);
   font-size: 0.875rem;
+  line-height: 1.4;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
 .status-message {
@@ -9877,12 +11024,14 @@ onMounted(() => {
 .action-buttons {
   display: flex;
   gap: 0.75rem;
+  flex-shrink: 0;
 }
 
 .btn-primary,
 .btn-secondary {
   display: inline-flex;
   align-items: center;
+  justify-content: center;
   gap: 0.5rem;
   padding: 0.875rem 1.5rem;
   border-radius: 10px;
@@ -9892,6 +11041,8 @@ onMounted(() => {
   transition: all 0.2s ease;
   border: none;
   font-family: 'Roboto', sans-serif;
+  white-space: nowrap;
+  min-width: fit-content;
 }
 
 .btn-primary {
@@ -9939,141 +11090,355 @@ onMounted(() => {
   .dashboard-sidebar {
     width: 260px;
   }
-  
+
   .action-bar {
-    margin-left: 260px;
+    left: 260px;
+    padding: 1rem 1.5rem;
   }
-  
+
+  .action-bar-content {
+    gap: 1.5rem;
+  }
+
+  .action-hint {
+    font-size: 0.8125rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.75rem 1.25rem;
+    font-size: 0.9rem;
+  }
+
   .form-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .stats-editor {
     grid-template-columns: 1fr;
   }
-  
+
   .steps-list {
     grid-template-columns: 1fr;
   }
 }
 
 @media (max-width: 768px) {
+  .mobile-menu-toggle {
+    display: block;
+  }
+
+  .sidebar-overlay {
+    display: block;
+  }
+
   .dashboard-content {
     flex-direction: column;
   }
-  
+
   .dashboard-sidebar {
-    width: 100%;
-    position: relative;
+    width: 280px;
+    max-width: 85vw;
+    position: fixed;
     top: 0;
-    height: auto;
-    max-height: none;
-    border-right: none;
-    border-bottom: 1px solid rgba(91, 32, 150, 0.2);
+    left: 0;
+    height: 100vh;
+    transform: translateX(-100%);
+    box-shadow: none;
+    z-index: 100;
+    border-right: 1px solid rgba(91, 32, 150, 0.2);
   }
-  
+
+  .dashboard-sidebar.sidebar-open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.5);
+  }
+
+  .sidebar-header {
+    padding: 1.5rem 1rem;
+  }
+
+  .logo-section {
+    margin-bottom: 1rem;
+  }
+
+  .logo-section h2 {
+    font-size: 1.1rem;
+  }
+
+  .user-card {
+    padding: 0.875rem;
+  }
+
+  .user-avatar {
+    width: 36px;
+    height: 36px;
+    font-size: 0.8125rem;
+  }
+
+  .user-name {
+    font-size: 0.8125rem;
+  }
+
+  .user-email {
+    font-size: 0.6875rem;
+  }
+
+  .logout-btn {
+    width: 32px;
+    height: 32px;
+  }
+
   .sidebar-nav {
-    flex-direction: row;
-    flex-wrap: wrap;
-    padding: 0.5rem;
+    flex-direction: column;
+    padding: 0.75rem 0.5rem;
   }
-  
+
   .nav-item {
-    flex: 1;
-    min-width: calc(50% - 0.5rem);
-    justify-content: center;
+    flex: none;
+    min-width: auto;
+    width: 100%;
+    justify-content: flex-start;
+    padding: 0.75rem 1rem;
+    font-size: 0.875rem;
   }
-  
+
   .nav-item.active {
-    border-left: none;
-    border-bottom: 3px solid #5B2096;
+    border-left: 3px solid #5B2096;
+    border-bottom: none;
   }
-  
+
   .nav-indicator {
-    display: none;
+    display: block;
   }
-  
+
   .main-header {
-    padding: 1rem 1.5rem;
+    padding: 1rem;
   }
-  
+
+  .header-left {
+    gap: 0.75rem;
+  }
+
   .page-title {
-    font-size: 1.5rem;
+    font-size: 1.25rem;
   }
-  
+
+  .page-subtitle {
+    font-size: 0.8125rem;
+  }
+
   .content-editor {
     padding: 1.5rem 1rem;
   }
-  
+
   .editor-section {
     padding: 1.5rem;
   }
-  
+
   .action-bar {
-    margin-left: 0;
+    left: 0;
     padding: 1rem;
+    padding-bottom: max(1rem, env(safe-area-inset-bottom));
   }
-  
+
   .action-bar-content {
     flex-direction: column;
     gap: 1rem;
+    align-items: stretch;
   }
-  
+
+  .action-info {
+    width: 100%;
+    text-align: center;
+  }
+
+  .action-hint {
+    justify-content: center;
+    font-size: 0.8125rem;
+    text-align: center;
+    flex-wrap: wrap;
+  }
+
+  .action-hint svg {
+    flex-shrink: 0;
+  }
+
+  .status-message {
+    justify-content: center;
+    text-align: center;
+    font-size: 0.875rem;
+  }
+
   .action-buttons {
     width: 100%;
+    display: flex;
+    gap: 0.75rem;
   }
-  
+
   .btn-primary,
   .btn-secondary {
     flex: 1;
     justify-content: center;
+    padding: 0.875rem 1rem;
+    font-size: 0.875rem;
+    min-width: 0;
+  }
+
+  .btn-primary svg,
+  .btn-secondary svg {
+    width: 16px;
+    height: 16px;
+    flex-shrink: 0;
   }
 }
 
 @media (max-width: 480px) {
-  .main-header {
-    padding: 1rem;
+  .dashboard-sidebar {
+    width: 260px;
+    max-width: 90vw;
   }
-  
+
+  .sidebar-header {
+    padding: 1.25rem 0.875rem;
+  }
+
+  .logo-section h2 {
+    font-size: 1rem;
+  }
+
+  .user-card {
+    padding: 0.75rem;
+  }
+
+  .nav-item {
+    padding: 0.625rem 0.875rem;
+    font-size: 0.8125rem;
+  }
+
+  .main-header {
+    padding: 0.875rem;
+  }
+
   .header-content {
     flex-direction: column;
     align-items: flex-start;
-    gap: 1rem;
+    gap: 0.75rem;
   }
-  
+
+  .header-left {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .page-title {
+    font-size: 1.125rem;
+  }
+
+  .page-subtitle {
+    font-size: 0.75rem;
+  }
+
   .preview-btn-header {
     width: 100%;
     justify-content: center;
+    font-size: 0.875rem;
+    padding: 0.625rem 1rem;
   }
-  
+
   .content-editor {
     padding: 1rem 0.75rem;
+    padding-bottom: calc(120px + env(safe-area-inset-bottom));
   }
-  
+
   .editor-section {
     padding: 1.25rem;
   }
-  
+
   .section-title-group {
     flex-direction: column;
     gap: 0.75rem;
   }
-  
+
   .section-icon {
     font-size: 1.5rem;
   }
-  
+
   .admin-table {
     font-size: 0.875rem;
   }
-  
+
   .admin-table th,
   .admin-table td {
     padding: 0.5rem;
   }
-  
+
   .roles-list {
     grid-template-columns: 1fr;
+  }
+
+  .action-bar {
+    padding: 0.875rem 0.75rem;
+    padding-bottom: max(0.875rem, env(safe-area-inset-bottom));
+  }
+
+  .action-bar-content {
+    gap: 0.875rem;
+  }
+
+  .action-hint {
+    font-size: 0.75rem;
+    gap: 0.375rem;
+    line-height: 1.3;
+  }
+
+  .action-hint svg {
+    width: 14px;
+    height: 14px;
+  }
+
+  .status-message {
+    font-size: 0.8125rem;
+    padding: 0.5rem 0.75rem;
+  }
+
+  .status-message svg {
+    width: 16px;
+    height: 16px;
+  }
+
+  .action-buttons {
+    gap: 0.5rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.75rem 0.875rem;
+    font-size: 0.8125rem;
+    gap: 0.375rem;
+  }
+
+  .btn-primary svg,
+  .btn-secondary svg {
+    width: 14px;
+    height: 14px;
+  }
+}
+
+@media (max-width: 360px) {
+  .action-bar {
+    padding: 0.75rem 0.5rem;
+    padding-bottom: max(0.75rem, env(safe-area-inset-bottom));
+  }
+
+  .action-hint {
+    font-size: 0.6875rem;
+  }
+
+  .btn-primary,
+  .btn-secondary {
+    padding: 0.625rem 0.75rem;
+    font-size: 0.75rem;
   }
 }
 
@@ -11117,16 +12482,16 @@ onMounted(() => {
   .contact-info-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .form-row {
     grid-template-columns: 1fr;
   }
-  
+
   .message-header {
     flex-direction: column;
     gap: 0.5rem;
   }
-  
+
   .message-actions {
     flex-wrap: wrap;
   }
@@ -13318,117 +14683,117 @@ onMounted(() => {
   .permission-checkboxes {
     grid-template-columns: 1fr;
   }
-  
+
   .category-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .role-card-content {
     flex-direction: column;
   }
-  
+
   .role-actions {
     width: 100%;
     justify-content: flex-end;
   }
-  
+
   /* Booking Section Responsive */
   .bookings-list {
     gap: 0.75rem;
   }
-  
+
   .booking-card {
     padding: 1rem;
   }
-  
+
   .booking-card-content {
     flex-direction: column;
     gap: 1rem;
   }
-  
+
   .booking-actions {
     width: 100%;
     justify-content: flex-end;
     flex-wrap: wrap;
   }
-  
+
   .view-toggle {
     flex-wrap: wrap;
     gap: 0.5rem;
   }
-  
+
   .view-toggle-btn {
     flex: 1;
     min-width: 120px;
     justify-content: center;
   }
-  
+
   .calendar-header-controls {
     flex-wrap: wrap;
     gap: 0.5rem;
   }
-  
+
   .calendar-header-controls h4 {
     font-size: 1rem;
     width: 100%;
     text-align: center;
   }
-  
+
   .admin-calendar-grid {
     gap: 0.25rem;
   }
-  
+
   .admin-calendar-day {
     padding: 0.25rem;
     font-size: 0.75rem;
     min-height: 40px;
   }
-  
+
   .calendar-day-header {
     font-size: 0.7rem;
     padding: 0.25rem;
   }
-  
+
   .form-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .booking-edit-actions {
     flex-direction: column;
   }
-  
+
   .booking-edit-actions button {
     width: 100%;
   }
-  
+
   .time-slots-management {
     gap: 0.75rem;
   }
-  
+
   .time-slot-control {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .time-slot-control .btn-toggle {
     width: 100%;
   }
-  
+
   .availability-calendar-container {
     margin-top: 1rem;
   }
-  
+
   .reminder-section {
     padding: 1rem;
   }
-  
+
   .upcoming-bookings-list {
     gap: 0.5rem;
   }
-  
+
   .upcoming-booking-item {
     flex-direction: column;
     align-items: flex-start;
@@ -13441,38 +14806,38 @@ onMounted(() => {
   .admin-calendar-grid {
     gap: 0.2rem;
   }
-  
+
   .admin-calendar-day {
     padding: 0.2rem;
     font-size: 0.7rem;
     min-height: 36px;
   }
-  
+
   .calendar-day-header {
     font-size: 0.65rem;
     padding: 0.2rem;
   }
-  
+
   .view-toggle-btn {
     min-width: 100px;
     font-size: 0.85rem;
     padding: 0.4rem 0.75rem;
   }
-  
+
   .booking-header {
     flex-direction: column;
     align-items: flex-start;
     gap: 0.5rem;
   }
-  
+
   .booking-details {
     gap: 0.5rem;
   }
-  
+
   .booking-detail-item {
     font-size: 0.85rem;
   }
-  
+
   .calendar-header-controls h4 {
     font-size: 0.9rem;
   }
@@ -13651,44 +15016,44 @@ onMounted(() => {
   .analytics-stats-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .analytics-charts-grid {
     grid-template-columns: 1fr;
   }
-  
+
   .country-item {
     grid-template-columns: 1fr;
     gap: 0.75rem;
   }
-  
+
   .country-rank {
     width: 28px;
     height: 28px;
     font-size: 0.75rem;
   }
-  
+
   .country-count {
     text-align: left;
   }
-  
+
   .country-bar {
     grid-column: 1 / -1;
   }
-  
+
   .analytics-period-selector {
     flex-wrap: wrap;
   }
-  
+
   .period-btn {
     flex: 1;
     min-width: 100px;
   }
-  
+
   .selected-date-bookings {
     margin-top: 1rem;
     padding-top: 1rem;
   }
-  
+
   .availability-date-controls {
     margin-top: 1rem;
     padding-top: 1rem;

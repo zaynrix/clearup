@@ -3,12 +3,12 @@ export interface HomeContent {
   heroHeadlineWhite: string
   heroHeadlinePurple: string
   supportingText: string[]
-  
+
   // CTA Section
   ctaPlaceholder: string
   ctaButtonText: string
   socialProofText: string
-  
+
   // Who We Are Section
   whoWeAreTitle: string
   whoWeAreDescription: string
@@ -20,14 +20,14 @@ export interface HomeContent {
     leads: { title: string; value: string; description: string }
     reach: { title: string; value: string; description: string }
   }
-  
+
   // System Section
   systemTitle: string
   systemDescription: string
   systemCardTitle: string
   systemCardText: string[]
   systemCardROI: string
-  
+
   // Services Section
   servicesTitle: string
   servicesDescription: string
@@ -35,22 +35,22 @@ export interface HomeContent {
     name: string
     description: string
   }>
-  
+
   // What We Do Section
   whatWeDoTitle: string
   steps: Array<{
     number: number
     content: string
   }>
-  
+
   // What You Get Section
   whatYouGetTitle: string
   benefits: string[]
-  
+
   // Bonuses Section
   bonusesTitle: string
   bonuses: string[]
-  
+
   // Clients Section
   clientsTitle: string
   clientsSubtitle: string
@@ -61,7 +61,7 @@ export interface HomeContent {
     logoType?: 'url' | 'upload' // Type of logo source
     name?: string // Optional client name for alt text
   }>
-  
+
   // Real Results Section
   realResultsTitle: string
   realResultsSubtitle: string
@@ -84,8 +84,49 @@ export interface HomeContent {
       imageType?: 'url' | 'upload' // Type of image source
     }>
     ctaText?: string
+    // Detail page fields
+    heroImage?: {
+      imageUrl?: string
+      imageFileUrl?: string
+      imageType?: 'url' | 'upload'
+    }
+    chartSection?: {
+      title: string
+      chartImageUrl?: string
+      chartImageFileUrl?: string
+      chartImageType?: 'url' | 'upload'
+    }
+    beforeAfterSection?: {
+      beforeImageUrl?: string
+      beforeImageFileUrl?: string
+      beforeImageType?: 'url' | 'upload'
+      beforeCaption?: string
+      afterImageUrl?: string
+      afterImageFileUrl?: string
+      afterImageType?: 'url' | 'upload'
+      afterCaption?: string
+    }
+    imageGallerySection?: {
+      images?: Array<{
+        id: string
+        title: string
+        subtitle: string
+        imageUrl?: string
+        imageFileUrl?: string
+        imageType?: 'url' | 'upload'
+      }>
+    }
+    ourApproach?: {
+      title?: string
+      steps: Array<{
+        id: string
+        icon: string // Icon identifier (e.g., 'magnifying-glass', 'target', 'lightbulb', 'gear')
+        title: string
+        description: string
+      }>
+    }
   }>
-  
+
   // Testimonials Section
   testimonialsTitle: string
   testimonialsSubtitle: string
@@ -108,7 +149,7 @@ export interface HomeContent {
     videoFileUrl?: string // Uploaded video file URL
     videoType?: 'link' | 'upload' | 'none' // Type of video source
   }>
-  
+
   // Footer
   footerTagline: string
   footerAddress?: string
