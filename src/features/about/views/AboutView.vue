@@ -646,16 +646,16 @@ const handleImageError = (event: Event) => {
 /* Team Section */
 .team-section {
   margin-top: 100px;
-  margin-left: -40px;
-  margin-right: -40px;
-  padding-left: 10px;
-  padding-right: 10px;
+  margin-left: -80px;
+  margin-right: -80px;
+  padding-left: 20px;
+  padding-right: 20px;
 }
 
 .team-grid {
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  gap: 1.5rem;
+  gap: 2rem;
   margin-top: 3rem;
 }
 
@@ -677,6 +677,7 @@ const handleImageError = (event: Event) => {
 .member-photo {
   width: 100%;
   aspect-ratio: 3 / 4;
+  min-height: 320px;
   margin: 0 0 1.5rem 0;
   border-radius: 12px;
   overflow: hidden;
@@ -852,10 +853,34 @@ const handleImageError = (event: Event) => {
 }
 
 /* Responsive Design */
+@media (max-width: 1400px) {
+  .team-section {
+    margin-left: -60px;
+    margin-right: -60px;
+    padding-left: 15px;
+    padding-right: 15px;
+  }
+
+  .member-photo {
+    min-height: 280px;
+  }
+}
+
 @media (max-width: 1200px) {
+  .team-section {
+    margin-left: -40px;
+    margin-right: -40px;
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
   .team-grid {
     grid-template-columns: repeat(4, 1fr);
-    gap: 1rem;
+    gap: 1.5rem;
+  }
+
+  .member-photo {
+    min-height: 240px;
   }
 }
 
@@ -869,7 +894,11 @@ const handleImageError = (event: Event) => {
 
   .team-grid {
     grid-template-columns: repeat(3, 1fr);
-    gap: 1rem;
+    gap: 1.25rem;
+  }
+
+  .member-photo {
+    min-height: 220px;
   }
 }
 
@@ -902,6 +931,10 @@ const handleImageError = (event: Event) => {
   .team-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 1rem;
+  }
+
+  .member-photo {
+    min-height: 180px;
   }
 
   .member-name {
