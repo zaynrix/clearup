@@ -1,6 +1,14 @@
-# ClearUp
+<div align="center">
 
-Web application built with Vue 3 and Firebase for content management and lead generation.
+![ClearUp Logo](./public/images/logos/logo-main.png)
+
+# ClearUp Agency
+
+**Web application built with Vue 3 and Firebase for content management and lead generation.**
+
+🌐 **Live Website:** [https://clearupagency.com](https://clearupagency.com)
+
+</div>
 
 ## Stack
 
@@ -133,8 +141,9 @@ See `.env.example` for a complete template.
 
 ## Deployment
 
-Deploys to GitHub Pages via GitHub Actions. Configure these secrets in repository settings:
+Deploys to Hetzner server via GitHub Actions. Configure these secrets in repository settings:
 
+**Firebase Secrets:**
 - `VITE_FIREBASE_API_KEY`
 - `VITE_FIREBASE_AUTH_DOMAIN`
 - `VITE_FIREBASE_PROJECT_ID`
@@ -146,7 +155,12 @@ Deploys to GitHub Pages via GitHub Actions. Configure these secrets in repositor
 - `VITE_GOOGLE_CLIENT_SECRET` (optional - for Google Calendar integration)
 - `VITE_GOOGLE_REDIRECT_URI` (optional - for Google Calendar integration)
 
-Add `zaynrix.github.io` to Firebase Authentication authorized domains.
+**Server Secrets:**
+- `SERVER_IP` - Hetzner server IP address
+- `SERVER_USER` - SSH username (typically `root`)
+- `SSH_PRIVATE_KEY` - SSH private key for server access
+
+The workflow automatically builds and deploys on push to `main` branch.
 
 ## Scripts
 
