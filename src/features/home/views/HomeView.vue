@@ -35,9 +35,9 @@
             <span class="text-reveal gradient-shimmer">{{ homeContent?.heroHeadlinePurple || 'Your Business' }}</span>
           </span>
         </h1>
-        
+
         <div class="supporting-text" :class="{ 'animate-in': isLoaded }">
-          <p v-for="(text, index) in (homeContent?.supportingText || ['Growing a business is hard and chaos', 'We make whole a lot easer', 'More systemized, more predictable, less stressful, more fun'])" :key="index" class="text-line" :style="{ '--delay': `${0.6 + index * 0.15}s` }">
+          <p v-for="(text, index) in (homeContent?.supportingText || ['Growing a business is hard and chaos', 'We make whole a lot easer', 'More systemized, more predictable, less stressful, more fun'])" :key="index" class="text-line" :style="{ '--delay': `${0.25 + index * 0.08}s` }">
             {{ text }}
           </p>
         </div>
@@ -45,39 +45,33 @@
 
       <!-- CTA Section -->
       <div v-if="!isSectionDisabled('cta')" class="cta-section" :class="{ 'animate-in': isLoaded }">
-        <form @submit.prevent="handleSubmit" class="whatsapp-form">
-          <div class="input-wrapper" :class="{ 'animate-in': isLoaded }">
-            <input
-              v-model="email"
-              type="email"
-              class="whatsapp-input"
-              :placeholder="homeContent?.ctaPlaceholder || 'Enter your email and we will send you some magic'"
-              :disabled="isLoading"
-              required
-            />
-            <div class="input-glow"></div>
-          </div>
-          <button 
-            type="submit" 
-            class="cta-button"
+        <div class="cta-buttons-container">
+          <button
+            @click="handleBookMeeting"
+            class="cta-button-primary"
             :class="{ 'animate-in': isLoaded }"
-            :disabled="isLoading"
           >
-            <span class="btn-text">{{ isLoading ? 'Submitting...' : (homeContent?.ctaButtonText || 'Submit') }}</span>
-            <svg v-if="!isLoading" class="btn-arrow" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M5 12H19M19 12L12 5M19 12L12 19" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <svg class="btn-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path d="M8 2V6M16 2V6M3 10H21M5 4H19C20.1046 4 21 4.89543 21 6V20C21 21.1046 20.1046 22 19 22H5C3.89543 22 3 21.1046 3 20V6C3 4.89543 3.89543 4 5 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+              <path d="M8 14H8.01M12 14H12.01M16 14H16.01M8 18H8.01M12 18H12.01M16 18H16.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
             </svg>
-            <div v-else class="submit-spinner"></div>
+            <span class="btn-text">Book a Meeting</span>
             <div class="btn-glow"></div>
             <div class="btn-shine"></div>
           </button>
-        </form>
-        
-        <div v-if="errorMessage" class="error-message animate-shake">
-          {{ errorMessage }}
-        </div>
-        <div v-if="successMessage" class="success-message animate-success">
-          {{ successMessage }}
+
+          <a
+            :href="whatsappUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="cta-button-secondary"
+            :class="{ 'animate-in': isLoaded }"
+          >
+            <svg class="btn-icon btn-icon-white" width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <path fill-rule="evenodd" clip-rule="evenodd" d="M11.125 1.33325C5.7171 1.33325 1.33337 5.71698 1.33337 11.1249C1.33337 12.9755 1.84744 14.7087 2.74142 16.1853L1.868 19.1541C1.81785 19.3245 1.81455 19.5054 1.85845 19.6775C1.90234 19.8497 1.99181 20.0069 2.11745 20.1325C2.24309 20.2581 2.40026 20.3476 2.57243 20.3915C2.7446 20.4354 2.92542 20.4321 3.09587 20.382L6.06471 19.5085C7.59097 20.4318 9.34123 20.9189 11.125 20.9166C16.533 20.9166 20.9167 16.5329 20.9167 11.1249C20.9167 5.71698 16.533 1.33325 11.125 1.33325ZM8.91017 13.3408C10.891 15.3206 12.7818 15.5821 13.4496 15.6066C14.465 15.6438 15.4539 14.8683 15.8387 13.9684C15.8869 13.8564 15.9043 13.7335 15.8892 13.6125C15.874 13.4915 15.8269 13.3768 15.7526 13.2801C15.216 12.5946 14.4904 12.1021 13.7815 11.6125C13.6336 11.51 13.4516 11.4688 13.2739 11.4976C13.0962 11.5265 12.9367 11.6231 12.8288 11.7673L12.2413 12.6632C12.2102 12.7112 12.1621 12.7456 12.1067 12.7594C12.0512 12.7732 11.9926 12.7654 11.9426 12.7376C11.5441 12.5095 10.9635 12.1217 10.5464 11.7046C10.1292 11.2875 9.76498 10.7333 9.56033 10.3602C9.53558 10.3127 9.52858 10.2579 9.5406 10.2056C9.55263 10.1534 9.58289 10.1072 9.62594 10.0753L10.5307 9.40354C10.6602 9.29152 10.7438 9.13565 10.7655 8.96581C10.7871 8.79596 10.7454 8.62409 10.6482 8.48313C10.2095 7.84079 9.69839 7.02417 8.95717 6.48269C8.8613 6.41381 8.74928 6.37086 8.63194 6.358C8.5146 6.34513 8.39593 6.36279 8.28742 6.40925C7.38658 6.79504 6.60717 7.784 6.64437 8.80136C6.66885 9.46915 6.93029 11.3599 8.91017 13.3408Z" fill="white"/>
+            </svg>
+            <span class="btn-text">Chat on WhatsApp</span>
+          </a>
         </div>
       </div>
 
@@ -617,6 +611,13 @@
         </div>
       </div>
     </div>
+
+    <!-- Booking Panel -->
+    <BookingPanel
+      :is-open="isBookingPanelOpen"
+      @close="isBookingPanelOpen = false"
+      @booking-created="handleBookingCreated"
+    />
   </div>
 </template>
 
@@ -627,6 +628,9 @@ import { HomeViewController } from '../controllers/HomeViewController'
 import { HomeContentViewController } from '../controllers/HomeContentViewController'
 import { siteSettingsController } from '@/features/admin/controllers/SiteSettingsController'
 import type { SiteSettings } from '@/features/admin/models/SiteSettings'
+import { contactContentController } from '@/features/contact/controllers/ContactContentController'
+import type { ContactContent } from '@/features/contact/models/ContactMessage'
+import BookingPanel from '@/features/booking/components/BookingPanel.vue'
 import TestimonialsSection from '@/shared/components/TestimonialsSection.vue'
 
 const router = useRouter()
@@ -656,6 +660,25 @@ const errorMessage = computed(() => viewController.errorMessage)
 const homeContent = computed(() => contentController.content)
 const successMessage = ref('')
 
+// Contact content for WhatsApp URL
+const contactContent = ref<ContactContent | null>(null)
+const whatsappUrl = computed(() => {
+  return contactContent.value?.contactInfo?.whatsappUrl || 'https://wa.me/9708888888'
+})
+
+// Load contact content to get WhatsApp URL
+const loadContactContent = async () => {
+  try {
+    const result = await contactContentController.getContactContent()
+    if (result.success && result.data) {
+      contactContent.value = result.data
+    }
+  } catch (error) {
+    console.error('Failed to load contact content:', error)
+    // Use default WhatsApp URL if loading fails
+  }
+}
+
 const handleSubmit = async () => {
   // Sync email to viewController before submission
   viewController.setEmailAddress(email.value)
@@ -671,10 +694,16 @@ const handleSubmit = async () => {
   }
 }
 
+// Booking Panel State
+const isBookingPanelOpen = ref(false)
+
 const handleBookMeeting = () => {
-  // TODO: Implement booking meeting functionality
-  // This could open a calendar booking widget or navigate to a booking page
-  console.log('Book a meeting clicked')
+  isBookingPanelOpen.value = true
+}
+
+const handleBookingCreated = (bookingId: string) => {
+  console.log('Booking created:', bookingId)
+  // Could show a success notification here
 }
 
 const getVideoEmbedUrl = (url: string): string => {
@@ -830,7 +859,10 @@ onMounted(async () => {
     window.scrollTo(0, 0)
   }
   
-  await contentController.loadHomeContent()
+  await Promise.all([
+    contentController.loadHomeContent(),
+    loadContactContent()
+  ])
   // Load site settings to check for disabled sections
   const settingsResult = await siteSettingsController.getSiteSettings()
   if (settingsResult.success && settingsResult.data) {
@@ -1377,67 +1409,60 @@ const setupScrollAnimations = () => {
 
 /* ========== HERO SECTION ========== */
 .hero-section {
-  margin-bottom: 5rem;
-  perspective: 1000px;
+  margin-bottom: 4rem;
+  perspective: 1200px;
+  transform-style: preserve-3d;
 }
 
 .hero-headline {
   font-size: 4.5rem;
   font-weight: 600;
   line-height: 1.1;
-  margin-bottom: 2rem;
+  margin-bottom: 2.5rem;
   display: flex;
   flex-direction: column;
-  gap: 0.5rem;
+  gap: 0.25rem;
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  letter-spacing: -0.02em;
 }
 
 /* Text Reveal Animation */
 .text-reveal {
   display: inline-block;
-  position: relative;
 }
 
 .headline-white {
   color: #F5F7FA;
   opacity: 0;
-  transform: translateY(40px) rotateX(-15deg);
-  transform-origin: center bottom;
-  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1), 
-              transform 1s cubic-bezier(0.16, 1, 0.3, 1);
+  transform: translateY(25px);
+  transition:
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
 .headline-white.animate-in {
   opacity: 1;
-  transform: translateY(0) rotateX(0deg);
-  animation: textGlow 3s ease-in-out 1.2s;
-}
-
-@keyframes textGlow {
-  0%, 100% {
-    text-shadow: 0 0 0 transparent;
-  }
-  50% {
-    text-shadow: 0 0 30px rgba(245, 247, 250, 0.3), 0 0 60px rgba(245, 247, 250, 0.1);
-  }
+  transform: translateY(0);
 }
 
 .headline-purple {
-  background: linear-gradient(103deg, #5B2096 0.52%, #C19DE6 125.79%);
+  display: inline-block;
+  background: linear-gradient(103deg, #5B2096 0%, #8B4CC4 50%, #C19DE6 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   background-clip: text;
+  color: transparent;
   font-weight: 700;
   opacity: 0;
-  transform: translateY(40px) rotateX(-15deg);
-  transform-origin: center bottom;
-  transition: opacity 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s, 
-              transform 1s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
+  transform: translateY(25px);
+  transition:
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s,
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.2s;
 }
 
 .headline-purple.animate-in {
   opacity: 1;
-  transform: translateY(0) rotateX(0deg);
+  transform: translateY(0);
 }
 
 /* Gradient Shimmer Effect */
@@ -1446,10 +1471,8 @@ const setupScrollAnimations = () => {
   background: linear-gradient(
     103deg, 
     #5B2096 0%, 
-    #C19DE6 25%,
-    #E0C8F5 50%,
-    #C19DE6 75%,
-    #5B2096 100%
+    #8B4CC4 50%,
+    #C19DE6 100%
   );
   background-size: 200% 100%;
   -webkit-background-clip: text;
@@ -1501,7 +1524,7 @@ const setupScrollAnimations = () => {
 
 /* ========== CTA SECTION ========== */
 .cta-section {
-  margin-bottom: 5rem;
+  margin-bottom: 4rem;
   opacity: 0;
   transform: translateY(30px);
   transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 0.8s, 
@@ -1513,205 +1536,194 @@ const setupScrollAnimations = () => {
   transform: translateY(0);
 }
 
-.whatsapp-form {
+.cta-buttons-container {
   display: flex;
-  gap: 1rem;
-  max-width: 700px;
-  margin: 0 auto 1rem;
-  align-items: stretch;
-}
-
-/* Input Wrapper with Glow Effect */
-.input-wrapper {
-  flex: 1;
-  position: relative;
-  opacity: 0;
-  transform: translateX(-20px);
-  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.9s,
-              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 0.9s;
-}
-
-.input-wrapper.animate-in {
-  opacity: 1;
-  transform: translateX(0);
-}
-
-.input-glow {
-  position: absolute;
-  top: -2px;
-  left: -2px;
-  right: -2px;
-  bottom: -2px;
-  border-radius: 10px;
-  background: linear-gradient(90deg, #5B2096, #C19DE6, #5B2096);
-  background-size: 200% 100%;
-  opacity: 0;
-  z-index: -1;
-  filter: blur(8px);
-  transition: opacity 0.3s ease;
-}
-
-.input-wrapper:focus-within .input-glow {
-  opacity: 0.6;
-  animation: inputGlowMove 2s linear infinite;
-}
-
-@keyframes inputGlowMove {
-  0% {
-    background-position: 200% center;
-  }
-  100% {
-    background-position: -200% center;
-  }
-}
-
-.whatsapp-input {
-  width: 100%;
-  padding: 1rem 1.5rem;
-  background-color: rgba(245, 247, 250, 0.08);
-  border: 1px solid rgba(91, 32, 150, 0.4);
-  border-radius: 8px;
-  color: #F5F7FA;
-  font-size: 1rem;
-  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-  font-weight: 400;
-  transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-}
-
-.whatsapp-input::placeholder {
-  color: rgba(245, 247, 250, 0.45);
-  transition: color 0.3s ease;
-}
-
-.whatsapp-input:focus {
-  outline: none;
-  border-color: #8B5CC4;
-  background-color: rgba(245, 247, 250, 0.12);
-  box-shadow: 0 0 0 4px rgba(91, 32, 150, 0.2), 0 8px 32px rgba(91, 32, 150, 0.15);
-}
-
-.whatsapp-input:focus::placeholder {
-  color: rgba(245, 247, 250, 0.3);
-}
-
-.whatsapp-input:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-/* CTA Button with Premium Effects */
-.cta-button {
-  display: flex;
+  gap: 1.25rem;
+  max-width: 600px;
+  margin: 0 auto;
+  justify-content: center;
   align-items: center;
+  flex-wrap: wrap;
+  opacity: 0;
+  transform: translateY(20px);
+  transition:
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.45s,
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.45s;
+}
+
+.cta-section.animate-in .cta-buttons-container {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* Primary CTA Button - Gradient Fill */
+.cta-button-primary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   gap: 0.5rem;
-  padding: 1rem 2rem;
-  background: linear-gradient(135deg, #5B2096 0%, #7B3DB8 50%, #C19DE6 100%);
-  background-size: 200% 200%;
+  padding: 0.875rem 2rem;
+  min-width: 180px;
+  background: linear-gradient(103deg, #5B2096 0.52%, #C19DE6 125.79%);
   color: #F5F7FA;
   border: none;
   border-radius: 8px;
   font-size: 1rem;
-  font-weight: 500;
+  font-weight: 600;
   font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
   cursor: pointer;
   white-space: nowrap;
   position: relative;
   overflow: hidden;
-  opacity: 0;
-  transform: translateX(20px);
-  transition: 
-    opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1s,
-    transform 0.6s cubic-bezier(0.16, 1, 0.3, 1) 1s,
-    background-position 0.5s ease,
-    box-shadow 0.3s ease;
+  transition:
+    box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: 0 4px 16px rgba(91, 32, 150, 0.3);
+  text-decoration: none;
+  line-height: 1.5;
 }
 
-.cta-button.animate-in {
-  opacity: 1;
-  transform: translateX(0);
-  animation: buttonPulse 3s ease-in-out 2s infinite;
+.cta-button-primary:hover {
+  box-shadow:
+    0 8px 24px rgba(91, 32, 150, 0.4),
+    0 0 0 1px rgba(193, 157, 230, 0.2);
+  transform: translateY(-2px);
 }
 
-@keyframes buttonPulse {
-  0%, 100% {
-    box-shadow: 0 4px 20px rgba(91, 32, 150, 0.3);
-  }
-  50% {
-    box-shadow: 0 6px 30px rgba(91, 32, 150, 0.5), 0 0 50px rgba(193, 157, 230, 0.2);
-  }
-}
-
-.cta-button:hover:not(:disabled) {
-  background-position: 100% 100%;
-  box-shadow: 0 8px 40px rgba(91, 32, 150, 0.5), 0 0 60px rgba(193, 157, 230, 0.3);
-  transform: translateY(-3px) scale(1.02);
-}
-
-.cta-button:active:not(:disabled) {
+.cta-button-primary:active {
   transform: translateY(0) scale(0.98);
-  box-shadow: 0 2px 10px rgba(91, 32, 150, 0.3);
+  box-shadow: 0 4px 12px rgba(91, 32, 150, 0.3);
+  transition-duration: 0.1s;
 }
 
-.cta-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-  animation: none;
+/* Secondary CTA Button - Outline */
+.cta-button-secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.875rem 2rem;
+  min-width: 180px;
+  background: transparent;
+  color: #5B2096;
+  border: 1.5px solid #5B2096;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  font-family: 'Roboto', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  cursor: pointer;
+  white-space: nowrap;
+  position: relative;
+  transition:
+    background-color 0.3s ease,
+    color 0.3s ease,
+    border-color 0.3s ease,
+    transform 0.3s cubic-bezier(0.16, 1, 0.3, 1),
+    box-shadow 0.3s ease;
+  text-decoration: none;
+  line-height: 1.5;
 }
 
-/* Button Text & Arrow Animation */
-.btn-text {
+.cta-button-secondary:hover {
+  background-color: rgba(91, 32, 150, 0.05);
+  border-color: #7B3DB8;
+  color: #7B3DB8;
+  transform: translateY(-2px);
+  box-shadow: 0 4px 12px rgba(91, 32, 150, 0.15);
+}
+
+.cta-button-secondary:active {
+  transform: translateY(0) scale(0.98);
+  box-shadow: 0 2px 8px rgba(91, 32, 150, 0.1);
+  transition-duration: 0.1s;
+}
+
+/* Button Icon */
+.cta-button-primary .btn-icon,
+.cta-button-secondary .btn-icon {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
   position: relative;
   z-index: 2;
+  transition: transform 0.3s ease;
 }
 
-.btn-arrow {
+.cta-button-primary .btn-icon {
+  color: #F5F7FA;
+}
+
+.cta-button-secondary .btn-icon.btn-icon-white {
+  color: #F5F7FA;
+}
+
+.cta-button-primary:hover .btn-icon,
+.cta-button-secondary:hover .btn-icon {
+  transform: scale(1.1);
+}
+
+/* Button Text */
+.cta-button-primary .btn-text,
+.cta-button-secondary .btn-text {
   position: relative;
   z-index: 2;
-  transition: transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  letter-spacing: 0.02em;
 }
 
-.cta-button:hover .btn-arrow {
-  transform: translateX(4px);
-}
-
-/* Button Glow Effect */
-.btn-glow {
+/* Button Glow - For Primary Button */
+.cta-button-primary .btn-glow {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 100%;
-  height: 100%;
+  width: 120%;
+  height: 120%;
   transform: translate(-50%, -50%);
-  background: radial-gradient(circle, rgba(193, 157, 230, 0.4) 0%, transparent 70%);
+  background: radial-gradient(circle, rgba(193, 157, 230, 0.2) 0%, transparent 60%);
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   pointer-events: none;
 }
 
-.cta-button:hover .btn-glow {
+.cta-button-primary:hover .btn-glow {
   opacity: 1;
 }
 
-/* Button Shine Effect */
-.btn-shine {
+/* Button Shine - For Primary Button */
+.cta-button-primary .btn-shine {
   position: absolute;
   top: 0;
   left: -100%;
-  width: 50%;
+  width: 60%;
   height: 100%;
   background: linear-gradient(
-    90deg,
+    100deg,
     transparent,
-    rgba(255, 255, 255, 0.2),
+    rgba(255, 255, 255, 0.15),
     transparent
   );
-  transform: skewX(-25deg);
+  transform: skewX(-20deg);
   transition: left 0.6s ease;
   pointer-events: none;
 }
 
-.cta-button:hover .btn-shine {
+.cta-button-primary:hover .btn-shine {
   left: 150%;
+}
+
+/* Responsive CTA Buttons */
+@media (max-width: 640px) {
+  .cta-buttons-container {
+    flex-direction: column;
+    gap: 1rem;
+    width: 100%;
+  }
+
+  .cta-button-primary,
+  .cta-button-secondary {
+    width: 100%;
+    min-width: unset;
+    padding: 0.875rem 1.5rem;
+  }
 }
 
 /* Error & Success Messages */
@@ -1787,9 +1799,12 @@ const setupScrollAnimations = () => {
   justify-content: center;
   gap: 0.5rem;
   opacity: 0;
-  transform: translateY(20px);
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s, 
-              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.2s;
+  transform: translateY(12px);
+  transition:
+    opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s,
+    transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s;
+  font-size: 0.9rem;
+  color: rgba(245, 247, 250, 0.8);
 }
 
 .social-proof.animate-in {
@@ -1798,36 +1813,41 @@ const setupScrollAnimations = () => {
 }
 
 .pulse-star {
-  font-size: 1.2rem;
+  font-size: 1rem;
   display: inline-block;
-  animation: starPulse 2s ease-in-out infinite 1.5s;
+  opacity: 0;
+  transform: scale(0.5);
+  transition:
+    opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.75s,
+    transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.75s;
 }
 
-@keyframes starPulse {
+.social-proof.animate-in .pulse-star {
+  opacity: 1;
+  transform: scale(1);
+  animation: starGlow 3s ease-in-out infinite 2s;
+}
+
+@keyframes starGlow {
   0%, 100% {
-    transform: scale(1);
-    filter: brightness(1);
+    filter: brightness(1) drop-shadow(0 0 0 transparent);
   }
   50% {
-    transform: scale(1.2);
-    filter: brightness(1.3) drop-shadow(0 0 8px rgba(255, 215, 0, 0.6));
+    filter: brightness(1.15) drop-shadow(0 0 6px rgba(255, 215, 0, 0.4));
   }
 }
 
 .proof-text {
   opacity: 0;
-  animation: fadeSlideIn 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.4s forwards;
+  transform: translateX(-6px);
+  transition:
+    opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.8s,
+    transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.8s;
 }
 
-@keyframes fadeSlideIn {
-  from {
-    opacity: 0;
-    transform: translateX(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
+.social-proof.animate-in .proof-text {
+  opacity: 1;
+  transform: translateX(0);
 }
 
 /* Scroll Animation Styles */

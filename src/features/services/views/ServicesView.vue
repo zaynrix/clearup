@@ -28,7 +28,7 @@
                   <p class="service-desc">A full-funnel marketing system built to consistently generate leads and convert them into sales.</p>
                 </div>
 
-                <div class="service-card">
+                <div class="service-card" data-card-id="service-2">
                   <div class="service-icon">
                     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M26 16H42C43.2 16 44 15.2 44 14C44 12.8 43.2 12 42 12H26C24.8 12 24 12.8 24 14C24 15.2 24.8 16 26 16ZM42 20H26C24.8 20 24 20.8 24 22C24 23.2 24.8 24 26 24H42C43.2 24 44 23.2 44 22C44 20.8 43.2 20 42 20ZM6 24H18C19.2 24 20 23.2 20 22V10C20 8.8 19.2 8 18 8H6C4.8 8 4 8.8 4 10V22C4 23.2 4.8 24 6 24ZM42 28H6C4.8 28 4 28.8 4 30C4 31.2 4.8 32 6 32H42C43.2 32 44 31.2 44 30C44 28.8 43.2 28 42 28ZM26 36H6C4.8 36 4 36.8 4 38C4 39.2 4.8 40 6 40H26C27.2 40 28 39.2 28 38C28 36.8 27.2 36 26 36Z" fill="#43186F"/>
@@ -38,7 +38,7 @@
                   <p class="service-desc">A done-for-you content system that reflects your brand voice and makes your business unforgettable.</p>
                 </div>
 
-                <div class="service-card">
+                <div class="service-card" data-card-id="service-3">
                   <div class="service-icon">
                     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <g clip-path="url(#clip0)">
@@ -57,7 +57,7 @@
                   <p class="service-desc">High-impact reel creation designed to boost brand influence and reach your ideal audience</p>
                 </div>
 
-                <div class="service-card">
+                <div class="service-card" data-card-id="service-4">
                   <div class="service-icon">
                     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path d="M42 20.126V8C42 7.46957 41.7893 6.96086 41.4142 6.58579C41.0391 6.21071 40.5304 6 40 6H38C34.042 9.958 26.606 12.174 22 13.226V34.774C26.606 35.826 34.042 38.042 38 42H40C40.5304 42 41.0391 41.7893 41.4142 41.4142C41.7893 41.0391 42 40.5304 42 40V27.874C42.8595 27.653 43.6211 27.1524 44.165 26.4511C44.7088 25.7498 45.0039 24.8875 45.0039 24C45.0039 23.1125 44.7088 22.2502 44.165 21.5489C43.6211 20.8476 42.8595 20.347 42 20.126ZM10 14C8.93913 14 7.92172 14.4214 7.17157 15.1716C6.42143 15.9217 6 16.9391 6 18V30C6 31.0609 6.42143 32.0783 7.17157 32.8284C7.92172 33.5786 8.93913 34 10 34H12L14 44H18V14H10Z" fill="#43186F"/>
@@ -67,7 +67,7 @@
                   <p class="service-desc">Done-for-you advertising across major platforms to reach billions of active users and drive results.</p>
                 </div>
 
-                <div class="service-card">
+                <div class="service-card" data-card-id="service-5">
                   <div class="service-icon">
                     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <g clip-path="url(#clip1)">
@@ -84,7 +84,7 @@
                   <p class="service-desc">An omnichannel system that helps you connect with customers through WhatsApp, SMS, email, and more.</p>
                 </div>
 
-                <div class="service-card">
+                <div class="service-card" data-card-id="service-6">
                   <div class="service-icon">
                     <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                       <path fill-rule="evenodd" clip-rule="evenodd" d="M6 12C6 10.4087 6.63214 8.88258 7.75736 7.75736C8.88258 6.63214 10.4087 6 12 6H36C37.5913 6 39.1174 6.63214 40.2426 7.75736C41.3679 8.88258 42 10.4087 42 12V36C42 37.5913 41.3679 39.1174 40.2426 40.2426C39.1174 41.3679 37.5913 42 36 42H12C10.4087 42 8.88258 41.3679 7.75736 40.2426C6.63214 39.1174 6 37.5913 6 36V12ZM26 16C26 15.4696 25.7893 14.9609 25.4142 14.5858C25.0391 14.2107 24.5304 14 24 14C23.4696 14 22.9609 14.2107 22.5858 14.5858C22.2107 14.9609 22 15.4696 22 16V32C22 32.5304 22.2107 33.0391 22.5858 33.4142C22.9609 33.7893 23.4696 34 24 34C24.5304 34 25.0391 33.7893 25.4142 33.4142C25.7893 33.0391 26 32.5304 26 32V16ZM18 22C18 21.4696 17.7893 20.9609 17.4142 20.5858C17.0391 20.2107 16.5304 20 16 20C15.4696 20 14.9609 20.2107 14.5858 20.5858C14.2107 20.9609 14 21.4696 14 22V32C14 32.5304 14.2107 33.0391 14.5858 33.4142C14.9609 33.7893 15.4696 34 16 34C16.5304 34 17.0391 33.7893 17.4142 33.4142C17.7893 33.0391 18 32.5304 18 32V22ZM34 28C34 27.4696 33.7893 26.9609 33.4142 26.5858C33.0391 26.2107 32.5304 26 32 26C31.4696 26 30.9609 26.2107 30.5858 26.5858C30.2107 26.9609 30 27.4696 30 28V32C30 32.5304 30.2107 33.0391 30.5858 33.4142C30.9609 33.7893 31.4696 34 32 34C32.5304 34 33.0391 33.7893 33.4142 33.4142C33.7893 33.0391 34 32.5304 34 32V28Z" fill="#43186F"/>
