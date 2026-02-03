@@ -137,37 +137,32 @@
             </div>
 
             <!-- Bonuses Included Section -->
-            <div v-if="!isSectionDisabled('services-bonuses')" class="bonuses-section">
+            <div v-if="!isSectionDisabled('services-bonuses') && homeContent?.bonuses && homeContent.bonuses.length > 0" class="bonuses-section">
               <div class="bonuses-container">
                 <h2 class="bonuses-title">{{ homeContent?.bonusesTitle || 'Bonuses Included' }}</h2>
                 <div class="bonuses-list">
-                  <div class="bonus-item" data-card-id="bonus-0">
+                  <div 
+                    v-for="(bonus, index) in homeContent.bonuses" 
+                    :key="`bonus-${index}`"
+                    :data-card-id="`bonus-${index}`"
+                    class="bonus-item"
+                  >
                     <div class="bonus-icon">
-                      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg v-if="index % 3 === 0" width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect x="8" y="6" width="32" height="36" rx="2" stroke="white" stroke-width="2" fill="none"/>
                         <rect x="12" y="10" width="12" height="14" rx="1" stroke="white" stroke-width="2" fill="none"/>
                         <line x1="12" y1="28" x2="36" y2="28" stroke="white" stroke-width="2" stroke-linecap="round"/>
                         <line x1="12" y1="32" x2="28" y2="32" stroke="white" stroke-width="2" stroke-linecap="round"/>
                         <line x1="12" y1="36" x2="32" y2="36" stroke="white" stroke-width="2" stroke-linecap="round"/>
                       </svg>
-                    </div>
-                    <p class="bonus-text">{{ homeContent?.bonuses?.[0] || 'Full access to personal brand system' }}</p>
-                  </div>
-                  <div class="bonus-item" data-card-id="bonus-1">
-                    <div class="bonus-icon">
-                      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg v-else-if="index % 3 === 1" width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect x="10" y="28" width="28" height="12" rx="2" stroke="white" stroke-width="2" fill="none"/>
                         <circle cx="24" cy="20" r="6" stroke="white" stroke-width="2" fill="none"/>
                         <path d="M12 34L8 38M36 34L40 38" stroke="white" stroke-width="2" stroke-linecap="round"/>
                         <line x1="18" y1="20" x2="18" y2="12" stroke="white" stroke-width="2" stroke-linecap="round"/>
                         <line x1="30" y1="20" x2="30" y2="12" stroke="white" stroke-width="2" stroke-linecap="round"/>
                       </svg>
-                    </div>
-                    <p class="bonus-text">{{ homeContent?.bonuses?.[1] || 'Full access to leadership workshops' }}</p>
-                  </div>
-                  <div class="bonus-item" data-card-id="bonus-2">
-                    <div class="bonus-icon">
-                      <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                      <svg v-else width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect x="8" y="6" width="32" height="36" rx="2" stroke="white" stroke-width="2" fill="none"/>
                         <line x1="14" y1="14" x2="34" y2="14" stroke="white" stroke-width="2" stroke-linecap="round"/>
                         <line x1="14" y1="20" x2="34" y2="20" stroke="white" stroke-width="2" stroke-linecap="round"/>
@@ -177,7 +172,7 @@
                         <line x1="12" y1="10" x2="12" y2="38" stroke="white" stroke-width="2" stroke-linecap="round"/>
                       </svg>
                     </div>
-                    <p class="bonus-text">{{ homeContent?.bonuses?.[2] || 'Full access to business coaching' }}</p>
+                    <p class="bonus-text">{{ bonus }}</p>
                   </div>
                 </div>
               </div>
