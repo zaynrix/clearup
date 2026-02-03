@@ -4,9 +4,9 @@
       <div class="footer-content">
         <div class="footer-brand">
           <div class="footer-logo">
-            <img 
-              src="/images/logos/logo-main.png" 
-              alt="ClearUp Logo" 
+            <img
+              src="/images/logos/logo-main.png"
+              alt="ClearUp Logo"
               class="footer-logo-image"
             />
           </div>
@@ -34,18 +34,18 @@
             </a>
           </div>
         </div>
-        
+
         <div class="footer-links">
           <h3 class="footer-links-title">Quick Links</h3>
           <ul class="footer-links-list">
             <li><router-link to="/about">About Us</router-link></li>
             <li><router-link to="/services">Our Service</router-link></li>
-            <li><router-link to="/#real-results-section">Our Work</router-link></li>
+            <li><router-link to="/works">Our Work</router-link></li>
             <li><router-link to="/contact">Contact Us</router-link></li>
           </ul>
         </div>
       </div>
-      
+
       <div class="footer-bottom">
         <p class="footer-copyright">{{ copyright }}</p>
         <div class="footer-policies">
@@ -276,12 +276,12 @@ onMounted(async () => {
   .footer-section {
     padding: 70px 20px 35px;
   }
-  
+
   .footer-content {
     gap: 70px;
     margin-bottom: 40px;
   }
-  
+
   .footer-tagline {
     font-size: 15px;
   }
@@ -292,12 +292,12 @@ onMounted(async () => {
   .footer-section {
     padding: 60px 20px 30px;
   }
-  
+
   .footer-content {
     gap: 60px;
     margin-bottom: 36px;
   }
-  
+
   .footer-tagline {
     font-size: 15px;
   }
@@ -308,13 +308,13 @@ onMounted(async () => {
   .footer-section {
     padding: 60px 20px 30px;
   }
-  
+
   .footer-content {
     grid-template-columns: 1fr;
     gap: 40px;
     margin-bottom: 32px;
   }
-  
+
   .footer-tagline {
     font-size: 14px;
   }
@@ -337,12 +337,12 @@ onMounted(async () => {
   .footer-section {
     padding: 60px 20px 30px;
   }
-  
+
   .footer-content {
     grid-template-columns: 1fr;
     gap: 40px;
   }
-  
+
   .footer-social {
     flex-wrap: wrap;
   }
@@ -353,76 +353,76 @@ onMounted(async () => {
   .footer-section {
     padding: 40px 15px 20px;
   }
-  
+
   .footer-container {
     max-width: 100%;
   }
-  
+
   .footer-content {
     grid-template-columns: 1fr;
     gap: 32px;
     margin-bottom: 28px;
   }
-  
+
   .footer-brand {
     gap: 20px;
   }
-  
+
   .footer-tagline {
     font-size: 14px;
     max-width: 100%;
   }
-  
+
   .footer-social {
     flex-wrap: wrap;
     gap: 12px;
   }
-  
+
   .social-icon {
     width: 40px;
     height: 40px;
   }
-  
+
   .social-icon svg {
     width: 18px;
     height: 18px;
   }
-  
+
   .footer-links {
     gap: 20px;
   }
-  
+
   .footer-links-title {
     font-size: 18px;
   }
-  
+
   .footer-links-list {
     gap: 14px;
   }
-  
+
   .footer-links-list a {
     font-size: 14px;
   }
-  
+
   .footer-bottom {
     gap: 14px;
     padding-top: 28px;
   }
-  
+
   .footer-copyright {
     font-size: 12px;
   }
-  
+
   .footer-policies {
     gap: 8px;
     flex-wrap: wrap;
     justify-content: center;
   }
-  
+
   .footer-policies a {
     font-size: 12px;
   }
-  
+
   .footer-divider {
     font-size: 12px;
   }
@@ -433,67 +433,67 @@ onMounted(async () => {
   .footer-section {
     padding: 35px 12px 18px;
   }
-  
+
   .footer-content {
     gap: 28px;
     margin-bottom: 28px;
   }
-  
+
   .footer-brand {
     gap: 18px;
   }
-  
+
   .footer-tagline {
     font-size: 13px;
   }
-  
+
   .footer-social {
     gap: 10px;
   }
-  
+
   .social-icon {
     width: 38px;
     height: 38px;
   }
-  
+
   .social-icon svg {
     width: 16px;
     height: 16px;
   }
-  
+
   .footer-links {
     gap: 18px;
   }
-  
+
   .footer-links-title {
     font-size: 17px;
   }
-  
+
   .footer-links-list {
     gap: 12px;
   }
-  
+
   .footer-links-list a {
     font-size: 13px;
   }
-  
+
   .footer-bottom {
     gap: 12px;
     padding-top: 24px;
   }
-  
+
   .footer-copyright {
     font-size: 11px;
   }
-  
+
   .footer-policies {
     gap: 6px;
   }
-  
+
   .footer-policies a {
     font-size: 11px;
   }
-  
+
   .footer-divider {
     font-size: 11px;
   }

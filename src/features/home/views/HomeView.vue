@@ -22,7 +22,7 @@
     <div class="vector-shape vector-right"></div>
     <!-- Ambient glow effect -->
     <div class="ambient-glow" :class="{ 'animate-in': isLoaded }"></div>
-    
+
     <!-- Main content -->
     <div class="home-container">
       <!-- Hero Section -->
@@ -35,7 +35,7 @@
             <span class="text-reveal gradient-shimmer">{{ homeContent?.heroHeadlinePurple || 'Your Business' }}</span>
           </span>
         </h1>
-        
+
         <div class="supporting-text" :class="{ 'animate-in': isLoaded }">
           <p v-for="(text, index) in (homeContent?.supportingText || ['Growing a business is hard and chaos', 'We make whole a lot easer', 'More systemized, more predictable, less stressful, more fun'])" :key="index" class="text-line" :style="{ '--delay': `${0.25 + index * 0.08}s` }">
             {{ text }}
@@ -46,7 +46,7 @@
       <!-- CTA Section -->
       <div v-if="!isSectionDisabled('cta')" class="cta-section" :class="{ 'animate-in': isLoaded }">
         <div class="cta-buttons-container">
-          <button 
+          <button
             @click="handleBookMeeting"
             class="cta-button-primary"
             :class="{ 'animate-in': isLoaded }"
@@ -59,10 +59,10 @@
             <div class="btn-glow"></div>
             <div class="btn-shine"></div>
           </button>
-          
-          <a 
-            :href="whatsappUrl" 
-            target="_blank" 
+
+          <a
+            :href="whatsappUrl"
+            target="_blank"
             rel="noopener noreferrer"
             class="cta-button-secondary"
             :class="{ 'animate-in': isLoaded }"
@@ -119,7 +119,7 @@
         <div v-if="homeContent?.videoUrl || homeContent?.videoFileUrl" class="video-section" data-section-id="video-section">
           <div class="video-container">
             <!-- Prioritize Uploaded Video File (no YouTube suggestions) -->
-            <video 
+            <video
               v-if="homeContent.videoFileUrl"
               :src="homeContent.videoFileUrl"
               controls
@@ -127,9 +127,9 @@
             >
               Your browser does not support the video tag.
             </video>
-            
+
             <!-- Video from Link (YouTube, Vimeo, etc.) - only if no uploaded video -->
-            <iframe 
+            <iframe
               v-else-if="homeContent.videoUrl"
               :src="getVideoEmbedUrl(homeContent.videoUrl)"
               frameborder="0"
@@ -161,14 +161,7 @@
 
     <!-- Third Section - Clear Up System -->
     <div v-if="!isSectionDisabled('system')" class="third-section" data-section-id="third-section">
-      <ClearUpSystemSection 
-        :section-title="homeContent?.systemTitle"
-        :section-description="homeContent?.systemDescription"
-        :card-title="homeContent?.systemCardTitle"
-        :card-text="homeContent?.systemCardText"
-        :roi-text="homeContent?.systemCardROI"
-        @cta-click="handleBookMeeting"
-      >
+      <ClearUpSystemSection @cta-click="handleBookMeeting">
         <!-- Our Services -->
         <div v-if="!isSectionDisabled('services')" class="services-section">
           <div class="services-header">
@@ -258,9 +251,9 @@
         <div v-if="!isSectionDisabled('what-we-do') && homeContent?.steps && homeContent.steps.length > 0" class="what-we-do-section">
           <h3 class="what-we-do-title">{{ homeContent?.whatWeDoTitle || 'What We Do' }}</h3>
           <div class="steps-grid">
-            <div 
-              v-for="(step, index) in homeContent.steps" 
-              :key="`step-${index}-${step.number}`" 
+            <div
+              v-for="(step, index) in homeContent.steps"
+              :key="`step-${index}-${step.number}`"
               class="step-card"
             >
               <div class="step-card-header">
@@ -277,9 +270,9 @@
         <div v-if="!isSectionDisabled('what-you-get') && homeContent?.benefits && homeContent.benefits.length > 0" class="what-you-get-section">
           <h3 class="what-you-get-title">{{ homeContent?.whatYouGetTitle || 'What You Get' }}</h3>
           <div class="benefits-grid">
-            <div 
-              v-for="(benefit, index) in homeContent.benefits" 
-              :key="`benefit-${index}`" 
+            <div
+              v-for="(benefit, index) in homeContent.benefits"
+              :key="`benefit-${index}`"
               class="benefit-item"
             >
               <div class="benefit-check">
@@ -350,13 +343,13 @@
           <div class="clients-slider-track">
             <!-- Render logos multiple times for seamless infinite scroll -->
             <template v-for="set in 3" :key="`set-${set}`">
-              <div 
-                v-for="logo in homeContent.clientLogos" 
+              <div
+                v-for="logo in homeContent.clientLogos"
                 :key="`${logo.id}-${set}`"
                 class="client-logo"
               >
-                <img 
-                  :src="logo.logoFileUrl || logo.logoUrl" 
+                <img
+                  :src="logo.logoFileUrl || logo.logoUrl"
                   :alt="logo.name || `Client ${logo.id}`"
                   @error="handleImageError"
                 />
@@ -381,8 +374,8 @@
 
         <!-- Multiple Real Results Cases/Containers -->
         <div v-if="homeContent?.realResultsCases && homeContent.realResultsCases.length > 0" class="real-results-cases">
-          <div 
-            v-for="(resultCase, caseIndex) in homeContent.realResultsCases" 
+          <div
+            v-for="(resultCase, caseIndex) in homeContent.realResultsCases"
             :key="resultCase.id || caseIndex"
             class="real-results-case-container"
             :data-card-id="`result-case-${caseIndex}`"
@@ -391,8 +384,8 @@
           >
             <!-- Company Logo - Top Right -->
             <div v-if="resultCase.companyLogo || resultCase.companyLogoFileUrl" class="real-results-company-logo">
-              <img 
-                :src="resultCase.companyLogoFileUrl || resultCase.companyLogo" 
+              <img
+                :src="resultCase.companyLogoFileUrl || resultCase.companyLogo"
                 alt="Company Logo"
                 class="company-logo-img"
                 @error="handleImageError"
@@ -406,9 +399,9 @@
 
             <!-- Small Cards Grid - Inside Container -->
             <div v-if="resultCase.cards && resultCase.cards.length > 0" class="real-results-cards">
-              <div 
-                v-for="card in resultCase.cards" 
-                :key="card.id" 
+              <div
+                v-for="card in resultCase.cards"
+                :key="card.id"
                 class="real-results-card"
               >
                 <div class="card-content">
@@ -430,27 +423,27 @@
             </div>
 
             <!-- Company Images on Hover -->
-            <div 
-              v-if="resultCase.companyImages && resultCase.companyImages.length > 0" 
+            <div
+              v-if="resultCase.companyImages && resultCase.companyImages.length > 0"
               class="headline-hover-images"
               :class="{ 'show': hoveredCaseId === resultCase.id }"
             >
               <div class="company-images-grid">
-                <div 
-                  v-for="(img, imgIndex) in resultCase.companyImages" 
+                <div
+                  v-for="(img, imgIndex) in resultCase.companyImages"
                   :key="img.id || imgIndex"
                   class="company-image-item"
                 >
-                  <img 
+                  <img
                     v-if="img.imageFileUrl || img.imageUrl"
-                    :src="img.imageFileUrl || img.imageUrl" 
+                    :src="img.imageFileUrl || img.imageUrl"
                     :alt="`Company Image ${imgIndex + 1}`"
                     class="company-img"
                   />
                 </div>
               </div>
             </div>
-            <div 
+            <div
               v-else
               class="headline-hover-placeholder"
               :class="{ 'show': hoveredCaseId === resultCase.id }"
@@ -468,8 +461,8 @@
     </div>
 
     <!-- What Our Clients Say Section -->
-    <TestimonialsSection 
-      :testimonials="homeContent?.testimonials || []" 
+    <TestimonialsSection
+      :testimonials="homeContent?.testimonials || []"
       :disabled="isSectionDisabled('testimonials')"
     />
 
@@ -479,9 +472,9 @@
         <div class="footer-content">
           <div class="footer-brand">
             <div class="footer-logo">
-              <img 
-                src="/images/logos/logo-main.png" 
-                alt="ClearUp Logo" 
+              <img
+                src="/images/logos/logo-main.png"
+                alt="ClearUp Logo"
                 class="footer-logo-image"
               />
             </div>
@@ -509,7 +502,7 @@
               </a>
             </div>
           </div>
-          
+
           <div class="footer-links">
             <h3 class="footer-links-title">Quick Links</h3>
             <ul class="footer-links-list">
@@ -520,7 +513,7 @@
             </ul>
           </div>
         </div>
-        
+
         <div class="footer-bottom">
           <p class="footer-copyright">{{ homeContent?.footerAddress || 'Copyright © 2025 Trusted Valley LLC. All rights reserved' }}</p>
           <div class="footer-policies">
@@ -533,10 +526,10 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Booking Panel -->
-    <BookingPanel 
-      :is-open="isBookingPanelOpen" 
+    <BookingPanel
+      :is-open="isBookingPanelOpen"
       @close="isBookingPanelOpen = false"
       @booking-created="handleBookingCreated"
     />
@@ -544,27 +537,31 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick, watch } from 'vue'
-import { useRouter, useRoute } from 'vue-router'
-import { HomeViewController } from '../controllers/HomeViewController'
-import { HomeContentViewController } from '../controllers/HomeContentViewController'
 import { siteSettingsController } from '@/features/admin/controllers/SiteSettingsController'
-import { contactContentController } from '@/features/contact/controllers/ContactContentController'
 import type { SiteSettings } from '@/features/admin/models/SiteSettings'
-import type { ContactContent } from '@/features/contact/models/ContactMessage'
-import TestimonialsSection from '@/shared/components/TestimonialsSection.vue'
-import ClearUpSystemSection from '@/shared/components/ClearUpSystemSection.vue'
 import BookingPanel from '@/features/booking/components/BookingPanel.vue'
+import { contactContentController } from '@/features/contact/controllers/ContactContentController'
+import type { ContactContent } from '@/features/contact/models/ContactMessage'
+import ClearUpSystemSection from '@/shared/components/ClearUpSystemSection.vue'
+import TestimonialsSection from '@/shared/components/TestimonialsSection.vue'
+import { computed, nextTick, onMounted, ref } from 'vue'
+import { useRoute, useRouter } from 'vue-router'
+import { HomeContentViewController } from '../controllers/HomeContentViewController'
+import { HomeViewController } from '../controllers/HomeViewController'
 
 const router = useRouter()
 const route = useRoute()
 const viewController = new HomeViewController()
 const contentController = new HomeContentViewController()
 
-const siteSettings = ref<SiteSettings>({
+// Default site settings helper function
+const getDefaultSiteSettings = (): SiteSettings => ({
   disabledSections: [],
-  maintenanceMode: false
+  maintenanceMode: false,
+  maintenanceMessage: 'This section is temporarily unavailable.'
 })
+
+const siteSettings = ref<SiteSettings>(getDefaultSiteSettings())
 
 const isSectionDisabled = (sectionId: string): boolean => {
   return siteSettings.value.disabledSections?.includes(sectionId) || false
@@ -606,7 +603,7 @@ const handleBookingCreated = (bookingId: string) => {
 
 const getVideoEmbedUrl = (url: string): string => {
   if (!url) return ''
-  
+
   // YouTube - Add parameters to disable suggestions and related videos
   const youtubeRegex = /(?:youtube\.com\/(?:[^\/]+\/.+\/|(?:v|e(?:mbed)?)\/|.*[?&]v=)|youtu\.be\/)([^"&?\/\s]{11})/
   const youtubeMatch = url.match(youtubeRegex)
@@ -619,19 +616,19 @@ const getVideoEmbedUrl = (url: string): string => {
     // fs=1 - Allow fullscreen
     return `https://www.youtube.com/embed/${youtubeMatch[1]}?rel=0&modestbranding=1&iv_load_policy=3&cc_load_policy=0&fs=1`
   }
-  
+
   // Vimeo
   const vimeoRegex = /(?:vimeo\.com\/)(?:.*\/)?(\d+)/
   const vimeoMatch = url.match(vimeoRegex)
   if (vimeoMatch) {
     return `https://player.vimeo.com/video/${vimeoMatch[1]}`
   }
-  
+
   // Direct video URL (MP4, WebM, etc.)
   if (url.match(/\.(mp4|webm|ogg|mov)(\?.*)?$/i)) {
     return url
   }
-  
+
   return url
 }
 
@@ -664,23 +661,7 @@ const navigateToServices = () => {
 }
 
 const navigateToWork = () => {
-  if (route.path === '/') {
-    // Scroll to real-results section on home page
-    const section = document.querySelector('[data-section-id="real-results-section"]')
-    if (section) {
-      section.scrollIntoView({ behavior: 'smooth', block: 'start' })
-    }
-  } else {
-    // Navigate to home and scroll to section
-    router.push('/').then(() => {
-      setTimeout(() => {
-        const section = document.querySelector('[data-section-id="real-results-section"]')
-        if (section) {
-          section.scrollIntoView({ behavior: 'smooth', block: 'start' })
-        }
-      }, 100)
-    })
-  }
+  router.push('/works')
 }
 
 const navigateToContact = () => {
@@ -711,7 +692,7 @@ onMounted(async () => {
   if (route.path === '/') {
     window.scrollTo(0, 0)
   }
-  
+
   await contentController.loadHomeContent()
   // Load contact content to get WhatsApp URL
   await loadContactContent()
@@ -723,24 +704,16 @@ onMounted(async () => {
     } else {
       console.warn('Failed to load site settings:', settingsResult.error)
       // Use default settings if loading fails
-      siteSettings.value = {
-        disabledSections: [],
-        maintenanceMode: false,
-        maintenanceMessage: 'This section is temporarily unavailable.'
-      }
+      siteSettings.value = getDefaultSiteSettings()
     }
   } catch (error) {
     console.error('Error loading site settings:', error)
     // Use default settings if there's an error
-    siteSettings.value = {
-      disabledSections: [],
-      maintenanceMode: false,
-      maintenanceMessage: 'This section is temporarily unavailable.'
-    }
+    siteSettings.value = getDefaultSiteSettings()
   }
   // Trigger entrance animations immediately
   isLoaded.value = true
-  
+
   // Setup scroll animations
   setupScrollAnimations()
 })
@@ -779,7 +752,7 @@ const setupScrollAnimations = () => {
           observer.observe(section)
         }
       })
-      
+
       // Also observe individual cards
       const cards = document.querySelectorAll('[data-card-id]')
       cards.forEach(card => {
@@ -839,7 +812,7 @@ const setupScrollAnimations = () => {
   right: 0;
   width: 100%;
   height: 100%;
-  background: 
+  background:
     radial-gradient(ellipse at 20% 30%, rgba(91, 32, 150, 0.12) 0%, transparent 60%),
     radial-gradient(ellipse at 80% 70%, rgba(193, 157, 230, 0.08) 0%, transparent 60%),
     radial-gradient(ellipse at 50% 50%, rgba(67, 24, 111, 0.06) 0%, transparent 80%),
@@ -888,7 +861,7 @@ const setupScrollAnimations = () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: 
+  background-image:
     radial-gradient(3px 3px at 5% 8%, rgba(255, 255, 255, 1), transparent),
     radial-gradient(2px 2px at 12% 18%, rgba(255, 255, 255, 0.95), transparent),
     radial-gradient(4px 4px at 19% 28%, rgba(255, 255, 255, 1), transparent),
@@ -932,7 +905,7 @@ const setupScrollAnimations = () => {
     radial-gradient(3px 3px at 94% 95%, rgba(255, 255, 255, 1), transparent);
   background-size: 100% 100%;
   background-repeat: no-repeat;
-  animation: 
+  animation:
     floatStars 40s cubic-bezier(0.4, 0, 0.6, 1) infinite,
     twinkleStars 6s ease-in-out infinite,
     sparkleStars 4s ease-in-out infinite;
@@ -942,7 +915,7 @@ const setupScrollAnimations = () => {
 }
 
 .stars::after {
-  background-image: 
+  background-image:
     radial-gradient(3px 3px at 7% 14%, rgba(193, 157, 230, 0.9), transparent),
     radial-gradient(2px 2px at 14% 24%, rgba(193, 157, 230, 0.8), transparent),
     radial-gradient(4px 4px at 21% 34%, rgba(193, 157, 230, 0.95), transparent),
@@ -985,7 +958,7 @@ const setupScrollAnimations = () => {
     radial-gradient(2.5px 2.5px at 85% 79%, rgba(193, 157, 230, 0.85), transparent),
     radial-gradient(3px 3px at 92% 89%, rgba(193, 157, 230, 0.9), transparent),
     radial-gradient(2px 2px at 99% 99%, rgba(193, 157, 230, 0.8), transparent);
-  animation: 
+  animation:
     floatStars 45s cubic-bezier(0.4, 0, 0.6, 1) infinite reverse,
     twinkleStarsPurple 8s ease-in-out infinite,
     sparkleStarsPurple 5s ease-in-out infinite;
@@ -1258,7 +1231,7 @@ const setupScrollAnimations = () => {
   width: 800px;
   height: 600px;
   transform: translate(-50%, -50%);
-  background: 
+  background:
     radial-gradient(ellipse at 30% 40%, rgba(91, 32, 150, 0.08) 0%, transparent 50%),
     radial-gradient(ellipse at 70% 60%, rgba(193, 157, 230, 0.06) 0%, transparent 50%);
   z-index: 1;
@@ -1312,7 +1285,7 @@ const setupScrollAnimations = () => {
   color: #F5F7FA;
   opacity: 0;
   transform: translateY(25px);
-  transition: 
+  transition:
     opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.5s cubic-bezier(0.16, 1, 0.3, 1);
 }
@@ -1332,7 +1305,7 @@ const setupScrollAnimations = () => {
   font-weight: 700;
   opacity: 0;
   transform: translateY(25px);
-  transition: 
+  transition:
     opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s,
     transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.1s;
 }
@@ -1345,8 +1318,8 @@ const setupScrollAnimations = () => {
 /* Gradient Shimmer - Subtle */
 .gradient-shimmer {
   background: linear-gradient(
-    103deg, 
-    #5B2096 0%, 
+    103deg,
+    #5B2096 0%,
     #8B4CC4 30%,
     #D4B8E8 50%,
     #8B4CC4 70%,
@@ -1383,7 +1356,7 @@ const setupScrollAnimations = () => {
   margin: 0.3rem 0;
   opacity: 0;
   transform: translateY(15px);
-  transition: 
+  transition:
     opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
   transition-delay: var(--delay, 0s);
@@ -1409,7 +1382,7 @@ const setupScrollAnimations = () => {
   flex-wrap: wrap;
   opacity: 0;
   transform: translateY(20px);
-  transition: 
+  transition:
     opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.45s,
     transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.45s;
 }
@@ -1438,7 +1411,7 @@ const setupScrollAnimations = () => {
   white-space: nowrap;
   position: relative;
   overflow: hidden;
-  transition: 
+  transition:
     box-shadow 0.3s cubic-bezier(0.16, 1, 0.3, 1),
     transform 0.3s cubic-bezier(0.16, 1, 0.3, 1);
   box-shadow: 0 4px 16px rgba(91, 32, 150, 0.3);
@@ -1447,7 +1420,7 @@ const setupScrollAnimations = () => {
 }
 
 .cta-button-primary:hover {
-  box-shadow: 
+  box-shadow:
     0 8px 24px rgba(91, 32, 150, 0.4),
     0 0 0 1px rgba(193, 157, 230, 0.2);
   transform: translateY(-2px);
@@ -1477,7 +1450,7 @@ const setupScrollAnimations = () => {
   cursor: pointer;
   white-space: nowrap;
   position: relative;
-  transition: 
+  transition:
     background-color 0.3s ease,
     color 0.3s ease,
     border-color 0.3s ease,
@@ -1580,7 +1553,7 @@ const setupScrollAnimations = () => {
     gap: 1rem;
     width: 100%;
   }
-  
+
   .cta-button-primary,
   .cta-button-secondary {
     width: 100%;
@@ -1627,16 +1600,16 @@ const setupScrollAnimations = () => {
 }
 
 @keyframes successPop {
-  0% { 
+  0% {
     opacity: 0;
-    transform: scale(0.8) translateY(10px); 
+    transform: scale(0.8) translateY(10px);
   }
-  50% { 
-    transform: scale(1.05) translateY(-2px); 
+  50% {
+    transform: scale(1.05) translateY(-2px);
   }
-  100% { 
+  100% {
     opacity: 1;
-    transform: scale(1) translateY(0); 
+    transform: scale(1) translateY(0);
   }
 }
 
@@ -1663,7 +1636,7 @@ const setupScrollAnimations = () => {
   gap: 0.5rem;
   opacity: 0;
   transform: translateY(12px);
-  transition: 
+  transition:
     opacity 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s,
     transform 0.5s cubic-bezier(0.16, 1, 0.3, 1) 0.6s;
   font-size: 0.9rem;
@@ -1680,7 +1653,7 @@ const setupScrollAnimations = () => {
   display: inline-block;
   opacity: 0;
   transform: scale(0.5);
-  transition: 
+  transition:
     opacity 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.75s,
     transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) 0.75s;
 }
@@ -1703,7 +1676,7 @@ const setupScrollAnimations = () => {
 .proof-text {
   opacity: 0;
   transform: translateX(-6px);
-  transition: 
+  transition:
     opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.8s,
     transform 0.4s cubic-bezier(0.16, 1, 0.3, 1) 0.8s;
 }
@@ -1716,7 +1689,7 @@ const setupScrollAnimations = () => {
 /* Scroll Animation Styles */
 [data-section-id],
 [data-card-id] {
-  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1),
               transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1751,7 +1724,7 @@ const setupScrollAnimations = () => {
 [data-card-id^="testimonial-"] {
   opacity: 0;
   transform: translateY(30px) scale(0.95);
-  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), 
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1),
               transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1771,7 +1744,7 @@ const setupScrollAnimations = () => {
 [data-card-id^="result-case-"] {
   opacity: 0;
   transform: translateX(-30px);
-  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1), 
+  transition: opacity 0.9s cubic-bezier(0.16, 1, 0.3, 1),
               transform 0.9s cubic-bezier(0.16, 1, 0.3, 1);
 }
 
@@ -1789,11 +1762,11 @@ const setupScrollAnimations = () => {
 .section-divider {
   width: 100%;
   height: 1px;
-  background: linear-gradient(90deg, 
-    transparent 0%, 
-    rgba(67, 24, 111, 0.5) 20%, 
-    rgba(67, 24, 111, 0.7) 50%, 
-    rgba(67, 24, 111, 0.5) 80%, 
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(67, 24, 111, 0.5) 20%,
+    rgba(67, 24, 111, 0.7) 50%,
+    rgba(67, 24, 111, 0.5) 80%,
     transparent 100%
   );
   margin: 60px 0 40px;
@@ -2481,22 +2454,17 @@ const setupScrollAnimations = () => {
   width: 100%;
 }
 
-.steps-grid .step-card {
-  flex: 0 0 calc(25% - 15px);
-  max-width: calc(25% - 15px);
-}
-
 /* Mobile responsive - 1 column */
 @media (max-width: 768px) {
   .what-we-do-section {
     padding: 30px 15px;
   }
-  
+
   .steps-grid {
     gap: 16px;
     width: 100%;
   }
-  
+
   .step-card {
     width: 100% !important;
     max-width: 100% !important;
@@ -2506,22 +2474,22 @@ const setupScrollAnimations = () => {
     display: flex !important;
     flex-direction: column;
   }
-  
+
   .step-card-header {
     height: 48px;
     border-radius: 24px 24px 0 0;
   }
-  
+
   .step-header {
     font-size: 18px;
   }
-  
+
   .step-card-body {
     padding: 20px 16px;
     border-radius: 0 0 24px 24px;
     flex: 1;
   }
-  
+
   .step-content {
     font-size: 15px;
     line-height: 1.5;
@@ -2535,34 +2503,34 @@ const setupScrollAnimations = () => {
     padding: 25px 10px;
     gap: 24px;
   }
-  
+
   .what-we-do-title {
     font-size: 22px;
   }
-  
+
   .steps-grid {
     gap: 14px;
   }
-  
+
   .step-card {
     min-height: auto;
     border-radius: 20px;
   }
-  
+
   .step-card-header {
     height: 44px;
     border-radius: 20px 20px 0 0;
   }
-  
+
   .step-header {
     font-size: 16px;
   }
-  
+
   .step-card-body {
     padding: 16px 14px;
     border-radius: 0 0 20px 20px;
   }
-  
+
   .step-content {
     font-size: 14px;
     line-height: 1.4;
@@ -2571,6 +2539,7 @@ const setupScrollAnimations = () => {
 
 .step-card {
   width: 100%;
+  max-width: 275px;
   min-height: 210px;
   border-radius: 50px;
   background: #14141B;
@@ -3572,37 +3541,37 @@ const setupScrollAnimations = () => {
   .home-view {
     padding: 50px 20px 35px;
   }
-  
+
   .home-container {
     padding: 0 15px;
     max-width: 100%;
   }
-  
+
   .hero-headline {
     font-size: 3.5rem;
     line-height: 1.1;
   }
-  
+
   .supporting-text {
     font-size: 1.1rem;
     padding: 0 10px;
   }
-  
+
   .whatsapp-form {
     max-width: 580px;
   }
-  
+
   .vector-shape {
     width: 100%;
     max-width: 350px;
     opacity: 0.55;
   }
-  
+
   /* Hide right vector on tablets and below - show only left */
   .vector-right {
     display: none;
   }
-  
+
   .vector-left {
     width: 100%;
     max-width: 350px;
@@ -3613,283 +3582,283 @@ const setupScrollAnimations = () => {
     height: 120px;
     background-repeat: no-repeat;
   }
-  
+
   .second-section {
     padding: 80px 30px 50px;
     min-height: auto;
   }
-  
+
   .section-container {
     gap: 40px;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 24px;
     padding: 0 20px;
   }
-  
+
   .stat-card {
     max-width: 100%;
   }
-  
+
   .stat-title {
     font-size: 28px;
   }
-  
+
   .stat-value {
     font-size: 44px;
   }
-  
+
   .stat-description {
     width: 100%;
     max-width: 280px;
     font-size: 16px;
   }
-  
+
   .video-section {
     width: 100%;
   }
-  
+
   .video-text {
     font-size: 40px;
   }
-  
+
   .section-cta {
     gap: 20px;
   }
-  
+
   .third-section {
     padding: 80px 30px;
     min-height: auto;
   }
-  
+
   .clearup-system-container {
     padding: 40px 15px;
   }
-  
+
   .clearup-system-vector {
     opacity: 0.3;
     background-size: contain;
     background-position: left center;
   }
-  
+
   .third-section-container {
     gap: 40px;
   }
-  
+
   .third-section-header {
     margin-bottom: 1.5rem;
   }
-  
+
   .third-section-title {
     font-size: 32px;
   }
-  
+
   .third-section-description {
     font-size: 17px;
   }
-  
+
   .system-card {
     padding: 50px 40px;
     min-height: auto;
     border-radius: 40px;
   }
-  
+
   .system-card-title {
     font-size: 32px;
   }
-  
+
   .system-card-text {
     font-size: 18px;
   }
-  
+
   .system-card-roi {
     font-size: 24px;
   }
-  
+
   .system-card-cta {
     margin-top: 28px;
   }
-  
+
   .system-cta-button {
     padding: 14px 36px;
     font-size: 17px;
   }
-  
+
   .services-section {
     gap: 32px;
     max-width: 100%;
   }
-  
+
   .services-header {
     margin-bottom: 0.5rem;
   }
-  
+
   .services-title {
     font-size: 32px;
   }
-  
+
   .services-description {
     font-size: 17px;
   }
-  
+
   .services-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 28px;
     width: 100%;
   }
-  
+
   .service-card {
     max-width: 100%;
     align-items: flex-start;
   }
-  
+
   .service-icon {
     width: 64px;
     height: 64px;
   }
-  
+
   .service-name {
     font-size: 18px;
   }
-  
+
   .service-desc {
     max-width: 100%;
     font-size: 15px;
   }
-  
+
   .what-you-get-section {
     gap: 32px;
     max-width: 100%;
   }
-  
+
   .what-you-get-title {
     font-size: 32px;
   }
-  
+
   .benefits-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 28px;
     padding: 0 40px;
   }
-  
+
   .benefit-item {
     min-height: 58px;
   }
-  
+
   .benefit-check {
     width: 36px;
     height: 36px;
   }
-  
+
   .benefit-text {
     font-size: 18px;
   }
-  
+
   .bonuses-section {
     padding: 70px 20px;
     margin-top: 70px;
   }
-  
+
   .bonuses-container {
     gap: 40px;
   }
-  
+
   .bonuses-title {
     font-size: 32px;
   }
-  
+
   .bonuses-list {
     gap: 20px;
   }
-  
+
   .bonus-item {
     padding: 22px 28px;
     gap: 20px;
   }
-  
+
   .bonus-icon {
     width: 44px;
     height: 44px;
   }
-  
+
   .bonus-text {
     font-size: 18px;
   }
-  
+
   .clients-section {
     padding: 80px 0 100px;
     margin-top: 70px;
   }
-  
+
   .clients-container {
     gap: 40px;
     padding: 0 40px;
   }
-  
+
   .clients-title {
     font-size: 32px;
   }
-  
+
   .clients-subtitle {
     font-size: 17px;
   }
-  
+
   .clients-slider-wrapper {
     padding: 35px 0;
   }
-  
+
   .clients-slider-track {
     gap: 70px;
   }
-  
+
   .client-logo img {
     max-width: 120px;
     max-height: 90px;
     height: 80px;
   }
-  
+
   .testimonials-section {
     padding: 100px 20px;
     margin-top: 70px;
   }
-  
+
   .testimonials-container {
     gap: 56px;
   }
-  
+
   .testimonials-title {
     font-size: 32px;
   }
-  
+
   .testimonials-subtitle {
     font-size: 17px;
   }
-  
+
   .testimonials-grid {
     grid-template-columns: repeat(3, 1fr);
     gap: 28px;
   }
-  
+
   .testimonial-card {
     padding: 28px;
     gap: 20px;
   }
-  
+
   .footer-section {
     padding: 70px 20px 35px;
   }
-  
+
   .footer-content {
     gap: 70px;
     margin-bottom: 40px;
   }
-  
+
   .footer-tagline {
     font-size: 15px;
   }
-  
+
   .clients-container {
     padding: 0 40px;
   }
@@ -3900,33 +3869,33 @@ const setupScrollAnimations = () => {
   .home-view {
     padding: 40px 20px 30px;
   }
-  
+
   .home-container {
     padding: 0 15px;
   }
-  
+
   .hero-section {
     margin-bottom: 3rem;
   }
-  
+
   .hero-headline {
     font-size: 2.8rem;
     margin-bottom: 1.5rem;
   }
-  
+
   .supporting-text {
     font-size: 1rem;
     line-height: 1.7;
   }
-  
+
   .supporting-text .text-line {
     margin-bottom: 0.4rem;
   }
-  
+
   .cta-section {
     margin-bottom: 3rem;
   }
-  
+
   .whatsapp-form {
     flex-direction: row;
     gap: 0;
@@ -3934,7 +3903,7 @@ const setupScrollAnimations = () => {
     padding: 5px 5px 5px 10px;
     max-width: 520px;
   }
-  
+
   .whatsapp-input {
     flex: 1;
     border-radius: 50px;
@@ -3942,237 +3911,252 @@ const setupScrollAnimations = () => {
     padding: 0.85rem 1.1rem;
     font-size: 0.88rem;
   }
-  
+
   .whatsapp-input::placeholder {
     font-size: 0.85rem;
   }
-  
+
   .cta-button {
     width: auto;
     border-radius: 50px;
     margin-top: 0;
     padding: 0.85rem 1.4rem;
   }
-  
+
   .social-proof {
     font-size: 0.9rem;
   }
-  
+
   .stats-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
   }
-  
+
   .stat-card {
     max-width: 100%;
   }
-  
+
   .services-section {
     gap: 28px;
   }
-  
+
   .services-title {
     font-size: 30px;
   }
-  
+
   .services-description {
     font-size: 16px;
   }
-  
+
   .services-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
   }
-  
+
   .service-card {
     max-width: 100%;
     align-items: flex-start;
   }
-  
+
   .service-icon {
     width: 60px;
     height: 60px;
   }
-  
+
   .service-name {
     font-size: 18px;
   }
-  
+
   .service-desc {
     max-width: 100%;
     font-size: 15px;
   }
-  
+
   .system-card {
     padding: 50px 35px;
     border-radius: 35px;
   }
-  
+
   .what-we-do-section {
     gap: 32px;
     padding: 40px 20px;
   }
-  
+
   .what-we-do-title {
     font-size: 30px;
   }
-  
-  .steps-grid .step-card {
-    flex: 0 0 calc(50% - 10px);
-    max-width: calc(50% - 10px);
+
+  .steps-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+  }
+
+  /* Reset grid positioning for 2-column layout */
+  .steps-grid .step-card:nth-child(1),
+  .steps-grid .step-card:nth-child(2),
+  .steps-grid .step-card:nth-child(3),
+  .steps-grid .step-card:nth-child(4),
+  .steps-grid .step-card:nth-child(5),
+  .steps-grid .step-card:nth-child(6),
+  .steps-grid .step-card:nth-child(7) {
+    grid-column: span 1;
+  }
+
+  .step-card {
+    max-width: 100%;
     min-height: 190px;
     border-radius: 40px;
   }
-  
+
   .step-card-header {
     height: 48px;
     border-radius: 40px 40px 0 0;
   }
-  
+
   .step-header {
     font-size: 18px;
   }
-  
+
   .step-card-body {
     padding: 20px 24px 22px;
     border-radius: 0 0 40px 40px;
   }
-  
+
   .step-content {
     font-size: 17px;
   }
-  
+
   .what-you-get-section {
     gap: 28px;
   }
-  
+
   .what-you-get-title {
     font-size: 30px;
   }
-  
+
   .benefits-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
     padding: 0 30px;
   }
-  
+
   .benefit-item {
     min-height: 56px;
   }
-  
+
   .benefit-check {
     width: 36px;
     height: 36px;
   }
-  
+
   .benefit-text {
     font-size: 17px;
   }
-  
+
   .bonuses-section {
     padding: 60px 20px;
     margin-top: 60px;
   }
-  
+
   .bonuses-container {
     gap: 36px;
   }
-  
+
   .bonuses-title {
     font-size: 30px;
   }
-  
+
   .bonuses-list {
     gap: 18px;
   }
-  
+
   .bonus-item {
     padding: 20px 24px;
     gap: 18px;
   }
-  
+
   .bonus-icon {
     width: 40px;
     height: 40px;
   }
-  
+
   .bonus-text {
     font-size: 17px;
   }
-  
+
   .clients-section {
     padding: 70px 0 90px;
     margin-top: 60px;
   }
-  
+
   .clients-container {
     gap: 36px;
     padding: 0 30px;
   }
-  
+
   .clients-title {
     font-size: 30px;
   }
-  
+
   .clients-subtitle {
     font-size: 16px;
   }
-  
+
   .clients-slider-wrapper {
     padding: 30px 0;
   }
-  
+
   .clients-slider-track {
     gap: 60px;
     animation-duration: 35s;
   }
-  
+
   .client-logo {
     padding: 0 15px;
   }
-  
+
   .client-logo img {
     max-width: 100px;
     max-height: 80px;
     height: 70px;
   }
-  
+
   .testimonials-section {
     padding: 80px 20px;
     margin-top: 60px;
   }
-  
+
   .testimonials-container {
     gap: 48px;
   }
-  
+
   .testimonials-title {
     font-size: 30px;
   }
-  
+
   .testimonials-subtitle {
     font-size: 16px;
   }
-  
+
   .testimonials-grid {
     grid-template-columns: repeat(2, 1fr);
     gap: 24px;
   }
-  
+
   .testimonial-card {
     padding: 26px;
     gap: 18px;
   }
-  
+
   .footer-section {
     padding: 60px 20px 30px;
   }
-  
+
   .footer-content {
     gap: 60px;
     margin-bottom: 36px;
   }
-  
+
   .footer-tagline {
     font-size: 15px;
   }
@@ -4184,71 +4168,71 @@ const setupScrollAnimations = () => {
     padding: 30px 15px 25px;
     min-height: calc(100vh - 80px);
   }
-  
+
   .home-container {
     padding: 0 15px;
     max-width: 100%;
   }
-  
+
   /* Tablet - Optimized effects */
   .floating-particles {
     opacity: 0.5;
   }
-  
+
   .particle-5,
   .particle-6,
   .particle-7,
   .particle-8 {
     display: none;
   }
-  
+
   .ambient-glow {
     width: 350px;
     height: 350px;
     filter: blur(60px);
     top: 35%;
   }
-  
+
   .hero-section {
     margin-bottom: 2.5rem;
   }
-  
+
   .hero-headline {
     font-size: 2.2rem;
     line-height: 1.2;
     margin-bottom: 1.25rem;
     gap: 0.15rem;
   }
-  
+
   .headline-white,
   .headline-purple {
     transform: translateY(25px);
   }
-  
+
   .headline-white.animate-in,
   .headline-purple.animate-in {
     transform: translateY(0);
   }
-  
+
   .gradient-shimmer {
     animation: none;
   }
-  
+
   .supporting-text {
     font-size: 0.9rem;
     line-height: 1.6;
     padding: 0 10px;
   }
-  
+
   .supporting-text .text-line {
     margin-bottom: 0.35rem;
   }
-  
+
   /* Responsive CTA - Keep horizontal layout */
   .cta-section {
     margin-bottom: 2rem;
   }
-  
+
   .whatsapp-form {
     flex-direction: row;
     gap: 0;
@@ -4257,7 +4241,7 @@ const setupScrollAnimations = () => {
     padding: 4px;
     background: rgba(255, 255, 255, 0.95);
   }
-  
+
   .whatsapp-input {
     flex: 1;
     font-size: 0.85rem;
@@ -4267,16 +4251,16 @@ const setupScrollAnimations = () => {
     color: #333;
     background: transparent;
   }
-  
+
   .whatsapp-input::placeholder {
     font-size: 0.8rem;
     color: rgba(0, 0, 0, 0.4);
   }
-  
+
   .whatsapp-input:focus::placeholder {
     color: rgba(0, 0, 0, 0.25);
   }
-  
+
   .cta-button {
     width: auto;
     padding: 0.75rem 1rem;
@@ -4285,20 +4269,20 @@ const setupScrollAnimations = () => {
     min-width: 44px;
     height: 44px;
   }
-  
+
   .cta-button .btn-text {
     display: none;
   }
-  
+
   .cta-button .btn-arrow {
     width: 18px;
     height: 18px;
   }
-  
+
   .btn-shine {
     display: none;
   }
-  
+
   /* Social Proof */
   .social-proof {
     font-size: 0.85rem;
@@ -4306,26 +4290,26 @@ const setupScrollAnimations = () => {
     gap: 0.4rem;
     padding: 0 10px;
   }
-  
+
   .pulse-star {
     font-size: 0.9rem;
   }
-  
+
   .proof-text {
     width: auto;
   }
-  
+
   .vector-shape {
     width: 100%;
     max-width: 250px;
     opacity: 0.4;
   }
-  
+
   /* Hide right vector on tablets and below */
   .vector-right {
     display: none;
   }
-  
+
   .vector-left {
     width: 100%;
     max-width: 250px;
@@ -4336,215 +4320,215 @@ const setupScrollAnimations = () => {
     height: 100px;
     background-repeat: no-repeat;
   }
-  
+
   /* Ensure stars remain visible on tablets */
   .stars::before,
   .stars::after {
     opacity: 0.7;
     margin-top: 8px;
   }
-  
+
   .social-proof {
     font-size: 0.9rem;
     padding: 0 10px;
     text-align: center;
   }
-  
+
   .second-section {
     padding: 60px 20px 50px;
     margin-top: 60px;
     min-height: auto;
   }
-  
+
   .section-container {
     gap: 40px;
   }
-  
+
   .section-header {
     margin-bottom: 2rem;
   }
-  
+
   .section-title {
     font-size: 28px;
   }
-  
+
   .section-description {
     font-size: 16px;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
     gap: 32px;
     padding: 0 20px;
   }
-  
+
   .stat-card {
     padding: 24px 20px;
     max-width: 100%;
   }
-  
+
   .stat-title {
     font-size: 24px;
   }
-  
+
   .stat-value {
     font-size: 42px;
   }
-  
+
   .stat-description {
     width: 100%;
     max-width: 300px;
     font-size: 16px;
   }
-  
+
   .video-section {
     margin: 2rem 0;
     width: 100%;
   }
-  
+
   .video-placeholder {
     border-radius: 16px;
   }
-  
+
   .video-text {
     font-size: 36px;
   }
-  
+
   .section-cta {
     width: 100%;
     justify-content: center;
     gap: 20px;
   }
-  
+
   .book-meeting-button {
     padding: 12px 28px;
     font-size: 15px;
   }
-  
+
   .third-section {
     padding: 60px 20px;
     margin-top: 50px;
     min-height: auto;
   }
-  
+
   .clearup-system-container {
     padding: 30px 12px;
   }
-  
+
   .clearup-system-vector {
     opacity: 0.25;
     background-size: contain;
     background-position: left center;
   }
-  
+
   .third-section-container {
     gap: 32px;
   }
-  
+
   .third-section-header {
     margin-bottom: 1.5rem;
   }
-  
+
   .third-section-title {
     font-size: 28px;
   }
-  
+
   .third-section-description {
     font-size: 16px;
   }
-  
+
   .system-card {
     padding: 40px 28px;
     min-height: auto;
     border-radius: 30px;
     gap: 14px;
   }
-  
+
   .system-card-title {
     font-size: 28px;
   }
-  
+
   .system-card-text {
     font-size: 16px;
   }
-  
+
   .system-card-roi {
     font-size: 20px;
     margin-top: 12px;
   }
-  
+
   .system-card-cta {
     margin-top: 24px;
   }
-  
+
   .system-cta-button {
     padding: 12px 32px;
     font-size: 16px;
     gap: 10px;
   }
-  
+
   .services-section {
     gap: 28px;
     max-width: 100%;
   }
-  
+
   .services-header {
     margin-bottom: 1rem;
   }
-  
+
   .services-title {
     font-size: 28px;
   }
-  
+
   .services-description {
     font-size: 16px;
   }
-  
+
   .services-grid {
     grid-template-columns: 1fr;
     gap: 32px;
     width: 100%;
   }
-  
+
   .service-card {
     max-width: 100%;
     align-items: center;
     text-align: center;
     gap: 18px;
   }
-  
+
   .service-icon {
     width: 64px;
     height: 64px;
   }
-  
+
   .service-name {
     text-align: center;
     font-size: 18px;
   }
-  
+
   .service-desc {
     text-align: center;
     width: 100%;
     max-width: 100%;
     font-size: 15px;
   }
-  
+
   .what-we-do-section {
     gap: 32px;
     padding: 40px 20px;
   }
-  
+
   .what-we-do-title {
     font-size: 28px;
     margin-bottom: 1.5rem;
   }
-  
+
   .steps-grid {
     gap: 24px;
     width: 100%;
   }
-  
+
   .step-card {
     width: 100%;
     max-width: 100%;
@@ -4552,261 +4536,261 @@ const setupScrollAnimations = () => {
     min-height: 180px;
     border-radius: 35px;
   }
-  
+
   .step-card-header {
     height: 45px;
     border-radius: 35px 35px 0 0;
   }
-  
+
   .step-header {
     font-size: 18px;
   }
-  
+
   .step-card-body {
     padding: 20px 24px 22px;
     border-radius: 0 0 35px 35px;
   }
-  
+
   .step-content {
     font-size: 17px;
     line-height: 1.5;
   }
-  
+
   .what-you-get-section {
     gap: 28px;
     padding: 40px 20px;
   }
-  
+
   .what-you-get-title {
     font-size: 28px;
   }
-  
+
   .benefits-grid {
     grid-template-columns: 1fr;
     gap: 20px;
     padding: 0 20px;
   }
-  
+
   .benefit-item {
     min-height: 54px;
     gap: 12px;
   }
-  
+
   .benefit-check {
     width: 36px;
     height: 36px;
   }
-  
+
   .benefit-text {
     font-size: 17px;
   }
-  
+
   .bonuses-section {
     padding: 60px 20px;
     margin-top: 50px;
   }
-  
+
   .bonuses-container {
     gap: 32px;
   }
-  
+
   .bonuses-title {
     font-size: 28px;
     margin-bottom: 1.5rem;
   }
-  
+
   .bonuses-list {
     gap: 16px;
   }
-  
+
   .bonus-item {
     padding: 20px 24px;
     gap: 16px;
   }
-  
+
   .bonus-icon {
     width: 40px;
     height: 40px;
   }
-  
+
   .bonus-text {
     font-size: 18px;
   }
-  
+
   .clients-section {
     padding: 60px 20px 80px;
     margin-top: 50px;
   }
-  
+
   .clients-container {
     gap: 32px;
     padding: 0 20px;
   }
-  
+
   .clients-title {
     font-size: 28px;
   }
-  
+
   .clients-subtitle {
     font-size: 16px;
   }
-  
+
   .clients-slider-wrapper {
     padding: 30px 0;
   }
-  
+
   .clients-slider-track {
     gap: 60px;
     animation-duration: 35s;
   }
-  
+
   .client-logo {
     padding: 0 15px;
   }
-  
+
   .client-logo img {
     max-width: 100px;
     max-height: 80px;
     height: 70px;
   }
-  
+
   .testimonials-section {
     padding: 80px 20px;
     margin-top: 60px;
   }
-  
+
   .testimonials-container {
     gap: 48px;
   }
-  
+
   .testimonials-title {
     font-size: 32px;
   }
-  
+
   .testimonials-subtitle {
     font-size: 16px;
   }
-  
+
   .testimonials-grid {
     grid-template-columns: 1fr;
     gap: 24px;
   }
-  
+
   .testimonial-card {
     padding: 28px;
     gap: 20px;
   }
-  
+
   .footer-section {
     padding: 60px 20px 30px;
   }
-  
+
   .footer-content {
     grid-template-columns: 1fr;
     gap: 40px;
     margin-bottom: 32px;
   }
-  
+
   .footer-tagline {
     font-size: 14px;
   }
-  
+
   .bonuses-section {
     padding: 60px 20px;
     margin-top: 50px;
   }
-  
+
   .bonuses-title {
     font-size: 28px;
     margin-bottom: 2rem;
   }
-  
+
   .bonuses-grid {
     gap: 16px;
   }
-  
+
   .bonus-item {
     padding: 20px 24px;
     gap: 20px;
   }
-  
+
   .bonus-icon {
     width: 40px;
     height: 40px;
   }
-  
+
   .bonus-text {
     font-size: 18px;
   }
-  
+
   .clients-section {
     padding: 60px 20px 80px;
     margin-top: 50px;
   }
-  
+
   .clients-container {
     padding: 0 20px;
     gap: 32px;
   }
-  
+
   .clients-title {
     font-size: 28px;
   }
-  
+
   .clients-subtitle {
     font-size: 16px;
   }
-  
+
   .clients-slider-track {
     gap: 60px;
     animation-duration: 35s;
   }
-  
+
   .client-logo {
     padding: 0 15px;
   }
-  
+
   .client-logo img {
     max-width: 100px;
     max-height: 80px;
     height: 70px;
   }
-  
+
   .testimonials-section {
     padding: 80px 20px;
     margin-top: 60px;
   }
-  
+
   .testimonials-container {
     gap: 48px;
   }
-  
+
   .testimonials-title {
     font-size: 32px;
   }
-  
+
   .testimonials-subtitle {
     font-size: 16px;
   }
-  
+
   .testimonials-grid {
     grid-template-columns: 1fr;
     gap: 24px;
   }
-  
+
   .testimonial-card {
     padding: 28px;
   }
-  
+
   .footer-section {
     padding: 60px 20px 30px;
   }
-  
+
   .footer-content {
     grid-template-columns: 1fr;
     gap: 40px;
   }
-  
+
   .footer-social {
     flex-wrap: wrap;
   }
@@ -4818,17 +4802,17 @@ const setupScrollAnimations = () => {
     padding: 25px 12px 20px;
     min-height: calc(100vh - 70px);
   }
-  
+
   .home-container {
     padding: 0 8px;
     max-width: 100%;
   }
-  
+
   /* Mobile - Reduced effects for performance */
   .floating-particles {
     display: none;
   }
-  
+
   .ambient-glow {
     width: 200px;
     height: 200px;
@@ -4836,73 +4820,73 @@ const setupScrollAnimations = () => {
     opacity: 0.5;
     top: 30%;
   }
-  
+
   .ambient-glow.animate-in {
     animation: none;
   }
-  
+
   .hero-section {
     margin-bottom: 2rem;
   }
-  
+
   .hero-headline {
     font-size: 1.75rem;
     line-height: 1.25;
     margin-bottom: 1rem;
     gap: 0.1rem;
   }
-  
+
   .headline-white,
   .headline-purple {
     display: block;
     transform: translateY(20px);
   }
-  
+
   .headline-white.animate-in,
   .headline-purple.animate-in {
     transform: translateY(0);
   }
-  
+
   /* Simplified shimmer for mobile */
   .gradient-shimmer {
     animation: none;
   }
-  
+
   .supporting-text {
     font-size: 0.85rem;
     line-height: 1.55;
     padding: 0 5px;
   }
-  
+
   .supporting-text .text-line {
     margin-bottom: 0.3rem;
   }
-  
+
   /* Simplified button on mobile */
   .btn-shine {
     display: none;
   }
-  
+
   .btn-glow {
     display: none;
   }
-  
+
   .cta-button:hover:not(:disabled) {
     transform: none;
     box-shadow: 0 2px 15px rgba(91, 32, 150, 0.25);
   }
-  
+
   .vector-shape {
     width: 100%;
     max-width: 200px;
     opacity: 0.35;
   }
-  
+
   /* Hide right vector on mobile */
   .vector-right {
     display: none;
   }
-  
+
   .vector-left {
     width: 100%;
     max-width: 200px;
@@ -4913,26 +4897,26 @@ const setupScrollAnimations = () => {
     height: 80px;
     background-repeat: no-repeat;
   }
-  
+
   /* Ensure stars remain visible on mobile */
   .stars::before {
     opacity: 0.6;
   }
-  
+
   .stars::after {
     opacity: 0.5;
   }
-  
+
   .cta-section {
     margin-bottom: 1.5rem;
   }
-  
+
   .whatsapp-form {
     padding: 3px;
     border-radius: 50px;
     background: rgba(255, 255, 255, 0.95);
   }
-  
+
   .whatsapp-input {
     flex: 1;
     font-size: 0.8rem;
@@ -4942,12 +4926,12 @@ const setupScrollAnimations = () => {
     color: #333;
     background: transparent;
   }
-  
+
   .whatsapp-input::placeholder {
     font-size: 0.72rem;
     color: rgba(0, 0, 0, 0.4);
   }
-  
+
   .cta-button {
     padding: 0.65rem 0.9rem;
     border-radius: 50%;
@@ -4955,16 +4939,16 @@ const setupScrollAnimations = () => {
     min-width: 40px;
     height: 40px;
   }
-  
+
   .cta-button .btn-text {
     display: none;
   }
-  
+
   .cta-button .btn-arrow {
     width: 16px;
     height: 16px;
   }
-  
+
   /* Social Proof Mobile */
   .social-proof {
     font-size: 0.8rem;
@@ -4973,15 +4957,15 @@ const setupScrollAnimations = () => {
     flex-wrap: nowrap;
     justify-content: center;
   }
-  
+
   .pulse-star {
     font-size: 0.85rem;
   }
-  
+
   .proof-text {
     width: auto;
   }
-  
+
   .social-proof {
     font-size: 0.85rem;
     padding: 0 5px;
@@ -4989,68 +4973,68 @@ const setupScrollAnimations = () => {
     flex-wrap: wrap;
     justify-content: center;
   }
-  
+
   .second-section {
     padding: 50px 15px 40px;
     margin-top: 40px;
     min-height: auto;
   }
-  
+
   .section-container {
     gap: 32px;
   }
-  
+
   .section-header {
     margin-bottom: 1.5rem;
   }
-  
+
   .section-title {
     font-size: 24px;
   }
-  
+
   .section-description {
     font-size: 14px;
   }
-  
+
   .stats-grid {
     grid-template-columns: 1fr;
     gap: 24px;
     padding: 0 10px;
   }
-  
+
   .stat-card {
     padding: 20px 16px;
     max-width: 100%;
   }
-  
+
   .stat-title {
     font-size: 20px;
   }
-  
+
   .stat-value {
     font-size: 36px;
   }
-  
+
   .stat-description {
     font-size: 14px;
     width: 100%;
     max-width: 280px;
   }
-  
+
   .video-section {
     margin: 1.5rem 0;
     width: 100%;
   }
-  
+
   .video-placeholder {
     padding: 50px 15px;
     border-radius: 12px;
   }
-  
+
   .video-text {
     font-size: 28px;
   }
-  
+
   .section-cta {
     flex-direction: row;
     gap: 16px;
@@ -5059,77 +5043,77 @@ const setupScrollAnimations = () => {
     justify-content: center;
     flex-wrap: wrap;
   }
-  
+
   .book-meeting-button {
     flex: 1;
     min-width: 200px;
     padding: 12px 24px;
     font-size: 14px;
   }
-  
+
   .whatsapp-link {
     flex-shrink: 0;
   }
-  
+
   .third-section {
     padding: 40px 15px;
     margin-top: 40px;
     min-height: auto;
   }
-  
-  
+
+
   .clearup-system-container {
     padding: 25px 10px;
   }
-  
+
   .clearup-system-vector {
     opacity: 0.2;
     background-size: contain;
     background-position: left center;
   }
-  
+
   .third-section-container {
     gap: 28px;
   }
-  
+
   .third-section-header {
     margin-bottom: 1.25rem;
   }
-  
+
   .third-section-title {
     font-size: 24px;
   }
-  
+
   .third-section-description {
     font-size: 14px;
   }
-  
+
   .system-card {
     padding: 32px 20px;
     min-height: auto;
     border-radius: 24px;
     gap: 12px;
   }
-  
+
   .system-card-title {
     font-size: 22px;
   }
-  
+
   .system-card-text {
     font-size: 14px;
     line-height: 1.5;
   }
-  
+
   .system-card-roi {
     font-size: 16px;
     margin-top: 10px;
     line-height: 1.4;
   }
-  
+
   .system-card-cta {
     margin-top: 20px;
   }
-  
+
   .system-cta-button {
     padding: 12px 28px;
     font-size: 15px;
@@ -5137,30 +5121,30 @@ const setupScrollAnimations = () => {
     width: 100%;
     max-width: 280px;
   }
-  
+
   .services-section {
     gap: 24px;
     max-width: 100%;
   }
-  
+
   .services-header {
     margin-bottom: 0.75rem;
   }
-  
+
   .services-title {
     font-size: 24px;
   }
-  
+
   .services-description {
     font-size: 14px;
   }
-  
+
   .services-grid {
     grid-template-columns: 1fr;
     gap: 28px;
     width: 100%;
   }
-  
+
   .service-card {
     max-width: 100%;
     align-items: center;
@@ -5168,19 +5152,19 @@ const setupScrollAnimations = () => {
     gap: 16px;
     padding: 0;
   }
-  
+
   .service-icon {
     width: 56px;
     height: 56px;
     padding: 10px;
   }
-  
+
   .service-name {
     font-size: 18px;
     text-align: center;
     line-height: 1.4;
   }
-  
+
   .service-desc {
     font-size: 14px;
     text-align: center;
@@ -5188,273 +5172,273 @@ const setupScrollAnimations = () => {
     max-width: 100%;
     line-height: 1.5;
   }
-  
+
   .what-we-do-section {
     gap: 28px;
     padding: 40px 15px;
   }
-  
+
   .what-we-do-title {
     font-size: 24px;
     margin-bottom: 1.25rem;
   }
-  
+
   .what-you-get-section {
     gap: 24px;
     padding: 40px 15px;
   }
-  
+
   .what-you-get-title {
     font-size: 24px;
     margin-bottom: 1.25rem;
   }
-  
+
   .benefits-grid {
     grid-template-columns: 1fr;
     padding: 0;
     gap: 16px;
   }
-  
+
   .benefit-item {
     min-height: 50px;
     gap: 12px;
     padding: 0;
   }
-  
+
   .benefit-check {
     width: 32px;
     height: 32px;
   }
-  
+
   .benefit-check svg {
     width: 18px;
     height: 18px;
   }
-  
+
   .benefit-text {
     font-size: 16px;
   }
-  
+
   .bonuses-section {
     padding: 40px 15px;
     margin-top: 40px;
   }
-  
+
   .bonuses-container {
     gap: 28px;
   }
-  
+
   .bonuses-title {
     font-size: 24px;
     margin-bottom: 1.25rem;
   }
-  
+
   .bonuses-list {
     gap: 16px;
   }
-  
+
   .bonus-item {
     padding: 18px 20px;
     gap: 16px;
     flex-direction: row;
     align-items: center;
   }
-  
+
   .bonus-icon {
     width: 40px;
     height: 40px;
     flex-shrink: 0;
   }
-  
+
   .bonus-text {
     font-size: 16px;
   }
-  
+
   .clients-section {
     padding: 40px 10px 60px;
     margin-top: 40px;
   }
-  
+
   .clients-container {
     padding: 0 10px;
     gap: 24px;
   }
-  
+
   .clients-title {
     font-size: 24px;
   }
-  
+
   .clients-subtitle {
     font-size: 14px;
   }
-  
+
   .clients-slider-wrapper {
     padding: 25px 0;
   }
-  
+
   .clients-slider-track {
     gap: 40px;
     animation-duration: 30s;
   }
-  
+
   .client-logo {
     padding: 0 10px;
   }
-  
+
   .client-logo img {
     max-width: 80px;
     max-height: 60px;
     height: 50px;
   }
-  
+
   .testimonials-section {
     padding: 40px 15px;
     margin-top: 40px;
   }
-  
+
   .testimonials-container {
     gap: 32px;
   }
-  
+
   .testimonials-header {
     gap: 12px;
   }
-  
+
   .testimonials-title {
     font-size: 24px;
   }
-  
+
   .testimonials-subtitle {
     font-size: 14px;
   }
-  
+
   .testimonials-grid {
     grid-template-columns: 1fr;
     gap: 20px;
   }
-  
+
   .testimonial-card {
     padding: 20px;
     gap: 16px;
   }
-  
+
   .testimonial-header {
     gap: 12px;
   }
-  
+
   .testimonial-avatar {
     width: 56px;
     height: 56px;
   }
-  
+
   .avatar-initial {
     font-size: 18px;
   }
-  
+
   .testimonial-name {
     font-size: 18px;
   }
-  
+
   .testimonial-stars svg {
     width: 14px;
     height: 14px;
   }
-  
+
   .testimonial-title {
     font-size: 13px;
   }
-  
+
   .testimonial-video {
     margin-top: 20px;
   }
-  
+
   .video-thumbnail {
     aspect-ratio: 16 / 9;
   }
-  
+
   .play-button-overlay {
     width: 60px;
     height: 60px;
   }
-  
+
   .play-button-overlay svg {
     width: 60px;
     height: 60px;
   }
-  
+
   .footer-section {
     padding: 40px 15px 20px;
   }
-  
+
   .footer-container {
     max-width: 100%;
   }
-  
+
   .footer-content {
     grid-template-columns: 1fr;
     gap: 32px;
     margin-bottom: 32px;
   }
-  
+
   .footer-brand {
     gap: 20px;
   }
-  
+
   .footer-tagline {
     font-size: 14px;
     max-width: 100%;
   }
-  
+
   .footer-social {
     flex-wrap: wrap;
     gap: 12px;
   }
-  
+
   .social-icon {
     width: 40px;
     height: 40px;
   }
-  
+
   .social-icon svg {
     width: 18px;
     height: 18px;
   }
-  
+
   .footer-links {
     gap: 20px;
   }
-  
+
   .footer-links-title {
     font-size: 18px;
   }
-  
+
   .footer-links-list {
     gap: 14px;
   }
-  
+
   .footer-links-list a {
     font-size: 14px;
   }
-  
+
   .footer-bottom {
     gap: 14px;
     padding-top: 28px;
   }
-  
+
   .footer-copyright {
     font-size: 12px;
   }
-  
+
   .footer-policies {
     gap: 8px;
     flex-wrap: wrap;
     justify-content: center;
   }
-  
+
   .footer-policies a {
     font-size: 12px;
   }
-  
+
   .footer-divider {
     font-size: 12px;
   }
@@ -5465,40 +5449,40 @@ const setupScrollAnimations = () => {
   .home-view {
     padding: 20px 8px 15px;
   }
-  
+
   .home-container {
     padding: 0 5px;
   }
-  
+
   .hero-section {
     margin-bottom: 1.5rem;
   }
-  
+
   .hero-headline {
     font-size: 1.5rem;
     margin-bottom: 0.85rem;
     gap: 0;
   }
-  
+
   .supporting-text {
     font-size: 0.8rem;
     line-height: 1.5;
   }
-  
+
   .supporting-text .text-line {
     margin-bottom: 0.25rem;
   }
-  
+
   .cta-section {
     margin-bottom: 1rem;
   }
-  
+
   .whatsapp-form {
     padding: 3px;
     border-radius: 50px;
     background: rgba(255, 255, 255, 0.95);
   }
-  
+
   .whatsapp-input {
     flex: 1;
     font-size: 0.75rem;
@@ -5507,12 +5491,12 @@ const setupScrollAnimations = () => {
     text-align: left;
     color: #333;
   }
-  
+
   .whatsapp-input::placeholder {
     font-size: 0.68rem;
     color: rgba(0, 0, 0, 0.4);
   }
-  
+
   .cta-button {
     padding: 0.6rem 0.8rem;
     border-radius: 50%;
@@ -5520,28 +5504,28 @@ const setupScrollAnimations = () => {
     min-width: 36px;
     height: 36px;
   }
-  
+
   .cta-button .btn-arrow {
     width: 14px;
     height: 14px;
   }
-  
+
   .social-proof {
     font-size: 0.72rem;
     gap: 0.25rem;
   }
-  
+
   .pulse-star {
     font-size: 0.75rem;
   }
-  
+
   .ambient-glow {
     width: 150px;
     height: 150px;
     filter: blur(30px);
     opacity: 0.4;
   }
-  
+
   .section-title,
   .third-section-title,
   .services-title,
@@ -5552,18 +5536,18 @@ const setupScrollAnimations = () => {
   .testimonials-title {
     font-size: 20px;
   }
-  
+
   .vector-shape {
     width: 100%;
     max-width: 180px;
     opacity: 0.3;
   }
-  
+
   /* Hide right vector on extra small mobile */
   .vector-right {
     display: none;
   }
-  
+
   .vector-left {
     width: 100%;
     max-width: 180px;
@@ -5574,244 +5558,244 @@ const setupScrollAnimations = () => {
     height: 70px;
     background-repeat: no-repeat;
   }
-  
-  
+
+
   .clearup-system-container {
     padding: 20px 8px;
   }
-  
+
   .clearup-system-vector {
     opacity: 0.15;
     background-size: contain;
     background-position: left center;
   }
-  
+
   .stat-value {
     font-size: 28px;
   }
-  
+
   .what-you-get-section {
     padding: 35px 12px;
     gap: 20px;
   }
-  
+
   .benefits-grid {
     gap: 14px;
   }
-  
+
   .benefit-item {
     min-height: 48px;
     gap: 10px;
   }
-  
+
   .benefit-check {
     width: 30px;
     height: 30px;
   }
-  
+
   .benefit-check svg {
     width: 16px;
     height: 16px;
   }
-  
+
   .benefit-text {
     font-size: 15px;
   }
-  
+
   .bonuses-section {
     padding: 35px 12px;
     margin-top: 35px;
   }
-  
+
   .bonuses-container {
     gap: 24px;
   }
-  
+
   .bonuses-title {
     margin-bottom: 1rem;
   }
-  
+
   .bonuses-list {
     gap: 14px;
   }
-  
+
   .bonus-item {
     padding: 16px 18px;
     gap: 14px;
   }
-  
+
   .bonus-icon {
     width: 36px;
     height: 36px;
   }
-  
+
   .bonus-text {
     font-size: 15px;
   }
-  
+
   .clients-section {
     padding: 35px 8px 50px;
     margin-top: 35px;
   }
-  
+
   .clients-container {
     padding: 0 8px;
     gap: 20px;
   }
-  
+
   .clients-subtitle {
     font-size: 13px;
   }
-  
+
   .clients-slider-wrapper {
     padding: 20px 0;
   }
-  
+
   .clients-slider-track {
     gap: 30px;
     animation-duration: 25s;
   }
-  
+
   .client-logo {
     padding: 0 8px;
   }
-  
+
   .client-logo img {
     max-width: 70px;
     max-height: 50px;
     height: 45px;
   }
-  
+
   .testimonials-section {
     padding: 35px 12px;
     margin-top: 35px;
   }
-  
+
   .testimonials-container {
     gap: 28px;
   }
-  
+
   .testimonials-header {
     gap: 10px;
   }
-  
+
   .testimonials-subtitle {
     font-size: 13px;
   }
-  
+
   .testimonials-grid {
     gap: 18px;
   }
-  
+
   .testimonial-card {
     padding: 18px;
     gap: 16px;
   }
-  
+
   .testimonial-avatar {
     width: 44px;
     height: 44px;
   }
-  
+
   .avatar-initial {
     font-size: 15px;
   }
-  
+
   .testimonial-name {
     font-size: 16px;
   }
-  
+
   .testimonial-stars svg {
     width: 12px;
     height: 12px;
   }
-  
+
   .testimonial-title {
     font-size: 12px;
   }
-  
+
   .testimonial-video {
     margin-top: 16px;
   }
-  
+
   .video-thumbnail {
     aspect-ratio: 16 / 9;
   }
-  
+
   .play-button-overlay {
     width: 50px;
     height: 50px;
   }
-  
+
   .play-button-overlay svg {
     width: 50px;
     height: 50px;
   }
-  
+
   .footer-section {
     padding: 35px 12px 18px;
   }
-  
+
   .footer-content {
     gap: 28px;
     margin-bottom: 28px;
   }
-  
+
   .footer-brand {
     gap: 18px;
   }
-  
+
   .footer-tagline {
     font-size: 13px;
   }
-  
+
   .footer-social {
     gap: 10px;
   }
-  
+
   .social-icon {
     width: 38px;
     height: 38px;
   }
-  
+
   .social-icon svg {
     width: 16px;
     height: 16px;
   }
-  
+
   .footer-links {
     gap: 18px;
   }
-  
+
   .footer-links-title {
     font-size: 17px;
   }
-  
+
   .footer-links-list {
     gap: 12px;
   }
-  
+
   .footer-links-list a {
     font-size: 13px;
   }
-  
+
   .footer-bottom {
     gap: 12px;
     padding-top: 24px;
   }
-  
+
   .footer-copyright {
     font-size: 11px;
   }
-  
+
   .footer-policies {
     gap: 6px;
   }
-  
+
   .footer-policies a {
     font-size: 11px;
   }
-  
+
   .footer-divider {
     font-size: 11px;
   }
@@ -5822,11 +5806,11 @@ const setupScrollAnimations = () => {
   .home-container {
     max-width: 1200px;
   }
-  
+
   .hero-headline {
     font-size: 5rem;
   }
-  
+
   .vector-shape {
     width: 350px;
   }
