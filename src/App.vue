@@ -10,7 +10,7 @@ const route = useRoute()
 const router = useRouter()
 const showNavigationBar = computed(() => route.name !== 'admin-dashboard')
 
-// Hidden maintenance toggle functionality
+// Hidden maintenance togrgle functionality
 let logoClickCount = 0
 let logoClickTimeout: ReturnType<typeof setTimeout> | null = null
 let keyComboPressed = false
