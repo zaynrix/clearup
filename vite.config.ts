@@ -7,7 +7,7 @@ import { nodePolyfills } from 'vite-plugin-node-polyfills'
 
 // https://vite.dev/config/
 export default defineConfig({
-  base: '/clearup/',
+  base: '/',
   plugins: [
     vue(),
     vueDevTools(),
