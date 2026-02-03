@@ -428,6 +428,7 @@
               :data-card-id="`result-case-${caseIndex}`"
               @mouseenter="handleHeadlineHover(resultCase.id)"
               @mouseleave="handleHeadlineLeave"
+              @click="navigateToWorkDetail(resultCase.id)"
             >
               <!-- Company Logo - Top Center -->
               <div v-if="resultCase.companyLogo || resultCase.companyLogoFileUrl" class="real-results-company-logo">
@@ -725,6 +726,13 @@ const handleHeadlineHover = (caseId: string) => {
 
 const handleHeadlineLeave = () => {
   hoveredCaseId.value = null
+}
+
+// Navigate to work detail page
+const navigateToWorkDetail = (workId: string) => {
+  if (workId) {
+    router.push(`/works/${workId}`)
+  }
 }
 
 // Real Results Carousel State
@@ -3165,6 +3173,7 @@ const setupScrollAnimations = () => {
   display: flex;
   flex-direction: column;
   align-items: center;
+  cursor: pointer;
   justify-content: center;
 }
 
