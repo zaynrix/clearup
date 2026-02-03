@@ -186,21 +186,24 @@ service cloud.firestore {
     // 2. Authenticated users can update their own bookings (for cancellation)
     // 3. Allow updates to guest bookings (no userId field) immediately after creation
     //    This is needed because the booking controller updates the booking right after creation
-    //    to set the meeting link, status, and ID. We verify by checking email/name match and
-    //    that the update is only changing status/meetingLink/id (not user data).
+    //    to set the meeting link, status, googleEventId, calendarLink, adminId, and ID.
+    //    We verify by checking email/name match and that user-provided data hasn't changed.
     allow update: if isAdmin() ||
       (isAuthenticated() && resource.data.userEmail == request.auth.token.email && request.resource.data.status == 'cancelled') ||
       (!isAuthenticated() && 
        // Verify it's a guest booking (no userId field exists)
        !('userId' in resource.data) &&
-       // Verify email and name match (same person)
+       // Verify email and name match (same person) - these are the key identifiers
        request.resource.data.userEmail == resource.data.userEmail &&
        request.resource.data.userName == resource.data.userName &&
-       // Verify user data hasn't changed (only status/meetingLink/id can change)
+       // Verify essential user-provided data hasn't changed
+       // Note: Date comparison works for both Timestamp and string formats in Firestore
        request.resource.data.meetingDate == resource.data.meetingDate &&
        request.resource.data.meetingTime == resource.data.meetingTime &&
-       // Allow adding/updating ID field if it was empty or missing before
-       (resource.data.id == '' || resource.data.id == request.resource.data.id || !('id' in resource.data) || request.resource.data.id == bookingId));
+       // Allow optional user fields to match or be absent (phone, contactMethod, notes)
+       (!('userPhone' in request.resource.data) || !('userPhone' in resource.data) || request.resource.data.userPhone == resource.data.userPhone) &&
+       (!('contactMethod' in request.resource.data) || !('contactMethod' in resource.data) || request.resource.data.contactMethod == resource.data.contactMethod) &&
+       (!('notes' in request.resource.data) || !('notes' in resource.data) || request.resource.data.notes == resource.data.notes));
     
     // Allow deletes:
     // 1. Admins can delete any booking

@@ -314,9 +314,27 @@ onMounted(async () => {
   window.scrollTo(0, 0)
   
   // Load site settings to check for disabled sections
-  const settingsResult = await siteSettingsController.getSiteSettings()
-  if (settingsResult.success && settingsResult.data) {
-    siteSettings.value = settingsResult.data
+  try {
+    const settingsResult = await siteSettingsController.getSiteSettings()
+    if (settingsResult.success && settingsResult.data) {
+      siteSettings.value = settingsResult.data
+    } else {
+      console.warn('Failed to load site settings:', settingsResult.error)
+      // Use default settings if loading fails
+      siteSettings.value = {
+        disabledSections: [],
+        maintenanceMode: false,
+        maintenanceMessage: 'This section is temporarily unavailable.'
+      }
+    }
+  } catch (error) {
+    console.error('Error loading site settings:', error)
+    // Use default settings if there's an error
+    siteSettings.value = {
+      disabledSections: [],
+      maintenanceMode: false,
+      maintenanceMessage: 'This section is temporarily unavailable.'
+    }
   }
   
   loadAboutContent()
