@@ -498,12 +498,17 @@ watch(() => route.params.id, async (newWorkId) => {
 }
 
 .gallery-title {
-  color: #5B2096;
+  color: #5B2096; /* Fallback color for browsers that don't support background-clip */
+  background: linear-gradient(135deg, #5B2096 0%, #8B5CF6 50%, #A78BFA 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
   font-family: 'Roboto', sans-serif;
   font-size: 67px;
   font-weight: 700;
   line-height: 1.2;
   margin: 0;
+  display: inline-block; /* Required for background-clip to work properly */
 }
 
 .gallery-subtitle {
