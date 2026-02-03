@@ -554,10 +554,14 @@ const route = useRoute()
 const viewController = new HomeViewController()
 const contentController = new HomeContentViewController()
 
-const siteSettings = ref<SiteSettings>({
+// Default site settings helper function
+const getDefaultSiteSettings = (): SiteSettings => ({
   disabledSections: [],
-  maintenanceMode: false
+  maintenanceMode: false,
+  maintenanceMessage: 'This section is temporarily unavailable.'
 })
+
+const siteSettings = ref<SiteSettings>(getDefaultSiteSettings())
 
 const isSectionDisabled = (sectionId: string): boolean => {
   return siteSettings.value.disabledSections?.includes(sectionId) || false
@@ -700,20 +704,12 @@ onMounted(async () => {
     } else {
       console.warn('Failed to load site settings:', settingsResult.error)
       // Use default settings if loading fails
-      siteSettings.value = {
-        disabledSections: [],
-        maintenanceMode: false,
-        maintenanceMessage: 'This section is temporarily unavailable.'
-      }
+      siteSettings.value = getDefaultSiteSettings()
     }
   } catch (error) {
     console.error('Error loading site settings:', error)
     // Use default settings if there's an error
-    siteSettings.value = {
-      disabledSections: [],
-      maintenanceMode: false,
-      maintenanceMessage: 'This section is temporarily unavailable.'
-    }
+    siteSettings.value = getDefaultSiteSettings()
   }
   // Trigger entrance animations immediately
   isLoaded.value = true
