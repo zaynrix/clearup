@@ -87,7 +87,7 @@ const handleCtaClick = () => {
   padding: 80px 60px 100px;
   min-height: auto;
   overflow: visible;
-  background: #14141B;
+  background: #14141B !important;
   box-sizing: border-box;
   isolation: isolate;
   /* Simple rounded container - no clip-path to prevent content clipping */

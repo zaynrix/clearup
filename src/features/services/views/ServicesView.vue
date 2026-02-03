@@ -103,6 +103,7 @@
                 <div 
                   v-for="(step, index) in homeContent.steps" 
                   :key="`step-${index}-${step.number}`" 
+                  :data-card-id="`step-${index}`"
                   class="step-card"
                 >
                   <div class="step-card-header">
@@ -122,6 +123,7 @@
                 <div 
                   v-for="(benefit, index) in homeContent.benefits" 
                   :key="`benefit-${index}`" 
+                  :data-card-id="`benefit-${index}`"
                   class="benefit-item"
                 >
                   <div class="benefit-check">
@@ -139,7 +141,7 @@
               <div class="bonuses-container">
                 <h2 class="bonuses-title">{{ homeContent?.bonusesTitle || 'Bonuses Included' }}</h2>
                 <div class="bonuses-list">
-                  <div class="bonus-item">
+                  <div class="bonus-item" data-card-id="bonus-0">
                     <div class="bonus-icon">
                       <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect x="8" y="6" width="32" height="36" rx="2" stroke="white" stroke-width="2" fill="none"/>
@@ -151,7 +153,7 @@
                     </div>
                     <p class="bonus-text">{{ homeContent?.bonuses?.[0] || 'Full access to personal brand system' }}</p>
                   </div>
-                  <div class="bonus-item">
+                  <div class="bonus-item" data-card-id="bonus-1">
                     <div class="bonus-icon">
                       <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect x="10" y="28" width="28" height="12" rx="2" stroke="white" stroke-width="2" fill="none"/>
@@ -163,7 +165,7 @@
                     </div>
                     <p class="bonus-text">{{ homeContent?.bonuses?.[1] || 'Full access to leadership workshops' }}</p>
                   </div>
-                  <div class="bonus-item">
+                  <div class="bonus-item" data-card-id="bonus-2">
                     <div class="bonus-icon">
                       <svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
                         <rect x="8" y="6" width="32" height="36" rx="2" stroke="white" stroke-width="2" fill="none"/>
@@ -211,8 +213,9 @@
           
           <div v-if="servicesContent?.whyChooseFeatures && servicesContent.whyChooseFeatures.length > 0" class="why-choose-grid">
             <div 
-              v-for="feature in servicesContent.whyChooseFeatures" 
+              v-for="(feature, index) in servicesContent.whyChooseFeatures" 
               :key="feature.id" 
+              :data-card-id="`why-choose-${index}`"
               class="why-choose-card"
             >
               <div class="why-choose-icon">
@@ -262,7 +265,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { HomeContentViewController } from '@/features/home/controllers/HomeContentViewController'
 import { ServicesViewController } from '../controllers/ServicesViewController'
@@ -298,21 +301,95 @@ const handleBookMeeting = () => {
   console.log('Book a meeting clicked')
 }
 
+// Setup scroll animations
+const setupScrollAnimations = () => {
+  const observerOptions = {
+    root: null,
+    rootMargin: '0px 0px -50px 0px',
+    threshold: 0.05
+  }
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const target = entry.target as HTMLElement
+        target.classList.add('animate-in')
+        // Stop observing once animated
+        observer.unobserve(target)
+      }
+    })
+  }, observerOptions)
+
+  // Observe all sections with data-section-id attribute
+  nextTick(() => {
+    setTimeout(() => {
+      const sections = document.querySelectorAll('[data-section-id]')
+      sections.forEach(section => {
+        // Check if already in view
+        const rect = section.getBoundingClientRect()
+        const isVisible = rect.top < window.innerHeight + 100 && rect.bottom > -100
+        if (isVisible) {
+          section.classList.add('animate-in')
+        } else {
+          // Mark as below viewport and hide
+          section.classList.add('below-viewport')
+          observer.observe(section)
+        }
+      })
+      
+      // Also observe individual cards
+      const cards = document.querySelectorAll('[data-card-id]')
+      cards.forEach(card => {
+        // Check if already in view
+        const rect = card.getBoundingClientRect()
+        const isVisible = rect.top < window.innerHeight + 100 && rect.bottom > -100
+        if (isVisible) {
+          card.classList.add('animate-in')
+        } else {
+          // Mark as below viewport and hide
+          card.classList.add('below-viewport')
+          observer.observe(card)
+        }
+      })
+    }, 300)
+  })
+}
 
 onMounted(async () => {
   // Reset scroll position when component mounts
   window.scrollTo(0, 0)
   
   // Load site settings to check for disabled sections
-  const settingsResult = await siteSettingsController.getSiteSettings()
-  if (settingsResult.success && settingsResult.data) {
-    siteSettings.value = settingsResult.data
+  try {
+    const settingsResult = await siteSettingsController.getSiteSettings()
+    if (settingsResult.success && settingsResult.data) {
+      siteSettings.value = settingsResult.data
+    } else {
+      console.warn('Failed to load site settings:', settingsResult.error)
+      // Use default settings if loading fails
+      siteSettings.value = {
+        disabledSections: [],
+        maintenanceMode: false,
+        maintenanceMessage: 'This section is temporarily unavailable.'
+      }
+    }
+  } catch (error) {
+    console.error('Error loading site settings:', error)
+    // Use default settings if there's an error
+    siteSettings.value = {
+      disabledSections: [],
+      maintenanceMode: false,
+      maintenanceMessage: 'This section is temporarily unavailable.'
+    }
   }
   
   await Promise.all([
     homeContentController.loadHomeContent(),
     servicesViewController.loadServicesContent()
   ])
+  
+  // Setup scroll animations after content is loaded
+  setupScrollAnimations()
 })
 </script>
 
@@ -320,7 +397,7 @@ onMounted(async () => {
 .services-view {
   position: relative;
   min-height: calc(100vh - 120px);
-  padding: 60px 20px 40px;
+  padding: 20px 20px 40px;
   overflow-x: hidden;
   display: flex;
   flex-direction: column;
@@ -356,11 +433,7 @@ onMounted(async () => {
   right: 0;
   width: 100%;
   height: 100%;
-  background: 
-    radial-gradient(ellipse at 20% 30%, rgba(91, 32, 150, 0.12) 0%, transparent 60%),
-    radial-gradient(ellipse at 80% 70%, rgba(193, 157, 230, 0.08) 0%, transparent 60%),
-    radial-gradient(ellipse at 50% 50%, rgba(67, 24, 111, 0.06) 0%, transparent 80%),
-    linear-gradient(180deg, #0A0A0E 0%, #121218 50%, #0F0F14 100%);
+  background: #0B0B0F;
   z-index: 1;
   pointer-events: none;
   animation: backgroundFadeIn 1.2s ease-out;
@@ -928,6 +1001,89 @@ onMounted(async () => {
 [data-card-id="result-case-2"] { transition-delay: 0.5s; }
 [data-card-id="result-case-3"] { transition-delay: 0.7s; }
 
+/* Step cards - fade in with scale animation */
+[data-card-id^="step-"] {
+  opacity: 0;
+  transform: translateY(30px) scale(0.95);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-card-id^="step-"].animate-in {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+[data-card-id="step-0"] { transition-delay: 0.1s; }
+[data-card-id="step-1"] { transition-delay: 0.15s; }
+[data-card-id="step-2"] { transition-delay: 0.2s; }
+[data-card-id="step-3"] { transition-delay: 0.25s; }
+[data-card-id="step-4"] { transition-delay: 0.3s; }
+[data-card-id="step-5"] { transition-delay: 0.35s; }
+[data-card-id="step-6"] { transition-delay: 0.4s; }
+[data-card-id="step-7"] { transition-delay: 0.45s; }
+
+/* Benefit items - slide in from left */
+[data-card-id^="benefit-"] {
+  opacity: 0;
+  transform: translateX(-20px);
+  transition: opacity 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-card-id^="benefit-"].animate-in {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+[data-card-id="benefit-0"] { transition-delay: 0.1s; }
+[data-card-id="benefit-1"] { transition-delay: 0.15s; }
+[data-card-id="benefit-2"] { transition-delay: 0.2s; }
+[data-card-id="benefit-3"] { transition-delay: 0.25s; }
+[data-card-id="benefit-4"] { transition-delay: 0.3s; }
+[data-card-id="benefit-5"] { transition-delay: 0.35s; }
+[data-card-id="benefit-6"] { transition-delay: 0.4s; }
+[data-card-id="benefit-7"] { transition-delay: 0.45s; }
+
+/* Bonus items - fade in with slight scale */
+[data-card-id^="bonus-"] {
+  opacity: 0;
+  transform: translateY(20px) scale(0.98);
+  transition: opacity 0.7s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-card-id^="bonus-"].animate-in {
+  opacity: 1;
+  transform: translateY(0) scale(1);
+}
+
+[data-card-id="bonus-0"] { transition-delay: 0.1s; }
+[data-card-id="bonus-1"] { transition-delay: 0.2s; }
+[data-card-id="bonus-2"] { transition-delay: 0.3s; }
+
+/* Why choose cards - fade in with slide up */
+[data-card-id^="why-choose-"] {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.8s cubic-bezier(0.16, 1, 0.3, 1), 
+              transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+[data-card-id^="why-choose-"].animate-in {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+[data-card-id="why-choose-0"] { transition-delay: 0.1s; }
+[data-card-id="why-choose-1"] { transition-delay: 0.15s; }
+[data-card-id="why-choose-2"] { transition-delay: 0.2s; }
+[data-card-id="why-choose-3"] { transition-delay: 0.25s; }
+[data-card-id="why-choose-4"] { transition-delay: 0.3s; }
+[data-card-id="why-choose-5"] { transition-delay: 0.35s; }
+[data-card-id="why-choose-6"] { transition-delay: 0.4s; }
+[data-card-id="why-choose-7"] { transition-delay: 0.45s; }
+
 /* Section Divider */
 .section-divider {
   width: 100%;
@@ -1158,7 +1314,7 @@ onMounted(async () => {
   position: relative;
   width: 100%;
   padding: 0;
-  margin-top: 80px;
+  margin-top: 20px;
   z-index: 3;
   display: flex;
   align-items: center;
@@ -1175,7 +1331,7 @@ onMounted(async () => {
   padding: 80px 60px;
   min-height: 100vh;
   overflow: hidden;
-  background: #14141B;
+  background: #14141B !important;
   box-sizing: border-box;
   isolation: isolate;
   /* Organic curved cutouts at top and bottom - smooth flowing curves */
@@ -1604,6 +1760,11 @@ onMounted(async () => {
   width: 100%;
 }
 
+.steps-grid .step-card {
+  flex: 0 0 calc(25% - 15px);
+  max-width: calc(25% - 15px);
+}
+
 /* Mobile responsive - 1 column */
 @media (max-width: 768px) {
   .what-we-do-section {
@@ -1689,7 +1850,6 @@ onMounted(async () => {
 
 .step-card {
   width: 100%;
-  max-width: 275px;
   min-height: 210px;
   border-radius: 50px;
   background: #14141B;
@@ -3654,7 +3814,7 @@ onMounted(async () => {
   
   .third-section {
     padding: 60px 20px;
-    margin-top: 50px;
+    margin-top: 15px;
     min-height: auto;
   }
   
@@ -4281,7 +4441,7 @@ onMounted(async () => {
   
   .third-section {
     padding: 40px 15px;
-    margin-top: 40px;
+    margin-top: 10px;
     min-height: auto;
   }
   

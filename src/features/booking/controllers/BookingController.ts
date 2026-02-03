@@ -4,6 +4,8 @@ import { bookingNotificationService } from '../services/BookingNotificationServi
 import { googleCalendarService } from '../services/GoogleCalendarService'
 import { googleCalendarConfig } from '@/shared/services/config'
 import { firestoreService } from '@/shared/services'
+import { getFunctions, httpsCallable } from 'firebase/functions'
+import { app } from '@/shared/services/config'
 import type { Booking, BookingData, AvailableDate } from '../models/Booking'
 
 /**
@@ -90,7 +92,7 @@ export class BookingController extends BaseController {
       }
 
       try {
-        // Check if admin has Google Calendar connected
+        // Check if admin has Google Calendar connected (using public calendar_status)
         const isConnected = await googleCalendarService.isGoogleConnected(adminId)
         
         if (!isConnected) {
@@ -103,73 +105,124 @@ export class BookingController extends BaseController {
           }
         }
 
-        // Initialize Google Calendar credentials if not already initialized
-        if (!googleCalendarConfig.clientId || !googleCalendarConfig.clientSecret) {
-          await bookingService.deleteBooking(booking.id)
-          return { 
-            success: false, 
-            error: 'Google Calendar is not configured. Please contact support.' 
-          }
-        }
-        googleCalendarService.initializeCredentials({
-          clientId: googleCalendarConfig.clientId,
-          clientSecret: googleCalendarConfig.clientSecret,
-          redirectUri: googleCalendarConfig.redirectUri
-        })
-
-        // Get admin email from users collection
-        const admin = await firestoreService.getDocument<any>('users', adminId)
-        const adminEmail = admin?.email || 'admin@clearup.com'
+        // Get admin email from calendar_status collection (public-readable, works for guests)
+        const calendarStatus = await firestoreService.getDocument<any>('calendar_status', adminId)
+        const adminEmail = calendarStatus?.adminEmail || 'admin@clearup.com'
 
         // Calculate start and end times
         const startDateTime = booking.getFullDateTime()
         const endDateTime = new Date(startDateTime)
         endDateTime.setMinutes(endDateTime.getMinutes() + 30) // Default 30 minutes
 
-        // Create Google Meet event (required)
-        const googleEvent = await googleCalendarService.createGoogleMeetEvent(adminId, {
-          summary: `Meeting with ${booking.userName}`,
-          description: booking.notes || '',
-          startDateTime: startDateTime.toISOString(),
-          endDateTime: endDateTime.toISOString(),
-          timezone: booking.timezone,
-          userEmail: booking.userEmail,
-          adminEmail: adminEmail,
-          notes: booking.notes
-        })
+        // Use Cloud Function to create Google Meet event (server-side, can access admin tokens)
+        try {
+          const functions = getFunctions(app)
+          const createMeetEvent = httpsCallable(functions, 'createGoogleMeetEvent')
 
-        if (!googleEvent.meetLink) {
-          // Failed to get Google Meet link
-          await bookingService.deleteBooking(booking.id)
-          return { 
-            success: false, 
-            error: 'Failed to create Google Meet link. Please try again or contact support.' 
+          const result = await createMeetEvent({
+            adminId: adminId,
+            summary: `Meeting with ${booking.userName}`,
+            description: booking.notes || '',
+            startDateTime: startDateTime.toISOString(),
+            endDateTime: endDateTime.toISOString(),
+            timezone: booking.timezone,
+            userEmail: booking.userEmail,
+            userName: booking.userName,
+            adminEmail: adminEmail,
+            notes: booking.notes
+          })
+
+          const data = result.data as {
+            success: boolean
+            meetLink?: string
+            googleEventId?: string
+            calendarLink?: string
+            error?: string
           }
+
+          if (!data.success || !data.meetLink) {
+            throw new Error(data.error || 'Failed to create Google Meet link')
+          }
+
+          meetLink = data.meetLink
+          googleEventId = data.googleEventId
+          calendarLink = data.calendarLink || ''
+
+          // Update booking with Google Calendar data
+          await bookingService.updateBooking(booking.id, {
+            meetingLink: meetLink,
+            googleEventId: googleEventId,
+            calendarLink: calendarLink,
+            status: 'confirmed'
+          })
+
+          // Update booking object
+          booking.meetingLink = meetLink
+          booking.googleEventId = googleEventId
+          booking.calendarLink = calendarLink
+
+          // Send confirmation email via Cloud Function
+          try {
+            const functions = getFunctions(app)
+            const sendEmail = httpsCallable(functions, 'sendBookingConfirmationEmail')
+
+            // Format date for email
+            const meetingDate = new Date(booking.meetingDate)
+            const formattedDate = meetingDate.toLocaleDateString('en-US', {
+              weekday: 'long',
+              year: 'numeric',
+              month: 'long',
+              day: 'numeric'
+            })
+
+            await sendEmail({
+              recipientEmail: booking.userEmail,
+              recipientName: booking.userName,
+              meetingDate: formattedDate,
+              meetingTime: booking.meetingTime,
+              meetingLink: meetLink,
+              meetingReason: booking.notes || ''
+            })
+
+            console.log('✅ Confirmation email sent to:', booking.userEmail)
+          } catch (emailError: any) {
+            // Log error but don't fail the booking - email is optional
+            console.error('❌ Failed to send confirmation email:', emailError)
+            // Booking is still confirmed, just email wasn't sent
+          }
+        } catch (cloudFunctionError: any) {
+          // Cloud Function error - check if it's a function not found error
+          if (cloudFunctionError?.code === 'functions/not-found' || 
+              cloudFunctionError?.message?.includes('not found')) {
+            console.error('Cloud Function not deployed. Please deploy functions first.')
+            await bookingService.deleteBooking(booking.id)
+            return {
+              success: false,
+              error: 'Google Calendar service is not available. Please contact support or try again later.'
+            }
+          }
+          throw cloudFunctionError
         }
-
-        meetLink = googleEvent.meetLink
-        googleEventId = googleEvent.googleEventId
-        calendarLink = googleEvent.calendarLink
-
-        // Update booking with Google Calendar data
-        await bookingService.updateBooking(booking.id, {
-          meetingLink: meetLink,
-          googleEventId: googleEventId,
-          calendarLink: calendarLink,
-          status: 'confirmed'
-        })
-
-        // Update booking object
-        booking.meetingLink = meetLink
-        booking.googleEventId = googleEventId
-        booking.calendarLink = calendarLink
       } catch (googleError: any) {
         // If Google Calendar creation fails, delete booking and return error
         console.error('Failed to create Google Meet event:', googleError)
         await bookingService.deleteBooking(booking.id)
+        
+        // Provide clearer error message
+        let errorMessage = googleError?.message || 'Failed to create Google Meet event. Please try again or contact support.'
+        
+        // Handle specific Firebase Functions errors
+        if (googleError?.code === 'functions/not-found') {
+          errorMessage = 'Google Calendar service is not available. Please contact support.'
+        } else if (googleError?.code === 'functions/failed-precondition') {
+          errorMessage = 'Google Calendar is not properly configured. Please contact support.'
+        } else if (googleError?.code === 'functions/unauthenticated') {
+          errorMessage = 'Google Calendar authentication failed. Please ask an admin to reconnect their Google account.'
+        }
+        
         return { 
           success: false, 
-          error: googleError?.message || 'Failed to create Google Meet event. Please try again or contact support.' 
+          error: errorMessage
         }
       }
 

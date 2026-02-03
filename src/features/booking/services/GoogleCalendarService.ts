@@ -132,11 +132,15 @@ export class GoogleCalendarService extends BaseService {
 
   /**
    * Get valid access token (refresh if needed)
+   * Note: This requires admin authentication. For guest bookings, use a Cloud Function.
    */
   private async getValidAccessToken(adminId: string): Promise<string> {
     const admin = await this.getAdminGoogleTokens(adminId)
     if (!admin) {
-      throw new Error(`Admin ${adminId} has not connected their Google account. Please connect Google account in admin settings.`)
+      // Check if this is a permission error (guest trying to access)
+      const error = new Error(`Cannot access Google Calendar tokens. This operation requires server-side authentication. Please contact support or use a Cloud Function for guest bookings.`)
+      ;(error as any).code = 'permission-denied'
+      throw error
     }
 
     const tokens = await this.refreshAccessTokenIfNeeded(adminId, admin)
@@ -174,9 +178,20 @@ export class GoogleCalendarService extends BaseService {
         })
       }
 
+      // Get admin email from users collection (admin is authenticated, so this works)
+      let adminEmail = 'admin@clearup.com'
+      try {
+        const adminUser = await firestoreService.getDocument<any>('users', adminId)
+        adminEmail = adminUser?.email || adminEmail
+      } catch (error) {
+        console.warn('Could not get admin email from users collection:', error)
+      }
+
       // Update public calendar status (safe, non-sensitive data only)
+      // Store admin email here so guests can access it
       const statusData = {
         adminId: adminId,
+        adminEmail: adminEmail,
         isConnected: true,
         lastSynced: new Date(),
         updatedAt: new Date()
@@ -294,11 +309,27 @@ export class GoogleCalendarService extends BaseService {
 
   /**
    * Check if admin has connected Google account
+   * Uses public calendar_status collection so guests can check connection status
    */
   async isGoogleConnected(adminId: string): Promise<boolean> {
     try {
-      const admin = await firestoreService.getDocument<any>(ADMINS_COLLECTION, adminId)
-      return admin?.googleConnected === true && !!admin?.googleAccessToken && !!admin?.googleRefreshToken
+      // First try to read from public calendar_status (works for guests)
+      const status = await firestoreService.getDocument<any>(CALENDAR_STATUS_COLLECTION, adminId)
+      if (status?.isConnected === true) {
+        return true
+      }
+      
+      // Fallback: try to read from admins collection (only works for authenticated admins)
+      try {
+        const admin = await firestoreService.getDocument<any>(ADMINS_COLLECTION, adminId)
+        return admin?.googleConnected === true && !!admin?.googleAccessToken && !!admin?.googleRefreshToken
+      } catch (adminError: any) {
+        // Permission denied is expected for guests - use calendar_status result
+        if (adminError?.code === 'permission-denied' || adminError?.message?.includes('permission')) {
+          return status?.isConnected === true
+        }
+        return false
+      }
     } catch (error: any) {
       // Silently fail for permission errors (guests cannot read admins collection)
       // This is expected behavior - return false to continue without Google Calendar

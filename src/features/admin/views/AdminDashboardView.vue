@@ -5094,7 +5094,7 @@ const tabPermissionMap: Record<string, string> = {
   'roles': 'manage_roles',
   'analytics': 'view_analytics',
   'bookings': 'manage_bookings',
-  'google-calendar': 'manage_bookings',
+  'google-calendar': 'manage_google_calendar',
   'site-settings': 'manage_site_settings',
   'maintenance': 'manage_maintenance',
   'activity-logs': 'view_activity_logs',
@@ -5921,10 +5921,14 @@ const availablePermissions = [
   { id: 'delete_contact_messages', label: 'Delete Contact Messages', category: 'Content Management' },
   { id: 'edit_contact_settings', label: 'Edit Contact Settings', category: 'Content Management' },
   { id: 'manage_bookings', label: 'Manage Bookings', category: 'Content Management' },
+  // Analytics & Reports
+  { id: 'view_analytics', label: 'View Analytics', category: 'Analytics & Reports' },
   // Admin Functions (only for admin role)
   { id: 'manage_users', label: 'Manage Users', category: 'Administration' },
   { id: 'manage_roles', label: 'Manage Roles', category: 'Administration' },
   { id: 'manage_site_settings', label: 'Manage Site Settings', category: 'Administration' },
+  { id: 'manage_google_calendar', label: 'Manage Google Calendar', category: 'Administration' },
+  { id: 'manage_maintenance', label: 'Manage Maintenance Mode', category: 'Administration' },
   { id: 'view_activity_logs', label: 'View Activity Logs', category: 'Administration' },
 ]
 
