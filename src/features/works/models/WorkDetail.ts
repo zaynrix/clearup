@@ -50,6 +50,16 @@ export interface WorkDetail {
       description: string
     }>
   }
+  imageGallerySection?: {
+    images?: Array<{
+      id: string
+      title: string
+      subtitle: string
+      imageUrl?: string
+      imageFileUrl?: string
+      imageType?: 'url' | 'upload'
+    }>
+  }
 }
 
 export type { HomeContent }

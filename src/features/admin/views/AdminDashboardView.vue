@@ -5179,7 +5179,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, watch, nextTick } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { authService } from '@/features/auth/services/AuthService'
 import { storageService } from '@/shared/services'
@@ -5271,10 +5271,10 @@ onMounted(() => {
 const uploadingLogos = ref<Record<number, boolean>>({})
 const uploadingPhotos = ref<Record<number, boolean>>({})
 const uploadingTestimonialVideos = ref<Record<number, boolean>>({})
-const uploadingThumbnails = ref<Record<number, boolean>>({})
+const uploadingThumbnails = ref<Record<string | number, boolean>>({})
 const uploadProgressPhotos = ref<Record<number, number>>({})
 const uploadProgressTestimonialVideos = ref<Record<number, number>>({})
-const uploadProgressThumbnails = ref<Record<number, number>>({})
+const uploadProgressThumbnails = ref<Record<string | number, number>>({})
 const baseTabs = [
   { id: 'hero', label: 'Hero Section' },
   { id: 'cta', label: 'CTA Section' },
@@ -8720,9 +8720,25 @@ const handleGalleryImageUpload = async (event: Event, caseIndex: number, imageIn
     uploadingThumbnails.value[`${caseIndex}-${imageIndex}`] = true
     uploadProgressThumbnails.value[`${caseIndex}-${imageIndex}`] = 0
 
-    const imageUrl = await storageService.uploadFile(file, (progress) => {
-      uploadProgressThumbnails.value[`${caseIndex}-${imageIndex}`] = progress
-    })
+    const userId = user.value?.id || authService.getCurrentUser()?.uid || 'unknown'
+    const timestamp = Date.now()
+    const fileName = `gallery-images/${userId}/${timestamp}-${file.name}`
+
+    const imageUrl = await storageService.uploadAndGetUrlWithProgress(
+      fileName,
+      file,
+      (progress: number) => {
+        uploadProgressThumbnails.value[`${caseIndex}-${imageIndex}`] = progress
+      },
+      {
+        contentType: file.type,
+        customMetadata: {
+          uploadedBy: userId,
+          uploadedAt: new Date().toISOString(),
+          originalName: file.name
+        }
+      }
+    )
 
     imageItem.imageFileUrl = imageUrl
     imageItem.imageType = 'upload'
