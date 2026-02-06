@@ -2086,6 +2086,12 @@ const setupScrollAnimations = () => {
   justify-content: center;
 }
 
+
+
+
+
+
+
 .video-text {
   color: #000;
   font-family: 'Roboto', sans-serif;
