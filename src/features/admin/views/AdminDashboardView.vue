@@ -3425,7 +3425,7 @@
                       <label class="toggle-switch">
                         <input 
                           type="checkbox" 
-                          v-model="contactSettings.socialMediaVisibility.instagram.showInContactPage"
+                          v-model="contactSettings.socialMediaVisibility!.instagram.showInContactPage"
                         />
                         <span class="toggle-slider"></span>
                       </label>
@@ -3435,7 +3435,7 @@
                       <label class="toggle-switch">
                         <input 
                           type="checkbox" 
-                          v-model="contactSettings.socialMediaVisibility.instagram.showInFooter"
+                          v-model="contactSettings.socialMediaVisibility!.instagram.showInFooter"
                         />
                         <span class="toggle-slider"></span>
                       </label>
@@ -3455,7 +3455,7 @@
                       <label class="toggle-switch">
                         <input 
                           type="checkbox" 
-                          v-model="contactSettings.socialMediaVisibility.linkedin.showInContactPage"
+                          v-model="contactSettings.socialMediaVisibility!.linkedin.showInContactPage"
                         />
                         <span class="toggle-slider"></span>
                       </label>
@@ -3465,7 +3465,7 @@
                       <label class="toggle-switch">
                         <input 
                           type="checkbox" 
-                          v-model="contactSettings.socialMediaVisibility.linkedin.showInFooter"
+                          v-model="contactSettings.socialMediaVisibility!.linkedin.showInFooter"
                         />
                         <span class="toggle-slider"></span>
                       </label>
@@ -3485,7 +3485,7 @@
                       <label class="toggle-switch">
                         <input 
                           type="checkbox" 
-                          v-model="contactSettings.socialMediaVisibility.email.showInContactPage"
+                          v-model="contactSettings.socialMediaVisibility!.email.showInContactPage"
                         />
                         <span class="toggle-slider"></span>
                       </label>
@@ -3495,7 +3495,7 @@
                       <label class="toggle-switch">
                         <input 
                           type="checkbox" 
-                          v-model="contactSettings.socialMediaVisibility.email.showInFooter"
+                          v-model="contactSettings.socialMediaVisibility!.email.showInFooter"
                         />
                         <span class="toggle-slider"></span>
                       </label>
@@ -3515,7 +3515,7 @@
                       <label class="toggle-switch">
                         <input 
                           type="checkbox" 
-                          v-model="contactSettings.socialMediaVisibility.whatsapp.showInContactPage"
+                          v-model="contactSettings.socialMediaVisibility!.whatsapp.showInContactPage"
                         />
                         <span class="toggle-slider"></span>
                       </label>
@@ -3525,7 +3525,7 @@
                       <label class="toggle-switch">
                         <input 
                           type="checkbox" 
-                          v-model="contactSettings.socialMediaVisibility.whatsapp.showInFooter"
+                          v-model="contactSettings.socialMediaVisibility!.whatsapp.showInFooter"
                         />
                         <span class="toggle-slider"></span>
                       </label>
