@@ -9,6 +9,7 @@ const DEFAULT_SETTINGS: SiteSettings = {
 
 // Global reactive state for site settings (shared across all components)
 const siteSettings = ref<SiteSettings>(DEFAULT_SETTINGS)
+const settingsLoaded = ref(false)
 let unsubscribe: (() => void) | null = null
 let isSubscribed = false
 
@@ -20,22 +21,39 @@ export function useSiteSettings() {
   // Subscribe to real-time updates if not already subscribed
   if (!isSubscribed) {
     unsubscribe = siteSettingsService.subscribeToSiteSettings((settings) => {
-      siteSettings.value = settings
+      if (settings) {
+        siteSettings.value = settings
+        settingsLoaded.value = true
+      } else {
+        // If no settings found, use defaults and mark as loaded
+        siteSettings.value = DEFAULT_SETTINGS
+        settingsLoaded.value = true
+      }
     })
     isSubscribed = true
   }
 
   /**
    * Check if a section is disabled
+   * Only returns true if settings have been loaded and section is explicitly disabled
    */
   const isSectionDisabled = (sectionId: string): boolean => {
+    // Don't disable sections until settings are loaded
+    if (!settingsLoaded.value) {
+      return false
+    }
     return siteSettings.value.disabledSections?.includes(sectionId) || false
   }
 
   /**
    * Check if a page is disabled
+   * Only returns true if settings have been loaded and page is explicitly disabled
    */
   const isPageDisabled = (pageId: string): boolean => {
+    // Don't disable pages until settings are loaded
+    if (!settingsLoaded.value) {
+      return false
+    }
     return siteSettings.value.disabledSections?.includes(pageId) || false
   }
 
@@ -53,6 +71,7 @@ export function useSiteSettings() {
     siteSettings,
     isSectionDisabled,
     isPageDisabled,
+    settingsLoaded,
     cleanup
   }
 }
