@@ -1,4 +1,4 @@
-import { ref, onUnmounted, nextTick } from 'vue'
+import { ref, onUnmounted } from 'vue'
 import { siteSettingsService, type SiteSettings } from '@/features/admin/services/SiteSettingsService'
 
 const DEFAULT_SETTINGS: SiteSettings = {
@@ -20,31 +20,15 @@ let isSubscribed = false
 export function useSiteSettings() {
   // Subscribe to real-time updates if not already subscribed
   if (!isSubscribed) {
-    let isFirstLoad = true
     unsubscribe = siteSettingsService.subscribeToSiteSettings((settings) => {
       if (settings) {
         siteSettings.value = settings
       } else {
-        // If no settings found, use defaults
+        // If no settings found, use defaults (empty disabledSections = no maintenance)
         siteSettings.value = DEFAULT_SETTINGS
       }
-      
-      // On first load, wait for Vue to render the page content first
-      // before allowing maintenance checks. This ensures users see the
-      // actual page content first, not the maintenance screen.
-      if (isFirstLoad) {
-        isFirstLoad = false
-        // Use nextTick to ensure Vue has rendered the initial content
-        // Then add a small delay to ensure the page is visible
-        nextTick(() => {
-          setTimeout(() => {
-            settingsLoaded.value = true
-          }, 300)
-        })
-      } else {
-        // Subsequent updates - apply immediately
-        settingsLoaded.value = true
-      }
+      // Mark as loaded - maintenance will only show if page is explicitly disabled
+      settingsLoaded.value = true
     })
     isSubscribed = true
   }
@@ -63,14 +47,18 @@ export function useSiteSettings() {
 
   /**
    * Check if a page is disabled
-   * Only returns true if settings have been loaded and page is explicitly disabled
+   * Default: false (show normal screen)
+   * Only returns true if settings are loaded AND page is explicitly in disabledSections
    */
   const isPageDisabled = (pageId: string): boolean => {
-    // Don't disable pages until settings are loaded
+    // Default: Always show normal screen until settings are loaded
     if (!settingsLoaded.value) {
       return false
     }
-    return siteSettings.value.disabledSections?.includes(pageId) || false
+    // Only show maintenance if page is explicitly in the disabledSections array
+    // Default settings have empty array, so maintenance won't show by default
+    const disabledSections = siteSettings.value.disabledSections || []
+    return disabledSections.includes(pageId)
   }
 
   /**
