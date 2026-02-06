@@ -1,14 +1,21 @@
 <template>
   <div class="legal-view">
-    <!-- Background elements -->
-    <div class="background-image"></div>
-    <div class="background-overlay"></div>
-    <div class="stars"></div>
-    <div class="vector-shape vector-left"></div>
-    <div class="vector-shape vector-right"></div>
+    <!-- Show maintenance if page is disabled (unless admin) -->
+    <PageMaintenance 
+      v-if="isPageDisabled('privacy-policy-page') && !isAdminUser"
+      :message="siteSettings.maintenanceMessage || 'This page is currently unavailable. Please check back later.'"
+    />
     
-    <!-- Main content -->
-    <div class="legal-container">
+    <template v-else>
+      <!-- Background elements -->
+      <div class="background-image"></div>
+      <div class="background-overlay"></div>
+      <div class="stars"></div>
+      <div class="vector-shape vector-left"></div>
+      <div class="vector-shape vector-right"></div>
+      
+      <!-- Main content -->
+      <div class="legal-container">
       <!-- Loading State -->
       <div v-if="isLoading" class="loading-state">
         <div class="loading-spinner"></div>
@@ -50,20 +57,32 @@
       </template>
     </div>
 
-    <!-- Footer Section -->
-    <FooterSection />
+      <!-- Footer Section -->
+      <FooterSection />
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref, onMounted } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { LegalViewController } from '../controllers/LegalViewController'
 import FooterSection from '@/shared/components/FooterSection.vue'
+import PageMaintenance from '@/shared/components/PageMaintenance.vue'
+import { useSiteSettings } from '@/shared/composables/useSiteSettings'
+import { authService } from '@/features/auth/services/AuthService'
+import { userService } from '@/features/auth/services/UserService'
 
 const viewController = new LegalViewController()
 const isLoading = ref(false)
 const error = ref<string | null>(null)
 const privacyPolicy = ref<{ title: string; lastUpdated: string; sections: Array<{ id: string; heading: string; content: string }> } | null>(null)
+
+// Site settings and admin check
+const { isPageDisabled, siteSettings } = useSiteSettings()
+const isAdminUser = computed(() => {
+  const user = authService.getCurrentUser()
+  return user ? userService.isAdmin(user.uid) : false
+})
 
 const loadContent = async () => {
   isLoading.value = true

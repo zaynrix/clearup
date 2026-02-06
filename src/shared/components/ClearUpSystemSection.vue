@@ -82,10 +82,11 @@ const handleCtaClick = () => {
 .clearup-system-container {
   position: relative;
   width: 100%;
-  max-width: 1440px;
+  max-width: 100%;
   margin: 0 auto;
   padding: 80px 60px 100px;
   min-height: auto;
+  height: auto;
   overflow: visible;
   background: #14141B !important;
   box-sizing: border-box;
@@ -95,11 +96,27 @@ const handleCtaClick = () => {
   border-radius: 50px;
 }
 
+/* Ensure full width background on larger screens */
+@media (min-width: 1025px) and (max-width: 1440px) {
+  .clearup-system-container {
+    max-width: 100%;
+    padding-left: calc((100% - 1320px) / 2);
+    padding-right: calc((100% - 1320px) / 2);
+  }
+}
+
+@media (min-width: 1441px) {
+  .clearup-system-container {
+    max-width: 1440px;
+  }
+}
+
 /* Responsive adjustments for clip-path */
 @media (max-width: 1024px) {
   .clearup-system-container {
     padding: 60px 40px 80px;
     min-height: auto;
+    height: auto;
     overflow: visible;
     /* Remove clip-path for responsive - use normal container */
     clip-path: none;
@@ -110,6 +127,7 @@ const handleCtaClick = () => {
   .clearup-system-container {
     padding: 50px 30px 70px;
     min-height: auto;
+    height: auto;
     overflow: visible;
     /* Remove clip-path for responsive - use normal container */
     clip-path: none;
@@ -121,6 +139,7 @@ const handleCtaClick = () => {
     padding: 40px 20px 60px;
     border-radius: 20px;
     min-height: auto;
+    height: auto;
     overflow: visible;
     /* Remove clip-path for responsive - use normal container */
     clip-path: none;
@@ -132,6 +151,7 @@ const handleCtaClick = () => {
     padding: 35px 18px 55px;
     border-radius: 18px;
     min-height: auto;
+    height: auto;
     overflow: visible;
     /* Remove clip-path for responsive - use normal container */
     clip-path: none;
@@ -143,6 +163,7 @@ const handleCtaClick = () => {
     padding: 30px 15px 50px;
     border-radius: 15px;
     min-height: auto;
+    height: auto;
     overflow: visible;
     /* Remove clip-path for responsive - use normal container */
     clip-path: none;
@@ -154,6 +175,7 @@ const handleCtaClick = () => {
     padding: 25px 12px 45px;
     border-radius: 12px;
     min-height: auto;
+    height: auto;
     overflow: visible;
     /* Remove clip-path for responsive - use normal container */
     clip-path: none;

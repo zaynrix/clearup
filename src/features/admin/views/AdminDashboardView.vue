@@ -2563,11 +2563,12 @@
                   </div>
 
                   <div v-if="editingTeamMemberId !== member.id" class="team-member-preview">
-                    <div class="member-photo-preview">
+                    <div class="member-photo-preview" @click="openFullScreenImage(member.photoFileUrl || member.photoUrl, member.name)">
                       <img
                         v-if="member.photoFileUrl || member.photoUrl"
                         :src="member.photoFileUrl || member.photoUrl"
                         :alt="member.name"
+                        style="cursor: pointer;"
                       />
                       <div v-else class="member-photo-placeholder-small">
                         <svg width="40" height="40" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
@@ -2953,6 +2954,14 @@
 
               <div class="form-group full-width">
                 <label>
+                  <span class="label-text">Copyright Text</span>
+                  <span class="label-hint">Copyright notice displayed in the footer</span>
+                </label>
+                <input v-model="formData.footerCopyright" type="text" placeholder="Copyright © 2025 Trusted Valley LLC. All rights reserved" class="form-input" />
+              </div>
+
+              <div class="form-group full-width">
+                <label>
                   <span class="label-text">Address</span>
                   <span class="label-hint">Optional - physical address or contact info</span>
                 </label>
@@ -3192,126 +3201,6 @@
             </div>
           </div>
 
-          <!-- Email Submissions -->
-          <div v-if="activeTab === 'email-submissions' && canAccessTab('email-submissions')" class="editor-section">
-            <div class="section-header">
-              <div class="section-title-group">
-                <div class="section-icon">📧</div>
-                <div>
-                  <h3>Email Submissions</h3>
-                  <p class="section-description">View and manage emails submitted from the home screen</p>
-                </div>
-              </div>
-              <button @click="loadEmailSubmissions" class="btn-secondary btn-small" :disabled="loadingEmails">
-                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                  <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M23 20V14H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                  <path d="M20.49 9C19.95 5.95 17.42 3.42 14.37 2.88M3.51 15C4.05 18.05 6.58 20.58 9.63 21.12M14.37 2.88C13.69 2.95 13.02 3.11 12.37 3.37M9.63 21.12C10.31 21.05 10.98 20.89 11.63 20.63M14.37 2.88L17.37 5.88M9.63 21.12L6.63 18.12M17.37 5.88L20.37 2.88M6.63 18.12L3.63 21.12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                </svg>
-                Refresh
-              </button>
-            </div>
-
-            <div v-if="loadingEmails" class="loading-state">
-              <div class="upload-spinner"></div>
-              <p>Loading email submissions...</p>
-            </div>
-
-            <div v-else-if="emailSubmissions.length === 0" class="empty-state">
-              <p>No email submissions yet.</p>
-            </div>
-
-            <div v-else class="email-submissions-list">
-              <div class="submissions-header">
-                <div class="submission-count">
-                  <span>Total: {{ emailSubmissions.length }} submission{{ emailSubmissions.length !== 1 ? 's' : '' }}</span>
-                </div>
-                <div class="submission-filters">
-                  <button
-                    @click="emailFilter = 'all'"
-                    class="filter-btn"
-                    :class="{ 'active': emailFilter === 'all' }"
-                  >
-                    All
-                  </button>
-                  <button
-                    @click="emailFilter = 'confirmed'"
-                    class="filter-btn"
-                    :class="{ 'active': emailFilter === 'confirmed' }"
-                  >
-                    Confirmed
-                  </button>
-                  <button
-                    @click="emailFilter = 'pending'"
-                    class="filter-btn"
-                    :class="{ 'active': emailFilter === 'pending' }"
-                  >
-                    Pending
-                  </button>
-                </div>
-              </div>
-
-              <div class="submissions-table">
-                <div class="table-header">
-                  <div class="table-cell">Email</div>
-                  <div class="table-cell">Status</div>
-                  <div class="table-cell">Confirmation Sent</div>
-                  <div class="table-cell">Submitted At</div>
-                  <div class="table-cell">Actions</div>
-                </div>
-
-                <div
-                  v-for="submission in filteredEmailSubmissions"
-                  :key="submission.id"
-                  class="table-row"
-                >
-                  <div class="table-cell">
-                    <div class="email-cell">
-                      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                      <span>{{ submission.email }}</span>
-                    </div>
-                  </div>
-                  <div class="table-cell">
-                    <span
-                      class="status-badge"
-                      :class="{
-                        'status-pending': submission.status === 'pending',
-                        'status-confirmed': submission.status === 'confirmed',
-                        'status-sent': submission.status === 'sent'
-                      }"
-                    >
-                      {{ submission.status }}
-                    </span>
-                  </div>
-                  <div class="table-cell">
-                    <span v-if="submission.confirmationEmailSent" class="check-icon">✓</span>
-                    <span v-else class="cross-icon">✗</span>
-                  </div>
-                  <div class="table-cell">
-                    {{ formatDate(submission.createdAt) }}
-                  </div>
-                  <div class="table-cell">
-                    <button
-                      @click="resendConfirmationEmail(submission)"
-                      class="btn-icon btn-small"
-                      :disabled="submission.confirmationEmailSent"
-                      title="Resend Confirmation Email"
-                    >
-                      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <path d="M1 4V10H7" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M23 20V14H17" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        <path d="M20.49 9C19.95 5.95 17.42 3.42 14.37 2.88M3.51 15C4.05 18.05 6.58 20.58 9.63 21.12M14.37 2.88C13.69 2.95 13.02 3.11 12.37 3.37M9.63 21.12C10.31 21.05 10.98 20.89 11.63 20.63M14.37 2.88L17.37 5.88M9.63 21.12L6.63 18.12M17.37 5.88L20.37 2.88M6.63 18.12L3.63 21.12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                      </svg>
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          </div>
-
           <!-- Contact Messages -->
           <div v-if="activeTab === 'contact-messages' && canAccessTab('contact-messages')" class="editor-section">
             <div class="section-header">
@@ -3514,6 +3403,133 @@
                   <div class="form-group">
                     <label>WhatsApp Link</label>
                     <input v-model="contactSettings.contactInfo.whatsappUrl" type="url" class="form-input" placeholder="https://wa.me/9708888888" />
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-section">
+              <h4 class="subsection-title">Social Media Visibility</h4>
+              <p class="section-description" style="margin-bottom: 24px; color: rgba(245, 247, 250, 0.7);">Control where social media buttons and links appear</p>
+              
+              <div class="visibility-grid">
+                <!-- Instagram Visibility -->
+                <div class="visibility-card">
+                  <div class="visibility-header">
+                    <span class="contact-info-icon instagram">📷</span>
+                    <span class="visibility-label">Instagram</span>
+                  </div>
+                  <div class="visibility-toggles">
+                    <div class="toggle-group">
+                      <label class="toggle-label">Show in Contact Page</label>
+                      <label class="toggle-switch">
+                        <input 
+                          type="checkbox" 
+                          v-model="contactSettings.socialMediaVisibility.instagram.showInContactPage"
+                        />
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </div>
+                    <div class="toggle-group">
+                      <label class="toggle-label">Show in Footer</label>
+                      <label class="toggle-switch">
+                        <input 
+                          type="checkbox" 
+                          v-model="contactSettings.socialMediaVisibility.instagram.showInFooter"
+                        />
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- LinkedIn Visibility -->
+                <div class="visibility-card">
+                  <div class="visibility-header">
+                    <span class="contact-info-icon linkedin">💼</span>
+                    <span class="visibility-label">LinkedIn</span>
+                  </div>
+                  <div class="visibility-toggles">
+                    <div class="toggle-group">
+                      <label class="toggle-label">Show in Contact Page</label>
+                      <label class="toggle-switch">
+                        <input 
+                          type="checkbox" 
+                          v-model="contactSettings.socialMediaVisibility.linkedin.showInContactPage"
+                        />
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </div>
+                    <div class="toggle-group">
+                      <label class="toggle-label">Show in Footer</label>
+                      <label class="toggle-switch">
+                        <input 
+                          type="checkbox" 
+                          v-model="contactSettings.socialMediaVisibility.linkedin.showInFooter"
+                        />
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Email Visibility -->
+                <div class="visibility-card">
+                  <div class="visibility-header">
+                    <span class="contact-info-icon email">✉️</span>
+                    <span class="visibility-label">Email</span>
+                  </div>
+                  <div class="visibility-toggles">
+                    <div class="toggle-group">
+                      <label class="toggle-label">Show in Contact Page</label>
+                      <label class="toggle-switch">
+                        <input 
+                          type="checkbox" 
+                          v-model="contactSettings.socialMediaVisibility.email.showInContactPage"
+                        />
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </div>
+                    <div class="toggle-group">
+                      <label class="toggle-label">Show in Footer</label>
+                      <label class="toggle-switch">
+                        <input 
+                          type="checkbox" 
+                          v-model="contactSettings.socialMediaVisibility.email.showInFooter"
+                        />
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- WhatsApp Visibility -->
+                <div class="visibility-card">
+                  <div class="visibility-header">
+                    <span class="contact-info-icon whatsapp">📱</span>
+                    <span class="visibility-label">WhatsApp</span>
+                  </div>
+                  <div class="visibility-toggles">
+                    <div class="toggle-group">
+                      <label class="toggle-label">Show in Contact Page</label>
+                      <label class="toggle-switch">
+                        <input 
+                          type="checkbox" 
+                          v-model="contactSettings.socialMediaVisibility.whatsapp.showInContactPage"
+                        />
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </div>
+                    <div class="toggle-group">
+                      <label class="toggle-label">Show in Footer</label>
+                      <label class="toggle-switch">
+                        <input 
+                          type="checkbox" 
+                          v-model="contactSettings.socialMediaVisibility.whatsapp.showInFooter"
+                        />
+                        <span class="toggle-slider"></span>
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -4046,94 +4062,43 @@
               </div>
             </div>
 
-            <!-- Social Media Links -->
-            <div class="admin-table-card" style="margin-bottom: 2rem;">
-              <h4>📱 Social Media Links</h4>
-              <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
-                Add your social media profiles
-              </p>
-              <div class="form-grid">
-                <div class="form-group">
-                  <label>
-                    <span class="label-text">Facebook URL</span>
-                  </label>
-                  <input v-model="siteSocialSettings.facebook" type="url" placeholder="https://facebook.com/yourpage" class="form-input" />
-                </div>
-                <div class="form-group">
-                  <label>
-                    <span class="label-text">Instagram URL</span>
-                  </label>
-                  <input v-model="siteSocialSettings.instagram" type="url" placeholder="https://instagram.com/yourprofile" class="form-input" />
-                </div>
-                <div class="form-group">
-                  <label>
-                    <span class="label-text">Twitter/X URL</span>
-                  </label>
-                  <input v-model="siteSocialSettings.twitter" type="url" placeholder="https://twitter.com/yourhandle" class="form-input" />
-                </div>
-                <div class="form-group">
-                  <label>
-                    <span class="label-text">LinkedIn URL</span>
-                  </label>
-                  <input v-model="siteSocialSettings.linkedin" type="url" placeholder="https://linkedin.com/company/yourcompany" class="form-input" />
-                </div>
-                <div class="form-group">
-                  <label>
-                    <span class="label-text">YouTube URL</span>
-                  </label>
-                  <input v-model="siteSocialSettings.youtube" type="url" placeholder="https://youtube.com/@yourchannel" class="form-input" />
-                </div>
-                <div class="form-group">
-                  <label>
-                    <span class="label-text">TikTok URL</span>
-                  </label>
-                  <input v-model="siteSocialSettings.tiktok" type="url" placeholder="https://tiktok.com/@yourhandle" class="form-input" />
-                </div>
-              </div>
-            </div>
-
-            <!-- Maintenance Mode Settings -->
-            <div class="admin-table-card" style="margin-bottom: 2rem;">
-              <h4>🔧 Maintenance Mode</h4>
-              <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
-                Control website maintenance mode
-              </p>
-              <div class="form-grid">
-                <div class="form-group full-width">
-                  <label class="toggle-switch-large">
-                    <input
-                      type="checkbox"
-                      v-model="siteSettings.maintenanceMode"
-                      @change="saveSiteSettings"
-                    />
-                    <span class="toggle-slider"></span>
-                    <span class="toggle-label-large">
-                      <strong>{{ siteSettings.maintenanceMode ? 'Maintenance Mode Active' : 'Website Online' }}</strong>
-                      <span class="toggle-description">{{ siteSettings.maintenanceMode ? 'Website is currently offline' : 'Website is accessible to visitors' }}</span>
-                    </span>
-                  </label>
-                </div>
-                <div v-if="siteSettings.maintenanceMode" class="form-group full-width">
-                  <label>
-                    <span class="label-text">Maintenance Message</span>
-                    <span class="label-hint">Message shown to visitors during maintenance</span>
-                  </label>
-                  <textarea v-model="siteSettings.maintenanceMessage" rows="3" placeholder="We're currently performing maintenance. Please check back soon." class="form-textarea"></textarea>
-                </div>
-              </div>
-            </div>
 
             <!-- Section Management -->
             <div class="admin-table-card">
-              <h4>📋 Section Management</h4>
+              <h4>📋 Section & Page Management</h4>
               <p style="color: rgba(245, 247, 250, 0.6); margin-bottom: 1.5rem; font-size: 0.9rem;">
-                Enable or disable website sections. Disabled sections will be hidden from the website.
+                Enable or disable website pages and sections. Disabled pages will show a maintenance message. Disabled sections will be hidden from the website.
               </p>
               <div v-if="isAdminLoading" class="loading-text">Loading settings...</div>
               <div v-else class="sections-groups">
+                <!-- Page-Level Controls -->
+                <div class="section-group">
+                  <h5 class="section-group-title">🌐 Pages</h5>
+                  <p style="color: rgba(245, 247, 250, 0.5); margin-bottom: 1rem; font-size: 0.85rem;">
+                    Disable entire pages to show maintenance message without stopping the whole website
+                  </p>
+                  <div class="sections-list">
+                    <div v-for="page in availablePages" :key="page.id" class="section-toggle-item page-toggle-item">
+                      <div class="section-info">
+                        <h5>{{ page.label }}</h5>
+                        <span class="section-id">Route: {{ page.route }}</span>
+                      </div>
+                      <label class="toggle-switch">
+                        <input
+                          type="checkbox"
+                          :checked="!siteSettings.disabledSections?.includes(page.id)"
+                          @change="toggleSection(page.id, !($event.target as HTMLInputElement).checked)"
+                        />
+                        <span class="toggle-slider"></span>
+                        <span class="toggle-label">{{ siteSettings.disabledSections?.includes(page.id) ? 'Disabled' : 'Enabled' }}</span>
+                      </label>
+                    </div>
+                  </div>
+                </div>
+
                 <!-- Home Page Sections -->
                 <div class="section-group">
-                  <h5 class="section-group-title">🏠 Home Page</h5>
+                  <h5 class="section-group-title">🏠 Home Page Sections</h5>
                   <div class="sections-list">
                     <div v-for="section in homeSections" :key="section.id" class="section-toggle-item">
                       <div class="section-info">
@@ -4155,7 +4120,7 @@
 
                 <!-- About Page Sections -->
                 <div class="section-group">
-                  <h5 class="section-group-title">ℹ️ About Page</h5>
+                  <h5 class="section-group-title">ℹ️ About Page Sections</h5>
                   <div class="sections-list">
                     <div v-for="section in aboutSections" :key="section.id" class="section-toggle-item">
                       <div class="section-info">
@@ -4177,7 +4142,7 @@
 
                 <!-- Services Page Sections -->
                 <div class="section-group">
-                  <h5 class="section-group-title">🛠️ Services Page</h5>
+                  <h5 class="section-group-title">🛠️ Services Page Sections</h5>
                   <div class="sections-list">
                     <div v-for="section in servicesSections" :key="section.id" class="section-toggle-item">
                       <div class="section-info">
@@ -5175,6 +5140,19 @@
         </div>
       </div>
     </div>
+
+    <!-- Full-Screen Image Modal -->
+    <div v-if="fullScreenImage" class="fullscreen-image-modal" @click="closeFullScreenImage">
+      <button class="fullscreen-close-btn" @click.stop="closeFullScreenImage" aria-label="Close">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </button>
+      <div class="fullscreen-image-container" @click.stop>
+        <img :src="fullScreenImage.url" :alt="fullScreenImage.name" class="fullscreen-image" />
+        <p class="fullscreen-image-name">{{ fullScreenImage.name }}</p>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -5194,9 +5172,7 @@ import { roleController } from '../controllers/RoleController'
 import { activityLogController } from '../controllers/ActivityLogController'
 import { siteSettingsController } from '../controllers/SiteSettingsController'
 import { maintenanceController } from '../controllers/MaintenanceController'
-import { emailController } from '@/features/home/controllers/EmailController'
 import { contactContentController } from '@/features/contact/controllers/ContactContentController'
-import type { EmailSubmission } from '@/features/home/services/EmailService'
 import type { ContactMessage, ContactContent, ContactInfo } from '@/features/contact/models/ContactMessage'
 import { bookingController } from '@/features/booking/controllers/BookingController'
 import type { Booking, BookingData } from '@/features/booking/models/Booking'
@@ -5290,7 +5266,6 @@ const baseTabs = [
   { id: 'services-page', label: 'Services Page' },
   { id: 'footer', label: 'Footer' },
   { id: 'legal-pages', label: 'Legal Pages' },
-  { id: 'email-submissions', label: 'Email Submissions' },
   { id: 'contact-messages', label: 'Contact Messages' },
   { id: 'contact-settings', label: 'Contact Settings' }
 ]
@@ -5320,7 +5295,6 @@ const tabPermissionMap: Record<string, string> = {
   'about': 'edit_about_page',
   'services-page': 'edit_services_page',
   'legal-pages': 'edit_legal_pages',
-  'email-submissions': 'view_email_submissions',
   'contact-messages': 'view_contact_messages',
   'contact-settings': 'edit_contact_settings',
   'users': 'manage_users',
@@ -5404,20 +5378,7 @@ const siteSEOSettings = ref({
   twitterHandle: ''
 })
 
-// Site Social Media Settings
-const siteSocialSettings = ref({
-  facebook: '',
-  instagram: '',
-  twitter: '',
-  linkedin: '',
-  youtube: '',
-  tiktok: ''
-})
-
 const isSavingSiteSettings = ref(false)
-const emailSubmissions = ref<EmailSubmission[]>([])
-const loadingEmails = ref(false)
-const emailFilter = ref<'all' | 'pending' | 'confirmed'>('all')
 
 // Contact management state
 const contactMessages = ref<ContactMessage[]>([])
@@ -5436,6 +5397,24 @@ const contactSettings = ref<ContactContent>({
     linkedinUrl: 'https://linkedin.com/company/clearup',
     whatsapp: '+9708888888',
     whatsappUrl: 'https://wa.me/9708888888'
+  },
+  socialMediaVisibility: {
+    instagram: {
+      showInContactPage: true,
+      showInFooter: true
+    },
+    linkedin: {
+      showInContactPage: true,
+      showInFooter: true
+    },
+    email: {
+      showInContactPage: true,
+      showInFooter: true
+    },
+    whatsapp: {
+      showInContactPage: true,
+      showInFooter: true
+    }
   }
 })
 const savingContactSettings = ref(false)
@@ -6091,6 +6070,18 @@ const selectedVideoFile = ref<File | null>(null)
 const uploadingVideo = ref(false)
 const uploadProgress = ref(0)
 const videoFileInput = ref<HTMLInputElement | null>(null)
+// Available pages that can be disabled
+const availablePages = [
+  { id: 'home-page', label: 'Home Page', route: '/' },
+  { id: 'about-page', label: 'About Page', route: '/about' },
+  { id: 'services-page', label: 'Services Page', route: '/services' },
+  { id: 'works-page', label: 'Works Page', route: '/works' },
+  { id: 'contact-page', label: 'Contact Page', route: '/contact' },
+  { id: 'terms-of-service-page', label: 'Terms of Service', route: '/terms-of-service' },
+  { id: 'privacy-policy-page', label: 'Privacy Policy', route: '/privacy-policy' },
+  { id: 'cookie-policy-page', label: 'Cookie Policy', route: '/cookie-policy' }
+]
+
 const availableSections = [
   // Home Page Sections
   { id: 'hero', label: 'Hero Section (Home)' },
@@ -6108,14 +6099,12 @@ const availableSections = [
   { id: 'testimonials', label: 'Testimonials (Home)' },
   { id: 'footer', label: 'Footer (Home)' },
   // About Page Sections
-  { id: 'about-page', label: 'About Page (Entire Page)' },
   { id: 'about-who-we-are', label: 'Who We Are (About)' },
   { id: 'about-video', label: 'Video Section (About)' },
   { id: 'about-cta', label: 'CTA Section (About)' },
   { id: 'about-team', label: 'Our Team (About)' },
   { id: 'about-faq', label: 'FAQ Section (About)' },
   // Services Page Sections
-  { id: 'services-page', label: 'Services Page (Entire Page)' },
   { id: 'services-hero', label: 'Hero Section (Services)' },
   { id: 'services-system', label: 'System Section (Services)' },
   { id: 'services-what-we-do', label: 'What We Do (Services)' },
@@ -6130,10 +6119,10 @@ const homeSections = computed(() => availableSections.filter(s =>
   !s.id.startsWith('about-') && !s.id.startsWith('services-')
 ))
 const aboutSections = computed(() => availableSections.filter(s =>
-  s.id.startsWith('about-') || s.id === 'about-page'
+  s.id.startsWith('about-')
 ))
 const servicesSections = computed(() => availableSections.filter(s =>
-  s.id.startsWith('services-') || s.id === 'services-page'
+  s.id.startsWith('services-')
 ))
 
 const newUserForm = ref({
@@ -6179,8 +6168,6 @@ const availablePermissions = [
   { id: 'edit_services_page', label: 'Edit Services Page', category: 'Other Pages' },
   { id: 'edit_legal_pages', label: 'Edit Legal Pages', category: 'Other Pages' },
   // Content Management
-  { id: 'view_email_submissions', label: 'View Email Submissions', category: 'Content Management' },
-  { id: 'delete_email_submissions', label: 'Delete Email Submissions', category: 'Content Management' },
   { id: 'view_contact_messages', label: 'View Contact Messages', category: 'Content Management' },
   { id: 'delete_contact_messages', label: 'Delete Contact Messages', category: 'Content Management' },
   { id: 'edit_contact_settings', label: 'Edit Contact Settings', category: 'Content Management' },
@@ -6307,6 +6294,7 @@ const aboutFormData = ref<AboutContent>({
 })
 
 const editingTeamMemberId = ref<string | null>(null)
+const fullScreenImage = ref<{ url: string; name: string } | null>(null)
 const editTeamMemberForm = ref<Partial<TeamMember>>({
   name: '',
   role: '',
@@ -6400,7 +6388,8 @@ const formData = ref<HomeContent>({
   testimonialsSubtitle: '',
   testimonials: [],
   footerTagline: '',
-  footerAddress: ''
+  footerAddress: '',
+  footerCopyright: ''
 })
 
 // Computed properties
@@ -6450,13 +6439,15 @@ const getTabIcon = (tabId: string): string => {
     'footer': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 6H20M4 12H20M4 18H20" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     'legal-pages': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 18V12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 15L12 12L15 15" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'analytics': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M3 3V21H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 16L12 11L16 15L21 10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M21 10V3H14" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    'email-submissions': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M22 6L12 13L2 6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'contact-messages': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M21 15C21 15.5304 20.7893 16.0391 20.4142 16.4142C20.0391 16.7893 19.5304 17 19 17H7L3 21V5C3 4.46957 3.21071 3.96086 3.58579 3.58579C3.96086 3.21071 4.46957 3 5 3H19C19.5304 3 20.0391 3.21071 20.4142 3.58579C20.7893 3.96086 21 4.46957 21 5V15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'contact-settings': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M22 16.92V19.92C22.0011 20.1985 21.9441 20.4742 21.8325 20.7293C21.7209 20.9845 21.5573 21.2136 21.3521 21.4019C21.1468 21.5901 20.9046 21.7335 20.6407 21.8227C20.3769 21.9119 20.0974 21.9451 19.82 21.92C16.7428 21.5856 13.787 20.5341 11.19 18.85C8.77382 17.3147 6.72533 15.2662 5.18999 12.85C3.49997 10.2412 2.44824 7.27099 2.11999 4.18C2.09501 3.90347 2.12787 3.62476 2.21649 3.36162C2.30512 3.09849 2.44756 2.85669 2.63476 2.65162C2.82196 2.44655 3.0498 2.28271 3.30379 2.17052C3.55777 2.05833 3.83233 2.00026 4.10999 2H7.10999C7.5953 1.99522 8.06579 2.16708 8.43376 2.48353C8.80173 2.79999 9.04207 3.23945 9.10999 3.72C9.23662 4.68007 9.47144 5.62273 9.80999 6.53C9.94454 6.88792 9.97366 7.27691 9.8939 7.65088C9.81415 8.02485 9.62886 8.36811 9.35999 8.64L8.08999 9.91C9.51355 12.4135 11.5765 14.4765 14.08 15.9L15.35 14.63C15.6219 14.3611 15.9651 14.1758 16.3391 14.0961C16.7131 14.0163 17.1021 14.0454 17.46 14.18C18.3673 14.5185 19.3099 14.7534 20.27 14.88C20.7558 14.9485 21.1996 15.1907 21.5177 15.5627C21.8359 15.9347 22.0058 16.4108 22 16.9V16.92Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'users': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M17 21V19C17 17.9391 16.5786 16.9217 15.8284 16.1716C15.0783 15.4214 14.0609 15 13 15H5C3.93913 15 2.92172 15.4214 2.17157 16.1716C1.42143 16.9217 1 17.9391 1 19V21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M9 11C11.2091 11 13 9.20914 13 7C13 4.79086 11.2091 3 9 3C6.79086 3 5 4.79086 5 7C5 9.20914 6.79086 11 9 11Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M23 21V19C22.9993 18.1137 22.7044 17.2528 22.1614 16.5523C21.6184 15.8519 20.8581 15.3516 20 15.13" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 3.13C16.8604 3.35031 17.623 3.85071 18.1676 4.55232C18.7122 5.25392 19.0078 6.11683 19.0078 7.005C19.0078 7.89318 18.7122 8.75608 18.1676 9.45769C17.623 10.1593 16.8604 10.6597 16 10.88" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
     'roles': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 22C17.5228 22 22 17.5228 22 12C22 6.47715 17.5228 2 12 2C6.47715 2 2 6.47715 2 12C2 17.5228 6.47715 22 12 22Z" stroke="currentColor" stroke-width="2"/><path d="M12 6V12L16 14" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
     'site-settings': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M12 15C13.6569 15 15 13.6569 15 12C15 10.3431 13.6569 9 12 9C10.3431 9 9 10.3431 9 12C9 13.6569 10.3431 15 12 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19.4 15C19.2669 15.3016 19.2272 15.6362 19.286 15.9606C19.3448 16.285 19.4995 16.5843 19.73 16.82L19.79 16.88C19.976 17.0657 20.1235 17.2863 20.2241 17.5291C20.3248 17.7719 20.3766 18.0322 20.3766 18.295C20.3766 18.5578 20.3248 18.8181 20.2241 19.0609C20.1235 19.3037 19.976 19.5243 19.79 19.71C19.6043 19.896 19.3837 20.0435 19.1409 20.1441C18.8981 20.2448 18.6378 20.2966 18.375 20.2966C18.1122 20.2966 17.8519 20.2448 17.6091 20.1441C17.3663 20.0435 17.1457 19.896 16.96 19.71L16.9 19.65C16.6643 19.4195 16.365 19.2648 16.0406 19.206C15.7162 19.1472 15.3816 19.1869 15.08 19.32C14.7842 19.4468 14.532 19.6572 14.3543 19.9255C14.1766 20.1938 14.0813 20.5082 14.08 20.83V21C14.08 21.5304 13.8693 22.0391 13.4942 22.4142C13.1191 22.7893 12.6104 23 12.08 23C11.5496 23 11.0409 22.7893 10.6658 22.4142C10.2907 22.0391 10.08 21.5304 10.08 21V20.91C10.0723 20.579 9.96512 20.258 9.77251 19.9887C9.5799 19.7194 9.31074 19.5143 9 19.4C8.69838 19.2669 8.36381 19.2272 8.03941 19.286C7.71502 19.3448 7.41568 19.4995 7.18 19.73L7.12 19.79C6.93425 19.976 6.71368 20.1235 6.47088 20.2241C6.22808 20.3248 5.96783 20.3766 5.705 20.3766C5.44217 20.3766 5.18192 20.3248 4.93912 20.2241C4.69632 20.1235 4.47575 19.976 4.29 19.79C4.10405 19.6043 3.95653 19.3837 3.85588 19.1409C3.75523 18.8981 3.70343 18.6378 3.70343 18.375C3.70343 18.1122 3.75523 17.8519 3.85588 17.6091C3.95653 17.3663 4.10405 17.1457 4.29 16.96L4.35 16.9C4.58054 16.6643 4.73519 16.365 4.794 16.0406C4.85282 15.7162 4.81312 15.3816 4.68 15.08C4.55324 14.7842 4.34276 14.532 4.07447 14.3543C3.80618 14.1766 3.49179 14.0813 3.17 14.08H3C2.46957 14.08 1.96086 13.8693 1.58579 13.4942C1.21071 13.1191 1 12.6104 1 12.08C1 11.5496 1.21071 11.0409 1.58579 10.6658C1.96086 10.2907 2.46957 10.08 3 10.08H3.09C3.42099 10.0723 3.742 9.96512 4.01131 9.77251C4.28062 9.5799 4.48571 9.31074 4.6 9C4.73312 8.69838 4.77282 8.36381 4.714 8.03941C4.65519 7.71502 4.50054 7.41568 4.27 7.18L4.21 7.12C4.02405 6.93425 3.87653 6.71368 3.77588 6.47088C3.67523 6.22808 3.62343 5.96783 3.62343 5.705C3.62343 5.44217 3.67523 5.18192 3.77588 4.93912C3.87653 4.69632 4.02405 4.47575 4.21 4.29C4.39575 4.10405 4.61632 3.95653 4.85912 3.85588C5.10192 3.75523 5.36217 3.70343 5.625 3.70343C5.88783 3.70343 6.14808 3.75523 6.39088 3.85588C6.63368 3.95653 6.85425 4.10405 7.04 4.29L7.1 4.35C7.33568 4.58054 7.63502 4.73519 7.95941 4.794C8.28381 4.85282 8.61838 4.81312 8.92 4.68H9C9.29577 4.55324 9.54802 4.34276 9.72569 4.07447C9.90337 3.80618 9.99872 3.49179 10 3.17V3C10 2.46957 10.2107 1.96086 10.5858 1.58579C10.9609 1.21071 11.4696 1 12 1C12.5304 1 13.0391 1.21071 13.4142 1.58579C13.7893 1.96086 14 2.46957 14 3V3.09C14.0013 3.41179 14.0966 3.72618 14.2743 3.99447C14.452 4.26276 14.7042 4.47324 15 4.6C15.3016 4.73312 15.6362 4.77282 15.9606 4.714C16.285 4.65519 16.5843 4.50054 16.82 4.27L16.88 4.21C17.0657 4.02405 17.2863 3.87653 17.5291 3.77588C17.7719 3.67523 18.0322 3.62343 18.295 3.62343C18.5578 3.62343 18.8181 3.67523 19.0609 3.77588C19.3037 3.87653 19.5243 4.02405 19.71 4.21C19.896 4.39575 20.0435 4.61632 20.1441 4.85912C20.2448 5.10192 20.2966 5.36217 20.2966 5.625C20.2966 5.88783 20.2448 6.14808 20.1441 6.39088C20.0435 6.63368 19.896 6.85425 19.71 7.04L19.65 7.1C19.4195 7.33568 19.2648 7.63502 19.206 7.95941C19.1472 8.28381 19.1869 8.61838 19.32 8.92V9C19.4468 9.29577 19.6572 9.54802 19.9255 9.72569C20.1938 9.90337 20.5082 9.99872 20.83 10H21C21.5304 10 22.0391 10.2107 22.4142 10.5858C22.7893 10.9609 23 11.4696 23 12C23 12.5304 22.7893 13.0391 22.4142 13.4142C22.0391 13.7893 21.5304 14 21 14H20.91C20.5882 14.0013 20.2738 14.0966 20.0055 14.2743C19.7372 14.452 19.5268 14.7042 19.4 15Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
-    'activity-logs': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M10 9H9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>'
+    'activity-logs': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M14 2V8H20" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 13H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M16 17H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/><path d="M10 9H9H8" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>',
+    'bookings': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M8 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 10H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 14H8.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 14H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 14H16.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 18H8.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 18H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    'google-calendar': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M19 4H5C3.89543 4 3 4.89543 3 6V20C3 21.1046 3.89543 22 5 22H19C20.1046 22 21 21.1046 21 20V6C21 4.89543 20.1046 4 19 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 2V6" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M3 10H21" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M8 14H8.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 14H12.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M16 14H16.01" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>',
+    'maintenance': '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M14.7 6.3C14.5168 6.11675 14.3132 5.955 14.0937 5.81833C13.8742 5.68167 13.6404 5.57118 13.3975 5.48933C13.1546 5.40748 12.9044 5.35499 12.6512 5.33301C12.398 5.31103 12.1436 5.31975 11.8928 5.359C11.642 5.39825 11.3967 5.4677 11.1633 5.56533C10.93 5.66296 10.7104 5.78795 10.51 5.93733L4.26 12.1873C4.11159 12.3877 3.9866 12.6073 3.88897 12.8407C3.79134 13.074 3.72189 13.3193 3.68264 13.5701C3.64339 13.8209 3.63467 14.0753 3.65665 14.3285C3.67863 14.5817 3.73112 14.8319 3.81297 15.0748C3.89482 15.3177 4.00531 15.5515 4.14198 15.771C4.27865 15.9905 4.4404 16.1941 4.62365 16.3773C4.8069 16.5606 5.0105 16.7223 5.23 16.859C5.4495 16.9957 5.6833 17.1062 5.9262 17.188C6.1691 17.2699 6.4193 17.3224 6.6725 17.3444C6.9257 17.3663 7.1801 17.3576 7.4309 17.3184C7.6817 17.2791 7.927 17.2097 8.16033 17.112C8.39367 17.0144 8.61325 16.8894 8.81265 16.7403L15.0627 10.4903C15.212 10.2899 15.337 10.0703 15.4346 9.837C15.5323 9.60367 15.6017 9.35833 15.641 9.10753C15.6802 8.85673 15.6889 8.60233 15.6669 8.34913C15.645 8.09593 15.5925 7.84573 15.5106 7.60283C15.4288 7.35993 15.3183 7.12613 15.1816 6.90663C15.045 6.68713 14.8832 6.48353 14.7 6.30033V6.3Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M12 8L16 12" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><path d="M18 14L21 17L18 20L15 17L18 14Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
   }
   return icons[tabId] || ''
 }
@@ -7100,6 +7091,30 @@ const moveTeamMemberUp = (sortedIndex: number) => {
   saveMessage.value = 'Team member order updated'
   saveMessageType.value = 'success'
   setTimeout(() => { saveMessage.value = '' }, 2000)
+}
+
+// Full-screen image viewer functions
+const openFullScreenImage = (imageUrl: string | undefined, memberName: string) => {
+  if (!imageUrl) return
+  fullScreenImage.value = {
+    url: imageUrl,
+    name: memberName
+  }
+  // Prevent body scroll when modal is open
+  document.body.style.overflow = 'hidden'
+}
+
+const closeFullScreenImage = () => {
+  fullScreenImage.value = null
+  // Restore body scroll
+  document.body.style.overflow = ''
+}
+
+// Handle ESC key to close full-screen image
+const handleKeyDown = (event: KeyboardEvent) => {
+  if (event.key === 'Escape' && fullScreenImage.value) {
+    closeFullScreenImage()
+  }
 }
 
 // Move team member down in the list
@@ -7966,63 +7981,6 @@ const handleBonusDragEnd = (event: DragEvent) => {
   draggedBonusIndex.value = null
 }
 
-// Email Submissions Management
-const filteredEmailSubmissions = computed(() => {
-  if (emailFilter.value === 'all') {
-    return emailSubmissions.value
-  }
-  return emailSubmissions.value.filter(sub => sub.status === emailFilter.value)
-})
-
-/**
- * Load email submissions
- */
-const loadEmailSubmissions = async () => {
-  loadingEmails.value = true
-  try {
-    const result = await emailController.getSubmissions()
-    if (result.success && result.data) {
-      emailSubmissions.value = result.data
-    } else {
-      saveMessage.value = result.error || 'Failed to load email submissions'
-      saveMessageType.value = 'error'
-      setTimeout(() => { saveMessage.value = '' }, 3000)
-    }
-  } catch (error) {
-    saveMessage.value = error instanceof Error ? error.message : 'Failed to load email submissions'
-    saveMessageType.value = 'error'
-    setTimeout(() => { saveMessage.value = '' }, 3000)
-  } finally {
-    loadingEmails.value = false
-  }
-}
-
-/**
- * Resend confirmation email
- */
-const resendConfirmationEmail = async (submission: EmailSubmission) => {
-  if (!submission.id) return
-
-  try {
-    const result = await emailController.submitEmail(submission.email)
-    if (result.success) {
-      saveMessage.value = 'Confirmation email sent successfully!'
-      saveMessageType.value = 'success'
-      setTimeout(() => { saveMessage.value = '' }, 3000)
-      // Reload submissions to update status
-      await loadEmailSubmissions()
-    } else {
-      saveMessage.value = result.error || 'Failed to send confirmation email'
-      saveMessageType.value = 'error'
-      setTimeout(() => { saveMessage.value = '' }, 3000)
-    }
-  } catch (error) {
-    saveMessage.value = error instanceof Error ? error.message : 'Failed to send confirmation email'
-    saveMessageType.value = 'error'
-    setTimeout(() => { saveMessage.value = '' }, 3000)
-  }
-}
-
 // Contact Messages Management
 const loadContactMessages = async () => {
   loadingContactMessages.value = true
@@ -8111,6 +8069,27 @@ const loadContactSettings = async () => {
     const result = await contactContentController.getContactContent()
     if (result.success && result.data) {
       contactSettings.value = result.data
+      // Initialize socialMediaVisibility if missing
+      if (!contactSettings.value.socialMediaVisibility) {
+        contactSettings.value.socialMediaVisibility = {
+          instagram: {
+            showInContactPage: true,
+            showInFooter: true
+          },
+          linkedin: {
+            showInContactPage: true,
+            showInFooter: true
+          },
+          email: {
+            showInContactPage: true,
+            showInFooter: true
+          },
+          whatsapp: {
+            showInContactPage: true,
+            showInFooter: true
+          }
+        }
+      }
     }
   } catch (error) {
     console.error('Failed to load contact settings:', error)
@@ -9552,9 +9531,7 @@ const saveSiteSettings = async () => {
   try {
     // Save all site settings - ensure we have all required fields
     const settingsToSave: Partial<SiteSettings> = {
-      disabledSections: siteSettings.value.disabledSections || [],
-      maintenanceMode: siteSettings.value.maintenanceMode || false,
-      maintenanceMessage: siteSettings.value.maintenanceMessage || 'We\'re currently performing maintenance. Please check back soon.'
+      disabledSections: siteSettings.value.disabledSections || []
     }
 
     const result = await siteSettingsController.updateSiteSettings(settingsToSave)
@@ -9589,7 +9566,10 @@ const toggleSection = async (sectionId: string, disabled: boolean) => {
     const result = await siteSettingsController.toggleSection(sectionId, disabled)
     if (result.success) {
       await loadAdminData()
-      saveMessage.value = `${disabled ? 'Disabled' : 'Enabled'} ${availableSections.find(s => s.id === sectionId)?.label || sectionId}`
+      const page = availablePages.find(p => p.id === sectionId)
+      const section = availableSections.find(s => s.id === sectionId)
+      const label = page?.label || section?.label || sectionId
+      saveMessage.value = `${disabled ? 'Disabled' : 'Enabled'} ${label}`
       saveMessageType.value = 'success'
       setTimeout(() => { saveMessage.value = '' }, 3000)
     } else {
@@ -9636,9 +9616,6 @@ watch(activeTab, (newTab) => {
   }
   if (newTab === 'activity-logs' && isAdmin.value) {
     refreshActivityLogs()
-  }
-  if (newTab === 'email-submissions') {
-    loadEmailSubmissions()
   }
   if (newTab === 'contact-messages') {
     loadContactMessages()
@@ -9844,8 +9821,18 @@ onMounted(() => {
   window.addEventListener('resize', handleResize)
 })
 
+// Watch for full-screen image to add/remove keyboard listener
+watch(fullScreenImage, (newValue) => {
+  if (newValue) {
+    window.addEventListener('keydown', handleKeyDown)
+  } else {
+    window.removeEventListener('keydown', handleKeyDown)
+  }
+})
+
 onUnmounted(() => {
   window.removeEventListener('resize', handleResize)
+  window.removeEventListener('keydown', handleKeyDown)
 })
 </script>
 
@@ -11927,6 +11914,22 @@ onUnmounted(() => {
   background: rgba(245, 247, 250, 0.08);
 }
 
+.page-toggle-item {
+  background: rgba(91, 32, 150, 0.1);
+  border-color: rgba(91, 32, 150, 0.3);
+  border-width: 2px;
+}
+
+.page-toggle-item:hover {
+  border-color: rgba(91, 32, 150, 0.5);
+  background: rgba(91, 32, 150, 0.15);
+}
+
+.page-toggle-item .section-info h5 {
+  font-weight: 600;
+  color: #C19DE6;
+}
+
 .section-info {
   flex: 1;
 }
@@ -12093,145 +12096,6 @@ onUnmounted(() => {
   width: 100%;
   max-height: 400px;
   border-radius: 8px;
-}
-
-/* Email Submissions Styles */
-.email-submissions-list {
-  margin-top: 1.5rem;
-}
-
-.submissions-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 1.5rem;
-  padding: 1rem;
-  background: rgba(245, 247, 250, 0.05);
-  border: 1px solid rgba(91, 32, 150, 0.2);
-  border-radius: 8px;
-}
-
-.submission-count {
-  color: #F5F7FA;
-  font-weight: 500;
-}
-
-.submission-filters {
-  display: flex;
-  gap: 0.5rem;
-}
-
-.filter-btn {
-  padding: 0.5rem 1rem;
-  background: rgba(245, 247, 250, 0.05);
-  border: 1px solid rgba(91, 32, 150, 0.2);
-  border-radius: 6px;
-  color: rgba(245, 247, 250, 0.7);
-  font-size: 0.875rem;
-  cursor: pointer;
-  transition: all 0.2s;
-}
-
-.filter-btn:hover {
-  background: rgba(91, 32, 150, 0.1);
-  border-color: rgba(91, 32, 150, 0.4);
-}
-
-.filter-btn.active {
-  background: rgba(91, 32, 150, 0.2);
-  border-color: #5B2096;
-  color: #F5F7FA;
-}
-
-.submissions-table {
-  display: flex;
-  flex-direction: column;
-  gap: 0.5rem;
-}
-
-.table-header,
-.table-row {
-  display: grid;
-  grid-template-columns: 2fr 1fr 1.2fr 1.5fr 0.8fr;
-  gap: 1rem;
-  padding: 1rem;
-  align-items: center;
-}
-
-.table-header {
-  background: rgba(91, 32, 150, 0.1);
-  border: 1px solid rgba(91, 32, 150, 0.2);
-  border-radius: 8px;
-  font-weight: 600;
-  color: #F5F7FA;
-  font-size: 0.875rem;
-}
-
-.table-row {
-  background: rgba(245, 247, 250, 0.05);
-  border: 1px solid rgba(91, 32, 150, 0.2);
-  border-radius: 8px;
-  transition: all 0.2s;
-}
-
-.table-row:hover {
-  background: rgba(245, 247, 250, 0.08);
-  border-color: rgba(91, 32, 150, 0.3);
-}
-
-.table-cell {
-  color: rgba(245, 247, 250, 0.9);
-  font-size: 0.875rem;
-}
-
-.email-cell {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-}
-
-.email-cell svg {
-  color: #5B2096;
-  flex-shrink: 0;
-}
-
-.status-badge {
-  display: inline-block;
-  padding: 0.25rem 0.75rem;
-  border-radius: 12px;
-  font-size: 0.75rem;
-  font-weight: 500;
-  text-transform: capitalize;
-}
-
-.status-pending {
-  background: rgba(255, 193, 7, 0.2);
-  color: #FFC107;
-  border: 1px solid rgba(255, 193, 7, 0.3);
-}
-
-.status-confirmed {
-  background: rgba(76, 175, 80, 0.2);
-  color: #4CAF50;
-  border: 1px solid rgba(76, 175, 80, 0.3);
-}
-
-.status-sent {
-  background: rgba(33, 150, 243, 0.2);
-  color: #2196F3;
-  border: 1px solid rgba(33, 150, 243, 0.3);
-}
-
-.check-icon {
-  color: #4CAF50;
-  font-weight: bold;
-  font-size: 1.1rem;
-}
-
-.cross-icon {
-  color: rgba(245, 247, 250, 0.4);
-  font-weight: bold;
-  font-size: 1.1rem;
 }
 
 /* Contact Messages Styles */
@@ -12448,6 +12312,105 @@ onUnmounted(() => {
   font-weight: 600;
   color: #F5F7FA;
   font-size: 1rem;
+}
+
+.visibility-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.25rem;
+  margin-top: 1rem;
+}
+
+.visibility-card {
+  background: rgba(20, 20, 27, 0.5);
+  border: 1px solid rgba(91, 32, 150, 0.25);
+  border-radius: 10px;
+  padding: 1.25rem;
+}
+
+.visibility-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  margin-bottom: 1rem;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(91, 32, 150, 0.15);
+}
+
+.visibility-label {
+  font-weight: 600;
+  color: #F5F7FA;
+  font-size: 1rem;
+}
+
+.visibility-toggles {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.toggle-group {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+}
+
+.toggle-label {
+  color: rgba(245, 247, 250, 0.9);
+  font-size: 0.9rem;
+  font-weight: 500;
+  flex: 1;
+}
+
+.toggle-switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 26px;
+  flex-shrink: 0;
+}
+
+.toggle-switch input {
+  opacity: 0;
+  width: 0;
+  height: 0;
+}
+
+.toggle-slider {
+  position: absolute;
+  cursor: pointer;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(91, 32, 150, 0.3);
+  transition: 0.3s;
+  border-radius: 26px;
+}
+
+.toggle-slider:before {
+  position: absolute;
+  content: "";
+  height: 20px;
+  width: 20px;
+  left: 3px;
+  bottom: 3px;
+  background-color: #F5F7FA;
+  transition: 0.3s;
+  border-radius: 50%;
+}
+
+.toggle-switch input:checked + .toggle-slider {
+  background-color: #5B2096;
+}
+
+.toggle-switch input:checked + .toggle-slider:before {
+  transform: translateX(24px);
+}
+
+.toggle-switch input:focus + .toggle-slider {
+  box-shadow: 0 0 1px #5B2096;
 }
 
 .form-actions {
@@ -15283,6 +15246,122 @@ onUnmounted(() => {
   }
   50% {
     opacity: 0.5;
+  }
+}
+
+/* Full-Screen Image Modal */
+.fullscreen-image-modal {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.95);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.fullscreen-close-btn {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  color: #F5F7FA;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+  z-index: 10001;
+}
+
+.fullscreen-close-btn:hover {
+  background: rgba(255, 255, 255, 0.2);
+  border-color: rgba(255, 255, 255, 0.4);
+  transform: scale(1.1);
+}
+
+.fullscreen-image-container {
+  max-width: 90vw;
+  max-height: 90vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+.fullscreen-image {
+  max-width: 100%;
+  max-height: 80vh;
+  object-fit: contain;
+  border-radius: 8px;
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
+  animation: zoomIn 0.3s ease;
+}
+
+@keyframes zoomIn {
+  from {
+    transform: scale(0.9);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+
+.fullscreen-image-name {
+  color: #F5F7FA;
+  font-family: 'Roboto', sans-serif;
+  font-size: 18px;
+  font-weight: 500;
+  text-align: center;
+  margin: 0;
+  padding: 12px 24px;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
+  backdrop-filter: blur(10px);
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .fullscreen-image-container {
+    max-width: 95vw;
+    max-height: 95vh;
+    gap: 16px;
+  }
+
+  .fullscreen-image {
+    max-height: 75vh;
+  }
+
+  .fullscreen-image-name {
+    font-size: 16px;
+    padding: 10px 20px;
+  }
+
+  .fullscreen-close-btn {
+    top: 10px;
+    right: 10px;
+    width: 40px;
+    height: 40px;
   }
 }
 </style>

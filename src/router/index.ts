@@ -2,6 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router'
 import { authService } from '@/features/auth/services/AuthService'
 import { userService } from '@/features/auth/services/UserService'
 import { maintenanceService } from '@/features/admin/services/MaintenanceService'
+import { siteSettingsService } from '@/features/admin/services/SiteSettingsService'
+import { useSiteSettings } from '@/shared/composables/useSiteSettings'
 import { analyticsTrackingService } from '@/shared/services/analyticsTrackingService'
 import { auth } from '@/shared/services/config'
 import { authRoutes } from '@/features/auth/routes'
@@ -13,6 +15,29 @@ import { servicesRoutes } from '@/features/services/routes'
 import { legalRoutes } from '@/features/legal/routes'
 import { contactRoutes } from '@/features/contact/routes'
 import { worksRoutes } from '@/features/works/routes'
+
+// Map route names/paths to page IDs for disabled page checking
+const routeToPageIdMap: Record<string, string> = {
+  'home': 'home-page',
+  '/': 'home-page',
+  'about': 'about-page',
+  '/about': 'about-page',
+  'services': 'services-page',
+  '/services': 'services-page',
+  'works': 'works-page',
+  '/works': 'works-page',
+  'contact': 'contact-page',
+  '/contact': 'contact-page',
+  'terms-of-service': 'terms-of-service-page',
+  '/terms-of-service': 'terms-of-service-page',
+  'privacy-policy': 'privacy-policy-page',
+  '/privacy-policy': 'privacy-policy-page',
+  'cookie-policy': 'cookie-policy-page',
+  '/cookie-policy': 'cookie-policy-page'
+}
+
+// Initialize site settings subscription early (shared state)
+const { isPageDisabled: checkPageDisabled } = useSiteSettings()
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -99,6 +124,25 @@ router.beforeEach(async (to, from, next) => {
       isAdmin = await userService.isAdmin(currentUser.uid)
     } catch (error) {
       console.error('Error checking admin status:', error)
+    }
+  }
+
+  // Check if the page is disabled (for non-admin users) - using real-time data
+  if (!isMaintenanceRoute && !isAdminRoute && !isLoginRoute && !isDashboardRoute) {
+    try {
+      const pageId = routeToPageIdMap[to.name as string] || routeToPageIdMap[to.path]
+      if (pageId) {
+        // Use real-time composable to check if page is disabled
+        const isPageDisabled = checkPageDisabled(pageId)
+        if (isPageDisabled && !isAdmin) {
+          // Redirect to maintenance page if page is disabled and user is not admin
+          next({ name: 'maintenance' })
+          return
+        }
+      }
+    } catch (error) {
+      // If page check fails, log but don't block navigation
+      console.error('Error checking page status:', error)
     }
   }
 

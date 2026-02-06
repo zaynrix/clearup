@@ -246,7 +246,10 @@ const handleLogoClick = () => {
   if (isMenuOpen.value) {
     handleMenuClick()
   }
-  router.push('/')
+  router.push('/').then(() => {
+    // Scroll to top when navigating to home
+    window.scrollTo({ top: 0, behavior: 'smooth' })
+  })
 }
 </script>
 

@@ -10,9 +10,11 @@ import {
   where,
   orderBy,
   limit,
+  onSnapshot,
   type QueryConstraint,
   type DocumentData,
-  type QueryDocumentSnapshot
+  type QueryDocumentSnapshot,
+  type Unsubscribe
 } from 'firebase/firestore'
 import { db } from './config'
 
@@ -131,6 +133,43 @@ export class FirestoreService {
 
   limitTo(count: number) {
     return limit(count)
+  }
+
+  /**
+   * Subscribe to real-time updates for a single document
+   * @param collectionName - Name of the collection
+   * @param documentId - ID of the document
+   * @param callback - Callback function that receives the document data
+   * @returns Unsubscribe function
+   */
+  subscribeToDocument<T>(
+    collectionName: string,
+    documentId: string,
+    callback: (data: T | null) => void
+  ): Unsubscribe {
+    const docRef = doc(db, collectionName, documentId)
+    
+    return onSnapshot(
+      docRef,
+      (docSnap) => {
+        if (docSnap.exists()) {
+          const data = docSnap.data()
+          // Remove any existing 'id' field from data to avoid conflicts
+          const { id: _, ...dataWithoutId } = data
+          // Always use document ID from Firestore, never the stored field
+          callback({
+            ...dataWithoutId,
+            id: docSnap.id
+          } as T)
+        } else {
+          callback(null)
+        }
+      },
+      (error) => {
+        console.error(`Error in real-time listener for ${collectionName}/${documentId}:`, error)
+        callback(null)
+      }
+    )
   }
 }
 

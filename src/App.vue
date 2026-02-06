@@ -5,6 +5,10 @@ import NavigationBar from './shared/components/NavigationBar.vue'
 import { authService } from './features/auth/services/AuthService'
 import { userService } from './features/auth/services/UserService'
 import { maintenanceController } from './features/admin/controllers/MaintenanceController'
+import { useSiteSettings, cleanupSiteSettingsSubscription } from './shared/composables/useSiteSettings'
+
+// Initialize real-time site settings subscription (shared across all components)
+useSiteSettings()
 
 const route = useRoute()
 const router = useRouter()
@@ -108,6 +112,8 @@ onUnmounted(() => {
   document.removeEventListener('click', handleLogoClick)
   if (logoClickTimeout) clearTimeout(logoClickTimeout)
   if (keyComboTimeout) clearTimeout(keyComboTimeout)
+  // Cleanup site settings subscription when app unmounts
+  cleanupSiteSettingsSubscription()
 })
 </script>
 

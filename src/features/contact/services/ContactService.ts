@@ -19,7 +19,25 @@ const DEFAULT_CONTACT_CONTENT: ContactContent = {
   headerSubtitle: 'Contact us today for a free consultation and quote',
   formTitle: 'Send us a Message',
   infoTitle: 'Contact Information',
-  contactInfo: DEFAULT_CONTACT_INFO
+  contactInfo: DEFAULT_CONTACT_INFO,
+  socialMediaVisibility: {
+    instagram: {
+      showInContactPage: true,
+      showInFooter: true
+    },
+    linkedin: {
+      showInContactPage: true,
+      showInFooter: true
+    },
+    email: {
+      showInContactPage: true,
+      showInFooter: true
+    },
+    whatsapp: {
+      showInContactPage: true,
+      showInFooter: true
+    }
+  }
 }
 
 const CONTENT_COLLECTION = 'contactContent'
@@ -43,7 +61,15 @@ export class ContactService extends BaseService {
         CONTENT_COLLECTION,
         CONTENT_DOCUMENT_ID
       )
-      return content || { ...DEFAULT_CONTACT_CONTENT }
+      if (content) {
+        // Merge with defaults to ensure socialMediaVisibility is always present
+        return {
+          ...DEFAULT_CONTACT_CONTENT,
+          ...content,
+          socialMediaVisibility: content.socialMediaVisibility || DEFAULT_CONTACT_CONTENT.socialMediaVisibility
+        }
+      }
+      return { ...DEFAULT_CONTACT_CONTENT }
     } catch (error) {
       this.handleError(error)
       // Return default content if fetch fails

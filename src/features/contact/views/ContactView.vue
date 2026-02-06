@@ -1,7 +1,14 @@
 <template>
   <div class="contact-page">
-    <!-- Main Content -->
-    <main class="contact-main">
+    <!-- Show maintenance if page is disabled (unless admin) -->
+    <PageMaintenance 
+      v-if="isPageDisabled('contact-page') && !isAdminUser"
+      :message="siteSettings.maintenanceMessage || 'This page is currently unavailable. Please check back later.'"
+    />
+    
+    <template v-else>
+      <!-- Main Content -->
+      <main class="contact-main">
       <!-- Loading State -->
       <div v-if="isLoading" class="loading-state">
         <div class="loading-spinner"></div>
@@ -124,7 +131,13 @@
             
             <div class="info-list">
               <!-- Instagram -->
-              <a :href="contactInfo.instagramUrl" target="_blank" rel="noopener noreferrer" class="info-item">
+              <a 
+                v-if="showInstagramInContactPage"
+                :href="contactInfo.instagramUrl" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="info-item"
+              >
                 <div class="info-icon instagram">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="2"/>
@@ -139,7 +152,11 @@
               </a>
 
               <!-- Email -->
-              <a :href="'mailto:' + contactInfo.email" class="info-item">
+              <a 
+                v-if="showEmailInContactPage"
+                :href="'mailto:' + contactInfo.email" 
+                class="info-item"
+              >
                 <div class="info-icon email">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M4 4H20C21.1 4 22 4.9 22 6V18C22 19.1 21.1 20 20 20H4C2.9 20 2 19.1 2 18V6C2 4.9 2.9 4 4 4Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -153,7 +170,13 @@
               </a>
 
               <!-- LinkedIn -->
-              <a :href="contactInfo.linkedinUrl" target="_blank" rel="noopener noreferrer" class="info-item">
+              <a 
+                v-if="showLinkedInInContactPage"
+                :href="contactInfo.linkedinUrl" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="info-item"
+              >
                 <div class="info-icon linkedin">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path d="M16 8C17.5913 8 19.1174 8.63214 20.2426 9.75736C21.3679 10.8826 22 12.4087 22 14V21H18V14C18 13.4696 17.7893 12.9609 17.4142 12.5858C17.0391 12.2107 16.5304 12 16 12C15.4696 12 14.9609 12.2107 14.5858 12.5858C14.2107 12.9609 14 13.4696 14 14V21H10V14C10 12.4087 10.6321 10.8826 11.7574 9.75736C12.8826 8.63214 14.4087 8 16 8Z" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
@@ -168,7 +191,13 @@
               </a>
 
               <!-- WhatsApp -->
-              <a :href="contactInfo.whatsappUrl" target="_blank" rel="noopener noreferrer" class="info-item">
+              <a 
+                v-if="showWhatsAppInContactPage"
+                :href="contactInfo.whatsappUrl" 
+                target="_blank" 
+                rel="noopener noreferrer" 
+                class="info-item"
+              >
                 <div class="info-icon whatsapp">
                   <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
                     <path fill-rule="evenodd" clip-rule="evenodd" d="M12 2C6.477 2 2 6.477 2 12C2 13.89 2.525 15.66 3.438 17.168L2.546 20.2C2.49 20.386 2.486 20.583 2.536 20.771C2.586 20.959 2.687 21.13 2.828 21.265C2.969 21.4 3.145 21.494 3.336 21.536C3.527 21.578 3.725 21.567 3.912 21.504L6.944 20.612C8.502 21.555 10.303 22.06 12.138 22.038C17.605 21.963 22 17.523 22 12C22 6.477 17.523 2 12 2ZM9.738 14.263C11.889 16.413 13.938 16.697 14.664 16.724C15.767 16.765 16.843 15.922 17.261 14.943C17.313 14.822 17.332 14.689 17.316 14.558C17.299 14.427 17.248 14.303 17.168 14.198C16.586 13.454 15.798 12.919 15.028 12.387C14.867 12.276 14.67 12.232 14.477 12.263C14.284 12.295 14.111 12.4 13.994 12.556L13.358 13.53C13.324 13.582 13.272 13.62 13.212 13.635C13.152 13.65 13.088 13.642 13.034 13.612C12.601 13.364 11.97 12.943 11.516 12.489C11.062 12.035 10.665 11.432 10.442 11.026C10.415 10.974 10.408 10.914 10.421 10.857C10.434 10.8 10.468 10.75 10.515 10.715L11.498 9.965C11.64 9.841 11.732 9.67 11.756 9.484C11.78 9.298 11.734 9.11 11.628 8.958C11.151 8.26 10.596 7.372 9.79 6.785C9.686 6.712 9.563 6.666 9.435 6.652C9.307 6.638 9.177 6.657 9.06 6.708C8.08 7.126 7.233 8.202 7.273 9.305C7.3 10.031 7.584 12.11 9.738 14.263Z" fill="currentColor"/>
@@ -183,20 +212,31 @@
           </div>
         </section>
       </template>
-    </main>
+      </main>
 
-    <!-- Footer -->
-    <FooterSection />
+      <!-- Footer -->
+      <FooterSection />
+    </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import FooterSection from '@/shared/components/FooterSection.vue'
+import PageMaintenance from '@/shared/components/PageMaintenance.vue'
+import { useSiteSettings } from '@/shared/composables/useSiteSettings'
+import { authService } from '@/features/auth/services/AuthService'
+import { userService } from '@/features/auth/services/UserService'
 import { ContactViewController } from '../controllers/ContactViewController'
 import type { ContactContent, ContactInfo } from '../models/ContactMessage'
 
 const viewController = new ContactViewController()
+
+// Use real-time site settings composable
+const { isPageDisabled, siteSettings } = useSiteSettings()
+
+// Check if user is admin (to allow viewing disabled pages)
+const isAdminUser = ref(false)
 
 // Reactive state
 const contactContent = ref<ContactContent | null>(null)
@@ -231,6 +271,23 @@ const headerSubtitle = computed(() => contactContent.value?.headerSubtitle || 'C
 const formTitle = computed(() => contactContent.value?.formTitle || 'Send us a Message')
 const infoTitle = computed(() => contactContent.value?.infoTitle || 'Contact Information')
 const contactInfo = computed(() => contactContent.value?.contactInfo || defaultContactInfo)
+
+// Social media visibility computed properties
+const showInstagramInContactPage = computed(() => {
+  return contactContent.value?.socialMediaVisibility?.instagram?.showInContactPage !== false
+})
+
+const showLinkedInInContactPage = computed(() => {
+  return contactContent.value?.socialMediaVisibility?.linkedin?.showInContactPage !== false
+})
+
+const showEmailInContactPage = computed(() => {
+  return contactContent.value?.socialMediaVisibility?.email?.showInContactPage !== false
+})
+
+const showWhatsAppInContactPage = computed(() => {
+  return contactContent.value?.socialMediaVisibility?.whatsapp?.showInContactPage !== false
+})
 
 // Load contact content
 const loadContactContent = async () => {
@@ -295,7 +352,17 @@ const handleSubmit = async () => {
 }
 
 // Load content on mount
-onMounted(() => {
+onMounted(async () => {
+  // Check if user is admin (to allow viewing disabled pages)
+  const currentUser = authService.getCurrentUser()
+  if (currentUser) {
+    try {
+      isAdminUser.value = await userService.isAdmin(currentUser.uid)
+    } catch (error) {
+      console.error('Error checking admin status:', error)
+    }
+  }
+  
   window.scrollTo(0, 0)
   loadContactContent()
 })

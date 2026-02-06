@@ -1,9 +1,16 @@
 <template>
   <div class="works-view">
-    <!-- Background overlay -->
-    <div class="background-overlay"></div>
+    <!-- Show maintenance if page is disabled (unless admin) -->
+    <PageMaintenance 
+      v-if="isPageDisabled('works-page') && !isAdminUser"
+      :message="siteSettings.maintenanceMessage || 'This page is currently unavailable. Please check back later.'"
+    />
+    
+    <template v-else>
+      <!-- Background overlay -->
+      <div class="background-overlay"></div>
 
-    <div class="works-container">
+      <div class="works-container">
       <!-- Header Section -->
       <div class="works-header">
         <h1 class="works-title">{{ homeContent?.realResultsTitle || 'Real Results, Real Impact.' }}</h1>
@@ -25,6 +32,10 @@
         <p class="empty-message">No works available at the moment.</p>
       </div>
     </div>
+
+      <!-- Footer -->
+      <FooterSection />
+    </template>
   </div>
 </template>
 
@@ -33,11 +44,22 @@ import { ref, computed, onMounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { WorksController } from '../controllers/WorksController'
 import WorkCard from '@/shared/components/WorkCard.vue'
+import FooterSection from '@/shared/components/FooterSection.vue'
+import PageMaintenance from '@/shared/components/PageMaintenance.vue'
+import { useSiteSettings } from '@/shared/composables/useSiteSettings'
+import { authService } from '@/features/auth/services/AuthService'
+import { userService } from '@/features/auth/services/UserService'
 import type { HomeContent } from '@/features/home/models/HomeContent'
 
 const router = useRouter()
 const worksController = new WorksController()
 const homeContent = ref<HomeContent | null>(null)
+
+// Use real-time site settings composable
+const { isPageDisabled, siteSettings } = useSiteSettings()
+
+// Check if user is admin (to allow viewing disabled pages)
+const isAdminUser = ref(false)
 const works = computed(() => homeContent.value?.realResultsCases || [])
 
 const navigateToWorkDetail = (workId: string | undefined) => {
@@ -52,6 +74,16 @@ const navigateToWorkDetail = (workId: string | undefined) => {
 }
 
 onMounted(async () => {
+  // Check if user is admin (to allow viewing disabled pages)
+  const currentUser = authService.getCurrentUser()
+  if (currentUser) {
+    try {
+      isAdminUser.value = await userService.isAdmin(currentUser.uid)
+    } catch (error) {
+      console.error('Error checking admin status:', error)
+    }
+  }
+  
   try {
     const result = await worksController.getWorks()
     if (result.success && result.data) {

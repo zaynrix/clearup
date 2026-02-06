@@ -1,17 +1,24 @@
 <template>
   <div class="about-view">
-    <!-- Background image -->
-    <div class="background-image"></div>
-    <!-- Background overlay -->
-    <div class="background-overlay"></div>
-    <!-- Stars animation -->
-    <div class="stars"></div>
-    <!-- Vector shapes on both sides -->
-    <div class="vector-shape vector-left"></div>
-    <div class="vector-shape vector-right"></div>
+    <!-- Show maintenance if page is disabled (unless admin) -->
+    <PageMaintenance 
+      v-if="isPageDisabled('about-page') && !isAdminUser"
+      :message="siteSettings.maintenanceMessage || 'This page is currently unavailable. Please check back later.'"
+    />
     
-    <!-- Main content -->
-    <div class="about-container">
+    <template v-else>
+      <!-- Background image -->
+      <div class="background-image"></div>
+      <!-- Background overlay -->
+      <div class="background-overlay"></div>
+      <!-- Stars animation -->
+      <div class="stars"></div>
+      <!-- Vector shapes on both sides -->
+      <div class="vector-shape vector-left"></div>
+      <div class="vector-shape vector-right"></div>
+      
+      <!-- Main content -->
+      <div class="about-container">
       <!-- Loading State -->
       <div v-if="isLoading" class="loading-state">
         <div class="loading-spinner"></div>
@@ -183,10 +190,11 @@
         </div>
       </div>
       </template>
-    </div>
+      </div>
 
-    <!-- Footer Section -->
-    <FooterSection />
+      <!-- Footer Section -->
+      <FooterSection />
+    </template>
   </div>
 </template>
 
@@ -196,8 +204,10 @@ import { useRouter, useRoute } from 'vue-router'
 import { AboutViewController } from '../controllers/AboutViewController'
 import type { AboutContent, TeamMember, FAQ } from '../models/AboutContent'
 import FooterSection from '@/shared/components/FooterSection.vue'
-import { siteSettingsController } from '@/features/admin/controllers/SiteSettingsController'
-import type { SiteSettings } from '@/features/admin/models/SiteSettings'
+import PageMaintenance from '@/shared/components/PageMaintenance.vue'
+import { useSiteSettings } from '@/shared/composables/useSiteSettings'
+import { authService } from '@/features/auth/services/AuthService'
+import { userService } from '@/features/auth/services/UserService'
 
 const router = useRouter()
 const route = useRoute()
@@ -207,15 +217,11 @@ const openFAQIndex = ref<number | null>(null)
 const isLoading = ref(false)
 const error = ref<string | null>(null)
 
-// Site settings for disabled sections
-const siteSettings = ref<SiteSettings>({
-  disabledSections: [],
-  maintenanceMode: false
-})
+// Use real-time site settings composable
+const { isSectionDisabled, isPageDisabled, siteSettings } = useSiteSettings()
 
-const isSectionDisabled = (sectionId: string): boolean => {
-  return siteSettings.value.disabledSections?.includes(sectionId) || false
-}
+// Check if user is admin (to allow viewing disabled pages)
+const isAdminUser = ref(false)
 
 const teamMembers = computed(() => {
   if (!aboutContent.value) return []
@@ -310,32 +316,21 @@ const loadAboutContent = async () => {
 
 
 onMounted(async () => {
+  // Check if user is admin (to allow viewing disabled pages)
+  const currentUser = authService.getCurrentUser()
+  if (currentUser) {
+    try {
+      isAdminUser.value = await userService.isAdmin(currentUser.uid)
+    } catch (error) {
+      console.error('Error checking admin status:', error)
+    }
+  }
+  
   // Reset scroll position when component mounts
   window.scrollTo(0, 0)
   
-  // Load site settings to check for disabled sections
-  try {
-    const settingsResult = await siteSettingsController.getSiteSettings()
-    if (settingsResult.success && settingsResult.data) {
-      siteSettings.value = settingsResult.data
-    } else {
-      console.warn('Failed to load site settings:', settingsResult.error)
-      // Use default settings if loading fails
-      siteSettings.value = {
-        disabledSections: [],
-        maintenanceMode: false,
-        maintenanceMessage: 'This section is temporarily unavailable.'
-      }
-    }
-  } catch (error) {
-    console.error('Error loading site settings:', error)
-    // Use default settings if there's an error
-    siteSettings.value = {
-      disabledSections: [],
-      maintenanceMode: false,
-      maintenanceMessage: 'This section is temporarily unavailable.'
-    }
-  }
+  // Site settings are now loaded automatically via real-time subscription in useSiteSettings composable
+  // No need to manually load them here
   
   loadAboutContent()
 })

@@ -153,5 +153,6 @@ export interface HomeContent {
   // Footer
   footerTagline: string
   footerAddress?: string
+  footerCopyright?: string
 }
 

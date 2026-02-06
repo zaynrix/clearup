@@ -1,6 +1,7 @@
 import { BaseService } from '@/shared/BaseService'
 import { firestoreService } from '@/shared/services'
 import type { SiteSettings } from '../models/SiteSettings'
+import type { Unsubscribe } from 'firebase/firestore'
 
 export type { SiteSettings }
 
@@ -97,6 +98,26 @@ export class SiteSettingsService extends BaseService {
       console.error('Error checking section status:', error)
       return false
     }
+  }
+
+  /**
+   * Subscribe to real-time updates for site settings
+   * @param callback - Callback function that receives the updated settings
+   * @returns Unsubscribe function
+   */
+  subscribeToSiteSettings(callback: (settings: SiteSettings) => void): Unsubscribe {
+    return firestoreService.subscribeToDocument<SiteSettings>(
+      COLLECTION_NAME,
+      DOCUMENT_ID,
+      (data) => {
+        if (data) {
+          callback(data)
+        } else {
+          // If document doesn't exist, use default settings
+          callback(DEFAULT_SETTINGS)
+        }
+      }
+    )
   }
 }
 

@@ -1,16 +1,23 @@
 <template>
   <div class="services-view">
-    <!-- Background elements -->
-    <div class="background-image"></div>
-    <div class="background-overlay"></div>
-    <div class="stars"></div>
-    <div class="vector-shape vector-left"></div>
-    <div class="vector-shape vector-right"></div>
+    <!-- Show maintenance if page is disabled (unless admin) -->
+    <PageMaintenance 
+      v-if="isPageDisabled('services-page') && !isAdminUser"
+      :message="siteSettings.maintenanceMessage || 'This page is currently unavailable. Please check back later.'"
+    />
     
-    <!-- Main content -->
-    <!-- Clear Up System Section -->
-    <div v-if="!isSectionDisabled('services-system')" class="third-section">
-      <ClearUpSystemSection @cta-click="handleBookMeeting">
+    <template v-else>
+      <!-- Background elements -->
+      <div class="background-image"></div>
+      <div class="background-overlay"></div>
+      <div class="stars"></div>
+      <div class="vector-shape vector-left"></div>
+      <div class="vector-shape vector-right"></div>
+      
+      <!-- Main content -->
+      <!-- Clear Up System Section -->
+      <div v-if="!isSectionDisabled('services-system')" class="third-section">
+      <ClearUpSystemSection cta-text="Book a Meeting" @cta-click="handleBookMeeting">
         <!-- Our Services -->
             <div class="services-section">
               <div class="services-header">
@@ -251,11 +258,11 @@
       />
 
     <!-- Footer Section -->
-    <FooterSection 
-      :tagline="homeContent?.footerTagline"
-      :copyright="homeContent?.footerAddress"
-    />
-
+      <FooterSection 
+        :tagline="homeContent?.footerTagline"
+        :copyright="homeContent?.footerAddress"
+      />
+    </template>
   </div>
 </template>
 
@@ -269,23 +276,21 @@ import type { HomeContent } from '@/features/home/models/HomeContent'
 import TestimonialsSection from '@/shared/components/TestimonialsSection.vue'
 import FooterSection from '@/shared/components/FooterSection.vue'
 import ClearUpSystemSection from '@/shared/components/ClearUpSystemSection.vue'
-import { siteSettingsController } from '@/features/admin/controllers/SiteSettingsController'
-import type { SiteSettings } from '@/features/admin/models/SiteSettings'
+import PageMaintenance from '@/shared/components/PageMaintenance.vue'
+import { useSiteSettings } from '@/shared/composables/useSiteSettings'
+import { authService } from '@/features/auth/services/AuthService'
+import { userService } from '@/features/auth/services/UserService'
 
 const router = useRouter()
 const route = useRoute()
 const homeContentController = new HomeContentViewController()
 const servicesViewController = new ServicesViewController()
 
-// Site settings for disabled sections
-const siteSettings = ref<SiteSettings>({
-  disabledSections: [],
-  maintenanceMode: false
-})
+// Use real-time site settings composable
+const { isSectionDisabled, isPageDisabled, siteSettings } = useSiteSettings()
 
-const isSectionDisabled = (sectionId: string): boolean => {
-  return siteSettings.value.disabledSections?.includes(sectionId) || false
-}
+// Check if user is admin (to allow viewing disabled pages)
+const isAdminUser = ref(false)
 
 const isLoading = computed(() => servicesViewController.isLoading || homeContentController.isLoading)
 const error = computed(() => servicesViewController.errorMessage || homeContentController.errorMessage)
@@ -351,32 +356,21 @@ const setupScrollAnimations = () => {
 }
 
 onMounted(async () => {
+  // Check if user is admin (to allow viewing disabled pages)
+  const currentUser = authService.getCurrentUser()
+  if (currentUser) {
+    try {
+      isAdminUser.value = await userService.isAdmin(currentUser.uid)
+    } catch (error) {
+      console.error('Error checking admin status:', error)
+    }
+  }
+  
   // Reset scroll position when component mounts
   window.scrollTo(0, 0)
   
-  // Load site settings to check for disabled sections
-  try {
-    const settingsResult = await siteSettingsController.getSiteSettings()
-    if (settingsResult.success && settingsResult.data) {
-      siteSettings.value = settingsResult.data
-    } else {
-      console.warn('Failed to load site settings:', settingsResult.error)
-      // Use default settings if loading fails
-      siteSettings.value = {
-        disabledSections: [],
-        maintenanceMode: false,
-        maintenanceMessage: 'This section is temporarily unavailable.'
-      }
-    }
-  } catch (error) {
-    console.error('Error loading site settings:', error)
-    // Use default settings if there's an error
-    siteSettings.value = {
-      disabledSections: [],
-      maintenanceMode: false,
-      maintenanceMessage: 'This section is temporarily unavailable.'
-    }
-  }
+  // Site settings are now loaded automatically via real-time subscription in useSiteSettings composable
+  // No need to manually load them here
   
   await Promise.all([
     homeContentController.loadHomeContent(),

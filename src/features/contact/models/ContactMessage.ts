@@ -18,6 +18,25 @@ export interface ContactInfo {
   whatsappUrl: string
 }
 
+export interface SocialMediaVisibility {
+  instagram: {
+    showInContactPage: boolean
+    showInFooter: boolean
+  }
+  linkedin: {
+    showInContactPage: boolean
+    showInFooter: boolean
+  }
+  email: {
+    showInContactPage: boolean
+    showInFooter: boolean
+  }
+  whatsapp: {
+    showInContactPage: boolean
+    showInFooter: boolean
+  }
+}
+
 export interface ContactContent {
   // Header Section
   headerTitle: string
@@ -29,5 +48,8 @@ export interface ContactContent {
   // Contact Info Section
   infoTitle: string
   contactInfo: ContactInfo
+  
+  // Social Media Visibility Settings
+  socialMediaVisibility?: SocialMediaVisibility
 }
 
