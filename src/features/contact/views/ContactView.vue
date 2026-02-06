@@ -1,13 +1,6 @@
 <template>
   <div class="contact-page">
-    <!-- Show maintenance if page is disabled (unless admin) -->
-    <PageMaintenance 
-      v-if="isPageDisabled('contact-page') && !isAdminUser"
-      :message="siteSettings.maintenanceMessage || 'This page is currently unavailable. Please check back later.'"
-    />
-    
-    <template v-else>
-      <!-- Main Content -->
+    <!-- Main Content -->
       <main class="contact-main">
       <!-- Loading State -->
       <div v-if="isLoading" class="loading-state">
@@ -216,27 +209,16 @@
 
       <!-- Footer -->
       <FooterSection />
-    </template>
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, reactive, computed, onMounted } from 'vue'
 import FooterSection from '@/shared/components/FooterSection.vue'
-import PageMaintenance from '@/shared/components/PageMaintenance.vue'
-import { useSiteSettings } from '@/shared/composables/useSiteSettings'
-import { authService } from '@/features/auth/services/AuthService'
-import { userService } from '@/features/auth/services/UserService'
 import { ContactViewController } from '../controllers/ContactViewController'
 import type { ContactContent, ContactInfo } from '../models/ContactMessage'
 
 const viewController = new ContactViewController()
-
-// Use real-time site settings composable
-const { isPageDisabled, siteSettings } = useSiteSettings()
-
-// Check if user is admin (to allow viewing disabled pages)
-const isAdminUser = ref(false)
 
 // Reactive state
 const contactContent = ref<ContactContent | null>(null)
@@ -353,16 +335,6 @@ const handleSubmit = async () => {
 
 // Load content on mount
 onMounted(async () => {
-  // Check if user is admin (to allow viewing disabled pages)
-  const currentUser = authService.getCurrentUser()
-  if (currentUser) {
-    try {
-      isAdminUser.value = await userService.isAdmin(currentUser.uid)
-    } catch (error) {
-      console.error('Error checking admin status:', error)
-    }
-  }
-  
   window.scrollTo(0, 0)
   loadContactContent()
 })

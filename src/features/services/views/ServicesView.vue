@@ -1,13 +1,6 @@
 <template>
   <div class="services-view">
-    <!-- Show maintenance if page is disabled (unless admin) -->
-    <PageMaintenance 
-      v-if="isPageDisabled('services-page') && !isAdminUser"
-      :message="siteSettings.maintenanceMessage || 'This page is currently unavailable. Please check back later.'"
-    />
-    
-    <template v-else>
-      <!-- Background elements -->
+    <!-- Background elements -->
       <div class="background-image"></div>
       <div class="background-overlay"></div>
       <div class="stars"></div>
@@ -262,7 +255,6 @@
         :tagline="homeContent?.footerTagline"
         :copyright="homeContent?.footerAddress"
       />
-    </template>
   </div>
 </template>
 
@@ -276,10 +268,7 @@ import type { HomeContent } from '@/features/home/models/HomeContent'
 import TestimonialsSection from '@/shared/components/TestimonialsSection.vue'
 import FooterSection from '@/shared/components/FooterSection.vue'
 import ClearUpSystemSection from '@/shared/components/ClearUpSystemSection.vue'
-import PageMaintenance from '@/shared/components/PageMaintenance.vue'
 import { useSiteSettings } from '@/shared/composables/useSiteSettings'
-import { authService } from '@/features/auth/services/AuthService'
-import { userService } from '@/features/auth/services/UserService'
 
 const router = useRouter()
 const route = useRoute()
@@ -287,10 +276,7 @@ const homeContentController = new HomeContentViewController()
 const servicesViewController = new ServicesViewController()
 
 // Use real-time site settings composable
-const { isSectionDisabled, isPageDisabled, siteSettings } = useSiteSettings()
-
-// Check if user is admin (to allow viewing disabled pages)
-const isAdminUser = ref(false)
+const { isSectionDisabled } = useSiteSettings()
 
 const isLoading = computed(() => servicesViewController.isLoading || homeContentController.isLoading)
 const error = computed(() => servicesViewController.errorMessage || homeContentController.errorMessage)
@@ -356,16 +342,6 @@ const setupScrollAnimations = () => {
 }
 
 onMounted(async () => {
-  // Check if user is admin (to allow viewing disabled pages)
-  const currentUser = authService.getCurrentUser()
-  if (currentUser) {
-    try {
-      isAdminUser.value = await userService.isAdmin(currentUser.uid)
-    } catch (error) {
-      console.error('Error checking admin status:', error)
-    }
-  }
-  
   // Reset scroll position when component mounts
   window.scrollTo(0, 0)
   

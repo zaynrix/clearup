@@ -1,13 +1,6 @@
 <template>
   <div class="home-view">
-    <!-- Show maintenance if page is disabled (unless admin) -->
-    <PageMaintenance 
-      v-if="isPageDisabled('home-page') && !isAdminUser"
-      :message="siteSettings.maintenanceMessage || 'This page is currently unavailable. Please check back later.'"
-    />
-    
-    <template v-else>
-      <!-- Background image -->
+    <!-- Background image -->
       <div class="background-image"></div>
       <!-- Background overlay -->
       <div class="background-overlay"></div>
@@ -572,7 +565,6 @@
         @close="isBookingPanelOpen = false"
         @booking-created="handleBookingCreated"
       />
-    </template>
   </div>
 </template>
 
@@ -587,9 +579,6 @@ import type { ContactContent } from '@/features/contact/models/ContactMessage'
 import BookingPanel from '@/features/booking/components/BookingPanel.vue'
 import TestimonialsSection from '@/shared/components/TestimonialsSection.vue'
 import FooterSection from '@/shared/components/FooterSection.vue'
-import PageMaintenance from '@/shared/components/PageMaintenance.vue'
-import { authService } from '@/features/auth/services/AuthService'
-import { userService } from '@/features/auth/services/UserService'
 
 const router = useRouter()
 const route = useRoute()
@@ -597,10 +586,7 @@ const viewController = new HomeViewController()
 const contentController = new HomeContentViewController()
 
 // Use real-time site settings composable
-const { isSectionDisabled, isPageDisabled, siteSettings } = useSiteSettings()
-
-// Check if user is admin (to allow viewing disabled pages)
-const isAdminUser = ref(false)
+const { isSectionDisabled } = useSiteSettings()
 // Email input - use a local ref that syncs with viewController
 const email = ref('')
 
@@ -808,16 +794,6 @@ const isLoaded = ref(false)
 const visibleSections = ref<Set<string>>(new Set())
 
 onMounted(async () => {
-  // Check if user is admin (to allow viewing disabled pages)
-  const currentUser = authService.getCurrentUser()
-  if (currentUser) {
-    try {
-      isAdminUser.value = await userService.isAdmin(currentUser.uid)
-    } catch (error) {
-      console.error('Error checking admin status:', error)
-    }
-  }
-  
   // Reset scroll position when component mounts (only if coming from another route)
   if (route.path === '/') {
     window.scrollTo(0, 0)

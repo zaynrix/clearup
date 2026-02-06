@@ -1,13 +1,6 @@
 <template>
   <div class="about-view">
-    <!-- Show maintenance if page is disabled (unless admin) -->
-    <PageMaintenance 
-      v-if="isPageDisabled('about-page') && !isAdminUser"
-      :message="siteSettings.maintenanceMessage || 'This page is currently unavailable. Please check back later.'"
-    />
-    
-    <template v-else>
-      <!-- Background image -->
+    <!-- Background image -->
       <div class="background-image"></div>
       <!-- Background overlay -->
       <div class="background-overlay"></div>
@@ -194,7 +187,6 @@
 
       <!-- Footer Section -->
       <FooterSection />
-    </template>
   </div>
 </template>
 
@@ -204,10 +196,7 @@ import { useRouter, useRoute } from 'vue-router'
 import { AboutViewController } from '../controllers/AboutViewController'
 import type { AboutContent, TeamMember, FAQ } from '../models/AboutContent'
 import FooterSection from '@/shared/components/FooterSection.vue'
-import PageMaintenance from '@/shared/components/PageMaintenance.vue'
 import { useSiteSettings } from '@/shared/composables/useSiteSettings'
-import { authService } from '@/features/auth/services/AuthService'
-import { userService } from '@/features/auth/services/UserService'
 
 const router = useRouter()
 const route = useRoute()
@@ -218,10 +207,7 @@ const isLoading = ref(false)
 const error = ref<string | null>(null)
 
 // Use real-time site settings composable
-const { isSectionDisabled, isPageDisabled, siteSettings } = useSiteSettings()
-
-// Check if user is admin (to allow viewing disabled pages)
-const isAdminUser = ref(false)
+const { isSectionDisabled } = useSiteSettings()
 
 const teamMembers = computed(() => {
   if (!aboutContent.value) return []
@@ -316,16 +302,6 @@ const loadAboutContent = async () => {
 
 
 onMounted(async () => {
-  // Check if user is admin (to allow viewing disabled pages)
-  const currentUser = authService.getCurrentUser()
-  if (currentUser) {
-    try {
-      isAdminUser.value = await userService.isAdmin(currentUser.uid)
-    } catch (error) {
-      console.error('Error checking admin status:', error)
-    }
-  }
-  
   // Reset scroll position when component mounts
   window.scrollTo(0, 0)
   
