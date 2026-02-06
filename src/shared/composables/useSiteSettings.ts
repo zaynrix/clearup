@@ -1,4 +1,4 @@
-import { ref, onUnmounted } from 'vue'
+import { ref, onUnmounted, nextTick } from 'vue'
 import { siteSettingsService, type SiteSettings } from '@/features/admin/services/SiteSettingsService'
 
 const DEFAULT_SETTINGS: SiteSettings = {
@@ -20,13 +20,29 @@ let isSubscribed = false
 export function useSiteSettings() {
   // Subscribe to real-time updates if not already subscribed
   if (!isSubscribed) {
+    let isFirstLoad = true
     unsubscribe = siteSettingsService.subscribeToSiteSettings((settings) => {
       if (settings) {
         siteSettings.value = settings
-        settingsLoaded.value = true
       } else {
-        // If no settings found, use defaults and mark as loaded
+        // If no settings found, use defaults
         siteSettings.value = DEFAULT_SETTINGS
+      }
+      
+      // On first load, wait for Vue to render the page content first
+      // before allowing maintenance checks. This ensures users see the
+      // actual page content first, not the maintenance screen.
+      if (isFirstLoad) {
+        isFirstLoad = false
+        // Use nextTick to ensure Vue has rendered the initial content
+        // Then add a small delay to ensure the page is visible
+        nextTick(() => {
+          setTimeout(() => {
+            settingsLoaded.value = true
+          }, 300)
+        })
+      } else {
+        // Subsequent updates - apply immediately
         settingsLoaded.value = true
       }
     })
