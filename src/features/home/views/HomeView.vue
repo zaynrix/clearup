@@ -150,7 +150,7 @@
           <button class="book-meeting-button" @click="handleBookMeeting">
             Book a Meeting
           </button>
-          <a href="https://wa.me/your-number" class="whatsapp-link" aria-label="Contact us on WhatsApp">
+          <a :href="whatsappUrl" target="_blank" rel="noopener noreferrer" class="whatsapp-link" aria-label="Contact us on WhatsApp">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path fill-rule="evenodd" clip-rule="evenodd" d="M11.125 1.33325C5.7171 1.33325 1.33337 5.71698 1.33337 11.1249C1.33337 12.9755 1.84744 14.7087 2.74142 16.1853L1.868 19.1541C1.81785 19.3245 1.81455 19.5054 1.85845 19.6775C1.90234 19.8497 1.99181 20.0069 2.11745 20.1325C2.24309 20.2581 2.40026 20.3476 2.57243 20.3915C2.7446 20.4354 2.92542 20.4321 3.09587 20.382L6.06471 19.5085C7.59097 20.4318 9.34123 20.9189 11.125 20.9166C16.533 20.9166 20.9167 16.5329 20.9167 11.1249C20.9167 5.71698 16.533 1.33325 11.125 1.33325ZM8.91017 13.3408C10.891 15.3206 12.7818 15.5821 13.4496 15.6066C14.465 15.6438 15.4539 14.8683 15.8387 13.9684C15.8869 13.8564 15.9043 13.7335 15.8892 13.6125C15.874 13.4915 15.8269 13.3768 15.7526 13.2801C15.216 12.5946 14.4904 12.1021 13.7815 11.6125C13.6336 11.51 13.4516 11.4688 13.2739 11.4976C13.0962 11.5265 12.9367 11.6231 12.8288 11.7673L12.2413 12.6632C12.2102 12.7112 12.1621 12.7456 12.1067 12.7594C12.0512 12.7732 11.9926 12.7654 11.9426 12.7376C11.5441 12.5095 10.9635 12.1217 10.5464 11.7046C10.1292 11.2875 9.76498 10.7333 9.56033 10.3602C9.53558 10.3127 9.52858 10.2579 9.5406 10.2056C9.55263 10.1534 9.58289 10.1072 9.62594 10.0753L10.5307 9.40354C10.6602 9.29152 10.7438 9.13565 10.7655 8.96581C10.7871 8.79596 10.7454 8.62409 10.6482 8.48313C10.2095 7.84079 9.69839 7.02417 8.95717 6.48269C8.8613 6.41381 8.74928 6.37086 8.63194 6.358C8.5146 6.34513 8.39593 6.36279 8.28742 6.40925C7.38658 6.79504 6.60717 7.784 6.64437 8.80136C6.66885 9.46915 6.93029 11.3599 8.91017 13.3408Z" fill="white"/>
             </svg>
@@ -569,13 +569,14 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted, nextTick, watch } from 'vue'
+import { ref, computed, onMounted, onUnmounted, nextTick, watch } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { HomeViewController } from '../controllers/HomeViewController'
 import { HomeContentViewController } from '../controllers/HomeContentViewController'
 import { useSiteSettings } from '@/shared/composables/useSiteSettings'
-import { contactContentController } from '@/features/contact/controllers/ContactContentController'
+import { firestoreService } from '@/shared/services/firestoreService'
 import type { ContactContent } from '@/features/contact/models/ContactMessage'
+import type { Unsubscribe } from 'firebase/firestore'
 import BookingPanel from '@/features/booking/components/BookingPanel.vue'
 import TestimonialsSection from '@/shared/components/TestimonialsSection.vue'
 import FooterSection from '@/shared/components/FooterSection.vue'
@@ -600,24 +601,37 @@ const errorMessage = computed(() => viewController.errorMessage)
 const homeContent = computed(() => contentController.content)
 const successMessage = ref('')
 
-// Contact content for WhatsApp URL
-const contactContent = ref<ContactContent | null>(null)
-const whatsappUrl = computed(() => {
-  return contactContent.value?.contactInfo?.whatsappUrl || 'https://wa.me/9708888888'
-})
-
-// Load contact content to get WhatsApp URL
-const loadContactContent = async () => {
-  try {
-    const result = await contactContentController.getContactContent()
-    if (result.success && result.data) {
-      contactContent.value = result.data
-    }
-  } catch (error) {
-    console.error('Failed to load contact content:', error)
-    // Use default WhatsApp URL if loading fails
+// Default contact content (used as fallback)
+const DEFAULT_CONTACT_CONTENT: ContactContent = {
+  headerTitle: 'Ready To Elevate Your Brand ?',
+  headerSubtitle: 'Contact us today for a free consultation and quote',
+  formTitle: 'Send us a Message',
+  infoTitle: 'Contact Information',
+  contactInfo: {
+    instagram: 'clear-up00',
+    instagramUrl: 'https://instagram.com/clear-up00',
+    email: 'info@ClearUP.com',
+    linkedin: 'Clear Up',
+    linkedinUrl: 'https://linkedin.com/company/clearup',
+    whatsapp: '+9708888888',
+    whatsappUrl: 'https://wa.me/9708888888'
+  },
+  socialMediaVisibility: {
+    instagram: { showInContactPage: true, showInFooter: true },
+    linkedin: { showInContactPage: true, showInFooter: true },
+    email: { showInContactPage: true, showInFooter: true },
+    whatsapp: { showInContactPage: true, showInFooter: true }
   }
 }
+
+// Contact content for WhatsApp URL - connected to admin dashboard contact settings
+const contactContent = ref<ContactContent | null>(null)
+const whatsappUrl = computed(() => {
+  return contactContent.value?.contactInfo?.whatsappUrl || DEFAULT_CONTACT_CONTENT.contactInfo.whatsappUrl
+})
+
+// Real-time subscription to contact content (updates when admin changes contact settings)
+let contactContentUnsubscribe: Unsubscribe | null = null
 
 const handleSubmit = async () => {
   // Sync email to viewController before submission
@@ -799,10 +813,30 @@ onMounted(async () => {
     window.scrollTo(0, 0)
   }
   
-  await Promise.all([
-    contentController.loadHomeContent(),
-    loadContactContent()
-  ])
+  // Set up real-time subscription to contact content (updates when admin changes contact settings)
+  contactContentUnsubscribe = firestoreService.subscribeToDocument<ContactContent>(
+    'contactContent',
+    'main',
+    (data) => {
+      if (data) {
+        // Merge with defaults to ensure all fields are present
+        contactContent.value = {
+          ...DEFAULT_CONTACT_CONTENT,
+          ...data,
+          contactInfo: {
+            ...DEFAULT_CONTACT_CONTENT.contactInfo,
+            ...data.contactInfo
+          },
+          socialMediaVisibility: data.socialMediaVisibility || DEFAULT_CONTACT_CONTENT.socialMediaVisibility
+        }
+      } else {
+        // Use defaults if no data
+        contactContent.value = { ...DEFAULT_CONTACT_CONTENT }
+      }
+    }
+  )
+  
+  await contentController.loadHomeContent()
   // Site settings are now loaded automatically via real-time subscription in useSiteSettings composable
   // No need to manually load them here
   // Trigger entrance animations after a brief delay
@@ -812,6 +846,14 @@ onMounted(async () => {
   
   // Setup scroll animations
   setupScrollAnimations()
+})
+
+// Clean up subscription when component unmounts
+onUnmounted(() => {
+  if (contactContentUnsubscribe) {
+    contactContentUnsubscribe()
+    contactContentUnsubscribe = null
+  }
 })
 
 const setupScrollAnimations = () => {

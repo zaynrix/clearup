@@ -123,16 +123,9 @@
                   type="radio" 
                   v-model="formData.contactMethod" 
                   value="email"
+                  checked
                 />
                 <span>Email</span>
-              </label>
-              <label class="radio-option">
-                <input 
-                  type="radio" 
-                  v-model="formData.contactMethod" 
-                  value="whatsapp"
-                />
-                <span>WhatsApp</span>
               </label>
             </div>
           </div>
@@ -201,7 +194,7 @@ const formData = ref({
   userPhone: '',
   meetingDate: null as Date | null,
   meetingTime: '',
-  contactMethod: 'email' as 'email' | 'whatsapp',
+  contactMethod: 'email' as 'email',
   notes: ''
 })
 
